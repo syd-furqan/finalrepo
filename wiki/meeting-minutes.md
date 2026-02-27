@@ -1,4 +1,4 @@
-Meeting Minutes: Feb 27, 2026
+Meeting Minutes: Feb 20, 2026
 Guidelines for Repo & Documentation
 The project repository must be changed to Private immediately. Add the following accounts with Read access: Negatrin (TA), abdulali, sulemanshahid, and SafaSalam.
 
