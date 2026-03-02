@@ -1,0 +1,503 @@
+name: Create Backlog Issues & Labels
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run — print what would be created without creating anything'
+        required: false
+        default: 'false'
+        type: boolean
+  push:
+    branches:
+      - copilot/populate-github-projects-issues
+    paths:
+      - '.github/workflows/create-backlog-issues.yml'
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  create-labels-and-issues:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      DRY_RUN: ${{ github.event.inputs.dry_run }}
+
+    steps:
+      - name: Create labels
+        run: |
+          create_label() {
+            local name="$1" color="$2" desc="$3"
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "[DRY RUN] Would create label: $name ($color)"
+            else
+              gh label create "$name" --color "$color" --description "$desc" \
+                --repo "$REPO" --force
+              echo "Created/updated label: $name"
+            fi
+          }
+          # Type
+          create_label "type:user-story"       "0075ca" "User story issue"
+          # Release
+          create_label "release:checkpoint"    "e4e669" "Deliverable at the mid-project checkpoint"
+          create_label "release:final"         "f9a825" "Deliverable at the end-of-semester final release"
+          # Risk
+          create_label "risk:low"              "0e8a16" "Low implementation risk"
+          create_label "risk:medium"           "fbca04" "Medium implementation risk"
+          create_label "risk:high"             "d93f0b" "High implementation risk"
+          # Roles
+          create_label "role:security-guard"   "bfd4f2" "Persona: Security Guard"
+          create_label "role:faculty"          "c2e0c6" "Persona: Faculty member"
+          create_label "role:staff"            "fef2c0" "Persona: Staff member"
+          create_label "role:student"          "d4c5f9" "Persona: Student"
+          create_label "role:security-admin"   "f9d0c4" "Persona: Security Admin"
+
+      - name: Create issues
+        run: |
+          python3 << 'PYEOF'
+          import subprocess, json, os, sys, textwrap, tempfile
+
+          repo    = os.environ['REPO']
+          dry_run = os.environ.get('DRY_RUN', 'false').lower() == 'true'
+
+          def existing_issue_titles():
+              result = subprocess.run(
+                  ['gh', 'issue', 'list', '--repo', repo,
+                   '--state', 'all', '--limit', '100', '--json', 'title'],
+                  capture_output=True, text=True, check=True
+              )
+              return {i['title'] for i in json.loads(result.stdout)}
+
+          def create_issue(title, body, labels):
+              if dry_run:
+                  print(f'[DRY RUN] Would create: {title}')
+                  return
+              with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+                  f.write(body)
+                  body_file = f.name
+              try:
+                  subprocess.run(
+                      ['gh', 'issue', 'create',
+                       '--repo', repo,
+                       '--title', title,
+                       '--body-file', body_file,
+                       '--label', ','.join(labels)],
+                      check=True
+                  )
+              finally:
+                  os.unlink(body_file)
+              print(f'Created: {title}')
+
+          # ─── Issue definitions ──────────────────────────────────────────────
+          issues = [
+            {
+              "title": "US-01: Real-Time Entry Dashboard (security-guard)",
+              "labels": ["type:user-story","release:checkpoint","risk:medium","role:security-guard"],
+              "body": textwrap.dedent("""\
+                Story Points: 5
+
+                ## User Story
+                As a **Security Guard**, I want to view a real-time dashboard of all active
+                entry requests so that I can manage gate traffic efficiently.
+
+                ## Acceptance Criteria
+                - [ ] The dashboard lists all currently active entry requests updated in real time (≤ 5-second refresh).
+                - [ ] Each entry shows at minimum: visitor name, request time, current status (Pending / Approved / Denied).
+                - [ ] The total count of pending requests is prominently displayed.
+                - [ ] The guard can access the dashboard immediately after login without additional navigation.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-01
+                - Release: Checkpoint | Risk: Medium
+              """)
+            },
+            {
+              "title": "US-02: Visitor Lookup (security-guard)",
+              "labels": ["type:user-story","release:checkpoint","risk:low","role:security-guard"],
+              "body": textwrap.dedent("""\
+                Story Points: 3
+
+                ## User Story
+                As a **Security Guard**, I want to search and look up visitor information by
+                name, ID, or vehicle number so that I can quickly verify who is requesting entry.
+
+                ## Acceptance Criteria
+                - [ ] A search bar accepts name, ID number, or vehicle plate as input.
+                - [ ] Results are returned within 2 seconds.
+                - [ ] Each result displays: visitor name, ID, photo (if available), and prior access history summary.
+                - [ ] A clear "No results found" message appears when no match exists.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-02
+                - Release: Checkpoint | Risk: Low
+              """)
+            },
+            {
+              "title": "US-03: Real-Time Credential Verification (security-guard)",
+              "labels": ["type:user-story","release:checkpoint","risk:high","role:security-guard"],
+              "body": textwrap.dedent("""\
+                Story Points: 8
+
+                ## User Story
+                As a **Security Guard**, I want to perform real-time credential verification
+                against the university database so that only authorized individuals are granted access.
+
+                ## Acceptance Criteria
+                - [ ] Entering a credential ID triggers a database query and returns a result within 3 seconds.
+                - [ ] The system returns a clear **Authorized** or **Unauthorized** status with a visual indicator.
+                - [ ] Expired or revoked credentials are marked as Unauthorized with an expiry/revocation reason shown.
+                - [ ] Every verification attempt is automatically logged (see US-04).
+                - [ ] The system handles database timeouts gracefully with an error message to the guard.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-03
+                - Release: Checkpoint | Risk: High
+              """)
+            },
+            {
+              "title": "US-04: Entry/Exit Event Logging (security-guard)",
+              "labels": ["type:user-story","release:checkpoint","risk:medium","role:security-guard"],
+              "body": textwrap.dedent("""\
+                Story Points: 5
+
+                ## User Story
+                As a **Security Guard**, I want to log every entry and exit event with a timestamp
+                so that a complete access record is maintained at all times.
+
+                ## Acceptance Criteria
+                - [ ] Every gate entry and exit is automatically recorded with: date, time (UTC+local), visitor/vehicle ID, gate ID, and guard ID.
+                - [ ] Log records are immutable — no edit or delete is possible from the guard interface.
+                - [ ] Guards can view their own shift's recent log entries during that session.
+                - [ ] Log data is retained for a minimum of 90 days.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-04
+                - Release: Checkpoint | Risk: Medium
+              """)
+            },
+            {
+              "title": "US-05: Flag or Deny Entry Request (security-guard)",
+              "labels": ["type:user-story","release:final","risk:low","role:security-guard"],
+              "body": textwrap.dedent("""\
+                Story Points: 3
+
+                ## User Story
+                As a **Security Guard**, I want to flag or deny an entry request and add a reason
+                so that security incidents are documented immediately.
+
+                ## Acceptance Criteria
+                - [ ] Each pending request has **Flag** and **Deny** action buttons visible.
+                - [ ] Selecting **Deny** requires a reason (free-text, minimum 10 characters).
+                - [ ] Selecting **Flag** allows an optional reason to be added.
+                - [ ] The flagged/denied record is immediately saved and visible in the security audit log.
+                - [ ] If a sponsoring faculty/staff member exists, they receive a notification of the denial.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-05
+                - Release: Final | Risk: Low
+              """)
+            },
+            {
+              "title": "US-06: Guest Access Request Portal (faculty)",
+              "labels": ["type:user-story","release:checkpoint","risk:low","role:faculty"],
+              "body": textwrap.dedent("""\
+                Story Points: 5
+
+                ## User Story
+                As a **Faculty** member, I want to submit an access request for a guest or visitor
+                through an online portal so that I can sponsor their entry without visiting the gate in person.
+
+                ## Acceptance Criteria
+                - [ ] Authenticated faculty can access an "Request Guest Access" form from their dashboard.
+                - [ ] The form captures: guest full name, ID/passport number, visit date, expected arrival and departure times, and purpose of visit.
+                - [ ] All required fields are validated before submission (no empty required fields).
+                - [ ] A confirmation notification (email or in-app) is sent to the faculty immediately after successful submission.
+                - [ ] The submitted request appears in the faculty's "My Requests" list with **Pending** status.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-06
+                - Release: Checkpoint | Risk: Low
+              """)
+            },
+            {
+              "title": "US-07: Request Approval Notifications (faculty)",
+              "labels": ["type:user-story","release:final","risk:low","role:faculty"],
+              "body": textwrap.dedent("""\
+                Story Points: 2
+
+                ## User Story
+                As a **Faculty** member, I want to receive a notification when my access request
+                is approved or denied so that I can inform my visitor promptly.
+
+                ## Acceptance Criteria
+                - [ ] A notification is triggered whenever a faculty-submitted request changes to **Approved** or **Denied**.
+                - [ ] The notification includes: request ID, guest name, new status, and (for Denied) the reason provided.
+                - [ ] Notification is delivered within 5 minutes of the status change.
+                - [ ] Notifications are accessible via in-app notification centre and optionally by email.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-07
+                - Release: Final | Risk: Low
+              """)
+            },
+            {
+              "title": "US-08: Vehicle Registration Request (staff)",
+              "labels": ["type:user-story","release:final","risk:low","role:staff"],
+              "body": textwrap.dedent("""\
+                Story Points: 3
+
+                ## User Story
+                As a **Staff** member, I want to submit a vehicle registration request so that
+                my vehicle is pre-approved for campus entry.
+
+                ## Acceptance Criteria
+                - [ ] Authenticated staff can submit a vehicle registration form with: make, model, colour, and plate number.
+                - [ ] The plate number field validates expected format before submission.
+                - [ ] A confirmation notification is sent to the staff member upon successful submission.
+                - [ ] The new vehicle appears in the staff member's "My Vehicles" list with **Pending** status.
+                - [ ] Staff cannot submit duplicate registrations for the same plate number.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-08
+                - Release: Final | Risk: Low
+              """)
+            },
+            {
+              "title": "US-09: View Access Request Status (staff)",
+              "labels": ["type:user-story","release:final","risk:low","role:staff"],
+              "body": textwrap.dedent("""\
+                Story Points: 2
+
+                ## User Story
+                As a **Staff** member, I want to view the status of my pending and past access
+                requests so that I know whether my submissions have been processed.
+
+                ## Acceptance Criteria
+                - [ ] Staff can see a list of all their submitted requests (vehicle registrations and any access requests).
+                - [ ] Each list item shows: request type, submission date, current status, and last-updated timestamp.
+                - [ ] The list is sortable by date and filterable by status (All / Pending / Approved / Denied).
+                - [ ] Clicking a request expands or navigates to full details, including any guard notes.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-09
+                - Release: Final | Risk: Low
+              """)
+            },
+            {
+              "title": "US-10: Generate Single-Use Guest Pass (student)",
+              "labels": ["type:user-story","release:final","risk:medium","role:student"],
+              "body": textwrap.dedent("""\
+                Story Points: 5
+
+                ## User Story
+                As a **Student**, I want to generate a single-use guest pass for a visitor so that
+                my guest can enter campus without requiring faculty sponsorship.
+
+                ## Acceptance Criteria
+                - [ ] Authenticated students can create a guest pass by providing: guest name, expected visit date, and visit purpose.
+                - [ ] The system generates a unique pass with a QR code and an alphanumeric code.
+                - [ ] Each pass can be scanned/used only once; after first use it is automatically invalidated.
+                - [ ] The student receives a confirmation (in-app or email) containing the pass details and QR code.
+                - [ ] A student cannot generate more than N passes per day (N is a configurable limit).
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-10
+                - Release: Final | Risk: Medium
+              """)
+            },
+            {
+              "title": "US-11: Set Guest Pass Expiry (student)",
+              "labels": ["type:user-story","release:final","risk:medium","role:student"],
+              "body": textwrap.dedent("""\
+                Story Points: 3
+
+                ## User Story
+                As a **Student**, I want to set an expiry time on a guest pass so that the pass
+                is automatically invalidated after the visit.
+
+                ## Acceptance Criteria
+                - [ ] When creating a guest pass the student can optionally set an expiry date and time.
+                - [ ] If no expiry is set, the pass defaults to expiry at 23:59 on the visit date.
+                - [ ] Any attempt to use a pass after its expiry time is rejected with an "Expired" message.
+                - [ ] The expiry date/time is displayed prominently on the pass itself.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-11
+                - Release: Final | Risk: Medium
+              """)
+            },
+            {
+              "title": "US-12: Cancel Guest Pass (student)",
+              "labels": ["type:user-story","release:final","risk:low","role:student"],
+              "body": textwrap.dedent("""\
+                Story Points: 2
+
+                ## User Story
+                As a **Student**, I want to cancel a guest pass that I previously issued so that
+                I can revoke access if plans change.
+
+                ## Acceptance Criteria
+                - [ ] Students can see all their issued guest passes (active, used, expired, and cancelled) in "My Passes".
+                - [ ] Each active (unused, non-expired) pass has a **Cancel** button.
+                - [ ] On cancellation the pass status changes to **Cancelled** immediately and cannot be used.
+                - [ ] The student receives an in-app or email confirmation that the pass has been cancelled.
+                - [ ] A cancelled pass is recorded in the audit log.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-12
+                - Release: Final | Risk: Low
+              """)
+            },
+            {
+              "title": "US-13: Security Audit Log (security-admin)",
+              "labels": ["type:user-story","release:checkpoint","risk:high","role:security-admin"],
+              "body": textwrap.dedent("""\
+                Story Points: 8
+
+                ## User Story
+                As a **Security Admin**, I want to view a full security audit log of all gate
+                activity so that I can investigate incidents and ensure compliance.
+
+                ## Acceptance Criteria
+                - [ ] The admin can view a paginated list of all gate events across all entry points.
+                - [ ] Filters are available for: date/time range, event type, guard ID, visitor/vehicle ID, and gate ID.
+                - [ ] Each record displays: timestamp, event type, gate, guard, visitor/vehicle info, and outcome.
+                - [ ] The log is read-only; no admin can edit or delete records.
+                - [ ] The audit log is tamper-evident (e.g., records include a hash chain or equivalent).
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-13
+                - Release: Checkpoint | Risk: High
+              """)
+            },
+            {
+              "title": "US-14: User Account Management (security-admin)",
+              "labels": ["type:user-story","release:final","risk:medium","role:security-admin"],
+              "body": textwrap.dedent("""\
+                Story Points: 5
+
+                ## User Story
+                As a **Security Admin**, I want to add, edit, or deactivate user accounts
+                (guards, faculty, staff, students) so that access permissions stay up to date.
+
+                ## Acceptance Criteria
+                - [ ] Admin can create a new account for any role (guard, faculty, staff, student) by entering required profile fields.
+                - [ ] Admin can edit any user's profile information (name, contact, role).
+                - [ ] Admin can deactivate an account; deactivated users are denied login immediately.
+                - [ ] Admin cannot permanently delete accounts — only deactivate.
+                - [ ] All account create/edit/deactivate actions are logged in the audit trail with the admin's ID and timestamp.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-14
+                - Release: Final | Risk: Medium
+              """)
+            },
+            {
+              "title": "US-15: Export Audit Logs (security-admin)",
+              "labels": ["type:user-story","release:final","risk:low","role:security-admin"],
+              "body": textwrap.dedent("""\
+                Story Points: 3
+
+                ## User Story
+                As a **Security Admin**, I want to export audit logs as a CSV or PDF report so
+                that I can share findings with university management.
+
+                ## Acceptance Criteria
+                - [ ] Admin can select a date range and choose export format: **CSV** or **PDF**.
+                - [ ] The exported file includes all columns visible in the on-screen log view.
+                - [ ] For a 30-day date range, the export completes and is available for download within 30 seconds.
+                - [ ] The export file is named with the date range (e.g., `audit-log-2025-01-01-to-2025-01-31.csv`).
+                - [ ] Exported files are available for download and not stored on the server beyond the session.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-15
+                - Release: Final | Risk: Low
+              """)
+            },
+            {
+              "title": "US-16: Configure Credential Verification Rules (security-admin)",
+              "labels": ["type:user-story","release:final","risk:high","role:security-admin"],
+              "body": textwrap.dedent("""\
+                Story Points: 8
+
+                ## User Story
+                As a **Security Admin**, I want to configure credential verification rules
+                (e.g., ID expiry, banned lists) so that the system enforces the latest security policies.
+
+                ## Acceptance Criteria
+                - [ ] Admin can set an ID expiry grace period (0–30 days) after which an expired ID is rejected.
+                - [ ] Admin can upload a banned-user list via CSV or add/remove individual entries manually.
+                - [ ] Rule changes take effect immediately (no system restart required).
+                - [ ] All configuration changes are logged in the audit trail with admin ID and timestamp.
+                - [ ] The UI displays the current active rules in a readable summary view.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-16
+                - Release: Final | Risk: High
+              """)
+            },
+            {
+              "title": "US-17: QR-Code Guest Pass Scanner (security-guard)",
+              "labels": ["type:user-story","release:final","risk:medium","role:security-guard"],
+              "body": textwrap.dedent("""\
+                Story Points: 5
+
+                ## User Story
+                As a **Security Guard**, I want to scan a QR-code-based guest pass so that
+                visitor verification is fast and error-free.
+
+                ## Acceptance Criteria
+                - [ ] The guard dashboard has a "Scan QR Pass" button that activates a camera/scanner.
+                - [ ] On a successful scan the pass details (guest name, student sponsor, expiry, visit purpose) are displayed within 2 seconds.
+                - [ ] A valid, unused, non-expired pass shows a green **Access Granted** indicator.
+                - [ ] An invalid pass (expired, cancelled, or already used) shows a red **Access Denied** indicator with the specific reason.
+                - [ ] The scan event is automatically recorded in the gate entry log.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-17
+                - Release: Final | Risk: Medium
+              """)
+            },
+            {
+              "title": "US-18: Automated Failed Credential Alerts (security-admin)",
+              "labels": ["type:user-story","release:final","risk:high","role:security-admin"],
+              "body": textwrap.dedent("""\
+                Story Points: 8
+
+                ## User Story
+                As a **Security Admin**, I want to receive automated alerts for repeated failed
+                credential checks so that potential intrusion attempts are flagged in real time.
+
+                ## Acceptance Criteria
+                - [ ] The system detects when the same credential fails verification **3 or more times** within a configurable time window (default: 10 minutes).
+                - [ ] An automated alert is sent to all Security Admins (in-app and email) containing: credential identifier, failure count, timestamps, and gate location.
+                - [ ] Alert threshold (failure count and time window) is configurable by the admin without a code deploy.
+                - [ ] Alerts appear in a dedicated **Security Alerts** section on the admin dashboard.
+                - [ ] Each alert can be acknowledged/dismissed by an admin, and the dismissal is logged.
+
+                ## Notes
+                - Source: [`wiki/backlog.md`](../wiki/backlog.md) — US-18
+                - Release: Final | Risk: High
+              """)
+            },
+          ]
+
+          # Fetch existing issue titles once
+          existing = existing_issue_titles()
+          print(f"Found {len(existing)} existing issue(s).")
+
+          created = 0
+          skipped = 0
+          for iss in issues:
+              if iss["title"] in existing:
+                  print(f"SKIP (already exists): {iss['title']}")
+                  skipped += 1
+              else:
+                  create_issue(iss["title"], iss["body"], iss["labels"])
+                  created += 1
+
+          print(f"\nDone — created: {created}, skipped: {skipped}")
+          PYEOF
