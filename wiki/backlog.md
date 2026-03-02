@@ -1,7 +1,7 @@
 # Campus Gate Access System — Product Backlog
 
 **Team GLITCH** | CS360 Software Engineering  
-**Requirement Lead:** Afnan Ahmad Baig
+**Requirement Lead:** Muhammad Aaffan Khan Niazi
 
 ---
 
