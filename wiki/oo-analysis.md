@@ -1,6 +1,7 @@
 # Object-Oriented Analysis (CRC Cards)
 CS360 – Campus Gate Access System  
 Team GLITCH
+
 Afnan Ahmad Baig 27100206
 
 ---
