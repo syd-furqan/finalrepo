@@ -22,7 +22,7 @@ The classes below are based directly on the user stories in our product backlog.
 
 **Responsibilities**
 - Store visitor information (name, ID/CNIC, vehicle number).
-- Submit an access request to enter campus (US-06, US-10).
+- Submit an access request to enter campus (UserStory[US]-06, US-10).
 - Receive or generate a guest pass.
 - View the status of a request (US-09).
 - Cancel a guest pass if needed (US-12).
