@@ -5,7 +5,7 @@ The system begins with a unified entry point to ensure secure access.
 * **User Action:** User enters credentials and taps **"Login to GateSync"**.
 * **System Logic:** Based on the user profile, the system redirects to either the **Guard Dashboard** or the **Faculty/Student Dashboard**.
 
-web application/stitch/projects/8156065054209359617/screens/6db6517433c74556baa1acd148ee6b4e<img width="706" height="1600" alt="image" src="https://github.com/user-attachments/assets/9431031d-835f-4fb2-8a56-6a518421aa82" />
+<img width="196" height="443.5" alt="image" src="https://github.com/user-attachments/assets/9431031d-835f-4fb2-8a56-6a518421aa82" />
  
 
 ---
