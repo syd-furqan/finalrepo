@@ -28,17 +28,26 @@ The application facilitates secure communication between university residents (F
 
 ---
 
-## Project Status (Part 2)
-Current development focuses on Object-Oriented Analysis and Design (OOAD) and initial system architecture:
-* **Requirement Management:** All user stories and tasks are tracked via the GitHub Projects (v2) framework.
-* **Architecture Documentation:** Class structures and collaborations are defined using CRC (Class-Responsibility-Collaborator) cards.
-* **UI/UX Prototyping:** Storyboard sequences and mockups demonstrate the primary visitor workflows and guard interfaces.
+## Part 2 Deliverables
+
+| # | Deliverable | Link |
+|---|-------------|------|
+| 1 | **Product Backlog** — User stories with story points, risk levels, and release planning | [wiki/backlog.md](wiki/backlog.md) |
+| 2 | **UI Mockups & Storyboard Sequences** — Interface layouts, storyboard flows, and requirement traceability | [wiki/storyboards.md](wiki/storyboards.md) |
+| 3 | **Object-Oriented Analysis (CRC Cards)** — Class-Responsibility-Collaborator cards for core system classes | [wiki/oo-analysis.md](wiki/oo-analysis.md) |
+| 4 | **GitHub Issues & Task Tracking** — All user stories tracked as issues with assignees and labels | [Issues](../../issues) |
+| 5 | **Meeting Minutes** | [wiki/meeting-minutes.md](wiki/meeting-minutes.md) |
 
 ---
 
 ## Team GLITCH
-* **Scrum Master:** Syed Furqan Abdullah
-* **Requirement Lead:** Muhammad Aaffan Khan Niazi
-* **Course:** CS360 Software Engineering, LUMS (2026)
 
----
+| Member | Role | GitHub |
+|--------|------|--------|
+| Syed Furqan Abdullah (26100229) | Scrum Master | [@syd-furqan](https://github.com/syd-furqan) |
+| Muhammad Aaffan Khan Niazi (26100015) | Requirement Lead | [@NiaziWtf](https://github.com/NiaziWtf) |
+| Mohammad Ali Wajid (27100125) | UI Designer A (Mockups) | [@alooboii](https://github.com/alooboii) |
+| Abyaan Shivjani (27100110) | UI Designer B (Storyboards) | [@abyssnn](https://github.com/abyssnn) |
+| Afnan Ahmad Baig (27100206) | System Architect (CRC) | [@Afnan27100206](https://github.com/Afnan27100206) |
+
+**Course:** CS360 Software Engineering, LUMS (2026)
