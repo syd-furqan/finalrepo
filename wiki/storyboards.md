@@ -1,3 +1,8 @@
+Click [this](https://www.example.com "GateSync UI") to view screen designs on Figma. This is dynamic, and will be updated upon any change.
+
+
+---
+
 ## 1. Initial Entry: Authentication
 The system begins with a unified entry point to ensure secure access.
 
