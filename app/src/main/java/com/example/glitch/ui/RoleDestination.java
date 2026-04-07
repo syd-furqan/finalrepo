@@ -1,2 +1,25 @@
-﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
-Source template path: app/src/main/java/com/example/glitch/ui/RoleDestination.java
+package com.example.glitch.ui;
+
+/**
+ * Canonical destination keys for role-aware in-app navigation.
+ * Pattern: Enum-based route contract used by RoleNavRouter and UI shells.
+ * Known issue: some destinations can resolve to the same screen for selected roles.
+ */
+public enum RoleDestination {
+    DASHBOARD,
+    PASSES,
+    VEHICLES,
+    DIRECTORY,
+    SEARCH,
+    SCAN,
+    AUDIT,
+    USERS,
+    RULES,
+    ALERTS,
+    FACULTY_REQUEST,
+    FACULTY_NOTIFICATIONS,
+    STAFF_VEHICLES,
+    STUDENT_PASSES,
+    GUARD_DENY,
+    LOGOUT
+}
