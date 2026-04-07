@@ -1,0 +1,2 @@
+﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
+Source template path: app/build/intermediates/apk_ide_redirect_file/debugAndroidTest/createDebugAndroidTestApkListingFileRedirect/redirect.txt
