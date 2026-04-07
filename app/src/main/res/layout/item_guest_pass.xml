@@ -1,2 +1,73 @@
-﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
-Source template path: app/src/main/res/layout/item_guest_pass.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/space_8"
+    android:background="@drawable/bg_card_white"
+    android:orientation="vertical"
+    android:padding="@dimen/space_16">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/text_pass_guest_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-black"
+            android:textColor="@color/text_dark"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/text_pass_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_chip_role"
+            android:paddingHorizontal="@dimen/space_8"
+            android:paddingVertical="3dp"
+            android:textColor="@color/primary_navy"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/text_pass_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_6"
+        android:fontFamily="monospace"
+        android:textColor="@color/primary_navy"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/text_pass_expiry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_4"
+        android:textColor="@color/text_muted"
+        android:textSize="12sp" />
+
+    <com.google.android.material.button.MaterialButton
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_marginTop="@dimen/space_10"
+        android:text="Share Pass"
+        android:textAllCaps="false" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_cancel_pass"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_marginTop="@dimen/space_8"
+        android:text="@string/cancel_pass_action"
+        android:textAllCaps="false"
+        android:textColor="@color/danger_red"
+        app:strokeColor="@color/danger_red" />
+</LinearLayout>

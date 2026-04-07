@@ -1,2 +1,151 @@
-﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
-Source template path: app/src/main/res/values/strings.xml
+<resources>
+    <string name="app_name">Glitch</string>
+    <string name="dashboard_title">Guard Command Center</string>
+    <string name="status_fallback_title">System Status: Active</string>
+    <string name="status_fallback_message">All gates reporting normal activity</string>
+    <string name="gate_protocol">Gate Protocol</string>
+    <string name="scan_qr_code">Scan QR Code</string>
+    <string name="manual_entry">Manual Entry</string>
+    <string name="current_protocol">Current Protocol</string>
+    <string name="protocol_fallback_level">Level 1 - Open</string>
+    <string name="protocol_fallback_description">Standard visitor verification required. All student/staff IDs must be swiped.</string>
+    <string name="active_entry_requests">Active Entry Requests</string>
+    <string name="real_time_update">Real-time Update</string>
+    <string name="gate_label">Gate</string>
+    <string name="entered_label">Entered</string>
+    <string name="details_action">Details</string>
+    <string name="log_exit_action">Log Exit</string>
+    <string name="loading_label">Loading requests...</string>
+    <string name="empty_requests_title">No active requests</string>
+    <string name="empty_requests_body">New requests will appear here in real time.</string>
+    <string name="dashboard_item">Dashboard</string>
+    <string name="verify_item">Passes</string>
+    <string name="scanner_item">Vehicles</string>
+    <string name="requests_item">Requests</string>
+    <string name="profile_item">Directory</string>
+    <string name="logout_item">Logout</string>
+    <string name="fab_label">Quick Action</string>
+    <string name="unknown_host_prefix">Host: %1$s</string>
+    <string name="details_sheet_title">Entry Details</string>
+    <string name="details_sheet_message">Review request details before continuing.</string>
+    <string name="confirm_exit_title">Confirm Log Exit</string>
+    <string name="confirm_exit_message">Mark %1$s as exited?</string>
+    <string name="cancel_action">Cancel</string>
+    <string name="confirm_action">Confirm</string>
+    <string name="close_action">Close</string>
+    <string name="retry_action">Retry</string>
+    <string name="action_pending">Feature available in next sprint.</string>
+    <string name="request_id_label">Request ID</string>
+    <string name="error_load_requests">Unable to load requests right now.</string>
+    <string name="error_load_state">Unable to load dashboard state.</string>
+    <string name="success_exit_logged">Request marked as exited.</string>
+    <string name="generic_write_error">Unable to update request.</string>
+    <string name="role_home_greeting">Welcome, %1$s</string>
+    <string name="role_home_description">Choose a workflow to continue.</string>
+    <string name="logout_action">Logout</string>
+
+    <string name="login_title">Secure Login</string>
+    <string name="login_help_text">Use your assigned campus account. If access fails, contact admin (IST).</string>
+    <string name="login_email">Email</string>
+    <string name="login_password">Password</string>
+    <string name="login_action">Login</string>
+    <string name="error_fill_login_fields">Enter your email and password.</string>
+    <string name="error_no_internet_connection">No internet connection on this device. Please connect and retry.</string>
+    <string name="error_session_expired">Session expired. Please login again.</string>
+
+    <string name="feature_guard_dashboard">Guard Dashboard</string>
+    <string name="feature_guard_search_verify">Search and Verify</string>
+    <string name="feature_guard_verification_profile">Verification Profile</string>
+    <string name="feature_guard_deny">Deny or Flag Request</string>
+    <string name="feature_guard_qr">QR Pass Scanner</string>
+    <string name="feature_faculty_submit_request">Submit Access Request</string>
+    <string name="feature_faculty_notifications">Request Notifications</string>
+    <string name="feature_staff_vehicle">Vehicle Requests</string>
+    <string name="feature_student_guest_pass">Guest Passes</string>
+    <string name="feature_admin_audit_logs">Audit Logs</string>
+    <string name="feature_admin_users">User Management</string>
+    <string name="feature_admin_rules">Verification Rules</string>
+    <string name="feature_admin_alerts">Security Alerts</string>
+    <string name="top_title_lums_security">LUMS Security</string>
+    <string name="top_title_guard_center">Guard Command Center</string>
+    <string name="top_title_active_pass">Active Gate Pass</string>
+    <string name="status_secure_operational">SYSTEM SECURE • OPERATIONAL</string>
+    <string name="status_secure_authorized">SYSTEM SECURE • AUTHORIZED SESSION</string>
+    <string name="status_admin_console">ADMIN CONSOLE</string>
+    <string name="label_view_all">View All</string>
+    <string name="label_filters">Filters</string>
+    <string name="label_search_users">Search by name, ID number, or role...</string>
+    <string name="label_search_logs">Filter by Name or Guard ID...</string>
+
+    <string name="verification_meta">%1$s | Host: %2$s</string>
+    <string name="approve_entry">Approve Entry</string>
+    <string name="deny_entry">Deny Entry</string>
+    <string name="deny_reason_hint">Reason for denial</string>
+    <string name="error_reason_required">Request ID and reason are required.</string>
+
+    <string name="search_hint">Search by name, ID, or plate</string>
+    <string name="search_action">Search</string>
+    <string name="credential_verify_title">Credential Verification</string>
+    <string name="credential_identifier">Credential Identifier</string>
+    <string name="verify_action">Verify</string>
+    <string name="verification_result_placeholder">Verification result appears here.</string>
+    <string name="no_search_results">No matching requests found.</string>
+    <string name="error_verify_credential">Unable to verify credential.</string>
+
+    <string name="guest_full_name">Guest Full Name</string>
+    <string name="guest_id_number">Guest ID Number</string>
+    <string name="gate_destination">Gate Label</string>
+    <string name="submit_request_action">Submit Request</string>
+    <string name="error_fill_required_fields">Please complete all required fields.</string>
+
+    <string name="no_notifications">No notifications yet.</string>
+    <string name="error_load_notifications">Unable to load notifications.</string>
+
+    <string name="plate_number">Plate Number</string>
+    <string name="vehicle_model">Vehicle Model</string>
+    <string name="submit_vehicle_request">Submit Vehicle Request</string>
+    <string name="no_vehicle_requests">No vehicle requests yet.</string>
+    <string name="error_vehicle_load">Unable to load vehicle requests.</string>
+
+    <string name="pass_expiry_hours">Pass Expiry (hours)</string>
+    <string name="create_pass_action">Create Guest Pass</string>
+    <string name="cancel_pass_action">Cancel Pass</string>
+    <string name="no_guest_passes">No guest passes yet.</string>
+    <string name="error_guest_pass_load">Unable to load guest passes.</string>
+    <string name="error_invalid_expiry">Enter a valid expiry in hours.</string>
+    <string name="pass_code_label">Pass Code: %1$s</string>
+    <string name="pass_expires_label">Expires: %1$s</string>
+    <string name="pass_expiry_unknown">Expiry unavailable</string>
+
+    <string name="pass_code_hint">Enter pass code</string>
+    <string name="qr_hint">Use scanner data or enter pass code manually.</string>
+    <string name="error_pass_code_required">Pass code is required.</string>
+    <string name="pass_not_found">Pass not found.</string>
+    <string name="pass_not_active">Pass is not active.</string>
+    <string name="pass_expired">Pass has expired.</string>
+
+    <string name="export_csv_action">Export CSV</string>
+    <string name="no_audit_logs">No audit logs available.</string>
+    <string name="error_load_audit_logs">Unable to load audit logs.</string>
+    <string name="error_export_logs">Unable to export logs right now.</string>
+    <string name="audit_export_subject">Glitch Audit Log Export</string>
+    <string name="export_action">Export</string>
+
+    <string name="user_uid_label">User UID</string>
+    <string name="user_name_label">Display Name</string>
+    <string name="user_role_label">Role (guard/faculty/staff/student/admin)</string>
+    <string name="save_user_action">Save User</string>
+    <string name="no_users">No users found.</string>
+    <string name="error_load_users">Unable to load users.</string>
+
+    <string name="rule_enforce_expiry">Enforce ID expiry</string>
+    <string name="rule_alert_threshold">Alert Threshold</string>
+    <string name="rule_banned_ids">Banned Identifiers (CSV)</string>
+    <string name="save_rules_action">Save Rules</string>
+    <string name="error_load_rules">Unable to load rules.</string>
+    <string name="error_invalid_threshold">Enter a valid numeric threshold.</string>
+
+    <string name="no_alerts">No alerts detected.</string>
+    <string name="error_load_alerts">Unable to load alerts.</string>
+    <string name="alert_fail_count">Failed attempts: %1$d</string>
+</resources>

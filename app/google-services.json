@@ -1,2 +1,29 @@
-﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
-Source template path: app/google-services.json
+{
+  "project_info": {
+    "project_number": "1068862140484",
+    "project_id": "glitch-a3c50",
+    "storage_bucket": "glitch-a3c50.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1068862140484:android:9c330fedf1378912d00c11",
+        "android_client_info": {
+          "package_name": "com.example.glitch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBk2iAg1-YY22unktDacmhs4rcr888-eEI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

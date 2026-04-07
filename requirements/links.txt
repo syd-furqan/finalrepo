@@ -1,2 +1,22 @@
-﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
-Source template path: requirements/links.txt
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-225&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-2&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-105&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-407&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-552&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-649&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-768&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-867&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-1124&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-1358&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-1533&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-1671&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-1743&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-1851&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-2127&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-2305&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-2517&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-2644&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-2796&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-2899&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-2993&m=dev
+https://www.figma.com/design/dUn7nCaynYxHjnh0nkFRh8/glitch?node-id=1-3140&m=dev

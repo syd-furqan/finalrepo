@@ -1,2 +1,153 @@
-﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
-Source template path: app/src/main/res/layout/include_bottom_nav.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bottom_nav"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/bottom_nav_height"
+    android:background="@drawable/bg_bottom_nav_bar"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/space_12"
+    android:paddingTop="@dimen/space_8"
+    android:paddingEnd="@dimen/space_12"
+    android:paddingBottom="@dimen/space_12">
+
+    <LinearLayout
+        android:id="@+id/nav_item_dashboard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/space_4"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/space_8"
+        android:paddingVertical="@dimen/space_6">
+
+        <ImageView
+            android:id="@+id/nav_icon_dashboard"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@android:drawable/ic_dialog_dialer"
+            android:tint="@color/nav_unselected" />
+
+        <TextView
+            android:id="@+id/nav_label_dashboard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/dashboard_item"
+            android:textColor="@color/nav_unselected"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_item_passes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/space_4"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/space_8"
+        android:paddingVertical="@dimen/space_6">
+
+        <ImageView
+            android:id="@+id/nav_icon_passes"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@android:drawable/ic_menu_agenda"
+            android:tint="@color/nav_unselected" />
+
+        <TextView
+            android:id="@+id/nav_label_passes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/verify_item"
+            android:textColor="@color/nav_unselected"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_item_vehicles"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/space_4"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/space_8"
+        android:paddingVertical="@dimen/space_6">
+
+        <ImageView
+            android:id="@+id/nav_icon_vehicles"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@android:drawable/ic_menu_directions"
+            android:tint="@color/nav_unselected" />
+
+        <TextView
+            android:id="@+id/nav_label_vehicles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/scanner_item"
+            android:textColor="@color/nav_unselected"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_item_directory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/space_4"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/space_8"
+        android:paddingVertical="@dimen/space_6">
+
+        <ImageView
+            android:id="@+id/nav_icon_directory"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@android:drawable/ic_menu_myplaces"
+            android:tint="@color/nav_unselected" />
+
+        <TextView
+            android:id="@+id/nav_label_directory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/profile_item"
+            android:textColor="@color/nav_unselected"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/nav_item_logout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/space_4"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/space_8"
+        android:paddingVertical="@dimen/space_6">
+
+        <ImageView
+            android:id="@+id/nav_icon_logout"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@android:drawable/ic_lock_power_off"
+            android:tint="@color/nav_unselected" />
+
+        <TextView
+            android:id="@+id/nav_label_logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/logout_item"
+            android:textColor="@color/nav_unselected"
+            android:textSize="11sp" />
+    </LinearLayout>
+</LinearLayout>

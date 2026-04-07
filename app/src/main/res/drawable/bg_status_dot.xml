@@ -1,2 +1,7 @@
-﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
-Source template path: app/src/main/res/drawable/bg_status_dot.xml
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <size
+        android:width="8dp"
+        android:height="8dp" />
+    <solid android:color="@color/status_dot" />
+</shape>
