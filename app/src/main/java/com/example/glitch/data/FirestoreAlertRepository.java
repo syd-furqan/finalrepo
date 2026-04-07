@@ -1,2 +1,58 @@
-﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
-Source template path: app/src/main/java/com/example/glitch/data/FirestoreAlertRepository.java
+package com.example.glitch.data;
+
+import androidx.annotation.NonNull;
+
+import com.example.glitch.model.SecurityAlert;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Firestore implementation for security alerts feed.
+ * Pattern: Realtime collection adapter over alerts.
+ * Known issue: ordering uses lastFailedAt descending and assumes field availability.
+ */
+public class FirestoreAlertRepository implements AlertRepository {
+    private final FirebaseFirestore firestore;
+    private ListenerRegistration registration;
+
+    public FirestoreAlertRepository() {
+        this(FirebaseFirestore.getInstance());
+    }
+
+    FirestoreAlertRepository(@NonNull FirebaseFirestore firestore) {
+        this.firestore = firestore;
+    }
+
+    @Override
+    public void listenAlerts(@NonNull AlertListener listener) {
+        removeListeners();
+        registration = firestore.collection("alerts")
+                .orderBy("lastFailedAt", Query.Direction.DESCENDING)
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null) {
+                        listener.onError(error);
+                        return;
+                    }
+                    List<SecurityAlert> alerts = new ArrayList<>();
+                    if (snapshot != null) {
+                        for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                            alerts.add(SecurityAlert.fromMap(doc.getId(), doc.getData()));
+                        }
+                    }
+                    listener.onData(alerts);
+                });
+    }
+
+    @Override
+    public void removeListeners() {
+        if (registration != null) {
+            registration.remove();
+            registration = null;
+        }
+    }
+}
