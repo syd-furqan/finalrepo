@@ -1,2 +1,23 @@
-﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
-Source template path: settings.gradle.kts
+﻿pluginManagement {
+	repositories {
+		google {
+			content {
+				includeGroupByRegex("com\\.android.*")
+				includeGroupByRegex("com\\.google.*")
+				includeGroupByRegex("androidx.*")
+			}
+		}
+		mavenCentral()
+		gradlePluginPortal()
+	}
+}
+dependencyResolutionManagement {
+	repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+	repositories {
+		google()
+		mavenCentral()
+	}
+}
+
+rootProject.name = "Glitch"
+include(":app")
