@@ -1,5 +1,8 @@
 # Guard Visitor Search Screen (US-02)
 
+## Screenshot
+![Guard Search Screen](guard%20search.png)
+
 ## Screen Layout: GuardSearchFragment
 
 ### Purpose

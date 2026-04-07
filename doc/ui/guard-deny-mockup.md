@@ -1,5 +1,8 @@
 # Deny Entry Request Screen (US-05)
 
+## Screenshot
+![Guard Deny Screen](guard%20deny.png)
+
 ## Screen Layout: GuardDenyFragment
 
 ### Purpose

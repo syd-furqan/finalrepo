@@ -1,5 +1,8 @@
 # Faculty Notifications Screen (US-07)
 
+## Screenshot
+![Faculty Notifications Screen](faculty%20notif.png)
+
 ## Screen Layout: FacultyNotificationsFragment
 
 ### Purpose

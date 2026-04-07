@@ -1,5 +1,8 @@
 # Admin Alerts Screen (US-18)
 
+## Screenshot
+![Admin Alerts Screen](admin%20alerts.png)
+
 ## Screen Layout: AdminAlertsFragment
 
 ### Purpose

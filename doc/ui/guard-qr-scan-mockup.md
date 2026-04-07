@@ -1,5 +1,8 @@
 # QR Code Scan Screen (US-17)
 
+## Screenshot
+![Guard QR Scan Screen](guard%20qr.png)
+
 ## Screen Layout: GuardQrScanFragment
 
 ### Purpose
