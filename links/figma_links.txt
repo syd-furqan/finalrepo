@@ -1,2 +1,1 @@
-﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
-Source template path: links/figma_links.txt
+﻿GateSync Figma: https://www.figma.com/design/VYLrX3lyUCgolPVw6XCKvd/GateSync?node-id=0-1&p=f

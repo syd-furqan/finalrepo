@@ -1,12 +1,12 @@
-Click [this](https://www.figma.com/design/VYLrX3lyUCgolPVw6XCKvd/GateSync?node-id=0-1&p=f) to view screen designs on Figma. This is dynamic, and will be updated upon any change.
+Click [this](https://www.figma.com/design/VYLrX3lyUCgolPVw6XCKvd/GateSync?node-id=0-1&p=f "GateSync Figma") to view screen designs on Figma. This is dynamic, and will be updated upon any change.
 
 ## UI Component Documentation
 
 For detailed self-contained UI mockups and implementation specifications, see:
-- [Faculty Access Request Screen](../../doc/ui/faculty-access-request-mockup.md) (US-06)
-- [Faculty Notifications Screen](../../doc/ui/faculty-notifications-mockup.md) (US-07)
-- [Staff Vehicle Request Screen](../../doc/ui/staff-vehicle-request-mockup.md) (US-08/US-09)
-- [Student Guest Pass Screen](../../doc/ui/student-guest-pass-mockup.md) (US-10/US-11/US-12)
+- [Faculty Access Request Screen](../doc/ui/faculty-access-request-mockup.md) (US-06)
+- [Faculty Notifications Screen](../doc/ui/faculty-notifications-mockup.md) (US-07)
+- [Staff Vehicle Request Screen](../doc/ui/staff-vehicle-request-mockup.md) (US-08/US-09)
+- [Student Guest Pass Screen](../doc/ui/student-guest-pass-mockup.md) (US-10/US-11/US-12)
 
 ---
 
