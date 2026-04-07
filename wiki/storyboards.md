@@ -1,4 +1,4 @@
-Click [this](https://www.example.com "GateSync UI") to view screen designs on Figma. This is dynamic, and will be updated upon any change.
+Click [this](https://www.figma.com/design/VYLrX3lyUCgolPVw6XCKvd/GateSync?node-id=0-1&p=f) to view screen designs on Figma. This is dynamic, and will be updated upon any change.
 
 ## UI Component Documentation
 
