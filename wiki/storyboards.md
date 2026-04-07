@@ -3,10 +3,25 @@ Click [this](https://www.figma.com/design/VYLrX3lyUCgolPVw6XCKvd/GateSync?node-i
 ## UI Component Documentation
 
 For detailed self-contained UI mockups and implementation specifications, see:
+
+### Guard/Security Workflows
+- [Guard Dashboard Screen](../doc/ui/guard-dashboard-mockup.md) (US-01)
+- [Guard Visitor Search Screen](../doc/ui/guard-search-mockup.md) (US-02)
+- [Credential Verification Screen](../doc/ui/guard-credential-verification-mockup.md) (US-03)
+- [Deny Entry Request Screen](../doc/ui/guard-deny-mockup.md) (US-05)
+- [QR Code Scan Screen](../doc/ui/guard-qr-scan-mockup.md) (US-17)
+
+### Faculty/Staff/Student Workflows
 - [Faculty Access Request Screen](../doc/ui/faculty-access-request-mockup.md) (US-06)
 - [Faculty Notifications Screen](../doc/ui/faculty-notifications-mockup.md) (US-07)
 - [Staff Vehicle Request Screen](../doc/ui/staff-vehicle-request-mockup.md) (US-08/US-09)
 - [Student Guest Pass Screen](../doc/ui/student-guest-pass-mockup.md) (US-10/US-11/US-12)
+
+### Admin/Audit Workflows
+- [Admin Audit Log Screen](../doc/ui/admin-audit-log-mockup.md) (US-13)
+- [Admin User Management Screen](../doc/ui/admin-user-management-mockup.md) (US-14)
+- [Admin Verification Rules Screen](../doc/ui/admin-verification-rules-mockup.md) (US-16)
+- [Admin Alerts Screen](../doc/ui/admin-alerts-mockup.md) (US-18)
 
 ---
 
