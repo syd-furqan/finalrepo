@@ -1,5 +1,12 @@
 Click [this](https://www.example.com "GateSync UI") to view screen designs on Figma. This is dynamic, and will be updated upon any change.
 
+## UI Component Documentation
+
+For detailed self-contained UI mockups and implementation specifications, see:
+- [Faculty Access Request Screen](../../doc/ui/faculty-access-request-mockup.md) (US-06)
+- [Faculty Notifications Screen](../../doc/ui/faculty-notifications-mockup.md) (US-07)
+- [Staff Vehicle Request Screen](../../doc/ui/staff-vehicle-request-mockup.md) (US-08/US-09)
+- [Student Guest Pass Screen](../../doc/ui/student-guest-pass-mockup.md) (US-10/US-11/US-12)
 
 ---
 
