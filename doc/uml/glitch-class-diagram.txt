@@ -1,0 +1,105 @@
+classDiagram
+    class User {
+        -String userId
+        -String email
+        -String password
+        -String role
+        -LocalDateTime createdAt
+        +authenticate()
+        +getProfile()
+        +updateProfile()
+    }
+    
+    class Resident {
+        -String residentId
+        -String communityId
+        -String unitNumber
+        -LocalDate moveInDate
+        -boolean verified
+        +registerVehicle()
+        +requestGuestPass()
+        +getGuestPasses()
+        +updateVerification()
+    }
+    
+    class GuestPass {
+        -String passId
+        -String residentId
+        -LocalDateTime startTime
+        -LocalDateTime endTime
+        -String vehicleInfo
+        -boolean isActive
+        +activate()
+        +revoke()
+        +extend()
+        +isExpired()
+    }
+    
+    class VerificationRule {
+        -String ruleId
+        -String ruleName
+        -String description
+        -boolean requiresApproval
+        +evaluate()
+        +update()
+        +getValidators()
+    }
+    
+    class AdminUser {
+        -String adminId
+        -String permissions
+        -boolean canModifyRules
+        -boolean canViewAudit
+        +verifyResident()
+        +createRule()
+        +generateReport()
+        +revokeGuestPass()
+    }
+    
+    class AuditLog {
+        -String logId
+        -String userId
+        -String action
+        -LocalDateTime timestamp
+        -String details
+        +recordAction()
+        +getActionHistory()
+    }
+    
+    class FirestoreRepository {
+        #FirebaseFirestore db
+        +save()
+        +delete()
+        +query()
+        +update()
+    }
+    
+    class FirestoreUserRepository {
+        +getUserById()
+        +getAllUsers()
+        +getUsersByRole()
+    }
+    
+    class FirestoreVerificationRepository {
+        +createRule()
+        +getRules()
+        +updateRule()
+        +evaluateResidentVerification()
+    }
+    
+    class AlertSystem {
+        -List~String~ alertRecipients
+        -FirebaseMessaging messaging
+        +sendAlert()
+        +notifyAdmins()
+        +parseAlertTrigger()
+    }
+
+    Resident --|> User
+    AdminUser --|> User
+    Resident "1" -- "*" GuestPass
+    VerificationRule "1" -- "*" Resident
+    FirestoreRepository <|-- FirestoreUserRepository
+    FirestoreRepository <|-- FirestoreVerificationRepository
+    AuditLog "*" -- "1" User
+    AlertSystem "1" -- "*" AdminUser
