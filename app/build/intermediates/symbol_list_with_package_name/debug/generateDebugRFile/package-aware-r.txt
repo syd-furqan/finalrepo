@@ -1,2 +1,0 @@
-﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
-Source template path: app/build/intermediates/symbol_list_with_package_name/debug/generateDebugRFile/package-aware-r.txt

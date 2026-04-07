@@ -1,2 +1,0 @@
-﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
-Source template path: app/build/intermediates/manifest_merge_blame_file/debug/processDebugMainManifest/manifest-merger-blame-debug-report.txt

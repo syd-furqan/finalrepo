@@ -1,2 +1,12 @@
-﻿PLACEHOLDER: Team-owned file path reserved for upcoming project content.
-Source template path: .gitignore
+﻿*.iml
+.gradle
+/local.properties
+/.idea/
+/.vscode/
+/build/
+/app/build/
+/captures/
+.externalNativeBuild
+.cxx
+.DS_Store
+local.properties
