@@ -162,7 +162,7 @@ public final class RoleNavRouter {
                     return RoleDestination.FACULTY_NOTIFICATIONS;
                 }
                 if ("staff".equals(role)) {
-                    return RoleDestination.STAFF_VEHICLES;
+                    return RoleDestination.STAFF_ACCESS_STATUS;
                 }
                 if ("student".equals(role)) {
                     return RoleDestination.STUDENT_PASSES;
@@ -231,6 +231,8 @@ public final class RoleNavRouter {
                 return FacultyNotificationsFragment.newInstance();
             case STAFF_VEHICLES:
                 return StaffVehicleRequestFragment.newInstance();
+            case STAFF_ACCESS_STATUS:
+                return StaffAccessRequestStatusFragment.newInstance();
             case STUDENT_PASSES:
                 return StudentGuestPassFragment.newInstance();
             case GUARD_DENY:

@@ -111,6 +111,19 @@
     <string name="vehicle_edit_not_allowed">Only pending vehicle requests can be edited.</string>
     <string name="no_vehicle_requests">No vehicle requests yet.</string>
     <string name="error_vehicle_load">Unable to load vehicle requests.</string>
+    <string name="vehicle_status_summary">Pending: %1$d  ·  Approved: %2$d  ·  Denied: %3$d</string>
+
+    <!-- US-09: Staff access request status screen -->
+    <string name="staff_access_request_title">My Access Requests</string>
+    <string name="staff_access_request_subtitle">View the status of all access requests you have submitted.</string>
+    <string name="staff_access_no_requests">No access requests submitted yet.</string>
+    <string name="staff_access_load_error">Unable to load access requests.</string>
+    <string name="staff_access_status_summary">Pending: %1$d  ·  Approved: %2$d  ·  Denied: %3$d</string>
+    <string name="staff_access_gate_label">Gate: %1$s</string>
+    <string name="staff_access_guest_id_label">Guest ID: %1$s</string>
+    <string name="staff_access_submitted_at_label">Submitted: %1$s</string>
+    <string name="staff_access_submitted_unknown">Submission time unknown</string>
+    <string name="staff_access_unknown_guest">Unknown Guest</string>
 
     <string name="pass_expiry_hours">Pass Expiry (hours)</string>
     <string name="create_pass_action">Create Guest Pass</string>

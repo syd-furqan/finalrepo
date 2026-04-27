@@ -14,6 +14,7 @@ import java.util.List;
  * Contract for reading and updating guard dashboard entry requests.
  * Pattern: Repository abstraction to isolate Firestore from UI logic.
  * Known issue: v1 supports only active request list + log exit workflow.
+ * US-09: listenRequestsByRequester added for staff access-request status view.
  */
 public interface EntryRequestRepository {
 
@@ -65,6 +66,11 @@ public interface EntryRequestRepository {
 	 * Denies request and persists denial reason.
 	 */
 	void denyRequest(@NonNull String requestId, @NonNull String reason, @NonNull CompletionCallback callback);
+
+	/**
+	 * Starts realtime updates for all requests submitted by a specific requester (US-09).
+	 */
+	void listenRequestsByRequester(@NonNull String requesterUid, @NonNull RequestListListener listener);
 
 	/**
 	 * Stops all active realtime listeners.

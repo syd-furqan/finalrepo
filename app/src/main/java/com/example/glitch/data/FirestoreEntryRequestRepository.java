@@ -81,6 +81,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
     private final CollectionReference entryRequestCollection;
     private ListenerRegistration activeRequestsRegistration;
     private ListenerRegistration dashboardStateRegistration;
+    private ListenerRegistration requesterRequestsRegistration;
 
     public FirestoreEntryRequestRepository() {
         this(FirebaseFirestore.getInstance());
@@ -355,9 +356,33 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
     }
 
     @Override
+    public void listenRequestsByRequester(@NonNull String requesterUid, @NonNull RequestListListener listener) {
+        removeRequesterRequestsListener();
+        requesterRequestsRegistration = entryRequestCollection
+                .whereEqualTo(TYPE_FIELD, TYPE_REQUEST)
+                .whereEqualTo(REQUESTER_UID_FIELD, requesterUid)
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        listener.onError(error);
+                        return;
+                    }
+                    List<EntryRequest> requests = new ArrayList<>();
+                    if (snapshots != null) {
+                        for (DocumentSnapshot document : snapshots.getDocuments()) {
+                            requests.add(EntryRequest.fromMap(document.getId(), document.getData()));
+                        }
+                    }
+                    // Sort newest first using document id (lexicographic desc approximates creation order).
+                    requests.sort((a, b) -> b.getId().compareTo(a.getId()));
+                    listener.onData(requests);
+                });
+    }
+
+    @Override
     public void removeListeners() {
         removeActiveRequestsListener();
         removeDashboardStateListener();
+        removeRequesterRequestsListener();
     }
 
     private boolean matchesQuery(
@@ -493,6 +518,13 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         if (dashboardStateRegistration != null) {
             dashboardStateRegistration.remove();
             dashboardStateRegistration = null;
+        }
+    }
+
+    private void removeRequesterRequestsListener() {
+        if (requesterRequestsRegistration != null) {
+            requesterRequestsRegistration.remove();
+            requesterRequestsRegistration = null;
         }
     }
 }
