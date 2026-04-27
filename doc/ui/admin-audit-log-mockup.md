@@ -1,5 +1,8 @@
 # Admin Audit Log Screen (US-13)
 
+## Screenshot
+![Admin Audit Log Screen](admin%20logs.png)
+
 ## Screen Layout: AdminAuditLogFragment
 
 ### Purpose

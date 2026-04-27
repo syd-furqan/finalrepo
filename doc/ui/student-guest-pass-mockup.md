@@ -1,5 +1,8 @@
 # Student Guest Pass Screen (US-10/US-11/US-12)
 
+## Screenshot
+![Student Guest Pass Screen](student%20gate%20pass.png)
+
 ## Screen Layout: StudentGuestPassFragment
 
 ### Purpose

@@ -1,5 +1,8 @@
 # Admin Verification Rules Screen (US-16)
 
+## Screenshot
+![Admin Verification Rules Screen](admin%20verification%20rule.png)
+
 ## Screen Layout: AdminVerificationRulesFragment
 
 ### Purpose

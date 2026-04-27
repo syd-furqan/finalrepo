@@ -1,46 +1,39 @@
-# GLITCH - Known Limitations & Gaps
+# GLITCH — Known Limitations & Next Steps (Part 3 Checkpoint)
 
-## Rapid Fire Limitations
+This document lists the main limitations of the current **Part 3 prototype** of the *Campus Gate Access System* and the next steps planned for later milestones.  
+Scope and terminology match the implemented roles and flows in the app (**guard, faculty, staff, student, admin**) and the current Firebase/Firestore architecture.
 
-- **Single-Organization Deployment**: System designed for single institution; multi-org support not implemented
-- **No Guest Pass Inheritance**: New resident guests must be re-registered if resident moves communities
-- **Firebase Realtime Dependency**: No offline persistence; all operations require active internet connection
-- **Manual Entry Verification**: No automatic vehicle/license plate verification against DMV/public databases
-- **No SMS Notifications**: Alerts currently email-only; SMS integration pending
-- **Dashboard Real-time Lag**: Admin dashboard refreshes on 30-second interval, not true real-time
-- **No Bulk Operations**: Admin cannot bulk-verify residents or batch-update permissions
-- **Single Session Per User**: No support for concurrent logins across devices
-- **No Audit Trail Retention Limits**: Audit logs grow indefinitely with no automatic purging
-- **Limited Role Granularity**: Only 3 roles (admin, resident, staff); no custom permission sets
-- **No API Rate Limiting**: External integrations can overwhelm system with requests
-- **Mobile-Only Verification**: Verification rules cannot be enforced via web interface
-- **No Two-Factor Auth**: Security relies solely on password authentication
-- **Placeholder UML Checkpoint**: Initial UML diagrams created; architecture evolved during development
+---
 
-## Known Gaps
+## Known limitations at Part 3 checkpoint
 
-### Architecture
-- Guest pass module lacks comprehensive exception handling for edge cases
-- No circuit breaker pattern for Firestore connection failures
-- Missing retry logic for failed security repository operations
+### Account provisioning / signup
+- **No signup flow:** The app is login-only. Accounts must be provisioned by an admin in **Firebase Authentication** and must also have a matching **Firestore profile** under `users/{uid}`.
+- **Admin user management does not create Firebase Auth users:** The admin UI can manage Firestore profile metadata (and active status), but it does not create/update Firebase Auth credentials.
 
-### Security
-- Password reset tokens have no expiration; require manual admin revocation
-- Verification rules stored unencrypted; migrating to encrypted storage in Phase 4
-- No protection against brute-force login attempts
+### QR guest pass scanning
+- **No camera-based QR scanning yet:** The guard “QR scan” milestone is implemented as a **pass-code input flow** rather than a camera scanner.
 
-### Performance
-- User management queries scale poorly beyond 5,000 residents
-- Alert caching not implemented; each alert fetch queries Firestore directly
-- No pagination on audit log views; loading all logs causes UI lag
+### Export / reporting
+- **Audit export is CSV-first:** The current export workflow prioritizes **CSV export**; PDF export (if required) is not implemented at this checkpoint.
 
-### Compliance
-- No GDPR delete compliance for resident data purging
-- Audit trail does not track data deletion events
+### Search / performance (prototype tradeoffs)
+- Some lookup/search behavior is implemented in a **prototype-friendly way** (e.g., limited queries / client-side filtering in places) and may not scale to very large datasets without pagination/indexing improvements.
 
-## Future Improvements
-- Implement offline-first architecture with sync queue
-- Add OAuth2 multi-provider authentication
-- Multi-organization support with tenant isolation
-- Comprehensive analytics dashboard
-- Mobile app for iOS
+### Offline behavior
+- The prototype assumes **active internet connectivity** for core workflows (authentication, dashboard updates, writes). Offline-first behavior is not implemented.
+
+### Security hardening
+- The prototype relies on Firebase Authentication baseline security and does not yet include additional hardening such as:
+  - advanced rate-limiting / lockout policies at the app layer,
+  - role-based permission modeling beyond the defined roles (guard/faculty/staff/student/admin).
+
+---
+
+## Planned next steps
+
+- Implement **camera-based QR scanning** for guest pass verification.
+- Improve **query scalability** (pagination, indexes, and reducing client-side filtering where possible).
+- Expand **export/reporting** (PDF export if required).
+- Add **robust error handling** and retry strategies for transient Firestore/network failures.
+- Strengthen **admin provisioning workflow** (documented process, clearer constraints, optional tooling to assist creating Auth + profile consistently).

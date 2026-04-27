@@ -40,6 +40,54 @@ The application facilitates secure communication between university residents (F
 
 ---
 
+## Part 3 Deliverables (Half-Way Checkpoint)
+
+| # | Deliverable | Where to find it |
+|---|-------------|------------------|
+| 1 | **Addressing Feedback** | Reflected through updated docs/code/tests in this repository (see links below). |
+| 2 | **Code Base of Prototype** | Android project is at the repository root; app module is in [`app/`](app/). |
+| 3 | **Code Documentation** | Intro comments across source files; Javadoc for model classes in [`app/src/main/java/com/example/glitch/model/`](app/src/main/java/com/example/glitch/model/). |
+| 4 | **Test Cases** | See [`doc/testing.md`](doc/testing.md). Unit tests: `app/src/test/java`. Instrumented tests: `app/src/androidTest/java`. |
+| 5 | **Object-Oriented Design (UML)** | UML artifacts in [`doc/uml/`](doc/uml/) (rendered diagram: [`doc/uml/image.png`](doc/uml/image.png)). |
+| 6 | **Product Backlog Updated** | [`wiki/backlog.md`](wiki/backlog.md) (stories and checkpoint status). |
+| 7 | **UI Mockups & Storyboards Updated** | Storyboard write-up: [`wiki/storyboards.md`](wiki/storyboards.md). Self-contained UI artifacts: [`doc/ui/`](doc/ui/). |
+| 8 | **Sprint Planning and Reviews** | [`wiki/sprints.md`](wiki/sprints.md). |
+| 9 | **Demonstration** | Demo performed in lab with TA mentor (team-attended). |
+| 10 | **Tool Use (GitHub)** | Work tracked via commits/issues/projects in this repo. |
+
+### Known limitations
+See [`doc/limitations.md`](doc/limitations.md).
+
+---
+
+## Build & Test
+
+Run commands from the repository root:
+
+```bash
+./gradlew :app:assembleDebug
+```
+
+```bash
+./gradlew :app:testDebugUnitTest
+```
+
+```bash
+./gradlew connectedAndroidTest
+```
+
+For additional notes, see [`doc/testing.md`](doc/testing.md).
+
+---
+
+## Firebase/Firestore Setup Notes (Checkpoint)
+- This repository includes `app/google-services.json` for Firebase configuration.
+- Login requires:
+  1) A Firebase Authentication user (email/password), and  
+  2) A Firestore profile document at `users/{uid}` with `isActive=true` and a supported role (guard/faculty/staff/student/admin).
+
+---
+
 ## Team GLITCH
 
 | Member | Role | GitHub |

@@ -1,5 +1,8 @@
 # Staff Vehicle Request Screen (US-08/US-09)
 
+## Screenshot
+![Staff Vehicle Request Screen](staff%20vehicle.png)
+
 ## Screen Layout: StaffVehicleRequestFragment
 
 ### Purpose

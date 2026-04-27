@@ -1,5 +1,8 @@
 # Faculty Access Request Screen (US-06)
 
+## Screenshot
+![Faculty Access Request Screen](faculty%20access.png)
+
 ## Screen Layout: FacultyAccessRequestFragment
 
 ### Purpose

@@ -1,5 +1,8 @@
 # Credential Verification Screen (US-03)
 
+## Screenshot
+![Verification Result Screen](verification%20result.png)
+
 ## Screen Layout: VerificationResultFragment
 
 ### Purpose

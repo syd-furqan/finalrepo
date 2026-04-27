@@ -1,5 +1,8 @@
 # Admin User Management Screen (US-14)
 
+## Screenshot
+![Admin User Management Screen](admin%20user%20management.png)
+
 ## Screen Layout: AdminUserManagementFragment
 
 ### Purpose

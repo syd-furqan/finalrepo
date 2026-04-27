@@ -1,5 +1,8 @@
 # Guard Dashboard Screen (US-01)
 
+## Screenshot
+![Guard Dashboard Screen](dashboard.png)
+
 ## Screen Layout: DashboardFragment
 
 ### Purpose
