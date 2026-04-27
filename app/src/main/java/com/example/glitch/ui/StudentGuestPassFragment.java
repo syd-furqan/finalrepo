@@ -1,4 +1,4 @@
-﻿package com.example.glitch.ui;
+package com.example.glitch.ui;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

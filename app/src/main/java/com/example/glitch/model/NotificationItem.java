@@ -1,4 +1,4 @@
-﻿package com.example.glitch.model;
+package com.example.glitch.model;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,13 +10,14 @@ import java.util.Map;
 /**
  * Represents one user notification item.
  * Pattern: Immutable POJO for notifications inbox rendering.
- * Known issue: read-state updates are not persisted in v1.
+ * Known issue: read receipts are tracked client-side and do not include actor metadata.
  */
 public class NotificationItem {
 	private final String id;
 	private final String title;
 	private final String message;
 	private final String type;
+	private final boolean isRead;
 	private final Timestamp createdAt;
 
 	/**
@@ -27,12 +28,14 @@ public class NotificationItem {
 			@NonNull String title,
 			@NonNull String message,
 			@NonNull String type,
+			boolean isRead,
 			@Nullable Timestamp createdAt
 	) {
 		this.id = id;
 		this.title = title;
 		this.message = message;
 		this.type = type;
+		this.isRead = isRead;
 		this.createdAt = createdAt;
 	}
 
@@ -46,13 +49,14 @@ public class NotificationItem {
 	@NonNull
 	public static NotificationItem fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
 		if (map == null) {
-			return new NotificationItem(id, "", "", "", null);
+			return new NotificationItem(id, "", "", "", false, null);
 		}
 		return new NotificationItem(
 				id,
 				asString(map.get("title")),
 				asString(map.get("message")),
 				asString(map.get("type")),
+				asBoolean(map.get("isRead")),
 				asTimestamp(map.get("createdAt"))
 		);
 	}
@@ -90,6 +94,13 @@ public class NotificationItem {
 	}
 
 	/**
+	 * @return true when this notification has been acknowledged by the user.
+	 */
+	public boolean isRead() {
+		return isRead;
+	}
+
+	/**
 	 * @return timestamp when this notification was created.
 	 */
 	@Nullable
@@ -108,5 +119,12 @@ public class NotificationItem {
 			return (Timestamp) value;
 		}
 		return null;
+	}
+
+	private static boolean asBoolean(@Nullable Object value) {
+		if (value instanceof Boolean) {
+			return (Boolean) value;
+		}
+		return false;
 	}
 }

@@ -1,4 +1,4 @@
-﻿package com.example.glitch.ui;
+package com.example.glitch.ui;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,14 +13,17 @@ import com.example.glitch.R;
 import com.example.glitch.data.EntryRequestRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.UserProfile;
+import com.google.firebase.Timestamp;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.Date;
+
 /**
  * Faculty access-request form (US-06) for sponsoring guest entry.
  * Pattern: Form fragment that creates guard-visible entry requests.
- * Known issue: request scheduling fields are omitted in v1 for simpler checkpoint flow.
+ * Known issue: scheduling currently supports only hour-based expiry in this flow.
  */
 public class FacultyAccessRequestFragment extends Fragment {
     private EntryRequestRepository repository;
@@ -48,6 +51,7 @@ public class FacultyAccessRequestFragment extends Fragment {
         TextInputEditText inputGuestName = view.findViewById(R.id.input_guest_name);
         TextInputEditText inputGuestId = view.findViewById(R.id.input_guest_id);
         TextInputEditText inputGate = view.findViewById(R.id.input_gate_label);
+        TextInputEditText inputExpiryHours = view.findViewById(R.id.input_request_expiry_hours);
         MaterialButton buttonSubmit = view.findViewById(R.id.button_submit_request);
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.DASHBOARD);
 
@@ -55,14 +59,20 @@ public class FacultyAccessRequestFragment extends Fragment {
             String guestName = read(inputGuestName);
             String guestId = read(inputGuestId);
             String gate = read(inputGate);
+            String expiryRaw = read(inputExpiryHours);
             UserProfile profile = AuthUiGuard.requireProfile(this);
 
-            if (guestName.isEmpty() || guestId.isEmpty() || gate.isEmpty() || profile == null) {
+            if (guestName.isEmpty() || guestId.isEmpty() || gate.isEmpty() || expiryRaw.isEmpty() || profile == null) {
                 Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
-            // UPDATE: Added 'null' as the 7th argument for the missing expiresAt timestamp
+            Timestamp expiresAt = parseExpiryTimestamp(expiryRaw);
+            if (expiresAt == null) {
+                Snackbar.make(requireView(), R.string.error_invalid_expiry, Snackbar.LENGTH_SHORT).show();
+                return;
+            }
+
             repository.createEntryRequest(
                     profile.getUid(),
                     "faculty",
@@ -70,7 +80,7 @@ public class FacultyAccessRequestFragment extends Fragment {
                     guestId,
                     gate,
                     profile.getDisplayName(),
-                    null, // <--- Add this 'null' right here!
+                    expiresAt,
                     (success, message, exception) -> {
                         if (!isAdded()) {
                             return;
@@ -86,5 +96,20 @@ public class FacultyAccessRequestFragment extends Fragment {
     private String read(@NonNull TextInputEditText input) {
         CharSequence value = input.getText();
         return value == null ? "" : value.toString().trim();
+    }
+
+    @Nullable
+    private Timestamp parseExpiryTimestamp(@NonNull String rawHours) {
+        int hours;
+        try {
+            hours = Integer.parseInt(rawHours.trim());
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
+        if (hours <= 0 || hours > 336) {
+            return null;
+        }
+        long expiresAtMillis = System.currentTimeMillis() + (hours * 60L * 60L * 1000L);
+        return new Timestamp(new Date(expiresAtMillis));
     }
 }

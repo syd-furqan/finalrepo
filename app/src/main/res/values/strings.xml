@@ -104,6 +104,11 @@
     <string name="plate_number">Plate Number</string>
     <string name="vehicle_model">Vehicle Model</string>
     <string name="submit_vehicle_request">Submit Vehicle Request</string>
+    <string name="update_vehicle_request">Update Registration</string>
+    <string name="vehicle_edit_pending_hint">Tap to edit this pending request.</string>
+    <string name="vehicle_edit_locked_hint">Request is finalized and cannot be edited.</string>
+    <string name="vehicle_edit_mode_enabled">Editing selected request. Update and submit to save.</string>
+    <string name="vehicle_edit_not_allowed">Only pending vehicle requests can be edited.</string>
     <string name="no_vehicle_requests">No vehicle requests yet.</string>
     <string name="error_vehicle_load">Unable to load vehicle requests.</string>
 

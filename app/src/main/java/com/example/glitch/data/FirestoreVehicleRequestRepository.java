@@ -78,6 +78,23 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
     }
 
     @Override
+    public void updateVehicleRequest(
+            @NonNull String requestId,
+            @NonNull String plateNumber,
+            @NonNull String vehicleModel,
+            @NonNull OperationCallback callback
+    ) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("plateNumber", plateNumber.trim().toUpperCase());
+        updates.put("vehicleModel", vehicleModel.trim());
+        updates.put("updatedAt", FieldValue.serverTimestamp());
+        collection.document(requestId)
+                .update(updates)
+                .addOnSuccessListener(unused -> callback.onComplete(true, "Vehicle request updated", null))
+                .addOnFailureListener(error -> callback.onComplete(false, "Failed to update request", error));
+    }
+
+    @Override
     public void removeListeners() {
         if (registration != null) {
             registration.remove();

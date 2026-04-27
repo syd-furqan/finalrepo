@@ -1,4 +1,4 @@
-﻿package com.example.glitch.data;
+package com.example.glitch.data;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,6 +22,13 @@ public interface VehicleRequestRepository {
 	);
 
 	void listenVehicleRequests(@NonNull String requesterUid, @NonNull RequestListListener listener);
+
+	void updateVehicleRequest(
+			@NonNull String requestId,
+			@NonNull String plateNumber,
+			@NonNull String vehicleModel,
+			@NonNull OperationCallback callback
+	);
 
 	void removeListeners();
 

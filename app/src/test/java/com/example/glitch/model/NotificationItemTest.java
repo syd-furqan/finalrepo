@@ -23,6 +23,7 @@ public class NotificationItemTest {
         map.put("title", "Request approved");
         map.put("message", "Your guest was approved.");
         map.put("type", "approval");
+        map.put("isRead", true);
         map.put("createdAt", createdAt);
 
         NotificationItem item = NotificationItem.fromMap("notif-1", map);
@@ -31,6 +32,7 @@ public class NotificationItemTest {
         assertEquals("Request approved", item.getTitle());
         assertEquals("Your guest was approved.", item.getMessage());
         assertEquals("approval", item.getType());
+        assertEquals(true, item.isRead());
         assertNotNull(item.getCreatedAt());
     }
 }

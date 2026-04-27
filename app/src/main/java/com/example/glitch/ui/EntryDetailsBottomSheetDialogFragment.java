@@ -1,4 +1,4 @@
-﻿package com.example.glitch.ui;
+package com.example.glitch.ui;
 
 import android.app.Dialog;
 import android.os.Bundle;

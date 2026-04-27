@@ -1,4 +1,4 @@
-﻿package com.example.glitch.ui;
+package com.example.glitch.ui;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -23,12 +23,19 @@ import com.google.android.material.textfield.TextInputEditText;
 /**
  * Staff vehicle registration request and status history screen (US-08/US-09).
  * Pattern: Form + realtime list fragment backed by VehicleRequestRepository.
- * Known issue: editing submitted requests is currently unsupported.
+ * Known issue: editing is limited to pending requests in this workflow.
  */
-public class StaffVehicleRequestFragment extends Fragment {
+public class StaffVehicleRequestFragment extends Fragment implements VehicleRequestAdapter.VehicleRequestActionListener {
     private VehicleRequestRepository repository;
     private VehicleRequestAdapter adapter;
     private TextView textEmpty;
+    private TextView textStatusSummary;
+    private TextInputEditText inputMake;
+    private TextInputEditText inputPlate;
+    private TextInputEditText inputModel;
+    private MaterialButton buttonSubmit;
+    @Nullable
+    private String editingRequestId;
 
     @NonNull
     public static StaffVehicleRequestFragment newInstance() {
@@ -49,14 +56,15 @@ public class StaffVehicleRequestFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         repository = RepositoryProvider.getVehicleRequestRepository();
-        TextInputEditText inputMake = view.findViewById(R.id.input_vehicle_make);
-        TextInputEditText inputPlate = view.findViewById(R.id.input_plate_number);
-        TextInputEditText inputModel = view.findViewById(R.id.input_vehicle_model);
-        MaterialButton buttonSubmit = view.findViewById(R.id.button_submit_vehicle_request);
+        inputMake = view.findViewById(R.id.input_vehicle_make);
+        inputPlate = view.findViewById(R.id.input_plate_number);
+        inputModel = view.findViewById(R.id.input_vehicle_model);
+        buttonSubmit = view.findViewById(R.id.button_submit_vehicle_request);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_vehicle_requests);
         textEmpty = view.findViewById(R.id.text_vehicle_empty);
+        textStatusSummary = view.findViewById(R.id.text_vehicle_status_summary);
 
-        adapter = new VehicleRequestAdapter();
+        adapter = new VehicleRequestAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.VEHICLES);
@@ -72,6 +80,7 @@ public class StaffVehicleRequestFragment extends Fragment {
                     requireActivity().runOnUiThread(() -> {
                         adapter.submitList(requests);
                         textEmpty.setVisibility(requests.isEmpty() ? View.VISIBLE : View.GONE);
+                        bindStatusSummary(requests);
                     });
                 }
 
@@ -86,30 +95,99 @@ public class StaffVehicleRequestFragment extends Fragment {
             });
         }
 
-        buttonSubmit.setOnClickListener(v -> {
-            String plate = read(inputPlate);
-            String model = read(inputModel);
-            String make = read(inputMake);
-            UserProfile current = AuthUiGuard.requireProfile(this);
-            if (plate.isEmpty() || model.isEmpty() || current == null) {
-                Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
-                return;
-            }
-            String fullModel = make.isEmpty() ? model : (make + " " + model);
+        buttonSubmit.setOnClickListener(v -> onSubmitRequest());
+    }
+
+    @Override
+    public void onVehicleRequestSelected(@NonNull com.example.glitch.model.VehicleRequestRecord record) {
+        if (!"pending".equalsIgnoreCase(record.getStatus())) {
+            Snackbar.make(requireView(), R.string.vehicle_edit_not_allowed, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+        editingRequestId = record.getId();
+        inputPlate.setText(record.getPlateNumber());
+        inputModel.setText(record.getVehicleModel());
+        inputMake.setText("");
+        buttonSubmit.setText(R.string.update_vehicle_request);
+        Snackbar.make(requireView(), R.string.vehicle_edit_mode_enabled, Snackbar.LENGTH_SHORT).show();
+    }
+
+    private void onSubmitRequest() {
+        String plate = read(inputPlate);
+        String model = read(inputModel);
+        String make = read(inputMake);
+        UserProfile current = AuthUiGuard.requireProfile(this);
+        if (plate.isEmpty() || model.isEmpty() || current == null) {
+            Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+        String fullModel = make.isEmpty() ? model : (make + " " + model);
+        if (editingRequestId == null) {
             repository.submitVehicleRequest(current.getUid(), plate, fullModel, (success, message, exception) -> {
                 if (!isAdded()) {
                     return;
                 }
-                requireActivity().runOnUiThread(() ->
-                        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
+                requireActivity().runOnUiThread(() -> {
+                    if (success) {
+                        clearForm();
+                    }
+                    Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show();
+                });
+            });
+            return;
+        }
+        repository.updateVehicleRequest(editingRequestId, plate, fullModel, (success, message, exception) -> {
+            if (!isAdded()) {
+                return;
+            }
+            requireActivity().runOnUiThread(() -> {
+                if (success) {
+                    clearForm();
+                    exitEditMode();
+                }
+                Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show();
             });
         });
+    }
+
+    private void clearForm() {
+        inputMake.setText("");
+        inputPlate.setText("");
+        inputModel.setText("");
+    }
+
+    private void exitEditMode() {
+        editingRequestId = null;
+        buttonSubmit.setText(R.string.submit_vehicle_request);
+    }
+
+    private void bindStatusSummary(@NonNull java.util.List<com.example.glitch.model.VehicleRequestRecord> requests) {
+        if (requests.isEmpty()) {
+            textStatusSummary.setVisibility(View.GONE);
+            return;
+        }
+        int pending = 0;
+        int approved = 0;
+        int denied = 0;
+        for (com.example.glitch.model.VehicleRequestRecord record : requests) {
+            String status = record.getStatus() == null ? "" : record.getStatus().trim().toLowerCase();
+            if ("approved".equals(status)) {
+                approved++;
+            } else if ("denied".equals(status) || "rejected".equals(status)) {
+                denied++;
+            } else {
+                pending++;
+            }
+        }
+        textStatusSummary.setVisibility(View.VISIBLE);
+        textStatusSummary.setText(getString(R.string.vehicle_status_summary, pending, approved, denied));
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         repository.removeListeners();
+        editingRequestId = null;
     }
 
     @NonNull

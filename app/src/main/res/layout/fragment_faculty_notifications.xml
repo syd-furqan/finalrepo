@@ -84,6 +84,16 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_mark_all_read"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginTop="@dimen/space_12"
+                android:text="@string/mark_all_read_action"
+                android:textAllCaps="false"
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/text_notifications_empty"
                 android:layout_width="match_parent"

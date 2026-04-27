@@ -1,4 +1,4 @@
-﻿package com.example.glitch.data;
+package com.example.glitch.data;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

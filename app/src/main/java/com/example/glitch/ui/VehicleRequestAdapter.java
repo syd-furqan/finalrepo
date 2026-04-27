@@ -1,4 +1,4 @@
-﻿package com.example.glitch.ui;
+package com.example.glitch.ui;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +11,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glitch.R;
 import com.example.glitch.model.VehicleRequestRecord;
+import com.google.firebase.Timestamp;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -23,6 +26,16 @@ import java.util.Locale;
  */
 public class VehicleRequestAdapter extends RecyclerView.Adapter<VehicleRequestAdapter.VehicleRequestViewHolder> {
     private final List<VehicleRequestRecord> items = new ArrayList<>();
+    private final VehicleRequestActionListener actionListener;
+
+    public VehicleRequestAdapter() {
+        this((record) -> {
+        });
+    }
+
+    public VehicleRequestAdapter(@NonNull VehicleRequestActionListener actionListener) {
+        this.actionListener = actionListener;
+    }
 
     public void submitList(@NonNull List<VehicleRequestRecord> records) {
         items.clear();
@@ -42,11 +55,18 @@ public class VehicleRequestAdapter extends RecyclerView.Adapter<VehicleRequestAd
         VehicleRequestRecord record = items.get(position);
         holder.textPlate.setText(record.getPlateNumber());
         holder.textModel.setText(record.getVehicleModel());
+        holder.textCreatedAt.setText(formatCreatedAt(holder, record.getCreatedAt()));
         String status = record.getStatus() == null ? "" : record.getStatus();
         holder.textStatus.setText(status.toUpperCase(Locale.getDefault()));
         ChipStyle style = resolveStatusStyle(status);
         holder.textStatus.setBackgroundResource(style.backgroundRes);
         holder.textStatus.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), style.textColorRes));
+        if ("pending".equalsIgnoreCase(status)) {
+            holder.textHint.setText(R.string.vehicle_edit_pending_hint);
+        } else {
+            holder.textHint.setText(R.string.vehicle_edit_locked_hint);
+        }
+        holder.itemView.setOnClickListener(v -> actionListener.onVehicleRequestSelected(record));
     }
 
     @Override
@@ -58,13 +78,30 @@ public class VehicleRequestAdapter extends RecyclerView.Adapter<VehicleRequestAd
         final TextView textPlate;
         final TextView textModel;
         final TextView textStatus;
+        final TextView textCreatedAt;
+        final TextView textHint;
 
         VehicleRequestViewHolder(@NonNull View itemView) {
             super(itemView);
             textPlate = itemView.findViewById(R.id.text_plate);
             textModel = itemView.findViewById(R.id.text_vehicle_model);
             textStatus = itemView.findViewById(R.id.text_vehicle_status);
+            textCreatedAt = itemView.findViewById(R.id.text_vehicle_created_at);
+            textHint = itemView.findViewById(R.id.text_vehicle_hint);
         }
+    }
+
+    @NonNull
+    private String formatCreatedAt(@NonNull VehicleRequestViewHolder holder, @Nullable Timestamp createdAt) {
+        if (createdAt == null) {
+            return holder.itemView.getContext().getString(R.string.vehicle_created_at_unknown);
+        }
+        DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+        Date date = createdAt.toDate();
+        return holder.itemView.getContext().getString(
+                R.string.vehicle_created_at_label,
+                formatter.format(date)
+        );
     }
 
     @NonNull
@@ -87,5 +124,9 @@ public class VehicleRequestAdapter extends RecyclerView.Adapter<VehicleRequestAd
             this.backgroundRes = backgroundRes;
             this.textColorRes = textColorRes;
         }
+    }
+
+    public interface VehicleRequestActionListener {
+        void onVehicleRequestSelected(@NonNull VehicleRequestRecord record);
     }
 }

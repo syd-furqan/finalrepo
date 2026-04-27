@@ -1,4 +1,4 @@
-﻿package com.example.glitch;
+package com.example.glitch;
 
 import android.os.Bundle;
 

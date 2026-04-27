@@ -398,6 +398,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                     payload.put(NOTIFICATION_TITLE_FIELD, title);
                     payload.put(NOTIFICATION_MESSAGE_FIELD, message);
                     payload.put(NOTIFICATION_TYPE_FIELD, type);
+                    payload.put("isRead", false);
                     payload.put(EVENT_REQUEST_ID_FIELD, requestId);
                     payload.put(NOTIFICATION_CREATED_AT_FIELD, FieldValue.serverTimestamp());
                     firestore.collection(COLLECTION_NOTIFICATIONS)

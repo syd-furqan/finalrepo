@@ -1,4 +1,4 @@
-﻿package com.example.glitch.auth;
+package com.example.glitch.auth;
 
 import android.util.Log;
 
