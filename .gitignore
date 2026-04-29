@@ -10,3 +10,8 @@
 .cxx
 .DS_Store
 local.properties
+*.log
+build/reports/
+/.gradle/
+/.idea/
+.DS_Store
