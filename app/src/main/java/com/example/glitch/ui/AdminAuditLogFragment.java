@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.net.Uri;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,6 +20,12 @@ import com.example.glitch.data.AuditLogRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
+import androidx.core.content.FileProvider;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Admin audit log screen with CSV export capability (US-13, US-15).
@@ -79,22 +87,38 @@ public class AdminAuditLogFragment extends Fragment {
             }
         });
 
-        buttonExportCsv.setOnClickListener(v -> repository.exportCsv((success, csvContent, exception) -> {
-            if (!isAdded()) {
-                return;
-            }
-            requireActivity().runOnUiThread(() -> {
-                if (!success) {
-                    Snackbar.make(requireView(), R.string.error_export_logs, Snackbar.LENGTH_LONG).show();
+            buttonExportCsv.setOnClickListener(v -> repository.exportCsv((success, csvContent, exception) -> {
+                if (!isAdded()) {
                     return;
                 }
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("text/csv");
-                intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.audit_export_subject));
-                intent.putExtra(Intent.EXTRA_TEXT, csvContent);
-                startActivity(Intent.createChooser(intent, getString(R.string.export_action)));
-            });
-        }));
+                requireActivity().runOnUiThread(() -> {
+                    if (!success) {
+                        Snackbar.make(requireView(), R.string.error_export_logs, Snackbar.LENGTH_LONG).show();
+                        return;
+                    }
+                    // Write CSV to cache and share as file via FileProvider (preferred over raw text)
+                    File cacheDir = requireContext().getCacheDir();
+                    File outFile = new File(cacheDir, "audit_logs_export.csv");
+                    try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                        fos.write(csvContent.getBytes(StandardCharsets.UTF_8));
+                    } catch (IOException ioEx) {
+                        Snackbar.make(requireView(), R.string.error_export_logs, Snackbar.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    Uri uri = FileProvider.getUriForFile(requireContext(), requireContext().getPackageName() + ".fileprovider", outFile);
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setType("text/csv");
+                    intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.audit_export_subject));
+                    intent.putExtra(Intent.EXTRA_STREAM, uri);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    try {
+                        startActivity(Intent.createChooser(intent, getString(R.string.export_action)));
+                    } catch (Exception ex) {
+                        Toast.makeText(requireContext(), R.string.error_export_logs, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }));
     }
 
     @Override
