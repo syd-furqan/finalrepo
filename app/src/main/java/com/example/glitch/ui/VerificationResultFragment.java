@@ -91,17 +91,13 @@ public class VerificationResultFragment extends Fragment {
         textEntered.setText(entered);
 
         buttonApprove.setOnClickListener(v -> {
-            repository.logEntry(requestId, gate, (success, message, exception) -> {
-                if (!isAdded()) {
-                    return;
-                }
-                requireActivity().runOnUiThread(() -> {
-                    Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show();
-                    if (success && requireActivity() instanceof NavigationHost) {
-                        requireActivity().getSupportFragmentManager().popBackStack();
-                    }
-                });
-            });
+            if (!isAdded()) {
+                return;
+            }
+            Snackbar.make(requireView(), R.string.route_to_dashboard_for_admission, Snackbar.LENGTH_LONG).show();
+            if (requireActivity() instanceof NavigationHost) {
+                ((NavigationHost) requireActivity()).showFragment(DashboardFragment.newInstance(), true);
+            }
         });
 
         buttonDeny.setOnClickListener(v -> {

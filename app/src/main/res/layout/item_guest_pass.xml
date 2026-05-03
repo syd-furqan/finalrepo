@@ -44,6 +44,16 @@
         android:textColor="@color/primary_navy"
         android:textSize="13sp" />
 
+    <ImageView
+        android:id="@+id/image_pass_qr"
+        android:layout_width="144dp"
+        android:layout_height="144dp"
+        android:layout_marginTop="@dimen/space_10"
+        android:layout_gravity="center_horizontal"
+        android:background="@color/white"
+        android:contentDescription="@string/scan_qr_code"
+        android:padding="@dimen/space_8" />
+
     <TextView
         android:id="@+id/text_pass_expiry"
         android:layout_width="match_parent"
@@ -53,11 +63,21 @@
         android:textSize="12sp" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_share_pass"
         style="@style/Widget.Material3.Button.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="38dp"
         android:layout_marginTop="@dimen/space_10"
         android:text="Share Pass"
+        android:textAllCaps="false" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_view_pass_details"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:layout_marginTop="@dimen/space_8"
+        android:text="@string/details_action"
         android:textAllCaps="false" />
 
     <com.google.android.material.button.MaterialButton

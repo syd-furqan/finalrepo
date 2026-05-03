@@ -176,85 +176,31 @@
                     android:textColor="@color/white" />
             </LinearLayout>
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/text_guest_pass_empty"
                 android:layout_width="match_parent"
-                android:layout_height="96dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_16"
-                android:background="@color/surface_alt"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="@dimen/space_16">
+                android:text="No managed passes yet."
+                android:textColor="@color/text_muted"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
-                <ImageView
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
-                    android:background="@drawable/bg_card_white"
-                    android:padding="@dimen/space_8"
-                    android:src="@android:drawable/ic_menu_recent_history"
-                    android:tint="@color/primary_navy" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_12"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Recent Passes"
-                        android:textColor="@color/text_dark"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="View your last 5 issued passes"
-                        android:textColor="@color/text_muted"
-                        android:textSize="12sp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_view_archived_passes"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
-                android:layout_height="96dp"
-                android:layout_marginTop="@dimen/space_12"
-                android:background="@color/surface_alt"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="@dimen/space_16">
+                android:layout_height="44dp"
+                android:layout_marginTop="@dimen/space_8"
+                android:text="@string/view_archived_passes_action"
+                android:textAllCaps="false" />
 
-                <ImageView
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
-                    android:background="@drawable/bg_card_white"
-                    android:padding="@dimen/space_8"
-                    android:src="@android:drawable/ic_menu_help"
-                    android:tint="@color/primary_navy" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_12"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Guest Policy"
-                        android:textColor="@color/text_dark"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Read institutional guidelines"
-                        android:textColor="@color/text_muted"
-                        android:textSize="12sp" />
-                </LinearLayout>
-            </LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_guest_passes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_8"
+                android:nestedScrollingEnabled="false" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

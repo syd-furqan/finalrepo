@@ -78,21 +78,13 @@ public class GuardSearchFragment extends Fragment implements EntryRequestAdapter
 
     @Override
     public void onLogEntryClicked(@NonNull EntryRequest request) {
-        // We use the exact same logic as the Dashboard: call the repository to admit them
-        repository.logEntry(request.getId(), "Main Gate", (success, message, exception) -> {
-            if (!isAdded()) {
-                return;
-            }
-            requireActivity().runOnUiThread(() -> {
-                if (success) {
-                    Snackbar.make(requireView(), "Guest Checked In Successfully", Snackbar.LENGTH_SHORT).show();
-                    // Refresh the search to show the updated status
-                    runSearch();
-                } else {
-                    Snackbar.make(requireView(), message != null ? message : "Check-in failed", Snackbar.LENGTH_LONG).show();
-                }
-            });
-        });
+        if (!isAdded()) {
+            return;
+        }
+        Snackbar.make(requireView(), R.string.route_to_dashboard_for_admission, Snackbar.LENGTH_LONG).show();
+        if (requireActivity() instanceof NavigationHost) {
+            ((NavigationHost) requireActivity()).showFragment(DashboardFragment.newInstance(), true);
+        }
     }
 
     private void runSearch() {

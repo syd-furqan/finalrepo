@@ -34,6 +34,7 @@
     <string name="confirm_action">Confirm</string>
     <string name="close_action">Close</string>
     <string name="retry_action">Retry</string>
+    <string name="share_action">Share</string>
     <string name="action_pending">Feature available in next sprint.</string>
     <string name="request_id_label">Request ID</string>
     <string name="error_load_requests">Unable to load requests right now.</string>
@@ -134,10 +135,17 @@
     <string name="pass_expiry_hours">Pass Expiry (hours)</string>
     <string name="create_pass_action">Create Guest Pass</string>
     <string name="cancel_pass_action">Cancel Pass</string>
+    <string name="view_archived_passes_action">View Archived Passes</string>
+    <string name="pass_details_title">Guest Pass Details</string>
+    <string name="archived_passes_title">Archived Guest Passes</string>
+    <string name="archived_passes_subtitle">Expired and cancelled passes are stored here for audit/reference.</string>
+    <string name="no_archived_guest_passes">No archived passes yet.</string>
+    <string name="archived_pass_not_shareable">Archived passes are not shareable.</string>
+    <string name="archived_pass_read_only">Archived passes are read-only.</string>
     <string name="no_guest_passes">No guest passes yet.</string>
     <string name="error_guest_pass_load">Unable to load guest passes.</string>
     <string name="error_invalid_expiry">Enter a valid expiry in hours.</string>
-    <string name="pass_code_label">Pass Code: %1$s</string>
+    <string name="pass_code_label">Access Number (Pass Code): %1$s</string>
     <string name="pass_expires_label">Expires: %1$s</string>
     <string name="pass_expiry_unknown">Expiry unavailable</string>
 
@@ -147,6 +155,9 @@
     <string name="pass_not_found">Pass not found.</string>
     <string name="pass_not_active">Pass is not active.</string>
     <string name="pass_expired">Pass has expired.</string>
+    <string name="pass_orphan_invalid">Pass is invalid (missing linked entry request).</string>
+    <string name="pass_verified_go_dashboard">Pass verified. Open Dashboard to approve entry for request: %1$s</string>
+    <string name="route_to_dashboard_for_admission">Approve entry from Dashboard to complete admission.</string>
 
     <string name="export_csv_action">Export CSV</string>
     <string name="no_audit_logs">No audit logs available.</string>

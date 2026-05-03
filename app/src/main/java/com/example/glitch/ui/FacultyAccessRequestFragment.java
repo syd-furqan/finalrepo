@@ -4,29 +4,34 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glitch.R;
-import com.example.glitch.data.EntryRequestRepository;
+import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
+import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.UserProfile;
-import com.google.firebase.Timestamp;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
-
-import java.util.Date;
 
 /**
  * Faculty access-request form (US-06) for sponsoring guest entry.
  * Pattern: Form fragment that creates guard-visible entry requests.
  * Known issue: scheduling currently supports only hour-based expiry in this flow.
  */
-public class FacultyAccessRequestFragment extends Fragment {
-    private EntryRequestRepository repository;
+public class FacultyAccessRequestFragment extends Fragment implements GuestPassAdapter.GuestPassActionListener {
+    private static final int MAX_EXPIRY_HOURS = 336;
+
+    private GuestPassRepository repository;
+    private GuestPassAdapter adapter;
+    private TextView textEmpty;
 
     @NonNull
     public static FacultyAccessRequestFragment newInstance() {
@@ -46,42 +51,75 @@ public class FacultyAccessRequestFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        repository = RepositoryProvider.getRepository();
+        repository = RepositoryProvider.getGuestPassRepository();
 
         TextInputEditText inputGuestName = view.findViewById(R.id.input_guest_name);
         TextInputEditText inputGuestId = view.findViewById(R.id.input_guest_id);
         TextInputEditText inputGate = view.findViewById(R.id.input_gate_label);
         TextInputEditText inputExpiryHours = view.findViewById(R.id.input_request_expiry_hours);
         MaterialButton buttonSubmit = view.findViewById(R.id.button_submit_request);
+        MaterialButton buttonArchived = view.findViewById(R.id.button_view_archived_passes);
+        RecyclerView recyclerView = view.findViewById(R.id.recycler_guest_passes);
+        textEmpty = view.findViewById(R.id.text_guest_pass_empty);
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.DASHBOARD);
+
+        adapter = new GuestPassAdapter(this);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.setAdapter(adapter);
+
+        UserProfile profile = AuthUiGuard.requireProfile(this);
+        if (profile != null) {
+            repository.listenGuestPasses(profile.getUid(), new GuestPassRepository.PassListListener() {
+                @Override
+                public void onData(@NonNull java.util.List<GuestPass> passes) {
+                    if (!isAdded()) {
+                        return;
+                    }
+                    requireActivity().runOnUiThread(() -> {
+                        adapter.submitList(passes);
+                        textEmpty.setVisibility(passes.isEmpty() ? View.VISIBLE : View.GONE);
+                    });
+                }
+
+                @Override
+                public void onError(@NonNull Exception exception) {
+                    if (!isAdded()) {
+                        return;
+                    }
+                    requireActivity().runOnUiThread(() ->
+                            Snackbar.make(requireView(), R.string.error_guest_pass_load, Snackbar.LENGTH_LONG).show());
+                }
+            });
+        }
 
         buttonSubmit.setOnClickListener(v -> {
             String guestName = read(inputGuestName);
             String guestId = read(inputGuestId);
             String gate = read(inputGate);
             String expiryRaw = read(inputExpiryHours);
-            UserProfile profile = AuthUiGuard.requireProfile(this);
+            UserProfile userProfile = AuthUiGuard.requireProfile(this);
 
-            if (guestName.isEmpty() || guestId.isEmpty() || gate.isEmpty() || expiryRaw.isEmpty() || profile == null) {
+            if (guestName.isEmpty() || guestId.isEmpty() || gate.isEmpty() || expiryRaw.isEmpty() || userProfile == null) {
                 Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
-            Timestamp expiresAt = parseExpiryTimestamp(expiryRaw);
-            if (expiresAt == null) {
+            Integer expiryHours = parseExpiryHours(expiryRaw);
+            if (expiryHours == null) {
                 Snackbar.make(requireView(), R.string.error_invalid_expiry, Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
-            repository.createEntryRequest(
-                    profile.getUid(),
-                    "faculty",
+            repository.issueGuestPassWithEntryRequest(
+                    userProfile.getUid(),
+                    userProfile.getRole(),
+                    userProfile.getDisplayName(),
+                    userProfile.getEmail(),
                     guestName,
                     guestId,
                     gate,
-                    profile.getDisplayName(),
-                    expiresAt,
-                    (success, message, exception) -> {
+                    expiryHours,
+                    (success, message, issuedPass, exception) -> {
                         if (!isAdded()) {
                             return;
                         }
@@ -90,6 +128,7 @@ public class FacultyAccessRequestFragment extends Fragment {
                     }
             );
         });
+        buttonArchived.setOnClickListener(v -> openArchivedPasses());
     }
 
     @NonNull
@@ -99,17 +138,60 @@ public class FacultyAccessRequestFragment extends Fragment {
     }
 
     @Nullable
-    private Timestamp parseExpiryTimestamp(@NonNull String rawHours) {
+    private Integer parseExpiryHours(@NonNull String rawHours) {
         int hours;
         try {
             hours = Integer.parseInt(rawHours.trim());
         } catch (NumberFormatException ignored) {
             return null;
         }
-        if (hours <= 0 || hours > 336) {
+        if (hours <= 0 || hours > MAX_EXPIRY_HOURS) {
             return null;
         }
-        long expiresAtMillis = System.currentTimeMillis() + (hours * 60L * 60L * 1000L);
-        return new Timestamp(new Date(expiresAtMillis));
+        return hours;
+    }
+
+    @Override
+    public void onCancelPass(@NonNull GuestPass pass) {
+        repository.cancelGuestPass(pass.getId(), (success, message, exception) -> {
+            if (!isAdded()) {
+                return;
+            }
+            requireActivity().runOnUiThread(() ->
+                    Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
+        });
+    }
+
+    @Override
+    public void onSharePass(@NonNull GuestPass pass) {
+        if (!isAdded()) {
+            return;
+        }
+        try {
+            PassShareHelper.share(this, pass);
+        } catch (Exception exception) {
+            Snackbar.make(requireView(), R.string.error_export_logs, Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onViewPassDetails(@NonNull GuestPass pass) {
+        if (!isAdded() || !(requireActivity() instanceof NavigationHost)) {
+            return;
+        }
+        ((NavigationHost) requireActivity()).showFragment(GuestPassDetailsFragment.newInstance(pass), true);
+    }
+
+    private void openArchivedPasses() {
+        if (!isAdded() || !(requireActivity() instanceof NavigationHost)) {
+            return;
+        }
+        ((NavigationHost) requireActivity()).showFragment(GuestPassArchiveFragment.newInstance(), true);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        repository.removeListeners();
     }
 }

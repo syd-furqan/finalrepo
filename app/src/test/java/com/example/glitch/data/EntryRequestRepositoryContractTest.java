@@ -98,6 +98,11 @@ public class EntryRequestRepositoryContractTest {
         }
 
         @Override
+        public void listenRequestsByRequester(@NonNull String requesterUid, @NonNull RequestListListener listener) {
+            listener.onData(new ArrayList<>());
+        }
+
+        @Override
         public void removeListeners() {
             // No-op for fake repository.
         }
