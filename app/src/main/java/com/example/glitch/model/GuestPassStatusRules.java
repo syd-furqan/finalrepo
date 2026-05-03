@@ -24,11 +24,10 @@ public final class GuestPassStatusRules {
 
     public static boolean isArchivedStatus(@NonNull String rawStatus) {
         String status = rawStatus.trim().toLowerCase(Locale.getDefault());
-        return "expired".equals(status) || "cancelled".equals(status);
+        return "expired".equals(status) || "cancelled".equals(status) || "denied".equals(status);
     }
 
     public static boolean isShareable(@NonNull GuestPass pass) {
         return !isArchivedStatus(pass.getStatus());
     }
 }
-

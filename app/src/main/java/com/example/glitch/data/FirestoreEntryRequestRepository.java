@@ -100,7 +100,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         removeActiveRequestsListener();
         activeRequestsRegistration = entryRequestCollection
                 .whereEqualTo(TYPE_FIELD, TYPE_REQUEST)
-                .whereIn(STATUS_FIELD, Arrays.asList("active", "pending"))
+                .whereEqualTo(STATUS_FIELD, STATUS_ACTIVE)
                 .addSnapshotListener((snapshots, error) -> {
                     if (error != null) {
                         listener.onError(error);

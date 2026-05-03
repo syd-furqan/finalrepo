@@ -14,9 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glitch.R;
-import com.example.glitch.auth.SessionManager;
 import com.example.glitch.data.EntryRequestRepository;
-import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.DashboardState;
 import com.example.glitch.model.EntryRequest;
@@ -38,9 +36,7 @@ import java.util.Locale;
 public class DashboardFragment extends Fragment implements EntryRequestAdapter.EntryActionListener {
 
     private EntryRequestRepository repository;
-    private GuestPassRepository guestPassRepository;
     private EntryRequestAdapter adapter;
-    private final List<EntryRequest> currentRequests = new ArrayList<>();
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a", Locale.getDefault());
 
     private TextView textSystemStatusTitle;
@@ -73,11 +69,6 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
     }
 
     @Override
-    public void onLogEntryClicked(@NonNull EntryRequest request) {
-        approveEntryFromDashboard(request.getId(), request.getGateLabel(), "Guest Checked In!");
-    }
-
-    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         UserProfile profile = AuthUiGuard.requireProfile(this);
@@ -86,7 +77,6 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         }
         currentRole = profile.getRole();
         repository = RepositoryProvider.getRepository();
-        guestPassRepository = RepositoryProvider.getGuestPassRepository();
         bindViews(view);
         setupRecycler(view);
         setupActions(view, currentRole);
@@ -117,10 +107,16 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
                         @Override
                         public void onData(@NonNull List<EntryRequest> requests) {
                             if (!isAdded()) return;
+                            List<EntryRequest> activeOnly = new ArrayList<>();
+                            for (EntryRequest request : requests) {
+                                if ("active".equalsIgnoreCase(request.getStatus())) {
+                                    activeOnly.add(request);
+                                }
+                            }
 
-                            adapter.submitList(requests);
+                            adapter.submitList(activeOnly);
 
-                            emptyStateCard.setVisibility(requests.isEmpty() ? View.VISIBLE : View.GONE);
+                            emptyStateCard.setVisibility(activeOnly.isEmpty() ? View.VISIBLE : View.GONE);
                         }
 
                         @Override
@@ -192,22 +188,16 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
                 getViewLifecycleOwner(),
                 (requestKey, bundle) -> {
                     String requestId = bundle.getString(EntryDetailsBottomSheetDialogFragment.RESULT_REQUEST_ID);
-                    boolean isEntry = bundle.getBoolean("is_entry_action", false);
-
                     if (requestId != null && isAdded()) {
-                        if (isEntry) {
-                            approveEntryFromDashboard(
-                                    requestId,
-                                    resolveGateForRequestId(requestId),
-                                    "Guest admitted successfully!"
-                            );
-                        } else {
-                            repository.logExit(requestId, (success, message, error) -> {
-                                requireActivity().runOnUiThread(() ->
-                                        Snackbar.make(requireView(), "Guest exit logged.", Snackbar.LENGTH_SHORT).show()
-                                );
+                        repository.logExit(requestId, (success, message, error) -> {
+                            if (!isAdded()) {
+                                return;
+                            }
+                            requireActivity().runOnUiThread(() -> {
+                                String snackbarText = success ? "Guest exit logged." : message;
+                                Snackbar.make(requireView(), snackbarText, Snackbar.LENGTH_SHORT).show();
                             });
-                        }
+                        });
                     }
                 }
         );
@@ -248,8 +238,6 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
                     return;
                 }
                 requestsLoaded = true;
-                currentRequests.clear();
-                currentRequests.addAll(requests);
                 adapter.submitList(requests);
                 emptyStateCard.setVisibility(requests.isEmpty() ? View.VISIBLE : View.GONE);
                 refreshLoadingState();
@@ -261,8 +249,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
                     return;
                 }
                 requestsLoaded = true;
-                currentRequests.clear();
-                adapter.submitList(currentRequests);
+                adapter.submitList(new ArrayList<>());
                 emptyStateCard.setVisibility(View.VISIBLE);
                 showError(getString(R.string.error_load_requests), true);
                 refreshLoadingState();
@@ -290,11 +277,6 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         openEntryDetails(request, false);
     }
 
-    @Override
-    public void onLogExitClicked(@NonNull EntryRequest request) {
-        openEntryDetails(request, true);
-    }
-
     private void openEntryDetails(@NonNull EntryRequest request, boolean promptExit) {
         EntryDetailsBottomSheetDialogFragment sheet = EntryDetailsBottomSheetDialogFragment.newInstance(
                 request.getId(),
@@ -310,78 +292,11 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         sheet.show(getParentFragmentManager(), EntryDetailsBottomSheetDialogFragment.TAG);
     }
 
-    private void approveEntryFromDashboard(
-            @NonNull String requestId,
-            @Nullable String gateLabelRaw,
-            @NonNull String successMessage
-    ) {
-        String gateLabel = gateLabelRaw == null || gateLabelRaw.trim().isEmpty() ? "Main Gate" : gateLabelRaw.trim();
-        repository.logEntry(requestId, gateLabel, (success, message, exception) -> {
-            if (!isAdded()) {
-                return;
-            }
-            if (!success) {
-                requireActivity().runOnUiThread(() ->
-                        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
-                return;
-            }
-            String guardUid = SessionManager.getCurrentProfile() == null
-                    ? ""
-                    : SessionManager.getCurrentProfile().getUid();
-            guestPassRepository.markPassAdmittedByEntryRequestId(
-                    requestId,
-                    guardUid,
-                    "DASHBOARD_APPROVAL",
-                    (passSuccess, passMessage, passException) -> {
-                        if (!isAdded()) {
-                            return;
-                        }
-                        requireActivity().runOnUiThread(() -> {
-                            if (passSuccess) {
-                                Snackbar.make(requireView(), successMessage, Snackbar.LENGTH_SHORT).show();
-                            } else {
-                                Snackbar.make(
-                                        requireView(),
-                                        successMessage + " (Guest pass update issue: " + passMessage + ")",
-                                        Snackbar.LENGTH_LONG
-                                ).show();
-                            }
-                        });
-                    }
-            );
-        });
-    }
-
-    @Nullable
-    private String resolveGateForRequestId(@NonNull String requestId) {
-        for (EntryRequest request : currentRequests) {
-            if (requestId.equals(request.getId())) {
-                return request.getGateLabel();
-            }
-        }
-        return null;
-    }
-
     private String formatTimestamp(@Nullable Timestamp timestamp) {
         if (timestamp == null) {
             return "--:--";
         }
         return timeFormat.format(timestamp.toDate());
-    }
-
-    private void performLogExit(@NonNull String requestId) {
-        repository.logExit(requestId, (success, message, exception) -> {
-            if (!isAdded()) {
-                return;
-            }
-            if (success) {
-                Snackbar.make(requireView(), R.string.success_exit_logged, Snackbar.LENGTH_SHORT).show();
-            } else {
-                String fallback = getString(R.string.generic_write_error);
-                String displayMessage = (message == null || message.isEmpty()) ? fallback : message;
-                showError(displayMessage, false);
-            }
-        });
     }
 
     private void showError(@NonNull String message, boolean withRetry) {

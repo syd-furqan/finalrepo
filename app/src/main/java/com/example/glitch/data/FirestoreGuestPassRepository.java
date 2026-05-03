@@ -33,6 +33,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
     private static final String STATUS_CANCELLED = "cancelled";
     private static final String STATUS_USED = "used";
     private static final String STATUS_EXPIRED = "expired";
+    private static final String STATUS_DENIED = "denied";
     private static final String DEFAULT_GATE = "Main Gate";
 
     private final FirebaseFirestore firestore;
@@ -307,6 +308,54 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     String passId = snapshot.getDocuments().get(0).getId();
                     markPassAdmitted(passId, admittedByUid, admissionMethod, callback);
                 })
+                .addOnFailureListener(error -> callback.onComplete(false, safeMessage(error), error));
+    }
+
+    @Override
+    public void markPassDeniedByEntryRequestId(
+            @NonNull String entryRequestId,
+            @NonNull String deniedByUid,
+            @NonNull OperationCallback callback
+    ) {
+        collection.whereEqualTo("entryRequestId", entryRequestId.trim())
+                .whereEqualTo("status", STATUS_ACTIVE)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) {
+                        callback.onComplete(true, "No linked active guest pass.", null);
+                        return;
+                    }
+                    String passId = snapshot.getDocuments().get(0).getId();
+                    markPassDenied(passId, deniedByUid, callback);
+                })
+                .addOnFailureListener(error -> callback.onComplete(false, safeMessage(error), error));
+    }
+
+    private void markPassDenied(
+            @NonNull String passId,
+            @NonNull String deniedByUid,
+            @NonNull OperationCallback callback
+    ) {
+        DocumentReference passRef = collection.document(passId);
+        firestore.runTransaction(transaction -> {
+                    DocumentSnapshot snapshot = transaction.get(passRef);
+                    if (!snapshot.exists()) {
+                        throw new IllegalStateException("Pass not found.");
+                    }
+                    GuestPass pass = GuestPass.fromMap(snapshot.getId(), snapshot.getData());
+                    if (!STATUS_ACTIVE.equalsIgnoreCase(pass.getStatus())) {
+                        throw new IllegalStateException("Pass is not active.");
+                    }
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("status", STATUS_DENIED);
+                    updates.put("admittedByUid", deniedByUid);
+                    updates.put("admissionMethod", "DENIED");
+                    updates.put("updatedAt", FieldValue.serverTimestamp());
+                    transaction.update(passRef, updates);
+                    return null;
+                })
+                .addOnSuccessListener(unused -> callback.onComplete(true, "Pass denied", null))
                 .addOnFailureListener(error -> callback.onComplete(false, safeMessage(error), error));
     }
 

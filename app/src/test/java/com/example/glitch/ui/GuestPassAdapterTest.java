@@ -33,6 +33,13 @@ public class GuestPassAdapterTest {
     }
 
     @Test
+    public void deniedStatusUsesCriticalChip() {
+        GuestPassAdapter.ChipStyle style = GuestPassAdapter.resolveStatusStyle("denied");
+        assertEquals(R.drawable.bg_chip_alert_critical, style.backgroundRes);
+        assertEquals(R.color.danger_red, style.textColorRes);
+    }
+
+    @Test
     public void fallbackStatusUsesDefaultChip() {
         GuestPassAdapter.ChipStyle style = GuestPassAdapter.resolveStatusStyle("queued");
         assertEquals(R.drawable.bg_chip_role, style.backgroundRes);

@@ -121,7 +121,8 @@ public class GuestPassAdapter extends RecyclerView.Adapter<GuestPassAdapter.Gues
         if ("active".equals(status)) {
             return new ChipStyle(R.drawable.bg_chip_success, R.color.success_green);
         }
-        if ("cancelled".equals(status) || "revoked".equals(status) || "expired".equals(status)) {
+        if ("cancelled".equals(status) || "revoked".equals(status)
+                || "expired".equals(status) || "denied".equals(status)) {
             return new ChipStyle(R.drawable.bg_chip_alert_critical, R.color.danger_red);
         }
         if ("used".equals(status)) {

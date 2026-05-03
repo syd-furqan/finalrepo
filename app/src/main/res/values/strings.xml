@@ -158,6 +158,13 @@
     <string name="pass_orphan_invalid">Pass is invalid (missing linked entry request).</string>
     <string name="pass_verified_go_dashboard">Pass verified. Open Dashboard to approve entry for request: %1$s</string>
     <string name="route_to_dashboard_for_admission">Approve entry from Dashboard to complete admission.</string>
+    <string name="guard_scan_decision_title">Visitor Decision</string>
+    <string name="guard_scan_decision_message">Guest: %1$s\nAccess Number: %2$s\nRequest: %3$s\nGate: %4$s\n\nChoose whether to approve or deny entry.</string>
+    <string name="guard_scan_accept_success">Visitor approved and admitted.</string>
+    <string name="guard_scan_accept_with_pass_update_warning">Visitor admitted, but guest-pass update had an issue: %1$s</string>
+    <string name="guard_scan_deny_success">Visitor denied. Request and pass were updated.</string>
+    <string name="guard_scan_deny_with_pass_update_warning">Visitor denied, but guest-pass update had an issue: %1$s</string>
+    <string name="guard_scan_default_deny_reason">Denied at gate via %1$s verification.</string>
 
     <string name="export_csv_action">Export CSV</string>
     <string name="no_audit_logs">No audit logs available.</string>
