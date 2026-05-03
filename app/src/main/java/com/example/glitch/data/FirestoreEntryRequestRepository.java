@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import com.example.glitch.model.CredentialVerificationResult;
 import com.example.glitch.model.DashboardState;
 import com.example.glitch.model.EntryRequest;
+import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.VerificationRules;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
@@ -37,8 +38,6 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
     static final String COLLECTION_CREDENTIALS = "credentials";
     static final String COLLECTION_ACCESS_EVENTS = "access_events";
     static final String COLLECTION_ALERTS = "alerts";
-    static final String COLLECTION_NOTIFICATIONS = "notifications";
-    static final String NOTIFICATION_ITEMS_SUBCOLLECTION = "items";
     static final String COLLECTION_VERIFICATION_RULES = "verification_rules";
     static final String DOC_CURRENT_RULES = "current";
     static final String DASHBOARD_STATE_DOC = "dashboard_state";
@@ -76,10 +75,6 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
     static final String IDENTIFIER_FIELD = "identifier";
     static final String LAST_FAILED_AT_FIELD = "lastFailedAt";
     static final String EXPIRY_AT_FIELD = "expiresAt";
-    static final String NOTIFICATION_TITLE_FIELD = "title";
-    static final String NOTIFICATION_MESSAGE_FIELD = "message";
-    static final String NOTIFICATION_TYPE_FIELD = "type";
-    static final String NOTIFICATION_CREATED_AT_FIELD = "createdAt";
 
     private final FirebaseFirestore firestore;
     private final CollectionReference entryRequestCollection;
@@ -104,7 +99,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         removeActiveRequestsListener();
         activeRequestsRegistration = entryRequestCollection
                 .whereEqualTo(TYPE_FIELD, TYPE_REQUEST)
-                .whereIn(STATUS_FIELD, Arrays.asList(STATUS_ACTIVE, STATUS_PENDING, STATUS_OVERDUE))
+                .whereIn(STATUS_FIELD, Arrays.asList(STATUS_ACTIVE, STATUS_OVERDUE))
                 .addSnapshotListener((snapshots, error) -> {
                     if (error != null) {
                         listener.onError(error);
@@ -318,7 +313,6 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
             @NonNull String requesterRole,
             @NonNull String guestName,
             @NonNull String guestIdNumber,
-            @NonNull String gateLabel,
             @NonNull String hostName,
             @Nullable Timestamp expiresAt,
             @NonNull CompletionCallback callback
@@ -330,7 +324,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         payload.put("roleTag", "Guest");
         payload.put(GUEST_ID_FIELD, guestIdNumber);
         payload.put(HOST_NAME_FIELD, hostName);
-        payload.put(GATE_LABEL_FIELD, gateLabel);
+        payload.put(GATE_LABEL_FIELD, GatePolicy.STORED_VALUE);
         payload.put("iconType", "guest");
         payload.put("expiresAt", expiresAt);
         payload.put(REQUESTER_UID_FIELD, requesterUid);
@@ -349,10 +343,10 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
     }
 
     @Override
-    public void logEntry(@NonNull String requestId, @NonNull String gateLabel, @NonNull CompletionCallback callback) {
+    public void logEntry(@NonNull String requestId, @NonNull CompletionCallback callback) {
         Map<String, Object> updates = new HashMap<>();
         updates.put(STATUS_FIELD, STATUS_ACTIVE);
-        updates.put(GATE_LABEL_FIELD, gateLabel);
+        updates.put(GATE_LABEL_FIELD, GatePolicy.STORED_VALUE);
         updates.put(ENTERED_AT_FIELD, FieldValue.serverTimestamp());
         updates.put(UPDATED_AT_FIELD, FieldValue.serverTimestamp());
         entryRequestCollection
@@ -360,12 +354,6 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                 .update(updates)
                 .addOnSuccessListener(unused -> {
                     appendAccessEvent("ENTRY", requestId, "", "guard", "Entry logged");
-                    notifyFacultyRequester(
-                            requestId,
-                            "Request approved",
-                            "Your guest request has been approved at " + gateLabel + ".",
-                            "approval"
-                    );
                     callback.onComplete(true, "Entry logged successfully", null);
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to log entry", error));
@@ -398,12 +386,6 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                 .update(updates)
                 .addOnSuccessListener(unused -> {
                     appendAccessEvent("DENY", requestId, "", "guard", "Request denied: " + reason);
-                    notifyFacultyRequester(
-                            requestId,
-                            "Request denied",
-                            "Your request was denied. Reason: " + reason,
-                            "denial"
-                    );
                     callback.onComplete(true, "Request denied", null);
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to deny request", error));
@@ -451,40 +433,6 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                 || safeLower(rawData == null ? null : rawData.get("vehicleNumber")).contains(normalizedQuery)
                 || safeLower(rawData == null ? null : rawData.get("plateNumber")).contains(normalizedQuery)
                 || request.getId().toLowerCase(Locale.getDefault()).contains(normalizedQuery);
-    }
-
-    private void notifyFacultyRequester(
-            @NonNull String requestId,
-            @NonNull String title,
-            @NonNull String message,
-            @NonNull String type
-    ) {
-        entryRequestCollection.document(requestId)
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    if (!snapshot.exists() || snapshot.getData() == null) {
-                        return;
-                    }
-                    String requesterRole = snapshot.getString(REQUESTER_ROLE_FIELD);
-                    if (!"faculty".equalsIgnoreCase(requesterRole == null ? "" : requesterRole)) {
-                        return;
-                    }
-                    String requesterUid = snapshot.getString(REQUESTER_UID_FIELD);
-                    if (requesterUid == null || requesterUid.trim().isEmpty()) {
-                        return;
-                    }
-                    Map<String, Object> payload = new HashMap<>();
-                    payload.put(NOTIFICATION_TITLE_FIELD, title);
-                    payload.put(NOTIFICATION_MESSAGE_FIELD, message);
-                    payload.put(NOTIFICATION_TYPE_FIELD, type);
-                    payload.put("isRead", false);
-                    payload.put(EVENT_REQUEST_ID_FIELD, requestId);
-                    payload.put(NOTIFICATION_CREATED_AT_FIELD, FieldValue.serverTimestamp());
-                    firestore.collection(COLLECTION_NOTIFICATIONS)
-                            .document(requesterUid)
-                            .collection(NOTIFICATION_ITEMS_SUBCOLLECTION)
-                            .add(payload);
-                });
     }
 
     private void appendAccessEvent(

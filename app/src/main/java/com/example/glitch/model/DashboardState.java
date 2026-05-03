@@ -47,7 +47,7 @@ public class DashboardState {
 
 		return new DashboardState(
 				asStringOrDefault(map.get("systemStatusTitle"), "System Status: Active"),
-				asStringOrDefault(map.get("systemStatusMessage"), "All gates reporting normal activity"),
+				asStringOrDefault(map.get("systemStatusMessage"), "In-Gate reporting normal activity"),
 				asStringOrDefault(map.get("protocolLevel"), "Level 1 - Open"),
 				asStringOrDefault(map.get("protocolDescription"), "Standard visitor verification required."),
 				asTimestamp(map.get("updatedAt"))
@@ -61,7 +61,7 @@ public class DashboardState {
 	public static DashboardState defaultState() {
 		return new DashboardState(
 				"System Status: Active",
-				"All gates reporting normal activity",
+				"In-Gate reporting normal activity",
 				"Level 1 - Open",
 				"Standard visitor verification required. All student/staff IDs must be swiped.",
 				null

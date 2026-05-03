@@ -79,7 +79,6 @@ public class RepositoryProviderTest {
                 @NonNull String requesterRole,
                 @NonNull String guestName,
                 @NonNull String guestIdNumber,
-                @NonNull String gateLabel,
                 @NonNull String hostName,
                 @Nullable Timestamp expiresAt,
                 @NonNull CompletionCallback callback
@@ -88,7 +87,7 @@ public class RepositoryProviderTest {
         }
 
         @Override
-        public void logEntry(@NonNull String requestId, @NonNull String gateLabel, @NonNull CompletionCallback callback) {
+        public void logEntry(@NonNull String requestId, @NonNull CompletionCallback callback) {
             callback.onComplete(true, "ok", null);
         }
 

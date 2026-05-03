@@ -29,7 +29,7 @@ public interface EntryRequestRepository {
 	void listenDashboardState(@NonNull DashboardStateListener listener);
 
 	/**
-	 * Performs one-shot search by guest name, id number, host or gate text.
+	 * Performs one-shot search by guest name, id number, host or request id.
 	 */
 	void searchRequests(@NonNull String query, @NonNull RequestListListener listener);
 
@@ -46,7 +46,6 @@ public interface EntryRequestRepository {
 			@NonNull String requesterRole,
 			@NonNull String guestName,
 			@NonNull String guestIdNumber,
-			@NonNull String gateLabel,
 			@NonNull String hostName,
 			@Nullable Timestamp expiresAt,
 			@NonNull CompletionCallback callback
@@ -55,7 +54,7 @@ public interface EntryRequestRepository {
 	/**
 	 * Writes request approval/entry state and appends an access event.
 	 */
-	void logEntry(@NonNull String requestId, @NonNull String gateLabel, @NonNull CompletionCallback callback);
+	void logEntry(@NonNull String requestId, @NonNull CompletionCallback callback);
 
 	/**
 	 * Writes request exit state for a given entry request document id.

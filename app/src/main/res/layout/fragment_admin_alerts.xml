@@ -116,7 +116,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Gate Alpha-01 (South West)"
+                    android:text="In-Gate Terminal"
                     android:textColor="@color/text_dark"
                     android:textSize="16sp" />
             </LinearLayout>
@@ -199,7 +199,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_8"
                 android:gravity="center"
-                android:text="Automated lock-down protocol initiated for terminal Alpha-01."
+                android:text="Automated lock-down protocol initiated for In-Gate terminal."
                 android:textColor="@color/text_muted"
                 android:textSize="12sp" />
 

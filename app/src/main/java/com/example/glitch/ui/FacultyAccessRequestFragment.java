@@ -56,7 +56,6 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
 
         TextInputEditText inputGuestName = view.findViewById(R.id.input_guest_name);
         TextInputEditText inputGuestId = view.findViewById(R.id.input_guest_id);
-        TextInputEditText inputGate = view.findViewById(R.id.input_gate_label);
         TextInputEditText inputExpiryHours = view.findViewById(R.id.input_request_expiry_hours);
         MaterialButton buttonSubmit = view.findViewById(R.id.button_submit_request);
         MaterialButton buttonArchived = view.findViewById(R.id.button_view_archived_passes);
@@ -96,11 +95,10 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
         buttonSubmit.setOnClickListener(v -> {
             String guestName = read(inputGuestName);
             String guestId = read(inputGuestId);
-            String gate = read(inputGate);
             String expiryRaw = read(inputExpiryHours);
             UserProfile userProfile = AuthUiGuard.requireProfile(this);
 
-            if (guestName.isEmpty() || guestId.isEmpty() || gate.isEmpty() || expiryRaw.isEmpty() || userProfile == null) {
+            if (guestName.isEmpty() || guestId.isEmpty() || expiryRaw.isEmpty() || userProfile == null) {
                 Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
                 return;
             }
@@ -118,7 +116,6 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
                     userProfile.getEmail(),
                     guestName,
                     guestId,
-                    gate,
                     expiryHours,
                     (success, message, issuedPass, exception) -> {
                         if (!isAdded()) {

@@ -8,6 +8,7 @@ import android.graphics.RectF;
 
 import androidx.annotation.NonNull;
 
+import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.GuestPass;
 
 import java.text.SimpleDateFormat;
@@ -58,7 +59,14 @@ public final class PassCardImageHelper {
 
         int rowY = 920;
         rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Guest", pass.getGuestName());
-        rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Gate", pass.getGateLabel());
+        rowY = drawRow(
+                canvas,
+                labelPaint,
+                valuePaint,
+                rowY,
+                "Gate",
+                GatePolicy.toDisplayLabel(pass.getGateLabel())
+        );
         rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Status", pass.getStatus().toUpperCase(Locale.getDefault()));
         rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Expires", formatTimestamp(pass, true));
         rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Entry Request", pass.getEntryRequestId());
@@ -98,4 +106,3 @@ public final class PassCardImageHelper {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(pass.getAdmittedAt().toDate());
     }
 }
-

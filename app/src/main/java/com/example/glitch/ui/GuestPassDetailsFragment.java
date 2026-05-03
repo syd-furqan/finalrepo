@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.glitch.R;
+import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.GuestPassStatusRules;
 import com.google.android.material.button.MaterialButton;
@@ -86,7 +87,7 @@ public class GuestPassDetailsFragment extends Fragment {
         String guestName = safeArg(args, ARG_GUEST_NAME);
         String status = safeArg(args, ARG_STATUS);
         String entryRequestId = safeArg(args, ARG_ENTRY_REQUEST_ID);
-        String gateLabel = safeArg(args, ARG_GATE_LABEL);
+        String gateLabel = GatePolicy.toDisplayLabel(safeArg(args, ARG_GATE_LABEL));
         String sponsorName = safeArg(args, ARG_SPONSOR_NAME);
         String sponsorEmail = safeArg(args, ARG_SPONSOR_EMAIL);
         String sponsorRole = safeArg(args, ARG_SPONSOR_ROLE);
@@ -117,7 +118,7 @@ public class GuestPassDetailsFragment extends Fragment {
         String body = ""
                 + "Guest ID: " + fallback(guestId) + "\n"
                 + "Entry Request ID: " + fallback(entryRequestId) + "\n"
-                + "Gate: " + fallback(gateLabel) + "\n"
+                + "Gate: " + gateLabel + "\n"
                 + "Created At: " + formatMillis(createdAt) + "\n"
                 + "Expires At: " + formatMillis(expiresAt) + "\n"
                 + "Admitted At: " + formatMillis(admittedAt) + "\n"
@@ -195,4 +196,3 @@ public class GuestPassDetailsFragment extends Fragment {
         return timestamp.toDate().getTime();
     }
 }
-

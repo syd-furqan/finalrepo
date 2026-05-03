@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import com.example.glitch.R;
 import com.example.glitch.data.EntryRequestRepository;
 import com.example.glitch.data.RepositoryProvider;
+import com.example.glitch.model.GatePolicy;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -73,7 +74,7 @@ public class VerificationResultFragment extends Fragment {
         String name = safeArg(args, ARG_NAME);
         String role = safeArg(args, ARG_ROLE);
         String host = safeArg(args, ARG_HOST);
-        String gate = safeArg(args, ARG_GATE);
+        String gate = GatePolicy.toDisplayLabel(safeArg(args, ARG_GATE));
         String entered = safeArg(args, ARG_ENTERED);
 
         TextView textName = view.findViewById(R.id.text_subject_name);

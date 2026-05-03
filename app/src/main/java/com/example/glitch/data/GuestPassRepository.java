@@ -32,7 +32,6 @@ public interface GuestPassRepository {
 			@NonNull String sponsorEmail,
 			@NonNull String guestName,
 			@NonNull String guestIdNumber,
-			@NonNull String gateLabel,
 			int expiryHours,
 			@NonNull IssueCallback callback
 	);

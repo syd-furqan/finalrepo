@@ -60,7 +60,7 @@ public class GuestPass {
 		this.guestIdNumber = guestIdNumber;
 		this.passCode = passCode;
 		this.entryRequestId = entryRequestId;
-		this.gateLabel = gateLabel;
+		this.gateLabel = GatePolicy.normalizeStoredValue(gateLabel);
 		this.status = status;
 		this.expiresAt = expiresAt;
 		this.admittedAt = admittedAt;
@@ -79,7 +79,24 @@ public class GuestPass {
 	@NonNull
 	public static GuestPass fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
 		if (map == null) {
-			return new GuestPass(id, "", "", "", "", "", "", "", "", "", "", null, null, "", "", null);
+			return new GuestPass(
+					id,
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					GatePolicy.STORED_VALUE,
+					"",
+					null,
+					null,
+					"",
+					"",
+					null
+			);
 		}
 		return new GuestPass(
 				id,
@@ -91,7 +108,7 @@ public class GuestPass {
 				asString(map.get("guestIdNumber")),
 				asString(map.get("passCode")),
 				asString(map.get("entryRequestId")),
-				asString(map.get("gateLabel")),
+				GatePolicy.normalizeStoredValue(asString(map.get("gateLabel"))),
 				asString(map.get("status")),
 				asTimestamp(map.get("expiresAt")),
 				asTimestamp(map.get("admittedAt")),

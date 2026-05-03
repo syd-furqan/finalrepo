@@ -8,6 +8,7 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import com.example.glitch.R;
+import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.GuestPassStatusRules;
 
@@ -40,7 +41,7 @@ public final class PassShareHelper {
         String shareText =
                 "Access Number (Pass Code): " + passCode + "\n"
                         + "Guest: " + pass.getGuestName() + "\n"
-                        + "Gate: " + pass.getGateLabel() + "\n"
+                        + "Gate: " + GatePolicy.toDisplayLabel(pass.getGateLabel()) + "\n"
                         + "Entry Request ID: " + pass.getEntryRequestId() + "\n"
                         + "Use this pass code if QR scan is unavailable.";
 

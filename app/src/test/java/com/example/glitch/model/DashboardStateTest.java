@@ -21,7 +21,7 @@ public class DashboardStateTest {
 
         Map<String, Object> map = new HashMap<>();
         map.put("systemStatusTitle", "System Status: Alert");
-        map.put("systemStatusMessage", "Gate 2 requires manual verification.");
+        map.put("systemStatusMessage", "In-Gate requires manual verification.");
         map.put("protocolLevel", "Level 2 - Restricted");
         map.put("protocolDescription", "Only pre-approved visitors are allowed.");
         map.put("updatedAt", updatedAt);
@@ -29,7 +29,7 @@ public class DashboardStateTest {
         DashboardState state = DashboardState.fromMap(map);
 
         assertEquals("System Status: Alert", state.getSystemStatusTitle());
-        assertEquals("Gate 2 requires manual verification.", state.getSystemStatusMessage());
+        assertEquals("In-Gate requires manual verification.", state.getSystemStatusMessage());
         assertEquals("Level 2 - Restricted", state.getProtocolLevel());
         assertEquals("Only pre-approved visitors are allowed.", state.getProtocolDescription());
         assertNotNull(state.getUpdatedAt());

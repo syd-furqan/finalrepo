@@ -37,7 +37,7 @@ public class EntryRequestTest {
         assertEquals("Ahmed Mansoor", request.getFullName());
         assertEquals("Guest", request.getRoleTag());
         assertEquals("Prof. Salman", request.getHostName());
-        assertEquals("West Wing - 02", request.getGateLabel());
+        assertEquals(GatePolicy.STORED_VALUE, request.getGateLabel());
         assertEquals("35201-1234567-1", request.getGuestIdNumber());
         assertEquals("pending", request.getStatus());
         assertEquals("guest", request.getIconType());
