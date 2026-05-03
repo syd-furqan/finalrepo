@@ -31,7 +31,7 @@ import java.util.Locale;
 /**
  * Main dashboard screen matching Figma node 1:225 and wiring Firestore data interactions.
  * Pattern: Fragment orchestrating repository data + RecyclerView presentation.
- * Known issue: bottom navigation is currently static and non-routing for milestone 1.
+ * Updated to support overdue guest status.
  */
 public class DashboardFragment extends Fragment implements EntryRequestAdapter.EntryActionListener {
 
@@ -107,16 +107,18 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
                         @Override
                         public void onData(@NonNull List<EntryRequest> requests) {
                             if (!isAdded()) return;
-                            List<EntryRequest> activeOnly = new ArrayList<>();
+                            
+                            // Include both active and overdue in search results for guards
+                            List<EntryRequest> visibleRequests = new ArrayList<>();
                             for (EntryRequest request : requests) {
-                                if ("active".equalsIgnoreCase(request.getStatus())) {
-                                    activeOnly.add(request);
+                                String status = request.getStatus().toLowerCase();
+                                if ("active".equals(status) || "overdue".equals(status)) {
+                                    visibleRequests.add(request);
                                 }
                             }
 
-                            adapter.submitList(activeOnly);
-
-                            emptyStateCard.setVisibility(activeOnly.isEmpty() ? View.VISIBLE : View.GONE);
+                            adapter.submitList(visibleRequests);
+                            emptyStateCard.setVisibility(visibleRequests.isEmpty() ? View.VISIBLE : View.GONE);
                         }
 
                         @Override
@@ -287,6 +289,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
                 request.getGateLabel(),
                 formatTimestamp(request.getEnteredAt()),
                 formatTimestamp(request.getExpiresAt()),
+                request.getStatus(),
                 promptExit
         );
         sheet.show(getParentFragmentManager(), EntryDetailsBottomSheetDialogFragment.TAG);

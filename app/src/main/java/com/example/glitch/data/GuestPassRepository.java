@@ -11,7 +11,6 @@ import java.util.List;
 /**
  * Contract for creating, listing and cancelling guest passes.
  * Pattern: Repository interface for student and faculty pass lifecycle flows.
- * Updated to return ListenerRegistration for fragment-scoped lifecycle management.
  */
 public interface GuestPassRepository {
 
@@ -65,6 +64,14 @@ public interface GuestPassRepository {
 	void markPassDeniedByEntryRequestId(
 			@NonNull String entryRequestId,
 			@NonNull String deniedByUid,
+			@NonNull OperationCallback callback
+	);
+
+	/**
+	 * Updates the linked guest pass to 'exited' status.
+	 */
+	void markPassExitedByEntryRequestId(
+			@NonNull String entryRequestId,
 			@NonNull OperationCallback callback
 	);
 

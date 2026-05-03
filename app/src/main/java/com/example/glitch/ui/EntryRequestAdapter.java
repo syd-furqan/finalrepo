@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glitch.R;
@@ -23,7 +24,7 @@ import java.util.Locale;
 /**
  * RecyclerView adapter for active entry request cards.
  * Pattern: Adapter + ViewHolder for one-card-per-request rendering.
- * Known issue: role/icon mapping is static and limited to current dashboard roles.
+ * Updated to visually highlight overdue requests.
  */
 public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapter.EntryRequestViewHolder> {
     private final List<EntryRequest> requests = new ArrayList<>();
@@ -53,9 +54,22 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
     @Override
     public void onBindViewHolder(@NonNull EntryRequestViewHolder holder, int position) {
         EntryRequest request = requests.get(position);
+        boolean isOverdue = "overdue".equalsIgnoreCase(request.getStatus());
 
         holder.textName.setText(request.getFullName());
-        holder.textRoleChip.setText(request.getRoleTag());
+        holder.textRoleChip.setText(isOverdue ? "OVERDUE" : request.getRoleTag());
+        
+        // Visual indicator for overdue status
+        if (isOverdue) {
+            holder.textRoleChip.setBackgroundResource(R.drawable.bg_chip_role_danger); // We will need to create this or use a color
+            holder.textRoleChip.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
+            holder.textEntered.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.danger_red));
+        } else {
+            holder.textRoleChip.setBackgroundResource(R.drawable.bg_chip_role);
+            holder.textRoleChip.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary_navy));
+            holder.textEntered.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.text_dark));
+        }
+
         String hostText = holder.itemView.getContext().getString(R.string.unknown_host_prefix, request.getHostName());
         holder.textHost.setText(hostText);
         holder.textGate.setText(request.getGateLabel());

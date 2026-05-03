@@ -14,6 +14,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,10 +29,11 @@ import java.util.Set;
 /**
  * Firestore-backed implementation of entry request repository.
  * Pattern: Data source adapter from Firebase snapshot APIs to domain models.
- * Known issue: assumes entry request documents are typed with `type = request`.
+ * Updated to handle "overdue" status for guests past their expiry time.
  */
 public class FirestoreEntryRequestRepository implements EntryRequestRepository {
     static final String COLLECTION_ENTRY_REQUESTS = "entry_requests";
+    static final String COLLECTION_GUEST_PASSES = "guest_passes";
     static final String COLLECTION_CREDENTIALS = "credentials";
     static final String COLLECTION_ACCESS_EVENTS = "access_events";
     static final String COLLECTION_ALERTS = "alerts";
@@ -45,8 +47,10 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
     static final String TYPE_STATE = "state";
     static final String STATUS_FIELD = "status";
     static final String STATUS_ACTIVE = "active";
+    static final String STATUS_PENDING = "pending";
     static final String STATUS_EXITED = "exited";
     static final String STATUS_DENIED = "denied";
+    static final String STATUS_OVERDUE = "overdue";
     static final String ENTERED_AT_FIELD = "enteredAt";
     static final String EXITED_AT_FIELD = "exitedAt";
     static final String UPDATED_AT_FIELD = "updatedAt";
@@ -100,7 +104,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         removeActiveRequestsListener();
         activeRequestsRegistration = entryRequestCollection
                 .whereEqualTo(TYPE_FIELD, TYPE_REQUEST)
-                .whereEqualTo(STATUS_FIELD, STATUS_ACTIVE)
+                .whereIn(STATUS_FIELD, Arrays.asList(STATUS_ACTIVE, STATUS_PENDING, STATUS_OVERDUE))
                 .addSnapshotListener((snapshots, error) -> {
                     if (error != null) {
                         listener.onError(error);
@@ -108,13 +112,63 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                     }
 
                     List<EntryRequest> requests = new ArrayList<>();
+                    List<String> overdueRequestIds = new ArrayList<>();
+                    Date now = new Date();
+
                     if (snapshots != null) {
                         for (DocumentSnapshot document : snapshots.getDocuments()) {
-                            requests.add(EntryRequest.fromMap(document.getId(), document.getData()));
+                            EntryRequest request = EntryRequest.fromMap(document.getId(), document.getData());
+                            
+                            // Check for overdue status (entered but past expiry)
+                            if (STATUS_ACTIVE.equals(request.getStatus()) && 
+                                request.getExpiresAt() != null && 
+                                request.getExpiresAt().toDate().before(now)) {
+                                overdueRequestIds.add(request.getId());
+                            }
+                            
+                            requests.add(request);
                         }
                     }
+                    
+                    if (!overdueRequestIds.isEmpty()) {
+                        markRequestsAsOverdue(overdueRequestIds);
+                    }
+                    
                     listener.onData(requests);
                 });
+    }
+
+    /**
+     * Updates requests and their linked guest passes to "overdue" status.
+     */
+    private void markRequestsAsOverdue(@NonNull List<String> requestIds) {
+        for (String requestId : requestIds) {
+            WriteBatch batch = firestore.batch();
+            
+            // Update Entry Request
+            batch.update(entryRequestCollection.document(requestId), 
+                    STATUS_FIELD, STATUS_OVERDUE,
+                    UPDATED_AT_FIELD, FieldValue.serverTimestamp());
+            
+            // Update linked Guest Passes
+            firestore.collection(COLLECTION_GUEST_PASSES)
+                    .whereEqualTo("entryRequestId", requestId)
+                    .get()
+                    .addOnSuccessListener(snapshot -> {
+                        WriteBatch passBatch = firestore.batch();
+                        for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                            passBatch.update(doc.getReference(), 
+                                    STATUS_FIELD, STATUS_OVERDUE,
+                                    UPDATED_AT_FIELD, FieldValue.serverTimestamp());
+                        }
+                        passBatch.commit();
+                        
+                        // Append event for the overdue status
+                        appendAccessEvent("OVERDUE", requestId, "", "system", "Request flagged as overdue by system");
+                    });
+            
+            batch.commit();
+        }
     }
 
     @Override
