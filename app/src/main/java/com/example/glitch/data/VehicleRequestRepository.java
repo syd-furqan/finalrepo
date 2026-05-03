@@ -8,47 +8,50 @@ import com.example.glitch.model.VehicleRequestRecord;
 import java.util.List;
 
 /**
- * Contract for staff vehicle request submissions and status tracking.
- * Pattern: Repository abstraction for create/list vehicle requests.
- * Known issue: admin review action is currently managed in separate user-management workflows.
+ * Contract for staff vehicle request submissions, status tracking, and admin review.
+ * Pattern: Repository abstraction for create/list/review vehicle requests.
  */
 public interface VehicleRequestRepository {
 
-	void submitVehicleRequest(
-			@NonNull String requesterUid,
-			@NonNull String plateNumber,
-			@NonNull String vehicleModel,
-			@NonNull OperationCallback callback
-	);
+    void submitVehicleRequest(
+            @NonNull String requesterUid,
+            @NonNull String plateNumber,
+            @NonNull String vehicleMake,
+            @NonNull String vehicleModel,
+            @NonNull String vehicleColor,
+            @NonNull OperationCallback callback
+    );
 
-	void listenVehicleRequests(@NonNull String requesterUid, @NonNull RequestListListener listener);
+    void listenVehicleRequests(@NonNull String requesterUid, @NonNull RequestListListener listener);
 
-	void listenAllVehicleRequests(@NonNull RequestListListener listener);
+    void listenAllVehicleRequests(@NonNull RequestListListener listener);
 
-	void updateVehicleRequest(
-			@NonNull String requestId,
-			@NonNull String plateNumber,
-			@NonNull String vehicleModel,
-			@NonNull OperationCallback callback
-	);
+    void updateVehicleRequest(
+            @NonNull String requestId,
+            @NonNull String plateNumber,
+            @NonNull String vehicleMake,
+            @NonNull String vehicleModel,
+            @NonNull String vehicleColor,
+            @NonNull OperationCallback callback
+    );
 
-	void reviewVehicleRequest(
-			@NonNull String requestId,
-			@NonNull String adminUid,
-			boolean approved,
-			@NonNull String note,
-			@NonNull OperationCallback callback
-	);
+    void reviewVehicleRequest(
+            @NonNull String requestId,
+            @NonNull String reviewerUid,
+            boolean approved,
+            @NonNull String reviewNote,
+            @NonNull OperationCallback callback
+    );
 
-	void removeListeners();
+    void removeListeners();
 
-	interface RequestListListener {
-		void onData(@NonNull List<VehicleRequestRecord> requests);
+    interface RequestListListener {
+        void onData(@NonNull List<VehicleRequestRecord> requests);
 
-		void onError(@NonNull Exception exception);
-	}
+        void onError(@NonNull Exception exception);
+    }
 
-	interface OperationCallback {
-		void onComplete(boolean success, @NonNull String message, @Nullable Exception exception);
-	}
+    interface OperationCallback {
+        void onComplete(boolean success, @NonNull String message, @Nullable Exception exception);
+    }
 }

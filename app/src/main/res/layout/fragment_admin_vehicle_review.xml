@@ -26,19 +26,28 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/admin_vehicle_review_title"
+                android:text="@string/feature_admin_vehicle_review"
                 android:textColor="@color/text_dark"
-                android:textSize="32sp"
+                android:textSize="36sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_8"
+                android:text="@string/admin_vehicle_review_subtitle"
+                android:textColor="@color/text_muted"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/text_vehicle_review_summary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
+                android:layout_marginTop="@dimen/space_16"
                 android:textColor="@color/text_muted"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/text_vehicle_review_empty"
@@ -55,9 +64,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_8"
-                android:clipToPadding="false"
-                android:nestedScrollingEnabled="false"
-                android:paddingBottom="@dimen/space_16" />
+                android:nestedScrollingEnabled="false" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

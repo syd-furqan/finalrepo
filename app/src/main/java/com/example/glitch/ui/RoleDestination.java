@@ -22,5 +22,6 @@ public enum RoleDestination {
     STAFF_ACCESS_STATUS,
     STUDENT_PASSES,
     GUARD_DENY,
+    ADMIN_VEHICLES,
     LOGOUT
 }

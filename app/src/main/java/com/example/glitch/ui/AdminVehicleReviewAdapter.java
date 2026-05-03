@@ -22,18 +22,24 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * RecyclerView adapter for admin vehicle approval rows.
- * Pattern: Request summary with approve/deny actions for pending records.
+ * RecyclerView adapter for the admin vehicle request review screen.
+ * Pending rows show approve/deny buttons; reviewed rows show the review note.
  */
-public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicleReviewAdapter.VehicleReviewViewHolder> {
-    private final List<VehicleRequestRecord> items = new ArrayList<>();
-    private final VehicleReviewActionListener listener;
+public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicleReviewAdapter.ViewHolder> {
 
-    AdminVehicleReviewAdapter(@NonNull VehicleReviewActionListener listener) {
-        this.listener = listener;
+    public interface ActionListener {
+        void onApprove(@NonNull VehicleRequestRecord record);
+        void onDeny(@NonNull VehicleRequestRecord record);
     }
 
-    void submitList(@NonNull List<VehicleRequestRecord> records) {
+    private final List<VehicleRequestRecord> items = new ArrayList<>();
+    private final ActionListener actionListener;
+
+    public AdminVehicleReviewAdapter(@NonNull ActionListener actionListener) {
+        this.actionListener = actionListener;
+    }
+
+    public void submitList(@NonNull List<VehicleRequestRecord> records) {
         items.clear();
         items.addAll(records);
         notifyDataSetChanged();
@@ -41,37 +47,44 @@ public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicle
 
     @NonNull
     @Override
-    public VehicleReviewViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_admin_vehicle_review, parent, false);
-        return new VehicleReviewViewHolder(view);
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_admin_vehicle_review, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull VehicleReviewViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         VehicleRequestRecord record = items.get(position);
         holder.textPlate.setText(record.getPlateNumber());
-        holder.textDetails.setText(formatDetails(record));
-        holder.textRequester.setText(holder.itemView.getContext().getString(
-                R.string.admin_vehicle_requester_label,
-                record.getRequesterUid().isEmpty() ? "Unknown" : record.getRequesterUid()
-        ));
-        holder.textSubmitted.setText(formatCreatedAt(holder, record.getCreatedAt()));
 
-        String status = record.getStatus().isEmpty() ? "pending" : record.getStatus();
+        String description = record.getVehicleDescription();
+        String color = record.getVehicleColor().trim();
+        holder.textDetails.setText(color.isEmpty() ? description : description + "  |  " + color);
+
+        holder.textRequester.setText(record.getRequesterUid());
+        holder.textSubmitted.setText(formatTimestamp(holder, record.getCreatedAt(), "Submitted: "));
+
+        String status = record.getStatus();
+        VehicleRequestAdapter.ChipStyle chipStyle = VehicleRequestAdapter.resolveStatusStyle(status);
         holder.textStatus.setText(status.toUpperCase(Locale.getDefault()));
-        VehicleRequestAdapter.ChipStyle style = VehicleRequestAdapter.resolveStatusStyle(status);
-        holder.textStatus.setBackgroundResource(style.backgroundRes);
-        holder.textStatus.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), style.textColorRes));
+        holder.textStatus.setBackgroundResource(chipStyle.backgroundRes);
+        holder.textStatus.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), chipStyle.textColorRes));
 
         boolean pending = record.isPending();
-        holder.buttonApprove.setEnabled(pending);
-        holder.buttonDeny.setEnabled(pending);
         holder.buttonApprove.setVisibility(pending ? View.VISIBLE : View.GONE);
         holder.buttonDeny.setVisibility(pending ? View.VISIBLE : View.GONE);
-        holder.textReviewed.setVisibility(pending ? View.GONE : View.VISIBLE);
-        holder.textReviewed.setText(formatReviewed(record));
-        holder.buttonApprove.setOnClickListener(v -> listener.onApprove(record));
-        holder.buttonDeny.setOnClickListener(v -> listener.onDeny(record));
+
+        if (pending) {
+            holder.textReviewed.setVisibility(View.GONE);
+            holder.buttonApprove.setOnClickListener(v -> actionListener.onApprove(record));
+            holder.buttonDeny.setOnClickListener(v -> actionListener.onDeny(record));
+        } else {
+            holder.textReviewed.setVisibility(View.VISIBLE);
+            String note = record.getReviewNote().trim();
+            String reviewedAt = formatTimestamp(holder, record.getReviewedAt(), "Reviewed: ");
+            holder.textReviewed.setText(note.isEmpty() ? reviewedAt : reviewedAt + "  ·  " + note);
+        }
     }
 
     @Override
@@ -80,37 +93,16 @@ public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicle
     }
 
     @NonNull
-    private String formatDetails(@NonNull VehicleRequestRecord record) {
-        String description = record.getVehicleDescription();
-        String color = record.getVehicleColor();
-        if (description.isEmpty()) {
-            return color;
+    private String formatTimestamp(@NonNull ViewHolder holder, @Nullable Timestamp timestamp, @NonNull String prefix) {
+        if (timestamp == null) {
+            return prefix + "Unknown";
         }
-        if (color.isEmpty()) {
-            return description;
-        }
-        return description + " | " + color;
+        DateFormat fmt = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+        Date date = timestamp.toDate();
+        return prefix + fmt.format(date);
     }
 
-    @NonNull
-    private String formatCreatedAt(@NonNull VehicleReviewViewHolder holder, @Nullable Timestamp createdAt) {
-        if (createdAt == null) {
-            return holder.itemView.getContext().getString(R.string.vehicle_created_at_unknown);
-        }
-        DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
-        Date date = createdAt.toDate();
-        return holder.itemView.getContext().getString(R.string.vehicle_created_at_label, formatter.format(date));
-    }
-
-    @NonNull
-    private String formatReviewed(@NonNull VehicleRequestRecord record) {
-        if (record.getReviewNote().trim().isEmpty()) {
-            return record.getReviewedAt() == null ? "" : "Reviewed";
-        }
-        return record.getReviewNote();
-    }
-
-    static class VehicleReviewViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView textPlate;
         final TextView textStatus;
         final TextView textDetails;
@@ -120,7 +112,7 @@ public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicle
         final MaterialButton buttonApprove;
         final MaterialButton buttonDeny;
 
-        VehicleReviewViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
             textPlate = itemView.findViewById(R.id.text_admin_vehicle_plate);
             textStatus = itemView.findViewById(R.id.text_admin_vehicle_status);
@@ -131,11 +123,5 @@ public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicle
             buttonApprove = itemView.findViewById(R.id.button_approve_vehicle);
             buttonDeny = itemView.findViewById(R.id.button_deny_vehicle);
         }
-    }
-
-    interface VehicleReviewActionListener {
-        void onApprove(@NonNull VehicleRequestRecord record);
-
-        void onDeny(@NonNull VehicleRequestRecord record);
     }
 }

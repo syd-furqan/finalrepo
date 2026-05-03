@@ -175,4 +175,14 @@
     <string name="vehicle_created_at_unknown">Unknown Date</string>
     <string name="vehicle_created_at_label">Created at: %s</string>
     <string name="mark_all_read_action">Mark all as read</string>
+
+    <!-- Admin vehicle review (US-10) -->
+    <string name="feature_admin_vehicle_review">Vehicle Review</string>
+    <string name="admin_vehicle_review_subtitle">Review and approve or deny staff vehicle registration requests.</string>
+    <string name="vehicle_approve_title">Approve Request</string>
+    <string name="vehicle_deny_title">Deny Request</string>
+    <string name="vehicle_approve_action">Approve</string>
+    <string name="vehicle_deny_action">Deny</string>
+    <string name="vehicle_review_note_label">Review Note (optional)</string>
+    <string name="vehicle_review_note_hint">Add a reason or note for the requester</string>
 </resources>

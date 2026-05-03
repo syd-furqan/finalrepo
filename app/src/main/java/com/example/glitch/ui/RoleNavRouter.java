@@ -170,7 +170,7 @@ public final class RoleNavRouter {
                 return RoleDestination.DASHBOARD;
             case VEHICLES:
                 if ("admin".equals(role)) {
-                    return RoleDestination.ALERTS;
+                    return RoleDestination.ADMIN_VEHICLES;
                 }
                 if ("guard".equals(role)) {
                     return RoleDestination.SCAN;
@@ -237,6 +237,8 @@ public final class RoleNavRouter {
                 return StudentGuestPassFragment.newInstance();
             case GUARD_DENY:
                 return GuardDenyFragment.newInstance();
+            case ADMIN_VEHICLES:
+                return AdminVehicleReviewFragment.newInstance();
             default:
                 return null;
         }
