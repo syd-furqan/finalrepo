@@ -166,4 +166,7 @@
     <string name="no_alerts">No alerts detected.</string>
     <string name="error_load_alerts">Unable to load alerts.</string>
     <string name="alert_fail_count">Failed attempts: %1$d</string>
+    <string name="vehicle_created_at_unknown">Unknown Date</string>
+    <string name="vehicle_created_at_label">Created at: %s</string>
+    <string name="mark_all_read_action">Mark all as read</string>
 </resources>

@@ -19,22 +19,18 @@ import com.example.glitch.model.UserProfile;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
-import com.journeyapps.barcodescanner.ScanIntentResult;
 import androidx.activity.result.ActivityResultLauncher;
 
 import java.util.Date;
 
 /**
  * Guard QR verification screen for single-use guest pass checks.
- * Pattern: Verification form fragment using pass-code lookup against Firestore.
- * Known issue: scanner camera integration is represented as pass-code input in v1.
  */
 public class GuardQrScanFragment extends Fragment {
     private GuestPassRepository guestPassRepository;
@@ -51,11 +47,7 @@ public class GuardQrScanFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState
-    ) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_guard_qr_scan, container, false);
     }
 
@@ -67,7 +59,7 @@ public class GuardQrScanFragment extends Fragment {
         verificationRulesRepository = RepositoryProvider.getVerificationRulesRepository();
         firestore = FirebaseFirestore.getInstance();
 
-        // Register barcode scanner activity result
+        // 1. Register barcode scanner activity result
         barcodeLauncher = registerForActivityResult(new ScanContract(), result -> {
             if (result == null) return;
             String contents = result.getContents();
@@ -75,7 +67,6 @@ public class GuardQrScanFragment extends Fragment {
                 Snackbar.make(requireView(), R.string.error_verify_credential, Snackbar.LENGTH_SHORT).show();
                 return;
             }
-            // Treat scanned contents as pass code and run the same lookup flow
             guestPassRepository.findPassByCode(contents, new GuestPassRepository.PassLookupListener() {
                 @Override
                 public void onData(@Nullable GuestPass pass) {
@@ -97,6 +88,7 @@ public class GuardQrScanFragment extends Fragment {
             });
         });
 
+        // 2. Setup Manual Validation
         TextInputEditText inputPassCode = view.findViewById(R.id.input_pass_code);
         MaterialButton buttonValidate = view.findViewById(R.id.button_validate_pass);
         TextView textResult = view.findViewById(R.id.text_pass_result);
@@ -111,25 +103,20 @@ public class GuardQrScanFragment extends Fragment {
             guestPassRepository.findPassByCode(passCode, new GuestPassRepository.PassLookupListener() {
                 @Override
                 public void onData(@Nullable GuestPass pass) {
-                    if (!isAdded()) {
-                        return;
-                    }
+                    if (!isAdded()) return;
                     requireActivity().runOnUiThread(() -> handlePassLookupResult(pass, textResult));
                 }
 
                 @Override
                 public void onError(@NonNull Exception exception) {
-                    if (!isAdded()) {
-                        return;
-                    }
-                    requireActivity().runOnUiThread(() ->
-                            textResult.setText(R.string.error_verify_credential));
-                    // record a failed attempt for this identifier
+                    if (!isAdded()) return;
+                    requireActivity().runOnUiThread(() -> textResult.setText(R.string.error_verify_credential));
                     recordFailedAttempt(passCode);
+                }
             });
         });
-    }
 
+        // 3. Setup QR Scan Button
         MaterialButton buttonScan = view.findViewById(R.id.button_scan_qr);
         buttonScan.setOnClickListener(v -> {
             ScanOptions options = new ScanOptions();
@@ -139,7 +126,7 @@ public class GuardQrScanFragment extends Fragment {
             barcodeLauncher.launch(options);
         });
 
-        // Start listening to verification rules so we can use alert threshold
+        // 4. Listen to Verification Rules
         verificationRulesRepository.listenRules(new com.example.glitch.data.VerificationRulesRepository.RulesListener() {
             @Override
             public void onData(@NonNull com.example.glitch.model.VerificationRules rules) {
@@ -151,17 +138,18 @@ public class GuardQrScanFragment extends Fragment {
                 // ignore; keep defaults
             }
         });
-
+    }
 
     private void recordFailedAttempt(@NonNull String identifier) {
-        // Increment a counter document and create/update an alert when threshold reached
         DocumentReference counterRef = firestore.collection("failed_counts").document(identifier);
-        counterRef.set(new java.util.HashMap<String, Object>() {{ put("count", FieldValue.increment(1)); put("lastFailedAt", FieldValue.serverTimestamp()); }}, com.google.firebase.firestore.SetOptions.merge())
+        counterRef.set(new java.util.HashMap<String, Object>() {{
+                    put("count", FieldValue.increment(1));
+                    put("lastFailedAt", FieldValue.serverTimestamp());
+                }}, com.google.firebase.firestore.SetOptions.merge())
                 .addOnSuccessListener(v -> counterRef.get().addOnSuccessListener(snapshot -> {
                     long count = snapshot.getLong("count") == null ? 0L : snapshot.getLong("count");
                     int threshold = Math.max(1, currentRules.getAlertThreshold());
                     if (count >= threshold) {
-                        // create or update alert document for this identifier
                         DocumentReference alertRef = firestore.collection("alerts").document(identifier);
                         java.util.Map<String, Object> payload = new java.util.HashMap<>();
                         payload.put("identifier", identifier);
@@ -174,6 +162,7 @@ public class GuardQrScanFragment extends Fragment {
                     }
                 }));
     }
+
     private void handlePassLookupResult(@Nullable GuestPass pass, @NonNull TextView textResult) {
         if (pass == null) {
             textResult.setText(R.string.pass_not_found);
@@ -190,24 +179,16 @@ public class GuardQrScanFragment extends Fragment {
         }
 
         UserProfile profile = AuthUiGuard.requireProfile(this);
-        if (profile == null) {
-            return;
-        }
+        if (profile == null) return;
+
         String guardUid = profile.getUid();
         String hostInfo = pass.getSponsorName() + " (" + pass.getSponsorEmail() + ")";
 
         entryRequestRepository.createEntryRequest(
-                guardUid,
-                "guard",
-                pass.getGuestName(),
-                pass.getGuestIdNumber(),
-                "QR Gate",
-                hostInfo,
-                pass.getExpiresAt(),
+                guardUid, "guard", pass.getGuestName(), pass.getGuestIdNumber(),
+                "QR Gate", hostInfo, pass.getExpiresAt(),
                 (success, message, exception) -> {
-                    if (!isAdded()) {
-                        return;
-                    }
+                    if (!isAdded()) return;
                     requireActivity().runOnUiThread(() -> textResult.setText(message));
                 }
         );
