@@ -1,6 +1,7 @@
 package com.example.glitch.data;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.GuestPassStatusRules;
@@ -23,8 +24,7 @@ import java.util.UUID;
 
 /**
  * Firestore-backed guest pass repository.
- * Pattern: Collection adapter with realtime listing and pass-code lookup methods.
- * Known issue: expiry enforcement in v1 is checked client-side when scanning.
+ * Updated to return ListenerRegistration to avoid cross-fragment listener collisions.
  */
 public class FirestoreGuestPassRepository implements GuestPassRepository {
     private static final String COLLECTION_GUEST_PASSES = "guest_passes";
@@ -38,7 +38,6 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
     private final FirebaseFirestore firestore;
     private final CollectionReference collection;
     private final CollectionReference entryRequestCollection;
-    private ListenerRegistration listRegistration;
 
     public FirestoreGuestPassRepository() {
         this(FirebaseFirestore.getInstance());
@@ -158,23 +157,24 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to issue guest pass", null, error));
     }
 
+    @Nullable
     @Override
-    public void listenGuestPasses(@NonNull String sponsorUid, @NonNull PassListListener listener) {
-        listenPassesByArchiveMode(sponsorUid, false, listener);
+    public ListenerRegistration listenGuestPasses(@NonNull String sponsorUid, @NonNull PassListListener listener) {
+        return listenPassesByArchiveMode(sponsorUid, false, listener);
     }
 
+    @Nullable
     @Override
-    public void listenArchivedGuestPasses(@NonNull String sponsorUid, @NonNull PassListListener listener) {
-        listenPassesByArchiveMode(sponsorUid, true, listener);
+    public ListenerRegistration listenArchivedGuestPasses(@NonNull String sponsorUid, @NonNull PassListListener listener) {
+        return listenPassesByArchiveMode(sponsorUid, true, listener);
     }
 
-    private void listenPassesByArchiveMode(
+    private ListenerRegistration listenPassesByArchiveMode(
             @NonNull String sponsorUid,
             boolean archivedOnly,
             @NonNull PassListListener listener
     ) {
-        removeListeners();
-        listRegistration = collection
+        return collection
                 .whereEqualTo("sponsorUid", sponsorUid)
                 .addSnapshotListener((snapshot, error) -> {
                     if (error != null) {
@@ -193,7 +193,6 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                         }
                     }
                     persistExpiredStatuses(passIdsToExpire);
-                    // Avoid requiring composite indexes for sponsorUid + createdAt on early setups.
                     passes.sort(Comparator.comparing(
                             GuestPass::getCreatedAt,
                             java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())
@@ -362,13 +361,5 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
     private String safeMessage(@NonNull Exception exception) {
         String message = exception.getMessage();
         return message == null || message.trim().isEmpty() ? "Unable to admit pass." : message;
-    }
-
-    @Override
-    public void removeListeners() {
-        if (listRegistration != null) {
-            listRegistration.remove();
-            listRegistration = null;
-        }
     }
 }

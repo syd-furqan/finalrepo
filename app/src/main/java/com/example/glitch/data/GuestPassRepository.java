@@ -4,13 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.glitch.model.GuestPass;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;
 
 /**
  * Contract for creating, listing and cancelling guest passes.
  * Pattern: Repository interface for student and faculty pass lifecycle flows.
- * Known issue: v1 uses one flat guest_passes collection without archival split.
+ * Updated to return ListenerRegistration for fragment-scoped lifecycle management.
  */
 public interface GuestPassRepository {
 
@@ -37,9 +38,11 @@ public interface GuestPassRepository {
 			@NonNull IssueCallback callback
 	);
 
-	void listenGuestPasses(@NonNull String sponsorUid, @NonNull PassListListener listener);
+	@Nullable
+	ListenerRegistration listenGuestPasses(@NonNull String sponsorUid, @NonNull PassListListener listener);
 
-	void listenArchivedGuestPasses(@NonNull String sponsorUid, @NonNull PassListListener listener);
+	@Nullable
+	ListenerRegistration listenArchivedGuestPasses(@NonNull String sponsorUid, @NonNull PassListListener listener);
 
 	void cancelGuestPass(@NonNull String passId, @NonNull OperationCallback callback);
 
@@ -58,8 +61,6 @@ public interface GuestPassRepository {
 			@NonNull String admissionMethod,
 			@NonNull OperationCallback callback
 	);
-
-	void removeListeners();
 
 	interface PassListListener {
 		void onData(@NonNull List<GuestPass> passes);

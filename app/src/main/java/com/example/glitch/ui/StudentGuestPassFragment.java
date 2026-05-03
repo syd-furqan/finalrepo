@@ -20,11 +20,11 @@ import com.example.glitch.model.UserProfile;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.ListenerRegistration;
 
 /**
  * Student guest pass generation, expiry selection, and cancellation screen (US-10/11/12).
- * Pattern: Form + list fragment backed by GuestPassRepository.
- * Known issue: expiry unit is limited to whole hours in v1.
+ * Updated to manage Firestore listener lifecycle explicitly.
  */
 public class StudentGuestPassFragment extends Fragment implements GuestPassAdapter.GuestPassActionListener {
     private static final String DEFAULT_GATE_LABEL = "Main Gate";
@@ -35,6 +35,7 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     private TextInputEditText inputGuestId;
     private TextInputEditText inputExpiryHours;
     private TextView textEmpty;
+    private ListenerRegistration passListener;
 
     @NonNull
     public static StudentGuestPassFragment newInstance() {
@@ -70,7 +71,7 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
 
         UserProfile profile = AuthUiGuard.requireProfile(this);
         if (profile != null) {
-            repository.listenGuestPasses(profile.getUid(), new GuestPassRepository.PassListListener() {
+            passListener = repository.listenGuestPasses(profile.getUid(), new GuestPassRepository.PassListListener() {
                 @Override
                 public void onData(@NonNull java.util.List<GuestPass> passes) {
                     if (!isAdded()) {
@@ -173,7 +174,10 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        repository.removeListeners();
+        if (passListener != null) {
+            passListener.remove();
+            passListener = null;
+        }
     }
 
     @NonNull
