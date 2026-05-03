@@ -18,16 +18,19 @@ import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.UserProfile;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;
 
 /**
  * Archived guest passes screen (expired + cancelled).
+ * Updated to manage Firestore listener lifecycle explicitly.
  */
 public class GuestPassArchiveFragment extends Fragment implements GuestPassAdapter.GuestPassActionListener {
     private GuestPassRepository repository;
     private GuestPassAdapter adapter;
     private TextView textEmpty;
+    private ListenerRegistration archiveListener;
 
     @NonNull
     public static GuestPassArchiveFragment newInstance() {
@@ -59,7 +62,7 @@ public class GuestPassArchiveFragment extends Fragment implements GuestPassAdapt
         if (profile == null) {
             return;
         }
-        repository.listenArchivedGuestPasses(profile.getUid(), new GuestPassRepository.PassListListener() {
+        archiveListener = repository.listenArchivedGuestPasses(profile.getUid(), new GuestPassRepository.PassListListener() {
             @Override
             public void onData(@NonNull List<GuestPass> passes) {
                 if (!isAdded()) {
@@ -103,6 +106,9 @@ public class GuestPassArchiveFragment extends Fragment implements GuestPassAdapt
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        repository.removeListeners();
+        if (archiveListener != null) {
+            archiveListener.remove();
+            archiveListener = null;
+        }
     }
 }

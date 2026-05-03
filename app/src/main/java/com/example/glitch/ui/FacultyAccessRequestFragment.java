@@ -20,11 +20,11 @@ import com.example.glitch.model.UserProfile;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.ListenerRegistration;
 
 /**
  * Faculty access-request form (US-06) for sponsoring guest entry.
- * Pattern: Form fragment that creates guard-visible entry requests.
- * Known issue: scheduling currently supports only hour-based expiry in this flow.
+ * Updated to manage Firestore listener lifecycle explicitly.
  */
 public class FacultyAccessRequestFragment extends Fragment implements GuestPassAdapter.GuestPassActionListener {
     private static final int MAX_EXPIRY_HOURS = 336;
@@ -32,6 +32,7 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
     private GuestPassRepository repository;
     private GuestPassAdapter adapter;
     private TextView textEmpty;
+    private ListenerRegistration passListener;
 
     @NonNull
     public static FacultyAccessRequestFragment newInstance() {
@@ -69,7 +70,7 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
 
         UserProfile profile = AuthUiGuard.requireProfile(this);
         if (profile != null) {
-            repository.listenGuestPasses(profile.getUid(), new GuestPassRepository.PassListListener() {
+            passListener = repository.listenGuestPasses(profile.getUid(), new GuestPassRepository.PassListListener() {
                 @Override
                 public void onData(@NonNull java.util.List<GuestPass> passes) {
                     if (!isAdded()) {
@@ -192,6 +193,9 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        repository.removeListeners();
+        if (passListener != null) {
+            passListener.remove();
+            passListener = null;
+        }
     }
 }

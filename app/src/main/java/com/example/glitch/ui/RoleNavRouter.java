@@ -19,8 +19,7 @@ import java.util.Locale;
 
 /**
  * Centralized role-aware router for bottom-nav and CTA navigation actions.
- * Pattern: Static helper that maps destination intent to the role's concrete fragment.
- * Known issue: destination mapping is deliberately conservative when a role lacks a dedicated screen.
+ * Updated to handle backstack more intelligently and fix student routing loops.
  */
 public final class RoleNavRouter {
     private RoleNavRouter() {
@@ -119,13 +118,14 @@ public final class RoleNavRouter {
             return;
         }
         if (owner.requireActivity() instanceof NavigationHost) {
-            ((NavigationHost) owner.requireActivity()).showFragment(target, true);
+            // For Bottom Nav primary destinations, we do NOT add to backstack to avoid bloat.
+            // Sub-screens (like Details) should still use host.showFragment(f, true).
+            ((NavigationHost) owner.requireActivity()).showFragment(target, false);
         }
     }
 
     /**
      * Resolves bottom-nav routes into concrete role destinations.
-     * This keeps role flow consistent while preserving one shared nav shell.
      */
     @NonNull
     public static RoleDestination resolveDestinationForRole(
@@ -135,55 +135,27 @@ public final class RoleNavRouter {
         String role = normalize(rawRole);
         switch (destination) {
             case DASHBOARD:
-                if ("admin".equals(role)) {
-                    return RoleDestination.AUDIT;
-                }
-                if ("guard".equals(role)) {
-                    return RoleDestination.DASHBOARD;
-                }
-                if ("faculty".equals(role)) {
-                    return RoleDestination.FACULTY_REQUEST;
-                }
-                if ("staff".equals(role)) {
-                    return RoleDestination.STAFF_VEHICLES;
-                }
-                if ("student".equals(role)) {
-                    return RoleDestination.STUDENT_PASSES;
-                }
+                if ("admin".equals(role)) return RoleDestination.AUDIT;
+                if ("guard".equals(role)) return RoleDestination.DASHBOARD;
+                if ("faculty".equals(role)) return RoleDestination.FACULTY_REQUEST;
+                if ("staff".equals(role)) return RoleDestination.STAFF_VEHICLES;
+                // Student dashboard should be the Hub (Directory) or a summary, not creation.
+                if ("student".equals(role)) return RoleDestination.DIRECTORY;
                 return RoleDestination.DIRECTORY;
             case PASSES:
-                if ("admin".equals(role)) {
-                    return RoleDestination.RULES;
-                }
-                if ("guard".equals(role)) {
-                    return RoleDestination.SEARCH;
-                }
-                if ("faculty".equals(role)) {
-                    return RoleDestination.FACULTY_NOTIFICATIONS;
-                }
-                if ("staff".equals(role)) {
-                    return RoleDestination.STAFF_ACCESS_STATUS;
-                }
-                if ("student".equals(role)) {
-                    return RoleDestination.STUDENT_PASSES;
-                }
+                if ("admin".equals(role)) return RoleDestination.RULES;
+                if ("guard".equals(role)) return RoleDestination.SEARCH;
+                if ("faculty".equals(role)) return RoleDestination.FACULTY_NOTIFICATIONS;
+                if ("staff".equals(role)) return RoleDestination.STAFF_ACCESS_STATUS;
+                if ("student".equals(role)) return RoleDestination.STUDENT_PASSES;
                 return RoleDestination.DASHBOARD;
             case VEHICLES:
-                if ("admin".equals(role)) {
-                    return RoleDestination.ADMIN_VEHICLES;
-                }
-                if ("guard".equals(role)) {
-                    return RoleDestination.SCAN;
-                }
-                if ("faculty".equals(role)) {
-                    return RoleDestination.FACULTY_REQUEST;
-                }
-                if ("staff".equals(role)) {
-                    return RoleDestination.STAFF_VEHICLES;
-                }
-                if ("student".equals(role)) {
-                    return RoleDestination.STUDENT_PASSES;
-                }
+                if ("admin".equals(role)) return RoleDestination.ADMIN_VEHICLES;
+                if ("guard".equals(role)) return RoleDestination.SCAN;
+                if ("faculty".equals(role)) return RoleDestination.FACULTY_REQUEST;
+                if ("staff".equals(role)) return RoleDestination.STAFF_VEHICLES;
+                // Students don't have a vehicles screen yet, return to Hub.
+                if ("student".equals(role)) return RoleDestination.DIRECTORY;
                 return RoleDestination.DASHBOARD;
             case DIRECTORY:
                 return RoleDestination.DIRECTORY;
