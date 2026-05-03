@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.example.glitch.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -17,7 +18,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 /**
  * Bottom sheet that shows request details and confirms exit logging.
  * Pattern: Dialog Fragment + FragmentResult API for parent communication.
- * Known issue: request values are passed via Bundle strings for simplicity in v1.
  */
 public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFragment {
     public static final String TAG = "EntryDetailsBottomSheet";
@@ -31,6 +31,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
     private static final String ARG_GATE = "arg_gate";
     private static final String ARG_ENTERED = "arg_entered";
     private static final String ARG_PROMPT_EXIT = "arg_prompt_exit";
+    private static final String ARG_STATUS = "arg_status";
 
     /**
      * Creates bottom sheet instance for a selected request.
@@ -45,6 +46,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
             @NonNull String gateLabel,
             @NonNull String enteredText,
             @NonNull String expiryText,
+            @NonNull String status,
             boolean promptExit
     ) {
         EntryDetailsBottomSheetDialogFragment fragment = new EntryDetailsBottomSheetDialogFragment();
@@ -57,6 +59,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         args.putString("arg_guest_id", guestIdNumber);
         args.putString(ARG_ENTERED, enteredText);
         args.putString("arg_expiry", expiryText);
+        args.putString(ARG_STATUS, status);
         args.putBoolean(ARG_PROMPT_EXIT, promptExit);
         fragment.setArguments(args);
         return fragment;
@@ -84,7 +87,8 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         String guestId = safeArg(args, "arg_guest_id");
         String gateLabel = safeArg(args, ARG_GATE);
         String enteredText = safeArg(args, ARG_ENTERED);
-        String expiryText = safeArg(args, "arg_expiry"); // The Supposed Exit
+        String expiryText = safeArg(args, "arg_expiry");
+        String status = safeArg(args, ARG_STATUS);
         boolean promptExit = args.getBoolean(ARG_PROMPT_EXIT, false);
 
         TextView textDetailsMessage = view.findViewById(R.id.text_details_message);
@@ -99,24 +103,32 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         MaterialButton buttonClose = view.findViewById(R.id.button_close);
         MaterialButton buttonLogExit = view.findViewById(R.id.button_sheet_log_exit);
 
-        buttonLogExit.setText("Log Exit");
-        buttonLogExit.setOnClickListener(v -> confirmLogExit(requestId, fullName));
-
-        buttonClose.setOnClickListener(v -> dismiss());
-
-
         textRequestName.setText(fullName);
-        textRequestRole.setText(roleTag);
+        textRequestRole.setText("overdue".equalsIgnoreCase(status) ? "OVERDUE" : roleTag);
+        
+        if ("overdue".equalsIgnoreCase(status)) {
+            textRequestRole.setBackgroundResource(R.drawable.bg_chip_role_danger);
+            textRequestRole.setTextColor(ContextCompat.getColor(requireContext(), R.color.white));
+            textDetailsMessage.setText("WARNING: This guest has exceeded their authorized stay time.");
+            textDetailsMessage.setTextColor(ContextCompat.getColor(requireContext(), R.color.danger_red));
+            textDetailsMessage.setVisibility(View.VISIBLE);
+        }
+
         textRequestHost.setText(getString(R.string.unknown_host_prefix, hostName));
         textRequestGate.setText(getString(R.string.gate_label) + ": " + gateLabel);
         textRequestEntered.setText(getString(R.string.entered_label) + ": " + enteredText);
         textRequestId.setText(getString(R.string.request_id_label) + ": " + requestId);
-        if (promptExit) {
+        
+        if (promptExit && !"overdue".equalsIgnoreCase(status)) {
             textDetailsMessage.setText(getString(R.string.confirm_exit_message, fullName));
+            textDetailsMessage.setVisibility(View.VISIBLE);
         }
+        
         textExpiry.setText("Expiry: " + expiryText);
         textVisitorId.setText("Visitor ID: " + guestId);
 
+        buttonLogExit.setText("Log Exit");
+        buttonLogExit.setOnClickListener(v -> confirmLogExit(requestId, fullName));
         buttonClose.setOnClickListener(v -> dismiss());
     }
 

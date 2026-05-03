@@ -22,12 +22,27 @@ public final class GuestPassStatusRules {
         return pass.getExpiresAt().toDate().before(new Date());
     }
 
+    /**
+     * Returns true if the pass is in a terminal state where it no longer represents
+     * an active or upcoming visitor engagement.
+     */
     public static boolean isArchivedStatus(@NonNull String rawStatus) {
         String status = rawStatus.trim().toLowerCase(Locale.getDefault());
-        return "expired".equals(status) || "cancelled".equals(status) || "denied".equals(status);
+        // Terminal states: Guest has left, pass was cancelled, pass timed out before use, or access was denied.
+        return "exited".equals(status) || "cancelled".equals(status) || "expired".equals(status) || "denied".equals(status);
+    }
+
+    /**
+     * Returns true if the pass represents a guest currently authorized to be on-site
+     * or scheduled to arrive.
+     */
+    public static boolean isInProgress(@NonNull String rawStatus) {
+        String status = rawStatus.trim().toLowerCase(Locale.getDefault());
+        return "active".equals(status) || "used".equals(status) || "overdue".equals(status);
     }
 
     public static boolean isShareable(@NonNull GuestPass pass) {
-        return !isArchivedStatus(pass.getStatus());
+        // Only "active" passes (issued but not yet used) can be shared for scanning.
+        return "active".equalsIgnoreCase(pass.getStatus());
     }
 }

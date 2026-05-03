@@ -15,16 +15,19 @@ import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
  * Firestore-backed guest pass repository.
- * Updated to return ListenerRegistration to avoid cross-fragment listener collisions.
+ * Updated with a pendingIssuances lock to prevent duplicate creation race conditions.
  */
 public class FirestoreGuestPassRepository implements GuestPassRepository {
     private static final String COLLECTION_GUEST_PASSES = "guest_passes";
@@ -34,11 +37,16 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
     private static final String STATUS_USED = "used";
     private static final String STATUS_EXPIRED = "expired";
     private static final String STATUS_DENIED = "denied";
+    private static final String STATUS_OVERDUE = "overdue";
+    private static final String STATUS_EXITED = "exited";
     private static final String DEFAULT_GATE = "Main Gate";
 
     private final FirebaseFirestore firestore;
     private final CollectionReference collection;
     private final CollectionReference entryRequestCollection;
+    
+    // In-memory lock to prevent rapid-click duplicates for the same user
+    private final Set<String> pendingIssuances = new HashSet<>();
 
     public FirestoreGuestPassRepository() {
         this(FirebaseFirestore.getInstance());
@@ -76,6 +84,52 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
 
     @Override
     public void issueGuestPassWithEntryRequest(
+            @NonNull String sponsorUid,
+            @NonNull String sponsorRole,
+            @NonNull String sponsorName,
+            @NonNull String sponsorEmail,
+            @NonNull String guestName,
+            @NonNull String guestIdNumber,
+            @NonNull String gateLabel,
+            int expiryHours,
+            @NonNull IssueCallback callback
+    ) {
+        // 1. Immediate in-memory check
+        if ("student".equalsIgnoreCase(sponsorRole) && pendingIssuances.contains(sponsorUid)) {
+            callback.onComplete(false, "An issuance request is already in progress.", null, null);
+            return;
+        }
+
+        if ("student".equalsIgnoreCase(sponsorRole)) {
+            pendingIssuances.add(sponsorUid);
+            
+            // 2. Database check
+            collection.whereEqualTo("sponsorUid", sponsorUid)
+                    .whereIn("status", Arrays.asList(STATUS_ACTIVE, STATUS_USED, STATUS_OVERDUE))
+                    .limit(1)
+                    .get()
+                    .addOnSuccessListener(snapshot -> {
+                        if (!snapshot.isEmpty()) {
+                            pendingIssuances.remove(sponsorUid);
+                            callback.onComplete(false, "You already have an active or pending guest pass.", null, null);
+                        } else {
+                            // 3. Perform write
+                            performIssueGuestPass(sponsorUid, sponsorRole, sponsorName, sponsorEmail, guestName, guestIdNumber, gateLabel, expiryHours, (success, message, issuedPass, exception) -> {
+                                pendingIssuances.remove(sponsorUid);
+                                callback.onComplete(success, message, issuedPass, exception);
+                            });
+                        }
+                    })
+                    .addOnFailureListener(error -> {
+                        pendingIssuances.remove(sponsorUid);
+                        callback.onComplete(false, "Failed to verify existing passes", null, error);
+                    });
+        } else {
+            performIssueGuestPass(sponsorUid, sponsorRole, sponsorName, sponsorEmail, guestName, guestIdNumber, gateLabel, expiryHours, callback);
+        }
+    }
+
+    private void performIssueGuestPass(
             @NonNull String sponsorUid,
             @NonNull String sponsorRole,
             @NonNull String sponsorName,
@@ -330,6 +384,26 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     markPassDenied(passId, deniedByUid, callback);
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, safeMessage(error), error));
+    }
+
+    @Override
+    public void markPassExitedByEntryRequestId(@NonNull String entryRequestId, @NonNull OperationCallback callback) {
+        collection.whereEqualTo("entryRequestId", entryRequestId.trim())
+                .whereIn("status", Arrays.asList(STATUS_USED, STATUS_OVERDUE))
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) {
+                        callback.onComplete(true, "No active pass to mark exited.", null);
+                        return;
+                    }
+                    String passId = snapshot.getDocuments().get(0).getId();
+                    collection.document(passId)
+                            .update("status", STATUS_EXITED, "updatedAt", FieldValue.serverTimestamp())
+                            .addOnSuccessListener(unused -> callback.onComplete(true, "Pass marked as exited", null))
+                            .addOnFailureListener(error -> callback.onComplete(false, "Failed to update pass to exited", error));
+                })
+                .addOnFailureListener(error -> callback.onComplete(false, "Failed to find pass for exit", error));
     }
 
     private void markPassDenied(

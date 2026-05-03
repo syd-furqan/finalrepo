@@ -16,15 +16,18 @@ import com.example.glitch.R;
 import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.GuestPass;
+import com.example.glitch.model.GuestPassStatusRules;
 import com.example.glitch.model.UserProfile;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.ListenerRegistration;
 
+import java.util.List;
+
 /**
- * Student guest pass generation, expiry selection, and cancellation screen (US-10/11/12).
- * Updated to manage Firestore listener lifecycle explicitly.
+ * Student guest pass generation screen.
+ * Updated to strictly enforce the "one active pass" rule.
  */
 public class StudentGuestPassFragment extends Fragment implements GuestPassAdapter.GuestPassActionListener {
     private static final String DEFAULT_GATE_LABEL = "Main Gate";
@@ -35,6 +38,7 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     private TextInputEditText inputGuestId;
     private TextInputEditText inputExpiryHours;
     private TextView textEmpty;
+    private MaterialButton buttonCreate;
     private ListenerRegistration passListener;
 
     @NonNull
@@ -60,7 +64,7 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
         inputGuestId = view.findViewById(R.id.input_pass_guest_id);
         inputExpiryHours = view.findViewById(R.id.input_pass_expiry_hours);
         textEmpty = view.findViewById(R.id.text_guest_pass_empty);
-        MaterialButton buttonCreate = view.findViewById(R.id.button_create_pass);
+        buttonCreate = view.findViewById(R.id.button_create_pass);
         MaterialButton buttonArchived = view.findViewById(R.id.button_view_archived_passes);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_guest_passes);
 
@@ -73,21 +77,18 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
         if (profile != null) {
             passListener = repository.listenGuestPasses(profile.getUid(), new GuestPassRepository.PassListListener() {
                 @Override
-                public void onData(@NonNull java.util.List<GuestPass> passes) {
-                    if (!isAdded()) {
-                        return;
-                    }
+                public void onData(@NonNull List<GuestPass> passes) {
+                    if (!isAdded()) return;
                     requireActivity().runOnUiThread(() -> {
                         adapter.submitList(passes);
                         textEmpty.setVisibility(passes.isEmpty() ? View.VISIBLE : View.GONE);
+                        updateUIForActivePass(passes);
                     });
                 }
 
                 @Override
                 public void onError(@NonNull Exception exception) {
-                    if (!isAdded()) {
-                        return;
-                    }
+                    if (!isAdded()) return;
                     requireActivity().runOnUiThread(() ->
                             Snackbar.make(requireView(), R.string.error_guest_pass_load, Snackbar.LENGTH_LONG).show());
                 }
@@ -98,22 +99,48 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
         buttonArchived.setOnClickListener(v -> openArchivedPasses());
     }
 
+    private void updateUIForActivePass(List<GuestPass> currentPasses) {
+        boolean hasInProgress = false;
+        for (GuestPass pass : currentPasses) {
+            if (GuestPassStatusRules.isInProgress(pass.getStatus())) {
+                hasInProgress = true;
+                break;
+            }
+        }
+
+        if (hasInProgress) {
+            buttonCreate.setEnabled(false);
+            buttonCreate.setText("Pass Already Active");
+            buttonCreate.setAlpha(0.5f);
+        } else {
+            buttonCreate.setEnabled(true);
+            buttonCreate.setText(R.string.create_pass_action);
+            buttonCreate.setAlpha(1.0f);
+        }
+    }
+
     private void createGuestPass() {
         String guestName = read(inputGuestName);
         String guestId = read(inputGuestId);
         String expiryRaw = read(inputExpiryHours);
         UserProfile profile = AuthUiGuard.requireProfile(this);
+        
         if (guestName.isEmpty() || guestId.isEmpty() || expiryRaw.isEmpty() || profile == null) {
             Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
             return;
         }
+
+        buttonCreate.setEnabled(false); // Immediate lock
+
         int expiryHours;
         try {
             expiryHours = Integer.parseInt(expiryRaw);
         } catch (NumberFormatException e) {
             Snackbar.make(requireView(), R.string.error_invalid_expiry, Snackbar.LENGTH_SHORT).show();
+            buttonCreate.setEnabled(true);
             return;
         }
+
         repository.issueGuestPassWithEntryRequest(
                 profile.getUid(),
                 profile.getRole(),
@@ -124,11 +151,17 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
                 DEFAULT_GATE_LABEL,
                 expiryHours,
                 (success, message, issuedPass, exception) -> {
-                    if (!isAdded()) {
-                        return;
-                    }
-                    requireActivity().runOnUiThread(() ->
-                            Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
+                    if (!isAdded()) return;
+                    requireActivity().runOnUiThread(() -> {
+                        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show();
+                        if (success) {
+                            inputGuestName.setText("");
+                            inputGuestId.setText("");
+                            inputExpiryHours.setText("");
+                        } else {
+                            buttonCreate.setEnabled(true);
+                        }
+                    });
                 }
         );
     }
@@ -136,9 +169,7 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     @Override
     public void onCancelPass(@NonNull GuestPass pass) {
         repository.cancelGuestPass(pass.getId(), (success, message, exception) -> {
-            if (!isAdded()) {
-                return;
-            }
+            if (!isAdded()) return;
             requireActivity().runOnUiThread(() ->
                     Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
         });
@@ -146,9 +177,7 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
 
     @Override
     public void onSharePass(@NonNull GuestPass pass) {
-        if (!isAdded()) {
-            return;
-        }
+        if (!isAdded()) return;
         try {
             PassShareHelper.share(this, pass);
         } catch (Exception exception) {
@@ -158,16 +187,12 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
 
     @Override
     public void onViewPassDetails(@NonNull GuestPass pass) {
-        if (!isAdded() || !(requireActivity() instanceof NavigationHost)) {
-            return;
-        }
+        if (!isAdded() || !(requireActivity() instanceof NavigationHost)) return;
         ((NavigationHost) requireActivity()).showFragment(GuestPassDetailsFragment.newInstance(pass), true);
     }
 
     private void openArchivedPasses() {
-        if (!isAdded() || !(requireActivity() instanceof NavigationHost)) {
-            return;
-        }
+        if (!isAdded() || !(requireActivity() instanceof NavigationHost)) return;
         ((NavigationHost) requireActivity()).showFragment(GuestPassArchiveFragment.newInstance(), true);
     }
 
