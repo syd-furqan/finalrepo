@@ -24,6 +24,17 @@
             android:textSize="11sp" />
 
         <TextView
+            android:id="@+id/text_event_outcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_6"
+            android:background="@drawable/bg_chip_role"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:textColor="@color/text_dark"
+            android:textSize="11sp" />
+
+        <TextView
             android:id="@+id/text_event_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -40,6 +51,14 @@
         android:textColor="@color/text_dark"
         android:textSize="14sp"
         android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/text_event_actor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:textColor="@color/text_muted"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/text_event_request_id"

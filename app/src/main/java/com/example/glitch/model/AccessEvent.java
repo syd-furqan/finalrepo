@@ -5,6 +5,8 @@ import androidx.annotation.Nullable;
 
 import com.google.firebase.Timestamp;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -20,6 +22,14 @@ public class AccessEvent {
 	private final String requestId;
 	private final String description;
 	private final Timestamp createdAt;
+	private final int schemaVersion;
+	private final String entityType;
+	private final String entityId;
+	private final String source;
+	private final String outcome;
+	private final String reasonCode;
+	private final String gateLabel;
+	private final Map<String, Object> metadata;
 
 	/**
 	 * Creates an immutable access event used by audit screens.
@@ -33,6 +43,45 @@ public class AccessEvent {
 			@NonNull String description,
 			@Nullable Timestamp createdAt
 	) {
+		this(
+				id,
+				eventType,
+				actorUid,
+				actorRole,
+				requestId,
+				description,
+				createdAt,
+				1,
+				"",
+				"",
+				"",
+				"",
+				"",
+				"",
+				Collections.emptyMap()
+		);
+	}
+
+	/**
+	 * Creates an immutable access event used by audit screens.
+	 */
+	public AccessEvent(
+			@NonNull String id,
+			@NonNull String eventType,
+			@NonNull String actorUid,
+			@NonNull String actorRole,
+			@NonNull String requestId,
+			@NonNull String description,
+			@Nullable Timestamp createdAt,
+			int schemaVersion,
+			@NonNull String entityType,
+			@NonNull String entityId,
+			@NonNull String source,
+			@NonNull String outcome,
+			@NonNull String reasonCode,
+			@NonNull String gateLabel,
+			@NonNull Map<String, Object> metadata
+	) {
 		this.id = id;
 		this.eventType = eventType;
 		this.actorUid = actorUid;
@@ -40,6 +89,14 @@ public class AccessEvent {
 		this.requestId = requestId;
 		this.description = description;
 		this.createdAt = createdAt;
+		this.schemaVersion = schemaVersion;
+		this.entityType = entityType;
+		this.entityId = entityId;
+		this.source = source;
+		this.outcome = outcome;
+		this.reasonCode = reasonCode;
+		this.gateLabel = gateLabel;
+		this.metadata = Collections.unmodifiableMap(new HashMap<>(metadata));
 	}
 
 	/**
@@ -54,14 +111,31 @@ public class AccessEvent {
 		if (map == null) {
 			return new AccessEvent(id, "", "", "", "", "", null);
 		}
+		String requestId = asString(map.get("requestId"));
+		String entityId = asString(map.get("entityId"));
+		String entityType = asString(map.get("entityType"));
+		if (requestId.isEmpty() && "entry_request".equals(entityType)) {
+			requestId = entityId;
+		}
+		if (entityId.isEmpty()) {
+			entityId = requestId;
+		}
 		return new AccessEvent(
 				id,
 				asString(map.get("eventType")),
 				asString(map.get("actorUid")),
 				asString(map.get("actorRole")),
-				asString(map.get("requestId")),
+				requestId,
 				asString(map.get("description")),
-				asTimestamp(map.get("createdAt"))
+				asTimestamp(map.get("createdAt")),
+				asInt(map.get("schemaVersion"), 1),
+				entityType,
+				entityId,
+				asString(map.get("source")),
+				asString(map.get("outcome")),
+				asString(map.get("reasonCode")),
+				asString(map.get("gateLabel")),
+				asMap(map.get("metadata"))
 		);
 	}
 
@@ -121,9 +195,70 @@ public class AccessEvent {
 		return createdAt;
 	}
 
+	public int getSchemaVersion() {
+		return schemaVersion;
+	}
+
+	@NonNull
+	public String getEntityType() {
+		return entityType;
+	}
+
+	@NonNull
+	public String getEntityId() {
+		return entityId;
+	}
+
+	@NonNull
+	public String getSource() {
+		return source;
+	}
+
+	@NonNull
+	public String getOutcome() {
+		return outcome;
+	}
+
+	@NonNull
+	public String getReasonCode() {
+		return reasonCode;
+	}
+
+	@NonNull
+	public String getGateLabel() {
+		return gateLabel;
+	}
+
+	@NonNull
+	public Map<String, Object> getMetadata() {
+		return metadata;
+	}
+
+	@NonNull
+	public String getCorrelationId() {
+		if (!entityId.trim().isEmpty()) {
+			return entityId;
+		}
+		return requestId;
+	}
+
 	@NonNull
 	private static String asString(@Nullable Object value) {
 		return value == null ? "" : String.valueOf(value);
+	}
+
+	private static int asInt(@Nullable Object value, int fallback) {
+		if (value instanceof Number) {
+			return ((Number) value).intValue();
+		}
+		if (value == null) {
+			return fallback;
+		}
+		try {
+			return Integer.parseInt(String.valueOf(value));
+		} catch (NumberFormatException ignored) {
+			return fallback;
+		}
 	}
 
 	@Nullable
@@ -132,5 +267,21 @@ public class AccessEvent {
 			return (Timestamp) value;
 		}
 		return null;
+	}
+
+	@NonNull
+	private static Map<String, Object> asMap(@Nullable Object value) {
+		if (!(value instanceof Map)) {
+			return Collections.emptyMap();
+		}
+		Map<?, ?> raw = (Map<?, ?>) value;
+		Map<String, Object> result = new HashMap<>();
+		for (Map.Entry<?, ?> entry : raw.entrySet()) {
+			if (entry.getKey() == null) {
+				continue;
+			}
+			result.put(String.valueOf(entry.getKey()), entry.getValue());
+		}
+		return result;
 	}
 }

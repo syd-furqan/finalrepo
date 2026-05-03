@@ -13,9 +13,11 @@ import androidx.fragment.app.Fragment;
 
 import com.example.glitch.R;
 import com.example.glitch.auth.SessionManager;
+import com.example.glitch.data.AuditEventLogger;
 import com.example.glitch.data.EntryRequestRepository;
 import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
+import com.example.glitch.model.AuditEventType;
 import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.GuestPassStatusRules;
@@ -26,7 +28,9 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Full-screen, non-cancelable guard decision screen for unresolved scanned passes.
@@ -35,6 +39,7 @@ public class GuardPendingDecisionFragment extends Fragment {
     private EntryRequestRepository entryRequestRepository;
     private GuestPassRepository guestPassRepository;
     private GuardPendingDecisionStore pendingDecisionStore;
+    private AuditEventLogger auditEventLogger;
     private GuardPendingDecision pendingDecision;
     private MaterialButton buttonAllow;
     private MaterialButton buttonDeny;
@@ -61,6 +66,7 @@ public class GuardPendingDecisionFragment extends Fragment {
         entryRequestRepository = RepositoryProvider.getRepository();
         guestPassRepository = RepositoryProvider.getGuestPassRepository();
         pendingDecisionStore = new GuardPendingDecisionStore(requireContext());
+        auditEventLogger = new AuditEventLogger();
 
         requireActivity().getOnBackPressedDispatcher().addCallback(
                 getViewLifecycleOwner(),
@@ -141,6 +147,7 @@ public class GuardPendingDecisionFragment extends Fragment {
                 }
                 requireActivity().runOnUiThread(() -> {
                     if (!isPendingPassActionable(pass, pendingDecision)) {
+                        recordPendingInvalidated(pass);
                         clearAndReturnToScan(getString(R.string.guard_pending_not_actionable));
                         return;
                     }
@@ -205,6 +212,7 @@ public class GuardPendingDecisionFragment extends Fragment {
                                 Snackbar.make(requireView(), passMessage, Snackbar.LENGTH_LONG).show();
                                 return;
                             }
+                            recordPendingResolvedAllow();
                             clearPendingDecision();
                             routeToDashboard();
                         });
@@ -243,6 +251,7 @@ public class GuardPendingDecisionFragment extends Fragment {
                                 Snackbar.make(requireView(), passMessage, Snackbar.LENGTH_LONG).show();
                                 return;
                             }
+                            recordPendingResolvedDeny();
                             clearPendingDecision();
                             routeToDashboard();
                         });
@@ -301,5 +310,68 @@ public class GuardPendingDecisionFragment extends Fragment {
     private String valueOrUnavailable(@NonNull String value) {
         String trimmed = value.trim();
         return trimmed.isEmpty() ? "Not available" : trimmed;
+    }
+
+    private void recordPendingResolvedAllow() {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("passCode", pendingDecision.getPassCode());
+        metadata.put("verificationMethod", pendingDecision.getVerificationMethod());
+        auditEventLogger.log(
+                AuditEventType.PENDING_DECISION_RESOLVED_ALLOW,
+                "guest_pass",
+                pendingDecision.getPassCode(),
+                pendingDecision.getEntryRequestId(),
+                currentGuardUid(),
+                "guard",
+                "Pending decision resolved with allow",
+                "guard_pending_fragment",
+                "success",
+                "decision_allow",
+                GatePolicy.normalizeStoredValue(pendingDecision.getGateLabel()),
+                metadata
+        );
+    }
+
+    private void recordPendingResolvedDeny() {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("passCode", pendingDecision.getPassCode());
+        metadata.put("verificationMethod", pendingDecision.getVerificationMethod());
+        auditEventLogger.log(
+                AuditEventType.PENDING_DECISION_RESOLVED_DENY,
+                "guest_pass",
+                pendingDecision.getPassCode(),
+                pendingDecision.getEntryRequestId(),
+                currentGuardUid(),
+                "guard",
+                "Pending decision resolved with deny",
+                "guard_pending_fragment",
+                "failure",
+                "decision_deny",
+                GatePolicy.normalizeStoredValue(pendingDecision.getGateLabel()),
+                metadata
+        );
+    }
+
+    private void recordPendingInvalidated(@Nullable GuestPass currentPass) {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("passCode", pendingDecision.getPassCode());
+        metadata.put("verificationMethod", pendingDecision.getVerificationMethod());
+        if (currentPass != null) {
+            metadata.put("currentStatus", currentPass.getStatus());
+        }
+        auditEventLogger.log(
+                AuditEventType.PENDING_DECISION_INVALIDATED,
+                "guest_pass",
+                pendingDecision.getPassCode(),
+                pendingDecision.getEntryRequestId(),
+                currentGuardUid(),
+                "guard",
+                "Pending decision invalidated before resolution",
+                "guard_pending_fragment",
+                "failure",
+                "decision_invalidated",
+                GatePolicy.normalizeStoredValue(pendingDecision.getGateLabel()),
+                metadata
+        );
     }
 }
