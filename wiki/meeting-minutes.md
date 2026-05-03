@@ -13,3 +13,8 @@ Shown intial figma boards, CRC and backlogs
 *Notes*:  
 Add Login Screen.  
 Viva Next Week. 
+
+**Meeting Minutes: May 4, 2026 — Documentation Realignment**  
+Scope agreed: refresh wiki to match current implemented behavior and next-phase roadmap.  
+Active role scope locked to admin/guard/faculty/student.  
+Backlog, storyboards, OO analysis, and sprint ledger were rewritten to align with current guest-entry lifecycle and the next priority order (Vehicle Program first).
