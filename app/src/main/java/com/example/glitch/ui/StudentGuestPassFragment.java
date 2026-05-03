@@ -30,8 +30,6 @@ import java.util.List;
  * Updated to strictly enforce the "one active pass" rule.
  */
 public class StudentGuestPassFragment extends Fragment implements GuestPassAdapter.GuestPassActionListener {
-    private static final String DEFAULT_GATE_LABEL = "Main Gate";
-
     private GuestPassRepository repository;
     private GuestPassAdapter adapter;
     private TextInputEditText inputGuestName;
@@ -148,7 +146,6 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
                 profile.getEmail(),
                 guestName,
                 guestId,
-                DEFAULT_GATE_LABEL,
                 expiryHours,
                 (success, message, issuedPass, exception) -> {
                     if (!isAdded()) return;

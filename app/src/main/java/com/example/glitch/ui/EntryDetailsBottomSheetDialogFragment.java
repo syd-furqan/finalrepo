@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.example.glitch.R;
+import com.example.glitch.model.GatePolicy;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -85,7 +86,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         String roleTag = safeArg(args, ARG_ROLE);
         String hostName = safeArg(args, ARG_HOST);
         String guestId = safeArg(args, "arg_guest_id");
-        String gateLabel = safeArg(args, ARG_GATE);
+        String gateLabel = GatePolicy.toDisplayLabel(safeArg(args, ARG_GATE));
         String enteredText = safeArg(args, ARG_ENTERED);
         String expiryText = safeArg(args, "arg_expiry");
         String status = safeArg(args, ARG_STATUS);

@@ -15,6 +15,7 @@ import com.example.glitch.auth.SessionManager;
 import com.example.glitch.data.EntryRequestRepository;
 import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
+import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.GuestPass;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -34,8 +35,6 @@ import java.util.Date;
  * Guard QR verification screen for single-use guest pass checks.
  */
 public class GuardQrScanFragment extends Fragment {
-    private static final String DEFAULT_GATE_LABEL = "Main Gate";
-
     private EntryRequestRepository entryRequestRepository;
     private GuestPassRepository guestPassRepository;
     private com.example.glitch.data.VerificationRulesRepository verificationRulesRepository;
@@ -201,7 +200,7 @@ public class GuardQrScanFragment extends Fragment {
             @NonNull String verificationMethod,
             @NonNull TextView textResult
     ) {
-        String gateLabel = pass.getGateLabel().trim().isEmpty() ? DEFAULT_GATE_LABEL : pass.getGateLabel().trim();
+        String gateLabel = GatePolicy.toDisplayLabel(pass.getGateLabel());
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.guard_scan_decision_title)
                 .setMessage(getString(
@@ -224,12 +223,11 @@ public class GuardQrScanFragment extends Fragment {
             @NonNull String verificationMethod,
             @NonNull TextView textResult
     ) {
-        String gateLabel = pass.getGateLabel().trim().isEmpty() ? DEFAULT_GATE_LABEL : pass.getGateLabel().trim();
         String guardUid = SessionManager.getCurrentProfile() == null
                 ? ""
                 : SessionManager.getCurrentProfile().getUid();
 
-        entryRequestRepository.logEntry(pass.getEntryRequestId(), gateLabel, (entrySuccess, entryMessage, entryError) -> {
+        entryRequestRepository.logEntry(pass.getEntryRequestId(), (entrySuccess, entryMessage, entryError) -> {
             if (!isAdded()) {
                 return;
             }

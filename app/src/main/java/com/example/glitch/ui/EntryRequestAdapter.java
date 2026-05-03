@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glitch.R;
 import com.example.glitch.model.EntryRequest;
+import com.example.glitch.model.GatePolicy;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.Timestamp;
 
@@ -72,7 +73,7 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
 
         String hostText = holder.itemView.getContext().getString(R.string.unknown_host_prefix, request.getHostName());
         holder.textHost.setText(hostText);
-        holder.textGate.setText(request.getGateLabel());
+        holder.textGate.setText(GatePolicy.toDisplayLabel(request.getGateLabel()));
         holder.textEntered.setText(formatTimestamp(request.getEnteredAt()));
         holder.imageRequestIcon.setImageResource(iconForType(request.getIconType()));
 

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glitch.R;
 import com.example.glitch.data.EntryRequestRepository;
+import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.DashboardState;
 import com.example.glitch.model.EntryRequest;
@@ -36,6 +37,7 @@ import java.util.Locale;
 public class DashboardFragment extends Fragment implements EntryRequestAdapter.EntryActionListener {
 
     private EntryRequestRepository repository;
+    private GuestPassRepository guestPassRepository;
     private EntryRequestAdapter adapter;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a", Locale.getDefault());
 
@@ -77,6 +79,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         }
         currentRole = profile.getRole();
         repository = RepositoryProvider.getRepository();
+        guestPassRepository = RepositoryProvider.getGuestPassRepository();
         bindViews(view);
         setupRecycler(view);
         setupActions(view, currentRole);
@@ -107,15 +110,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
                         @Override
                         public void onData(@NonNull List<EntryRequest> requests) {
                             if (!isAdded()) return;
-                            
-                            // Include both active and overdue in search results for guards
-                            List<EntryRequest> visibleRequests = new ArrayList<>();
-                            for (EntryRequest request : requests) {
-                                String status = request.getStatus().toLowerCase();
-                                if ("active".equals(status) || "overdue".equals(status)) {
-                                    visibleRequests.add(request);
-                                }
-                            }
+                            List<EntryRequest> visibleRequests = filterVisibleRequests(requests);
 
                             adapter.submitList(visibleRequests);
                             emptyStateCard.setVisibility(visibleRequests.isEmpty() ? View.VISIBLE : View.GONE);
@@ -195,10 +190,30 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
                             if (!isAdded()) {
                                 return;
                             }
-                            requireActivity().runOnUiThread(() -> {
-                                String snackbarText = success ? "Guest exit logged." : message;
-                                Snackbar.make(requireView(), snackbarText, Snackbar.LENGTH_SHORT).show();
-                            });
+                            if (!success) {
+                                requireActivity().runOnUiThread(() ->
+                                        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show());
+                                return;
+                            }
+                            guestPassRepository.markPassExitedByEntryRequestId(
+                                    requestId,
+                                    (passSuccess, passMessage, passError) -> {
+                                        if (!isAdded()) {
+                                            return;
+                                        }
+                                        requireActivity().runOnUiThread(() -> {
+                                            if (passSuccess) {
+                                                Snackbar.make(requireView(), "Guest exit logged.", Snackbar.LENGTH_SHORT).show();
+                                            } else {
+                                                Snackbar.make(
+                                                        requireView(),
+                                                        "Exit logged, but guest pass update failed: " + passMessage,
+                                                        Snackbar.LENGTH_LONG
+                                                ).show();
+                                            }
+                                        });
+                                    }
+                            );
                         });
                     }
                 }
@@ -240,8 +255,9 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
                     return;
                 }
                 requestsLoaded = true;
-                adapter.submitList(requests);
-                emptyStateCard.setVisibility(requests.isEmpty() ? View.VISIBLE : View.GONE);
+                List<EntryRequest> visibleRequests = filterVisibleRequests(requests);
+                adapter.submitList(visibleRequests);
+                emptyStateCard.setVisibility(visibleRequests.isEmpty() ? View.VISIBLE : View.GONE);
                 refreshLoadingState();
             }
 
@@ -272,6 +288,18 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
 
     private void showLoading(boolean show) {
         loadingContainer.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    @NonNull
+    private List<EntryRequest> filterVisibleRequests(@NonNull List<EntryRequest> requests) {
+        List<EntryRequest> visibleRequests = new ArrayList<>();
+        for (EntryRequest request : requests) {
+            String status = request.getStatus() == null ? "" : request.getStatus().trim().toLowerCase(Locale.getDefault());
+            if ("active".equals(status) || "overdue".equals(status)) {
+                visibleRequests.add(request);
+            }
+        }
+        return visibleRequests;
     }
 
     @Override

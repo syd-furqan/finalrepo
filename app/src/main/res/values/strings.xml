@@ -2,7 +2,7 @@
     <string name="app_name">Glitch</string>
     <string name="dashboard_title">Guard Command Center</string>
     <string name="status_fallback_title">System Status: Active</string>
-    <string name="status_fallback_message">All gates reporting normal activity</string>
+    <string name="status_fallback_message">In-Gate reporting normal activity</string>
     <string name="gate_protocol">Gate Protocol</string>
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="manual_entry">Manual Entry</string>
@@ -69,7 +69,7 @@
     <string name="feature_admin_alerts">Security Alerts</string>
     <string name="top_title_lums_security">LUMS Security</string>
     <string name="top_title_guard_center">Guard Command Center</string>
-    <string name="top_title_active_pass">Active Gate Pass</string>
+    <string name="top_title_active_pass">Active In-Gate Pass</string>
     <string name="status_secure_operational">SYSTEM SECURE • OPERATIONAL</string>
     <string name="status_secure_authorized">SYSTEM SECURE • AUTHORIZED SESSION</string>
     <string name="status_admin_console">ADMIN CONSOLE</string>
@@ -95,7 +95,7 @@
 
     <string name="guest_full_name">Guest Full Name</string>
     <string name="guest_id_number">Guest ID Number</string>
-    <string name="gate_destination">Gate Label</string>
+    <string name="gate_destination">In-Gate (fixed)</string>
     <string name="submit_request_action">Submit Request</string>
     <string name="error_fill_required_fields">Please complete all required fields.</string>
 

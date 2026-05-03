@@ -43,7 +43,7 @@ public class EntryRequest {
 		this.fullName = fullName;
 		this.roleTag = roleTag;
 		this.hostName = hostName;
-		this.gateLabel = gateLabel;
+		this.gateLabel = GatePolicy.normalizeStoredValue(gateLabel);
 		this.guestIDNumber = guestIdNumber;
 		this.enteredAt = enteredAt;
 		this.status = status;
@@ -57,7 +57,7 @@ public class EntryRequest {
 	@NonNull
 	public static EntryRequest fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
 		if (map == null) {
-			return new EntryRequest(id, "", "", "", "", "",
+			return new EntryRequest(id, "", "", "", GatePolicy.STORED_VALUE, "",
 					null, "active", null, "");
 		}
 
@@ -66,7 +66,7 @@ public class EntryRequest {
 				asString(map.get("fullName")),
 				asString(map.get("roleTag")),
 				asString(map.get("hostName")),
-				asString(map.get("gateLabel")),
+				GatePolicy.normalizeStoredValue(asString(map.get("gateLabel"))),
 				asString(map.get("guestIdNumber")),
 				asTimestamp(map.get("enteredAt")),
 				asStringOrDefault(map.get("status"), "active"),

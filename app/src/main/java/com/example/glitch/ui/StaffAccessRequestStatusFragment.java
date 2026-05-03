@@ -17,6 +17,7 @@ import com.example.glitch.R;
 import com.example.glitch.data.EntryRequestRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.EntryRequest;
+import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.UserProfile;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.Timestamp;
@@ -152,7 +153,10 @@ public class StaffAccessRequestStatusFragment extends Fragment {
                     item.getFullName().isEmpty() ? holder.itemView.getContext().getString(R.string.staff_access_unknown_guest) : item.getFullName()
             );
             holder.textGate.setText(
-                    holder.itemView.getContext().getString(R.string.staff_access_gate_label, item.getGateLabel())
+                    holder.itemView.getContext().getString(
+                            R.string.staff_access_gate_label,
+                            GatePolicy.toDisplayLabel(item.getGateLabel())
+                    )
             );
             holder.textGuestId.setText(
                     holder.itemView.getContext().getString(R.string.staff_access_guest_id_label, item.getGuestIdNumber())

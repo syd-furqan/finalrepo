@@ -398,7 +398,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Gate Synchronization"
+                    android:text="In-Gate Synchronization"
                     android:textColor="#99FFFFFF"
                     android:textSize="10sp"
                     android:textStyle="bold" />
@@ -407,7 +407,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_4"
-                    android:text="99.9% Compliance Reliability&#10;across all nodes."
+                    android:text="99.9% Compliance Reliability&#10;for In-Gate operations."
                     android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />

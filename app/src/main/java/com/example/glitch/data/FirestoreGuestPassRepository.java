@@ -5,12 +5,15 @@ import androidx.annotation.Nullable;
 
 import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.GuestPassStatusRules;
+import com.example.glitch.model.GatePolicy;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -39,8 +42,10 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
     private static final String STATUS_DENIED = "denied";
     private static final String STATUS_OVERDUE = "overdue";
     private static final String STATUS_EXITED = "exited";
-    private static final String DEFAULT_GATE = "Main Gate";
-
+    private static final String REQUEST_STATUS_PENDING = "pending";
+    private static final String REQUEST_STATUS_DENIED = "denied";
+    private static final String REQUEST_STATUS_FIELD = "status";
+    private static final String REQUEST_ENTERED_AT_FIELD = "enteredAt";
     private final FirebaseFirestore firestore;
     private final CollectionReference collection;
     private final CollectionReference entryRequestCollection;
@@ -76,7 +81,6 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                 sponsorEmail,
                 guestName,
                 guestIdNumber,
-                DEFAULT_GATE,
                 expiryHours,
                 (success, message, issuedPass, exception) -> callback.onComplete(success, message, exception)
         );
@@ -90,7 +94,6 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String sponsorEmail,
             @NonNull String guestName,
             @NonNull String guestIdNumber,
-            @NonNull String gateLabel,
             int expiryHours,
             @NonNull IssueCallback callback
     ) {
@@ -114,7 +117,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                             callback.onComplete(false, "You already have an active or pending guest pass.", null, null);
                         } else {
                             // 3. Perform write
-                            performIssueGuestPass(sponsorUid, sponsorRole, sponsorName, sponsorEmail, guestName, guestIdNumber, gateLabel, expiryHours, (success, message, issuedPass, exception) -> {
+                            performIssueGuestPass(sponsorUid, sponsorRole, sponsorName, sponsorEmail, guestName, guestIdNumber, expiryHours, (success, message, issuedPass, exception) -> {
                                 pendingIssuances.remove(sponsorUid);
                                 callback.onComplete(success, message, issuedPass, exception);
                             });
@@ -125,7 +128,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                         callback.onComplete(false, "Failed to verify existing passes", null, error);
                     });
         } else {
-            performIssueGuestPass(sponsorUid, sponsorRole, sponsorName, sponsorEmail, guestName, guestIdNumber, gateLabel, expiryHours, callback);
+            performIssueGuestPass(sponsorUid, sponsorRole, sponsorName, sponsorEmail, guestName, guestIdNumber, expiryHours, callback);
         }
     }
 
@@ -136,7 +139,6 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String sponsorEmail,
             @NonNull String guestName,
             @NonNull String guestIdNumber,
-            @NonNull String gateLabel,
             int expiryHours,
             @NonNull IssueCallback callback
     ) {
@@ -144,7 +146,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
         Timestamp expiresAt = new Timestamp(
                 new Date(System.currentTimeMillis() + safeHours * 60L * 60L * 1000L)
         );
-        String normalizedGate = gateLabel.trim().isEmpty() ? DEFAULT_GATE : gateLabel.trim();
+        String normalizedGate = GatePolicy.STORED_VALUE;
         String passCode = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         DocumentReference requestRef = entryRequestCollection.document();
         DocumentReference passRef = collection.document();
@@ -237,17 +239,25 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                         return;
                     }
                     List<GuestPass> passes = new ArrayList<>();
-                    List<String> passIdsToExpire = new ArrayList<>();
+                    List<GuestPass> passesToExpire = new ArrayList<>();
+                    Set<String> requestIdsToCleanup = new HashSet<>();
                     if (snapshot != null) {
                         for (DocumentSnapshot doc : snapshot.getDocuments()) {
                             GuestPass rawPass = GuestPass.fromMap(doc.getId(), doc.getData());
                             if (GuestPassStatusRules.isTimeExpiredActive(rawPass)) {
-                                passIdsToExpire.add(rawPass.getId());
+                                passesToExpire.add(rawPass);
+                            }
+                            String status = rawPass.getStatus().trim().toLowerCase();
+                            if ((STATUS_CANCELLED.equals(status) || STATUS_EXPIRED.equals(status))
+                                    && !rawPass.getEntryRequestId().trim().isEmpty()) {
+                                requestIdsToCleanup.add(rawPass.getEntryRequestId().trim());
                             }
                             passes.add(normalizeExpiryForRead(rawPass));
                         }
                     }
-                    persistExpiredStatuses(passIdsToExpire);
+                    persistExpiredStatuses(passesToExpire);
+                    deleteUnaccessedEntryRequests(new ArrayList<>(requestIdsToCleanup));
+                    reconcileExitedPasses(passes);
                     passes.sort(Comparator.comparing(
                             GuestPass::getCreatedAt,
                             java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())
@@ -265,13 +275,32 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
 
     @Override
     public void cancelGuestPass(@NonNull String passId, @NonNull OperationCallback callback) {
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("status", STATUS_CANCELLED);
-        updates.put("updatedAt", FieldValue.serverTimestamp());
-        collection.document(passId)
-                .update(updates)
+        DocumentReference passRef = collection.document(passId);
+        firestore.runTransaction(transaction -> {
+                    DocumentSnapshot passSnapshot = transaction.get(passRef);
+                    if (!passSnapshot.exists()) {
+                        throw new IllegalStateException("Pass not found.");
+                    }
+                    GuestPass pass = GuestPass.fromMap(passSnapshot.getId(), passSnapshot.getData());
+                    if (!STATUS_ACTIVE.equalsIgnoreCase(pass.getStatus())) {
+                        throw new IllegalStateException("Only active passes can be cancelled.");
+                    }
+                    DocumentReference requestToDelete = findLinkedUnaccessedEntryRequestForDelete(
+                            transaction,
+                            pass.getEntryRequestId()
+                    );
+
+                    Map<String, Object> passUpdates = new HashMap<>();
+                    passUpdates.put("status", STATUS_CANCELLED);
+                    passUpdates.put("updatedAt", FieldValue.serverTimestamp());
+                    transaction.update(passRef, passUpdates);
+                    if (requestToDelete != null) {
+                        transaction.delete(requestToDelete);
+                    }
+                    return null;
+                })
                 .addOnSuccessListener(unused -> callback.onComplete(true, "Guest pass cancelled", null))
-                .addOnFailureListener(error -> callback.onComplete(false, "Failed to cancel guest pass", error));
+                .addOnFailureListener(error -> callback.onComplete(false, safeMessage(error), error));
     }
 
     @Override
@@ -289,7 +318,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     boolean shouldExpire = GuestPassStatusRules.isTimeExpiredActive(rawPass);
                     GuestPass pass = normalizeExpiryForRead(rawPass);
                     if (shouldExpire) {
-                        persistExpiredStatus(pass.getId());
+                        persistExpiredStatus(pass);
                     }
                     listener.onData(pass);
                 })
@@ -315,10 +344,17 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                         throw new IllegalStateException("Pass is not active.");
                     }
                     if (pass.getExpiresAt() != null && pass.getExpiresAt().toDate().before(new Date())) {
+                        DocumentReference requestToDelete = findLinkedUnaccessedEntryRequestForDelete(
+                                transaction,
+                                pass.getEntryRequestId()
+                        );
                         Map<String, Object> expiredUpdates = new HashMap<>();
                         expiredUpdates.put("status", STATUS_EXPIRED);
                         expiredUpdates.put("updatedAt", FieldValue.serverTimestamp());
                         transaction.update(passRef, expiredUpdates);
+                        if (requestToDelete != null) {
+                            transaction.delete(requestToDelete);
+                        }
                         return STATUS_EXPIRED;
                     }
                     if (pass.getEntryRequestId().trim().isEmpty()) {
@@ -406,6 +442,57 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to find pass for exit", error));
     }
 
+    private void reconcileExitedPasses(@NonNull List<GuestPass> passes) {
+        List<GuestPass> candidates = new ArrayList<>();
+        for (GuestPass pass : passes) {
+            String status = pass.getStatus().trim().toLowerCase();
+            if (("used".equals(status) || "overdue".equals(status))
+                    && !pass.getEntryRequestId().trim().isEmpty()) {
+                candidates.add(pass);
+            }
+        }
+        if (candidates.isEmpty()) {
+            return;
+        }
+
+        Map<String, String> requestIdToPassId = new HashMap<>();
+        List<String> requestIds = new ArrayList<>();
+        for (GuestPass pass : candidates) {
+            String requestId = pass.getEntryRequestId().trim();
+            if (!requestIdToPassId.containsKey(requestId)) {
+                requestIds.add(requestId);
+            }
+            requestIdToPassId.put(requestId, pass.getId());
+        }
+
+        for (int i = 0; i < requestIds.size(); i += 10) {
+            int end = Math.min(i + 10, requestIds.size());
+            List<String> chunk = requestIds.subList(i, end);
+            entryRequestCollection
+                    .whereIn(FieldPath.documentId(), chunk)
+                    .whereEqualTo("status", STATUS_EXITED)
+                    .get()
+                    .addOnSuccessListener(snapshot -> {
+                        if (snapshot.isEmpty()) {
+                            return;
+                        }
+                        WriteBatch batch = firestore.batch();
+                        for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                            String passId = requestIdToPassId.get(doc.getId());
+                            if (passId == null || passId.trim().isEmpty()) {
+                                continue;
+                            }
+                            batch.update(
+                                    collection.document(passId),
+                                    "status", STATUS_EXITED,
+                                    "updatedAt", FieldValue.serverTimestamp()
+                            );
+                        }
+                        batch.commit();
+                    });
+        }
+    }
+
     private void markPassDenied(
             @NonNull String passId,
             @NonNull String deniedByUid,
@@ -458,31 +545,131 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
         );
     }
 
-    private void persistExpiredStatuses(@NonNull List<String> passIdsToExpire) {
-        if (passIdsToExpire.isEmpty()) {
+    private void persistExpiredStatuses(@NonNull List<GuestPass> passesToExpire) {
+        if (passesToExpire.isEmpty()) {
             return;
         }
+        Set<String> linkedRequestIds = new HashSet<>();
         WriteBatch batch = firestore.batch();
-        for (String passId : passIdsToExpire) {
+        for (GuestPass pass : passesToExpire) {
+            String passId = pass.getId().trim();
+            if (passId.isEmpty()) {
+                continue;
+            }
             batch.update(
                     collection.document(passId),
                     "status", STATUS_EXPIRED,
                     "updatedAt", FieldValue.serverTimestamp()
             );
+            String entryRequestId = pass.getEntryRequestId().trim();
+            if (!entryRequestId.isEmpty()) {
+                linkedRequestIds.add(entryRequestId);
+            }
         }
-        batch.commit();
+        batch.commit().addOnSuccessListener(unused -> deleteUnaccessedEntryRequests(new ArrayList<>(linkedRequestIds)));
     }
 
-    private void persistExpiredStatus(@NonNull String passId) {
-        collection.document(passId).update(
-                "status", STATUS_EXPIRED,
-                "updatedAt", FieldValue.serverTimestamp()
-        );
+    private void persistExpiredStatus(@NonNull GuestPass pass) {
+        DocumentReference passRef = collection.document(pass.getId());
+        firestore.runTransaction(transaction -> {
+                    DocumentSnapshot snapshot = transaction.get(passRef);
+                    if (!snapshot.exists()) {
+                        return null;
+                    }
+                    GuestPass latest = GuestPass.fromMap(snapshot.getId(), snapshot.getData());
+                    if (!GuestPassStatusRules.isTimeExpiredActive(latest)) {
+                        return null;
+                    }
+                    DocumentReference requestToDelete = findLinkedUnaccessedEntryRequestForDelete(
+                            transaction,
+                            latest.getEntryRequestId()
+                    );
+                    transaction.update(
+                            passRef,
+                            "status", STATUS_EXPIRED,
+                            "updatedAt", FieldValue.serverTimestamp()
+                    );
+                    if (requestToDelete != null) {
+                        transaction.delete(requestToDelete);
+                    }
+                    return null;
+                })
+                .addOnFailureListener(error -> {
+                    // Best-effort normalization path: intentionally no-op on failure.
+                });
+    }
+
+    private void deleteUnaccessedEntryRequests(@NonNull List<String> entryRequestIds) {
+        if (entryRequestIds.isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < entryRequestIds.size(); i += 10) {
+            int end = Math.min(i + 10, entryRequestIds.size());
+            List<String> chunk = entryRequestIds.subList(i, end);
+            entryRequestCollection
+                    .whereIn(FieldPath.documentId(), chunk)
+                    .get()
+                    .addOnSuccessListener(snapshot -> {
+                        if (snapshot.isEmpty()) {
+                            return;
+                        }
+                        WriteBatch batch = firestore.batch();
+                        boolean hasDelete = false;
+                        for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                            if (shouldDeleteUnaccessedRequest(doc)) {
+                                batch.delete(doc.getReference());
+                                hasDelete = true;
+                            }
+                        }
+                        if (hasDelete) {
+                            batch.commit();
+                        }
+                    });
+        }
+    }
+
+    @Nullable
+    private DocumentReference findLinkedUnaccessedEntryRequestForDelete(
+            @NonNull com.google.firebase.firestore.Transaction transaction,
+            @Nullable String entryRequestId
+    ) throws FirebaseFirestoreException {
+        String trimmedId = entryRequestId == null ? "" : entryRequestId.trim();
+        if (trimmedId.isEmpty()) {
+            return null;
+        }
+        DocumentReference requestRef = entryRequestCollection.document(trimmedId);
+        DocumentSnapshot requestSnapshot = transaction.get(requestRef);
+        if (!requestSnapshot.exists()) {
+            return null;
+        }
+        if (shouldDeleteUnaccessedRequest(requestSnapshot)) {
+            return requestRef;
+        }
+        return null;
+    }
+
+    private boolean shouldDeleteUnaccessedRequest(@NonNull DocumentSnapshot snapshot) {
+        String requestStatus = safeString(snapshot.get(REQUEST_STATUS_FIELD));
+        boolean unaccessed = snapshot.get(REQUEST_ENTERED_AT_FIELD) == null;
+        if (!unaccessed) {
+            return false;
+        }
+        return REQUEST_STATUS_PENDING.equalsIgnoreCase(requestStatus)
+                || REQUEST_STATUS_DENIED.equalsIgnoreCase(requestStatus)
+                || requestStatus.isEmpty();
     }
 
     @NonNull
     private String safeMessage(@NonNull Exception exception) {
         String message = exception.getMessage();
-        return message == null || message.trim().isEmpty() ? "Unable to admit pass." : message;
+        return message == null || message.trim().isEmpty() ? "Operation failed." : message;
+    }
+
+    @NonNull
+    private String safeString(@Nullable Object value) {
+        if (value == null) {
+            return "";
+        }
+        return String.valueOf(value).trim();
     }
 }

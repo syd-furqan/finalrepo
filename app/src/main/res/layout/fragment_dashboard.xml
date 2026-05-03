@@ -350,7 +350,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_24"
-                android:text="Gate Camera Feed"
+                android:text="In-Gate Camera Feed"
                 android:textColor="@color/text_dark"
                 android:textSize="24sp"
                 android:textStyle="bold" />
@@ -376,7 +376,7 @@
                     android:background="@color/danger_red"
                     android:paddingHorizontal="@dimen/space_8"
                     android:paddingVertical="3dp"
-                    android:text="LIVE • GATE SOUTH"
+                    android:text="LIVE • IN-GATE"
                     android:textAllCaps="true"
                     android:textColor="@color/white"
                     android:textSize="10sp"
@@ -411,7 +411,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_4"
-                    android:text="Plate ABC-123 spotted at Gate North without valid pass."
+                    android:text="Plate ABC-123 spotted at In-Gate without valid pass."
                     android:textColor="@color/text_muted"
                     android:textSize="12sp" />
             </LinearLayout>
