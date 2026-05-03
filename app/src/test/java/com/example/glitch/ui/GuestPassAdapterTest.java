@@ -26,9 +26,23 @@ public class GuestPassAdapterTest {
     }
 
     @Test
+    public void expiredStatusUsesCriticalChip() {
+        GuestPassAdapter.ChipStyle style = GuestPassAdapter.resolveStatusStyle("expired");
+        assertEquals(R.drawable.bg_chip_alert_critical, style.backgroundRes);
+        assertEquals(R.color.danger_red, style.textColorRes);
+    }
+
+    @Test
     public void fallbackStatusUsesDefaultChip() {
         GuestPassAdapter.ChipStyle style = GuestPassAdapter.resolveStatusStyle("queued");
         assertEquals(R.drawable.bg_chip_role, style.backgroundRes);
         assertEquals(R.color.primary_navy, style.textColorRes);
+    }
+
+    @Test
+    public void usedStatusUsesMutedChipColor() {
+        GuestPassAdapter.ChipStyle style = GuestPassAdapter.resolveStatusStyle("used");
+        assertEquals(R.drawable.bg_chip_role, style.backgroundRes);
+        assertEquals(R.color.nav_unselected, style.textColorRes);
     }
 }

@@ -3,6 +3,7 @@ package com.example.glitch.ui;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glitch.R;
 import com.example.glitch.model.GuestPass;
+import com.example.glitch.model.GuestPassStatusRules;
 import com.google.android.material.button.MaterialButton;
 
 import java.text.SimpleDateFormat;
@@ -26,6 +28,10 @@ import java.util.Locale;
 public class GuestPassAdapter extends RecyclerView.Adapter<GuestPassAdapter.GuestPassViewHolder> {
     public interface GuestPassActionListener {
         void onCancelPass(@NonNull GuestPass pass);
+
+        void onSharePass(@NonNull GuestPass pass);
+
+        void onViewPassDetails(@NonNull GuestPass pass);
     }
 
     private final GuestPassActionListener listener;
@@ -54,6 +60,11 @@ public class GuestPassAdapter extends RecyclerView.Adapter<GuestPassAdapter.Gues
         GuestPass pass = items.get(position);
         holder.textGuestName.setText(pass.getGuestName());
         holder.textPassCode.setText(holder.itemView.getContext().getString(R.string.pass_code_label, pass.getPassCode()));
+        try {
+            holder.imagePassQr.setImageBitmap(QrCodeHelper.generate(pass.getPassCode(), 360));
+        } catch (Exception exception) {
+            holder.imagePassQr.setImageResource(android.R.drawable.ic_menu_report_image);
+        }
         String status = pass.getStatus() == null ? "" : pass.getStatus();
         holder.textStatus.setText(status.toUpperCase(Locale.getDefault()));
         ChipStyle chipStyle = resolveStatusStyle(status);
@@ -70,6 +81,10 @@ public class GuestPassAdapter extends RecyclerView.Adapter<GuestPassAdapter.Gues
         boolean active = "active".equalsIgnoreCase(pass.getStatus());
         holder.buttonCancel.setVisibility(active ? View.VISIBLE : View.GONE);
         holder.buttonCancel.setOnClickListener(v -> listener.onCancelPass(pass));
+        boolean shareable = GuestPassStatusRules.isShareable(pass);
+        holder.buttonShare.setVisibility(shareable ? View.VISIBLE : View.GONE);
+        holder.buttonShare.setOnClickListener(v -> listener.onSharePass(pass));
+        holder.buttonDetails.setOnClickListener(v -> listener.onViewPassDetails(pass));
     }
 
     @Override
@@ -80,16 +95,22 @@ public class GuestPassAdapter extends RecyclerView.Adapter<GuestPassAdapter.Gues
     static class GuestPassViewHolder extends RecyclerView.ViewHolder {
         final TextView textGuestName;
         final TextView textPassCode;
+        final ImageView imagePassQr;
         final TextView textExpiry;
         final TextView textStatus;
+        final MaterialButton buttonShare;
+        final MaterialButton buttonDetails;
         final MaterialButton buttonCancel;
 
         GuestPassViewHolder(@NonNull View itemView) {
             super(itemView);
             textGuestName = itemView.findViewById(R.id.text_pass_guest_name);
             textPassCode = itemView.findViewById(R.id.text_pass_code);
+            imagePassQr = itemView.findViewById(R.id.image_pass_qr);
             textExpiry = itemView.findViewById(R.id.text_pass_expiry);
             textStatus = itemView.findViewById(R.id.text_pass_status);
+            buttonShare = itemView.findViewById(R.id.button_share_pass);
+            buttonDetails = itemView.findViewById(R.id.button_view_pass_details);
             buttonCancel = itemView.findViewById(R.id.button_cancel_pass);
         }
     }
@@ -102,6 +123,9 @@ public class GuestPassAdapter extends RecyclerView.Adapter<GuestPassAdapter.Gues
         }
         if ("cancelled".equals(status) || "revoked".equals(status) || "expired".equals(status)) {
             return new ChipStyle(R.drawable.bg_chip_alert_critical, R.color.danger_red);
+        }
+        if ("used".equals(status)) {
+            return new ChipStyle(R.drawable.bg_chip_role, R.color.nav_unselected);
         }
         return new ChipStyle(R.drawable.bg_chip_role, R.color.primary_navy);
     }

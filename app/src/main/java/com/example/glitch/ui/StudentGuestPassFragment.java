@@ -27,6 +27,8 @@ import com.google.android.material.textfield.TextInputEditText;
  * Known issue: expiry unit is limited to whole hours in v1.
  */
 public class StudentGuestPassFragment extends Fragment implements GuestPassAdapter.GuestPassActionListener {
+    private static final String DEFAULT_GATE_LABEL = "Main Gate";
+
     private GuestPassRepository repository;
     private GuestPassAdapter adapter;
     private TextInputEditText inputGuestName;
@@ -58,6 +60,7 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
         inputExpiryHours = view.findViewById(R.id.input_pass_expiry_hours);
         textEmpty = view.findViewById(R.id.text_guest_pass_empty);
         MaterialButton buttonCreate = view.findViewById(R.id.button_create_pass);
+        MaterialButton buttonArchived = view.findViewById(R.id.button_view_archived_passes);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_guest_passes);
 
         adapter = new GuestPassAdapter(this);
@@ -91,6 +94,7 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
         }
 
         buttonCreate.setOnClickListener(v -> createGuestPass());
+        buttonArchived.setOnClickListener(v -> openArchivedPasses());
     }
 
     private void createGuestPass() {
@@ -109,13 +113,23 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
             Snackbar.make(requireView(), R.string.error_invalid_expiry, Snackbar.LENGTH_SHORT).show();
             return;
         }
-        repository.createGuestPass(profile.getUid(), profile.getRole(),profile.getDisplayName(),profile.getEmail(), guestName, guestId, expiryHours, (success, message, exception) -> {
-            if (!isAdded()) {
-                return;
-            }
-            requireActivity().runOnUiThread(() ->
-                    Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
-        });
+        repository.issueGuestPassWithEntryRequest(
+                profile.getUid(),
+                profile.getRole(),
+                profile.getDisplayName(),
+                profile.getEmail(),
+                guestName,
+                guestId,
+                DEFAULT_GATE_LABEL,
+                expiryHours,
+                (success, message, issuedPass, exception) -> {
+                    if (!isAdded()) {
+                        return;
+                    }
+                    requireActivity().runOnUiThread(() ->
+                            Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
+                }
+        );
     }
 
     @Override
@@ -127,6 +141,33 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
             requireActivity().runOnUiThread(() ->
                     Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
         });
+    }
+
+    @Override
+    public void onSharePass(@NonNull GuestPass pass) {
+        if (!isAdded()) {
+            return;
+        }
+        try {
+            PassShareHelper.share(this, pass);
+        } catch (Exception exception) {
+            Snackbar.make(requireView(), R.string.error_export_logs, Snackbar.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onViewPassDetails(@NonNull GuestPass pass) {
+        if (!isAdded() || !(requireActivity() instanceof NavigationHost)) {
+            return;
+        }
+        ((NavigationHost) requireActivity()).showFragment(GuestPassDetailsFragment.newInstance(pass), true);
+    }
+
+    private void openArchivedPasses() {
+        if (!isAdded() || !(requireActivity() instanceof NavigationHost)) {
+            return;
+        }
+        ((NavigationHost) requireActivity()).showFragment(GuestPassArchiveFragment.newInstance(), true);
     }
 
     @Override

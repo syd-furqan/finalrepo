@@ -53,78 +53,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_16"
-                    android:text="Active Gate Pass"
+                    android:text="Guest Pass Verification"
                     android:textColor="@color/text_dark"
-                    android:textSize="28sp"
+                    android:textSize="24sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_6"
-                    android:text="Visitor ID: #LUMS-2948-VX"
+                    android:text="@string/qr_hint"
                     android:textColor="@color/text_muted"
-                    android:textSize="18sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_weight="1"
-                    android:background="@color/surface_alt"
-                    android:orientation="vertical"
-                    android:padding="@dimen/space_16">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ENTRY POINT"
-                        android:textAllCaps="true"
-                        android:textColor="@color/text_muted"
-                        android:textSize="10sp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/space_6"
-                        android:text="Main Gate - Sector A"
-                        android:textColor="@color/text_dark"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_marginStart="@dimen/space_8"
-                    android:layout_weight="1"
-                    android:background="@color/surface_alt"
-                    android:orientation="vertical"
-                    android:padding="@dimen/space_16">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="VEHICLE REG"
-                        android:textAllCaps="true"
-                        android:textColor="@color/text_muted"
-                        android:textSize="10sp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/space_6"
-                        android:text="LED-8829"
-                        android:textColor="@color/text_dark"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -166,14 +106,6 @@
                     android:text="Scan QR"
                     android:textAllCaps="false"
                     android:textColor="@color/white" />
-
-                <com.google.android.material.button.MaterialButton
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="@dimen/space_8"
-                    android:text="Share Pass Access"
-                    android:textAllCaps="false" />
 
                 <TextView
                     android:id="@+id/text_pass_result"

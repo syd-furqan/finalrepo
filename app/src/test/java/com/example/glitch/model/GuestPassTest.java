@@ -28,8 +28,13 @@ public class GuestPassTest {
         map.put("guestName", "Hamza");
         map.put("guestIdNumber", "35201-1234567-1");
         map.put("passCode", "ABC12345");
+        map.put("entryRequestId", "req-42");
+        map.put("gateLabel", "Main Gate");
         map.put("status", "active");
         map.put("expiresAt", expiresAt);
+        map.put("admittedAt", null);
+        map.put("admittedByUid", "");
+        map.put("admissionMethod", "");
         map.put("createdAt", createdAt);
 
         GuestPass pass = GuestPass.fromMap("pass-1", map);
@@ -42,9 +47,10 @@ public class GuestPassTest {
         assertEquals("Hamza", pass.getGuestName());
         assertEquals("35201-1234567-1", pass.getGuestIdNumber());
         assertEquals("ABC12345", pass.getPassCode());
+        assertEquals("req-42", pass.getEntryRequestId());
+        assertEquals("Main Gate", pass.getGateLabel());
         assertEquals("active", pass.getStatus());
         assertNotNull(pass.getExpiresAt());
         assertNotNull(pass.getCreatedAt());
     }
 }
-

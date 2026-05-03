@@ -11,11 +11,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.glitch.R;
-import com.example.glitch.data.EntryRequestRepository;
 import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.GuestPass;
-import com.example.glitch.model.UserProfile;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -34,7 +32,6 @@ import java.util.Date;
  */
 public class GuardQrScanFragment extends Fragment {
     private GuestPassRepository guestPassRepository;
-    private EntryRequestRepository entryRequestRepository;
     private com.example.glitch.data.VerificationRulesRepository verificationRulesRepository;
     private com.example.glitch.model.VerificationRules currentRules = com.example.glitch.model.VerificationRules.defaultRules();
     private FirebaseFirestore firestore;
@@ -55,7 +52,6 @@ public class GuardQrScanFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         guestPassRepository = RepositoryProvider.getGuestPassRepository();
-        entryRequestRepository = RepositoryProvider.getRepository();
         verificationRulesRepository = RepositoryProvider.getVerificationRulesRepository();
         firestore = FirebaseFirestore.getInstance();
 
@@ -63,29 +59,12 @@ public class GuardQrScanFragment extends Fragment {
         barcodeLauncher = registerForActivityResult(new ScanContract(), result -> {
             if (result == null) return;
             String contents = result.getContents();
+            TextView textResult = view.findViewById(R.id.text_pass_result);
             if (contents == null || contents.isEmpty()) {
                 Snackbar.make(requireView(), R.string.error_verify_credential, Snackbar.LENGTH_SHORT).show();
                 return;
             }
-            guestPassRepository.findPassByCode(contents, new GuestPassRepository.PassLookupListener() {
-                @Override
-                public void onData(@Nullable GuestPass pass) {
-                    if (!isAdded()) return;
-                    requireActivity().runOnUiThread(() -> {
-                        TextView textResult = view.findViewById(R.id.text_pass_result);
-                        handlePassLookupResult(pass, textResult);
-                    });
-                }
-
-                @Override
-                public void onError(@NonNull Exception exception) {
-                    if (!isAdded()) return;
-                    requireActivity().runOnUiThread(() -> {
-                        TextView textResult = view.findViewById(R.id.text_pass_result);
-                        textResult.setText(R.string.error_verify_credential);
-                    });
-                }
-            });
+            verifyPassOnly(contents, textResult);
         });
 
         // 2. Setup Manual Validation
@@ -100,20 +79,7 @@ public class GuardQrScanFragment extends Fragment {
                 textResult.setText(R.string.error_pass_code_required);
                 return;
             }
-            guestPassRepository.findPassByCode(passCode, new GuestPassRepository.PassLookupListener() {
-                @Override
-                public void onData(@Nullable GuestPass pass) {
-                    if (!isAdded()) return;
-                    requireActivity().runOnUiThread(() -> handlePassLookupResult(pass, textResult));
-                }
-
-                @Override
-                public void onError(@NonNull Exception exception) {
-                    if (!isAdded()) return;
-                    requireActivity().runOnUiThread(() -> textResult.setText(R.string.error_verify_credential));
-                    recordFailedAttempt(passCode);
-                }
-            });
+            verifyPassOnly(passCode, textResult);
         });
 
         // 3. Setup QR Scan Button
@@ -163,35 +129,63 @@ public class GuardQrScanFragment extends Fragment {
                 }));
     }
 
-    private void handlePassLookupResult(@Nullable GuestPass pass, @NonNull TextView textResult) {
+    private void verifyPassOnly(@NonNull String rawCode, @NonNull TextView textResult) {
+        String passCode = rawCode.trim().toUpperCase();
+        guestPassRepository.findPassByCode(passCode, new GuestPassRepository.PassLookupListener() {
+            @Override
+            public void onData(@Nullable GuestPass pass) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() ->
+                        handlePassLookupResult(pass, passCode, textResult));
+            }
+
+            @Override
+            public void onError(@NonNull Exception exception) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> textResult.setText(R.string.error_verify_credential));
+                recordFailedAttempt(passCode);
+            }
+        });
+    }
+
+    private void handlePassLookupResult(
+            @Nullable GuestPass pass,
+            @NonNull String scannedCode,
+            @NonNull TextView textResult
+    ) {
         if (pass == null) {
             textResult.setText(R.string.pass_not_found);
+            recordFailedAttempt(scannedCode);
+            return;
+        }
+        if ("expired".equalsIgnoreCase(pass.getStatus())) {
+            textResult.setText(R.string.pass_expired);
+            recordFailedAttempt(scannedCode);
             return;
         }
         if (!"active".equalsIgnoreCase(pass.getStatus())) {
             textResult.setText(R.string.pass_not_active);
+            recordFailedAttempt(scannedCode);
             return;
         }
 
         if (pass.getExpiresAt() != null && pass.getExpiresAt().toDate().before(new Date())) {
             textResult.setText(R.string.pass_expired);
+            recordFailedAttempt(scannedCode);
             return;
         }
 
-        UserProfile profile = AuthUiGuard.requireProfile(this);
-        if (profile == null) return;
+        if (pass.getEntryRequestId().trim().isEmpty()) {
+            textResult.setText(R.string.pass_orphan_invalid);
+            recordFailedAttempt(scannedCode);
+            return;
+        }
 
-        String guardUid = profile.getUid();
-        String hostInfo = pass.getSponsorName() + " (" + pass.getSponsorEmail() + ")";
-
-        entryRequestRepository.createEntryRequest(
-                guardUid, "guard", pass.getGuestName(), pass.getGuestIdNumber(),
-                "QR Gate", hostInfo, pass.getExpiresAt(),
-                (success, message, exception) -> {
-                    if (!isAdded()) return;
-                    requireActivity().runOnUiThread(() -> textResult.setText(message));
-                }
-        );
+        textResult.setText(getString(R.string.pass_verified_go_dashboard, pass.getEntryRequestId()));
+        Snackbar.make(requireView(), R.string.route_to_dashboard_for_admission, Snackbar.LENGTH_SHORT).show();
+        if (requireActivity() instanceof NavigationHost) {
+            ((NavigationHost) requireActivity()).showFragment(DashboardFragment.newInstance(), true);
+        }
     }
 
     @NonNull

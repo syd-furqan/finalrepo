@@ -25,11 +25,39 @@ public interface GuestPassRepository {
 			@NonNull OperationCallback callback
 	);
 
+	void issueGuestPassWithEntryRequest(
+			@NonNull String sponsorUid,
+			@NonNull String sponsorRole,
+			@NonNull String sponsorName,
+			@NonNull String sponsorEmail,
+			@NonNull String guestName,
+			@NonNull String guestIdNumber,
+			@NonNull String gateLabel,
+			int expiryHours,
+			@NonNull IssueCallback callback
+	);
+
 	void listenGuestPasses(@NonNull String sponsorUid, @NonNull PassListListener listener);
+
+	void listenArchivedGuestPasses(@NonNull String sponsorUid, @NonNull PassListListener listener);
 
 	void cancelGuestPass(@NonNull String passId, @NonNull OperationCallback callback);
 
 	void findPassByCode(@NonNull String passCode, @NonNull PassLookupListener listener);
+
+	void markPassAdmitted(
+			@NonNull String passId,
+			@NonNull String admittedByUid,
+			@NonNull String admissionMethod,
+			@NonNull OperationCallback callback
+	);
+
+	void markPassAdmittedByEntryRequestId(
+			@NonNull String entryRequestId,
+			@NonNull String admittedByUid,
+			@NonNull String admissionMethod,
+			@NonNull OperationCallback callback
+	);
 
 	void removeListeners();
 
@@ -43,6 +71,15 @@ public interface GuestPassRepository {
 		void onData(@Nullable GuestPass pass);
 
 		void onError(@NonNull Exception exception);
+	}
+
+	interface IssueCallback {
+		void onComplete(
+				boolean success,
+				@NonNull String message,
+				@Nullable GuestPass issuedPass,
+				@Nullable Exception exception
+		);
 	}
 
 	interface OperationCallback {

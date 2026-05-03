@@ -21,8 +21,13 @@ public class GuestPass {
 	private final String guestName;
 	private final String guestIdNumber;
 	private final String passCode;
+	private final String entryRequestId;
+	private final String gateLabel;
 	private final String status;
 	private final Timestamp expiresAt;
+	private final Timestamp admittedAt;
+	private final String admittedByUid;
+	private final String admissionMethod;
 	private final Timestamp createdAt;
 
 	/**
@@ -37,8 +42,13 @@ public class GuestPass {
 			@NonNull String guestName,
 			@NonNull String guestIdNumber,
 			@NonNull String passCode,
+			@NonNull String entryRequestId,
+			@NonNull String gateLabel,
 			@NonNull String status,
 			@Nullable Timestamp expiresAt,
+			@Nullable Timestamp admittedAt,
+			@NonNull String admittedByUid,
+			@NonNull String admissionMethod,
 			@Nullable Timestamp createdAt
 	) {
 		this.id = id;
@@ -49,8 +59,13 @@ public class GuestPass {
 		this.guestName = guestName;
 		this.guestIdNumber = guestIdNumber;
 		this.passCode = passCode;
+		this.entryRequestId = entryRequestId;
+		this.gateLabel = gateLabel;
 		this.status = status;
 		this.expiresAt = expiresAt;
+		this.admittedAt = admittedAt;
+		this.admittedByUid = admittedByUid;
+		this.admissionMethod = admissionMethod;
 		this.createdAt = createdAt;
 	}
 
@@ -64,7 +79,7 @@ public class GuestPass {
 	@NonNull
 	public static GuestPass fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
 		if (map == null) {
-			return new GuestPass(id, "", "", "", "", "", "", "", "", null, null);
+			return new GuestPass(id, "", "", "", "", "", "", "", "", "", "", null, null, "", "", null);
 		}
 		return new GuestPass(
 				id,
@@ -75,8 +90,13 @@ public class GuestPass {
 				asString(map.get("guestName")),
 				asString(map.get("guestIdNumber")),
 				asString(map.get("passCode")),
+				asString(map.get("entryRequestId")),
+				asString(map.get("gateLabel")),
 				asString(map.get("status")),
 				asTimestamp(map.get("expiresAt")),
+				asTimestamp(map.get("admittedAt")),
+				asString(map.get("admittedByUid")),
+				asString(map.get("admissionMethod")),
 				asTimestamp(map.get("createdAt"))
 		);
 	}
@@ -146,6 +166,22 @@ public class GuestPass {
 	}
 
 	/**
+	 * @return linked entry request document id.
+	 */
+	@NonNull
+	public String getEntryRequestId() {
+		return entryRequestId;
+	}
+
+	/**
+	 * @return gate label associated with this pass.
+	 */
+	@NonNull
+	public String getGateLabel() {
+		return gateLabel;
+	}
+
+	/**
 	 * @return lifecycle status of the pass.
 	 */
 	@NonNull
@@ -159,6 +195,30 @@ public class GuestPass {
 	@Nullable
 	public Timestamp getExpiresAt() {
 		return expiresAt;
+	}
+
+	/**
+	 * @return timestamp when pass was admitted/consumed.
+	 */
+	@Nullable
+	public Timestamp getAdmittedAt() {
+		return admittedAt;
+	}
+
+	/**
+	 * @return uid of guard who admitted the pass.
+	 */
+	@NonNull
+	public String getAdmittedByUid() {
+		return admittedByUid;
+	}
+
+	/**
+	 * @return admission method (QR_SCAN or PASS_CODE).
+	 */
+	@NonNull
+	public String getAdmissionMethod() {
+		return admissionMethod;
 	}
 
 	/**
