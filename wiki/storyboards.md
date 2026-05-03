@@ -1,105 +1,107 @@
-Click [this](https://www.figma.com/design/VYLrX3lyUCgolPVw6XCKvd/GateSync?node-id=0-1&p=f "GateSync Figma") to view screen designs on Figma. This is dynamic, and will be updated upon any change.
+# Storyboards — Current Flows and Next Blocks
 
-## UI Component Documentation
+**Team GLITCH** | CS360 Software Engineering  
+**Last Updated:** 2026-05-04
 
-For detailed self-contained UI mockups and implementation specifications, see:
+Primary design reference: [GateSync Figma](https://www.figma.com/design/VYLrX3lyUCgolPVw6XCKvd/GateSync?node-id=0-1&p=f)
 
-### Guard/Security Workflows
-- [Guard Dashboard Screen](../doc/ui/guard-dashboard-mockup.md) (US-01)
-- [Guard Visitor Search Screen](../doc/ui/guard-search-mockup.md) (US-02)
-- [Credential Verification Screen](../doc/ui/guard-credential-verification-mockup.md) (US-03)
-- [Deny Entry Request Screen](../doc/ui/guard-deny-mockup.md) (US-05)
-- [QR Code Scan Screen](../doc/ui/guard-qr-scan-mockup.md) (US-17)
+## Active Role Flows
 
-### Faculty/Staff/Student Workflows
-- [Faculty Access Request Screen](../doc/ui/faculty-access-request-mockup.md) (US-06)
-- [Faculty Notifications Screen](../doc/ui/faculty-notifications-mockup.md) (US-07)
-- [Staff Vehicle Request Screen](../doc/ui/staff-vehicle-request-mockup.md) (US-08/US-09)
-- [Student Guest Pass Screen](../doc/ui/student-guest-pass-mockup.md) (US-10/US-11/US-12)
+### 1. Authentication and Role Landing
+- User logs in with a valid account profile.
+- Supported active roles: `admin`, `guard`, `faculty`, `student`.
+- Role landing routes users into role-specific navigation and actions.
 
-### Admin/Audit Workflows
-- [Admin Audit Log Screen](../doc/ui/admin-audit-log-mockup.md) (US-13)
-- [Admin User Management Screen](../doc/ui/admin-user-management-mockup.md) (US-14)
-- [Admin Verification Rules Screen](../doc/ui/admin-verification-rules-mockup.md) (US-16)
-- [Admin Alerts Screen](../doc/ui/admin-alerts-mockup.md) (US-18)
+### 2. Issuer Flow (Faculty / Student)
+
+#### Step I1 — Start Guest Pass Issuance
+- Issuer opens Guest Pass creation.
+- Required fields:
+- Guest full name
+- Guest CNIC (canonical: `xxxxx-xxxxxxx-x`)
+- Optional guest vehicle toggle
+- If vehicle toggle is true: guest vehicle plate (`AAA-xxx(x)`)
+
+#### Step I2 — Validation and Policy Checks
+- CNIC and plate are normalized before persistence.
+- Issuance is blocked by daytime policy (08:30–22:30, campus timezone).
+- Student-specific restriction: if an active/overdue visit already exists, new issuance is blocked.
+
+#### Step I3 — Coupled Creation
+- System creates `Guest Pass + Entry Request` together atomically.
+- Pass includes `Pass Code`, QR content, guest metadata, sponsor metadata, `entryRequestId`, and `In-Gate`.
+
+#### Step I4 — Share / Manage
+- Issuer can share active pass card (QR + Pass Code).
+- Issuer can cancel active pass.
+- Issuer can view details for all records.
+- Archived records (`expired/cancelled/denied/exited`) remain visible and non-shareable.
+
+### 3. Guard Verification and Admission Flow
+
+#### Step G1 — Verification Input
+- Guard opens scan/verification screen.
+- Guard verifies using either:
+- QR scan
+- Pass Code manual input
+
+#### Step G2 — Pending Decision Routing
+- If pass is valid and linked, system persists a pending decision context and routes to a mandatory decision fragment.
+- The pending decision is restored if guard leaves and returns.
+
+#### Step G3 — Mandatory Decision Fragment
+- Guard sees full details:
+- guest identity, pass code, entry request link, sponsor details, gate, timestamps
+- Required checkpoints:
+- guest identity verified
+- if vehicle guest: vehicle verified checkbox
+- Actions: `Allow` or `Deny` only.
+
+#### Step G4 — Outcomes
+- `Allow`:
+- entry request becomes active/admitted
+- linked guest pass becomes used/admitted with metadata
+- route to dashboard
+- `Deny`:
+- request denied is persisted
+- linked guest pass marked denied (archived)
+- route to dashboard
+
+### 4. Guard Dashboard and Exit Flow
+- Dashboard lists admitted/active entries.
+- Entry cards expose `Details`.
+- From details, guard logs exit.
+- Exit updates linked request/pass lifecycle and audit trail.
+
+### 5. Admin Oversight (Current)
+- Admin can access audit, user management, rules, and alerts surfaces.
+- Audit foundation and export exist; deeper intervention workflows are planned.
 
 ---
 
-## 1. Initial Entry: Authentication
-The system begins with a unified entry point to ensure secure access.
+## Next Storyboard Blocks (Planned)
 
-### **Screen: Login Portal**
-* **User Action:** User enters credentials and taps **"Login to GateSync"**.
-* **System Logic:** Based on the user profile, the system redirects to either the **Guard Dashboard** or the **Faculty/Student Dashboard**.
+### A. Sponsor Personal Vehicle Registration (Faculty/Student)
+- One-time personal vehicle registration request.
+- Submission status tracking for requester.
 
-<img width="196" height="443.5" alt="Login Portal" src="../doc/ui/login.png" />
- 
+### B. Admin Vehicle Approval Pipeline
+- Admin queue for sponsor vehicle requests.
+- Approve/deny decision flow with audit events.
+- Approved vehicle credentials become gate-verifiable.
 
----
+### C. Guard Incident Reporting
+- Guard reports incident linked to an entry request.
+- Minimal capture for fast gate operations.
 
-## 2. Branch A: Security Guard & Admin Workflow
-*Focus: Real-time verification and gate management.*
-
-### **Step A1: Operations Dashboard**
-* **Context:** Guard monitors active requests and daily visitor counts (**US-01**).
-* **User Action:** A visitor arrives. Guard taps **"Scan Visitor QR Code"**.
-* **Requirement Coverage:** **US-17** (QR Scanning).
-    
-* <img width="196" height="443.5" alt="Operations Dashboard" src="../doc/ui/guard%20search.png" />
-
-### **Step A1.5: Manual Visitor Lookup**
-* **Context:** Used when a visitor does not have a QR code or the scan fails.
-* **User Action:** Guard enters the visitor's Name, CNIC, or Vehicle Number into the search bar.
-* **System Logic:** The system filters the "Expected Visitors" list in real-time.
-* **Requirement Coverage:** **US-02** (Manual Search & Lookup).
-    
-* <img width="196" height="443" alt="Manual Visitor Lookup" src="../doc/ui/guard%20search.png" /> 
-
-### **Step A2: Credential Verification**
-* **Context:** The system fetches the visitor's live profile from the university database.
-* **User Action:** Guard reviews CNIC, Vehicle Number, and Host details (**US-03**).
-* **Decision:**
-    * **Grant Entry:** Transitions to success state and logs the event (**US-04**).
-    * **Deny Entry:** Guard selects "Deny" and adds a reason for the log (**US-05**).
-* **Requirement Coverage:** **US-03, US-04, US-05**.
-* **Exception Handling (US-18):** If a scanned QR is expired or blacklisted, the system transitions to an **Alert State** (Red Header), notifying the Guard and logging a "Security Incident" for the Admin's audit log.
-    
-* <img width="196" height="443" alt="Credential Verification" src="../doc/ui/verification%20result.png" />
-
-### **Step A3: Security Audit & Reporting**
-* **Context:** Admin or Guard views a scrollable, immutable history of all movements (**US-13**).
-* **User Action:** While Guards have "View Only" access, the **Admin** persona can tap the **"Download"** icon to generate PDF/CSV reports (**US-15**).
-* **Requirement Coverage:** **US-13, US-15**.
-  
-* <img width="196" height="443" alt="Security Audit" src="../doc/ui/admin%20logs.png" />
+### D. Admin Alert Intervention
+- Admin receives incident/alert queue.
+- Intervention actions include fine sponsor / ban guest.
+- All interventions are auditable and historically reviewable.
 
 ---
 
-## 3. Branch B: Faculty & Student Workflow
-*Focus: Request creation and guest pass management.*
-
-### **Step B1: User Dashboard**
-* **Context:** User views current status of guest invitations (**US-09**).
-* **User Action:** User taps the **"+"** Floating Action Button to initiate a new request.
-* **Requirement Coverage:** **US-09**.  
-
-* <img width="196" height="443" alt="User Dashboard" src="../doc/ui/faculty%20notif.png" />
-
-
-### **Step B2: Guest Pass Creation**
-* **Context:** A 3-step wizard to input visitor data for the **Final Release**.
-* **User Action:** User enters guest details, vehicle info, and sets a custom **Expiry Time** (**US-11**).
-* **Requirement Coverage:** **US-06, US-08, US-10, US-11**.  
-* <img width="196" height="443" alt="Guest Pass Creation" src="../doc/ui/faculty%20access.png" />
-
-### **Step B3: Distribution & Revocation**
-* **Context:** Integrated dashboard showing the generated pass with a "Green/Approved" status.
-* **User Action:** * User taps **"Share QR"** to send the pass to the guest (**US-07**).
-    * User taps **"Cancel"** to revoke access if plans change (**US-12**).
-* **Requirement Coverage:** **US-07, US-12**.  
-* <img width="196" height="443" alt="Distribution & Revocation" src="../doc/ui/student%20gate%20pass.png" />
-
-
-
-
-
+## Terminology Lock
+- `Pass Code` is the manual fallback identifier.
+- `In-Gate` is the only gate label shown in UI (stored as `in-gate`).
+- `Guest Pass` issuance is the canonical trigger for `Entry Request` creation.

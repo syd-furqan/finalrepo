@@ -1,159 +1,155 @@
-# Object-Oriented Analysis (CRC Cards)
-CS360 – Campus Gate Access System  
-Team GLITCH
+# Object-Oriented Analysis (Updated CRC View)
 
-Afnan Ahmad Baig 27100206
+**Campus Gate Access System**  
+**Team GLITCH** | CS360 Software Engineering  
+**Last Updated:** 2026-05-04
 
----
-
-## 1. Introduction
-
-This document presents the initial object-oriented analysis of our Campus Gate Access System.
-
-We use CRC cards (Class–Responsibility–Collaborator) to identify the main classes in the system, what each class is responsible for, and which other classes it works with.
-
-The classes below are based directly on the user stories in our product backlog.
+This CRC-oriented analysis reflects the current product model and near-term roadmap.
+Active roles in scope: `admin`, `guard`, `faculty`, `student`.
 
 ---
 
-# 2. CRC Cards
+## 1. Domain Core Classes
 
----
-
-## Class: Visitor
-
+### Class: `GuestPass`
 **Responsibilities**
-- Store visitor information (name, ID/CNIC, vehicle number).
-- Submit an access request to enter campus (UserStory[US]-06, US-10).
-- Receive or generate a guest pass.
-- View the status of a request (US-09).
-- Cancel a guest pass if needed (US-12).
+- Represent sponsor-issued pass data (guest identity, optional guest vehicle, Pass Code, QR payload linkage).
+- Maintain lifecycle state (`active`, `used`, `overdue`, `denied`, `cancelled`, `expired`, `exited`).
+- Link one-to-one with `EntryRequest` via `entryRequestId`.
+- Expose share/archive behavior boundaries.
 
 **Collaborators**
-- AccessRequest  
-- CredentialVerifier  
-- LogEntry  
+- `EntryRequest`
+- `GuestPassRepository`
+- `GuestPassStatusRules`
+- `GuestPassTimePolicy`
 
----
-
-## Class: Guard
-
+### Class: `EntryRequest`
 **Responsibilities**
-- View the real-time dashboard of active requests (US-01).
-- Search visitor details by name, ID, or vehicle number (US-02).
-- Verify credentials before granting access (US-03).
-- Approve or deny access requests (US-05).
-- Scan QR-based guest passes (US-17).
-- Record entry and exit events (US-04).
+- Represent gate admission intent and visit state.
+- Store admitted/denied/exited progression and linkage to issuer metadata.
+- Carry operational metadata used by guard dashboard and audit.
 
 **Collaborators**
-- Visitor  
-- AccessRequest  
-- CredentialVerifier  
-- LogEntry  
+- `GuestPass`
+- `EntryRequestRepository`
+- `AuditEvent`
 
----
-
-## Class: AccessRequest
-
+### Class: `GuardPendingDecision`
 **Responsibilities**
-- Store all request details (visitor, sponsor, timestamps).
-- Track the request status (Pending / Approved / Denied).
-- Connect visitor and sponsor (faculty, staff, or student).
-- Handle expiry time for guest passes (US-11).
-- Trigger notifications when status changes (US-07).
+- Persist unresolved guard decision context after scan/pass verification.
+- Restore mandatory unresolved decision across navigation/app return.
+- Provide details needed for final allow/deny resolution.
 
 **Collaborators**
-- Visitor  
-- Guard  
-- CredentialVerifier  
-- LogEntry  
+- `GuardPendingDecisionStore`
+- `GuestPass`
+- `EntryRequestRepository`
 
----
-
-## Class: LogEntry
-
+### Class: `AuditEvent`
 **Responsibilities**
-- Record entry time (US-04).
-- Record exit time (US-04).
-- Maintain a full audit history for security review (US-13).
-- Provide data for exporting reports (US-15).
+- Model immutable access/security activity records.
+- Capture actor role/uid, entity correlation, source, outcome, and metadata.
+- Support list/filter/export/reporting workflows.
 
 **Collaborators**
-- Guard  
-- Visitor  
-- AccessRequest  
+- `AuditLogRepository`
+- `EntryRequestRepository`
+- `GuestPassRepository`
 
----
-
-## Class: CredentialVerifier
-
+### Class: `VerificationRules`
 **Responsibilities**
-- Verify identity using university database (US-03).
-- Check ID expiry and rule compliance (US-16).
-- Check banned lists (US-16).
-- Detect repeated failed attempts and trigger alerts (US-18).
+- Represent configurable credential verification policy inputs.
+- Drive verification and alert-trigger behavior.
 
 **Collaborators**
-- Visitor  
-- Guard  
-- AccessRequest  
+- `EntryRequestRepository`
+- Guard verification flows
 
 ---
 
-## Class: Admin
+## 2. Repository and Policy Classes
 
+### Class: `GuestPassRepository` (role-aware data service)
 **Responsibilities**
-- Add, edit, or deactivate user accounts (US-14).
-- View full audit logs (US-13).
-- Export audit reports as CSV or PDF (US-15).
-- Configure verification rules (US-16).
+- Atomically issue `Guest Pass + Entry Request`.
+- Enforce lifecycle transitions (cancel/admit/deny/exit linkage).
+- Lookup pass by Pass Code and normalize stale states.
 
 **Collaborators**
-- LogEntry  
-- CredentialVerifier  
-- Guard  
-- Visitor  
+- `GuestPass`
+- `EntryRequestRepository`
+- `GuestIdentityPolicy`
+- `GuestPassTimePolicy`
 
----
-
-## Class: GuestPass
-
+### Class: `EntryRequestRepository`
 **Responsibilities**
-- Store guest pass details (pass ID, QR code, expiry time).
-- Ensure the pass is single-use or time-limited (US-11).
-- Allow cancellation of a pass (US-12).
-- Connect student-issued passes to access requests (US-10).
+- Serve active dashboard request stream.
+- Persist allow/deny/exit state changes.
+- Coordinate credential verification and alert generation.
 
 **Collaborators**
-- Visitor  
-- AccessRequest  
-- Guard  
-- CredentialVerifier  
+- `EntryRequest`
+- `AuditEvent`
+- `VerificationRules`
+
+### Class: `GuestIdentityPolicy`
+**Responsibilities**
+- Normalize and validate guest CNIC and vehicle plate formats.
+- Provide canonical representation for persistence and comparisons.
+
+**Collaborators**
+- Issuer UI fragments
+- `GuestPassRepository`
+- Guard decision surface
+
+### Class: `GatePolicy`
+**Responsibilities**
+- Enforce single-gate canonical value (`in-gate`) and display label (`In-Gate`).
+
+**Collaborators**
+- `GuestPass`
+- `EntryRequest`
+- repositories/UI formatters
+
+### Class: `GuestPassTimePolicy`
+**Responsibilities**
+- Enforce daytime issuance/entry window and expiration semantics.
+- Detect out-of-policy active records for normalization.
+
+**Collaborators**
+- `GuestPassRepository`
+- Guard verification flows
+
+### Class: `GuestPassStatusRules`
+**Responsibilities**
+- Define status interpretation for archive/in-progress/share/blocking logic.
+
+**Collaborators**
+- Issuer UI adapters/fragments
+- `GuestPassRepository`
 
 ---
 
-# 3. Responsibility Mapping Summary
-
-- **Visitor** starts the process by creating or receiving an access request.
-- **AccessRequest** acts as the central object that connects users, guards, and request status.
-- **Guard** reviews requests, verifies credentials, and controls entry at the gate.
-- **CredentialVerifier** handles all security checks and policy rules.
-- **LogEntry** ensures that every entry and exit is properly recorded for audit purposes.
-- **Admin** manages users, reports, and system rules.
-- **GuestPass** manages QR-based visitor passes and expiry control.
+## 3. Responsibility Mapping
+- **Faculty/Student** initiate guest entry by issuing a `GuestPass`; this atomically creates `EntryRequest`.
+- **Guard** verifies pass (QR or Pass Code), resolves pending decision (`Allow`/`Deny`), and logs exit from details.
+- **Admin** governs users/rules/audit/alerts and will own intervention workflows (fine/ban) and vehicle approvals in next phase.
+- **Policies** (`GatePolicy`, `GuestIdentityPolicy`, `GuestPassTimePolicy`, `GuestPassStatusRules`) constrain data consistency and behavior.
 
 ---
 
-# 4. Design Notes
-
-- The system separates responsibilities clearly to follow good object-oriented design principles.
-- Security logic is kept inside the CredentialVerifier class to avoid mixing it with other responsibilities.
-- AccessRequest is the central coordinating class in the system.
-- LogEntry ensures traceability and accountability for all gate activities.
-
-This design keeps the system modular, secure, and easy to maintain in future development stages.
+## 4. Current Invariants and Constraints
+- `GuestPass` must not exist without linked `EntryRequest` at issuance time.
+- Single-gate domain: all records normalize to `in-gate`.
+- Pass identification fallback is always `Pass Code`.
+- Student issuance is constrained by active/overdue lifecycle restrictions.
+- Guard unresolved decision is persisted and must be resolved explicitly.
 
 ---
 
-# End of Document
+## 5. Near-Term Extension Points
+- Sponsor personal vehicle registration entities/workflows (faculty/student).
+- Admin vehicle approval model and credential activation.
+- Guard incident-report entity linked to entry request.
+- Admin intervention action entity (fine/ban) with audit correlations.
