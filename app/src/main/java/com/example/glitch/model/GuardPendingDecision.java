@@ -22,6 +22,9 @@ public class GuardPendingDecision {
     private final String entryRequestId;
     private final String guestName;
     private final String guestIdNumber;
+    private final boolean hasVehicle;
+    private final String vehiclePlate;
+    private final String guestType;
     private final String sponsorName;
     private final String sponsorRole;
     private final String sponsorEmail;
@@ -36,6 +39,9 @@ public class GuardPendingDecision {
             @NonNull String entryRequestId,
             @NonNull String guestName,
             @NonNull String guestIdNumber,
+            boolean hasVehicle,
+            @NonNull String vehiclePlate,
+            @NonNull String guestType,
             @NonNull String sponsorName,
             @NonNull String sponsorRole,
             @NonNull String sponsorEmail,
@@ -49,6 +55,9 @@ public class GuardPendingDecision {
         this.entryRequestId = entryRequestId;
         this.guestName = guestName;
         this.guestIdNumber = guestIdNumber;
+        this.hasVehicle = hasVehicle;
+        this.vehiclePlate = vehiclePlate;
+        this.guestType = guestType;
         this.sponsorName = sponsorName;
         this.sponsorRole = sponsorRole;
         this.sponsorEmail = sponsorEmail;
@@ -70,6 +79,9 @@ public class GuardPendingDecision {
                 pass.getEntryRequestId().trim(),
                 pass.getGuestName().trim(),
                 pass.getGuestIdNumber().trim(),
+                pass.hasVehicle(),
+                pass.getVehiclePlate().trim(),
+                pass.getGuestType().trim(),
                 pass.getSponsorName().trim(),
                 pass.getSponsorRole().trim(),
                 pass.getSponsorEmail().trim(),
@@ -85,7 +97,7 @@ public class GuardPendingDecision {
             return null;
         }
         String[] fields = splitEscaped(json);
-        if (fields.length != 12) {
+        if (fields.length != 15) {
             return null;
         }
         return new GuardPendingDecision(
@@ -95,12 +107,15 @@ public class GuardPendingDecision {
                 unescape(fields[3]),
                 unescape(fields[4]),
                 unescape(fields[5]),
-                unescape(fields[6]),
+                parseBoolean(fields[6]),
                 unescape(fields[7]),
                 unescape(fields[8]),
                 unescape(fields[9]),
-                parseLong(fields[10]),
-                parseLong(fields[11])
+                unescape(fields[10]),
+                unescape(fields[11]),
+                unescape(fields[12]),
+                parseLong(fields[13]),
+                parseLong(fields[14])
         );
     }
 
@@ -114,6 +129,9 @@ public class GuardPendingDecision {
                 escape(entryRequestId),
                 escape(guestName),
                 escape(guestIdNumber),
+                String.format(Locale.getDefault(), "%b", hasVehicle),
+                escape(vehiclePlate),
+                escape(guestType),
                 escape(sponsorName),
                 escape(sponsorRole),
                 escape(sponsorEmail),
@@ -157,6 +175,20 @@ public class GuardPendingDecision {
     @NonNull
     public String getGuestIdNumber() {
         return guestIdNumber;
+    }
+
+    public boolean hasVehicle() {
+        return hasVehicle;
+    }
+
+    @NonNull
+    public String getVehiclePlate() {
+        return vehiclePlate;
+    }
+
+    @NonNull
+    public String getGuestType() {
+        return guestType;
     }
 
     @NonNull
@@ -204,6 +236,13 @@ public class GuardPendingDecision {
         } catch (NumberFormatException ignored) {
             return TS_UNSET;
         }
+    }
+
+    private static boolean parseBoolean(@Nullable String value) {
+        if (value == null) {
+            return false;
+        }
+        return Boolean.parseBoolean(value.trim());
     }
 
     @NonNull

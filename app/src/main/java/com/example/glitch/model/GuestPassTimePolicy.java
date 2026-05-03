@@ -15,6 +15,7 @@ import java.util.TimeZone;
  */
 public final class GuestPassTimePolicy {
     public static final String CAMPUS_TIME_ZONE_ID = "Asia/Karachi";
+    private static volatile boolean testingBypassEnabled;
 
     private static final int OPEN_HOUR = 8;
     private static final int OPEN_MINUTE = 30;
@@ -24,12 +25,19 @@ public final class GuestPassTimePolicy {
     private GuestPassTimePolicy() {
     }
 
+    /**
+     * Test-only runtime override for bypassing issuance/entry time windows.
+     */
+    public static void setTestingBypassEnabled(boolean enabled) {
+        testingBypassEnabled = enabled;
+    }
+
     public static boolean canIssueNow() {
-        return isIssueWindowOpenAt(System.currentTimeMillis());
+        return testingBypassEnabled || isIssueWindowOpenAt(System.currentTimeMillis());
     }
 
     public static boolean isEntryWindowOpenNow() {
-        return isEntryWindowOpenAt(System.currentTimeMillis());
+        return testingBypassEnabled || isEntryWindowOpenAt(System.currentTimeMillis());
     }
 
     @NonNull
@@ -63,10 +71,13 @@ public final class GuestPassTimePolicy {
         if (!"active".equalsIgnoreCase(pass.getStatus())) {
             return false;
         }
+        Timestamp expiresAt = pass.getExpiresAt();
+        if (testingBypassEnabled) {
+            return expiresAt != null && expiresAt.toDate().getTime() <= nowMillis;
+        }
         if (!isEntryWindowOpenAt(nowMillis)) {
             return true;
         }
-        Timestamp expiresAt = pass.getExpiresAt();
         if (expiresAt == null) {
             return true;
         }

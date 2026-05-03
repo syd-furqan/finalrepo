@@ -20,6 +20,8 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.Locale;
+
 /**
  * Admin user management screen for add/edit/deactivate flows (US-14).
  * Pattern: Form + toggle list fragment bound to UserManagementRepository.
@@ -94,10 +96,17 @@ public class AdminUserManagementFragment extends Fragment implements UserManagem
     private void saveUser() {
         String uid = read(inputUid);
         String email = read(inputEmail);
-        String role = read(inputRole);
+        String role = read(inputRole).toLowerCase(Locale.getDefault());
         String name = read(inputName);
         if (uid.isEmpty() || email.isEmpty() || role.isEmpty() || name.isEmpty()) {
             Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+        if (!("guard".equals(role)
+                || "faculty".equals(role)
+                || "student".equals(role)
+                || "admin".equals(role))) {
+            Snackbar.make(requireView(), R.string.error_invalid_user_role, Snackbar.LENGTH_SHORT).show();
             return;
         }
         repository.upsertUser(uid, email, role, name, true, (success, message, exception) -> {

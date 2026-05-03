@@ -27,6 +27,9 @@ public class GuestPassTest {
         map.put("sponsorEmail", "ali@lums.edu.pk");
         map.put("guestName", "Hamza");
         map.put("guestIdNumber", "35201-1234567-1");
+        map.put("hasVehicle", true);
+        map.put("vehiclePlate", "abc-1234");
+        map.put("guestType", "vehicle");
         map.put("passCode", "ABC12345");
         map.put("entryRequestId", "req-42");
         map.put("gateLabel", "West Wing - 02");
@@ -46,6 +49,9 @@ public class GuestPassTest {
         assertEquals("ali@lums.edu.pk", pass.getSponsorEmail());
         assertEquals("Hamza", pass.getGuestName());
         assertEquals("35201-1234567-1", pass.getGuestIdNumber());
+        assertEquals(true, pass.hasVehicle());
+        assertEquals("ABC-1234", pass.getVehiclePlate());
+        assertEquals("vehicle", pass.getGuestType());
         assertEquals("ABC12345", pass.getPassCode());
         assertEquals("req-42", pass.getEntryRequestId());
         assertEquals(GatePolicy.STORED_VALUE, pass.getGateLabel());

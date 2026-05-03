@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 
 import com.google.firebase.Timestamp;
 
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -19,6 +20,10 @@ public class EntryRequest {
 	private final String hostName;
 	private final String gateLabel;
 	private final String guestIDNumber;
+	private final boolean hasVehicle;
+	private final String vehiclePlate;
+	private final String guestType;
+	private final String requesterRole;
 	private final Timestamp enteredAt;
 	private final String status;
 	private final Timestamp expiresAt;
@@ -34,6 +39,10 @@ public class EntryRequest {
 			@NonNull String hostName,
 			@NonNull String gateLabel,
 			@NonNull String guestIdNumber,
+			boolean hasVehicle,
+			@NonNull String vehiclePlate,
+			@NonNull String guestType,
+			@NonNull String requesterRole,
 			@Nullable Timestamp enteredAt,
 			@NonNull String status,
 			@Nullable Timestamp expiresAt,
@@ -44,7 +53,13 @@ public class EntryRequest {
 		this.roleTag = roleTag;
 		this.hostName = hostName;
 		this.gateLabel = GatePolicy.normalizeStoredValue(gateLabel);
-		this.guestIDNumber = guestIdNumber;
+		String normalizedGuestId = GuestIdentityPolicy.normalizeCnic(guestIdNumber);
+		this.guestIDNumber = normalizedGuestId == null ? guestIdNumber : normalizedGuestId;
+		this.hasVehicle = hasVehicle;
+		String normalizedPlate = GuestIdentityPolicy.normalizeVehiclePlate(vehiclePlate);
+		this.vehiclePlate = normalizedPlate == null ? vehiclePlate : normalizedPlate;
+		this.guestType = guestType.trim().isEmpty() ? GuestIdentityPolicy.guestTypeFor(hasVehicle) : guestType;
+		this.requesterRole = requesterRole.trim().toLowerCase(Locale.getDefault());
 		this.enteredAt = enteredAt;
 		this.status = status;
 		this.expiresAt = expiresAt;
@@ -58,7 +73,7 @@ public class EntryRequest {
 	public static EntryRequest fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
 		if (map == null) {
 			return new EntryRequest(id, "", "", "", GatePolicy.STORED_VALUE, "",
-					null, "active", null, "");
+					false, "", "non_vehicle", "", null, "active", null, "");
 		}
 
 		return new EntryRequest(
@@ -68,6 +83,10 @@ public class EntryRequest {
 				asString(map.get("hostName")),
 				GatePolicy.normalizeStoredValue(asString(map.get("gateLabel"))),
 				asString(map.get("guestIdNumber")),
+				asBoolean(map.get("hasVehicle")),
+				asString(map.get("vehiclePlate")),
+				asString(map.get("guestType")),
+				asString(map.get("requesterRole")),
 				asTimestamp(map.get("enteredAt")),
 				asStringOrDefault(map.get("status"), "active"),
 				asTimestamp(map.get("expiresAt")),
@@ -123,6 +142,25 @@ public class EntryRequest {
 		return guestIDNumber;
 	}
 
+	public boolean hasVehicle() {
+		return hasVehicle;
+	}
+
+	@NonNull
+	public String getVehiclePlate() {
+		return vehiclePlate;
+	}
+
+	@NonNull
+	public String getGuestType() {
+		return guestType;
+	}
+
+	@NonNull
+	public String getRequesterRole() {
+		return requesterRole;
+	}
+
 	/**
 	 * Returns entry timestamp.
 	 */
@@ -164,6 +202,20 @@ public class EntryRequest {
 	private static String asStringOrDefault(@Nullable Object value, @NonNull String fallback) {
 		String parsed = asString(value);
 		return parsed.isEmpty() ? fallback : parsed;
+	}
+
+	private static boolean asBoolean(@Nullable Object value) {
+		if (value instanceof Boolean) {
+			return (Boolean) value;
+		}
+		if (value instanceof Number) {
+			return ((Number) value).intValue() != 0;
+		}
+		if (value instanceof String) {
+			String normalized = ((String) value).trim().toLowerCase(Locale.getDefault());
+			return "true".equals(normalized) || "1".equals(normalized);
+		}
+		return false;
 	}
 
 	@Nullable

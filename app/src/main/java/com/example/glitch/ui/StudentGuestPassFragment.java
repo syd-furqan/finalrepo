@@ -16,11 +16,14 @@ import com.example.glitch.R;
 import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.GuestPass;
+import com.example.glitch.model.GuestIdentityPolicy;
 import com.example.glitch.model.GuestPassStatusRules;
 import com.example.glitch.model.UserProfile;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;
@@ -34,6 +37,10 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     private GuestPassAdapter adapter;
     private TextInputEditText inputGuestName;
     private TextInputEditText inputGuestId;
+    private TextInputLayout layoutGuestCnic;
+    private TextInputLayout layoutVehiclePlate;
+    private TextInputEditText inputVehiclePlate;
+    private MaterialCheckBox checkHasVehicle;
     private TextView textEmpty;
     private MaterialButton buttonCreate;
     private ListenerRegistration passListener;
@@ -59,6 +66,10 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
         repository = RepositoryProvider.getGuestPassRepository();
         inputGuestName = view.findViewById(R.id.input_pass_guest_name);
         inputGuestId = view.findViewById(R.id.input_pass_guest_id);
+        layoutGuestCnic = view.findViewById(R.id.layout_pass_guest_cnic);
+        layoutVehiclePlate = view.findViewById(R.id.layout_pass_vehicle_plate);
+        inputVehiclePlate = view.findViewById(R.id.input_pass_vehicle_plate);
+        checkHasVehicle = view.findViewById(R.id.check_pass_has_vehicle);
         textEmpty = view.findViewById(R.id.text_guest_pass_empty);
         buttonCreate = view.findViewById(R.id.button_create_pass);
         MaterialButton buttonArchived = view.findViewById(R.id.button_view_archived_passes);
@@ -68,6 +79,15 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.PASSES);
+        GuestIdentityInputSupport.attachCnicFormatter(inputGuestId);
+        GuestIdentityInputSupport.attachVehiclePlateFormatter(inputVehiclePlate);
+        checkHasVehicle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            layoutVehiclePlate.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            if (!isChecked) {
+                inputVehiclePlate.setText("");
+                layoutVehiclePlate.setError(null);
+            }
+        });
 
         UserProfile profile = AuthUiGuard.requireProfile(this);
         if (profile != null) {
@@ -98,7 +118,7 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     private void updateUIForActivePass(List<GuestPass> currentPasses) {
         boolean hasInProgress = false;
         for (GuestPass pass : currentPasses) {
-            if (GuestPassStatusRules.isInProgress(pass.getStatus())) {
+            if (GuestPassStatusRules.blocksStudentIssuance(pass.getStatus())) {
                 hasInProgress = true;
                 break;
             }
@@ -118,11 +138,29 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     private void createGuestPass() {
         String guestName = read(inputGuestName);
         String guestId = read(inputGuestId);
+        boolean hasVehicle = checkHasVehicle.isChecked();
+        String vehiclePlateInput = read(inputVehiclePlate);
         UserProfile profile = AuthUiGuard.requireProfile(this);
-        
-        if (guestName.isEmpty() || guestId.isEmpty() || profile == null) {
+
+        layoutGuestCnic.setError(null);
+        layoutVehiclePlate.setError(null);
+
+        String normalizedCnic = GuestIdentityPolicy.normalizeCnic(guestId);
+        if (guestName.isEmpty() || normalizedCnic == null || profile == null) {
+            if (normalizedCnic == null) {
+                layoutGuestCnic.setError(getString(R.string.error_invalid_cnic));
+            }
             Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
             return;
+        }
+        String normalizedPlate = "";
+        if (hasVehicle) {
+            normalizedPlate = GuestIdentityPolicy.normalizeVehiclePlate(vehiclePlateInput);
+            if (normalizedPlate == null) {
+                layoutVehiclePlate.setError(getString(R.string.error_invalid_vehicle_plate));
+                Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
+                return;
+            }
         }
 
         buttonCreate.setEnabled(false); // Immediate lock
@@ -133,7 +171,9 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
                 profile.getDisplayName(),
                 profile.getEmail(),
                 guestName,
-                guestId,
+                normalizedCnic,
+                hasVehicle,
+                normalizedPlate,
                 (success, message, issuedPass, exception) -> {
                     if (!isAdded()) return;
                     requireActivity().runOnUiThread(() -> {
@@ -141,6 +181,10 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
                         if (success) {
                             inputGuestName.setText("");
                             inputGuestId.setText("");
+                            checkHasVehicle.setChecked(false);
+                            inputVehiclePlate.setText("");
+                            layoutGuestCnic.setError(null);
+                            layoutVehiclePlate.setError(null);
                         } else {
                             buttonCreate.setEnabled(true);
                         }

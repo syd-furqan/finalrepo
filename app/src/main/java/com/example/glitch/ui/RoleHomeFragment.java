@@ -105,9 +105,6 @@ public class RoleHomeFragment extends Fragment {
             addAction(container, getString(R.string.feature_faculty_submit_request), () -> openFragment(FacultyAccessRequestFragment.newInstance()));
             addAction(container, getString(R.string.feature_faculty_notifications), () -> openFragment(FacultyNotificationsFragment.newInstance()));
         }
-        if ("staff".equals(role)) {
-            addAction(container, getString(R.string.feature_staff_vehicle), () -> openFragment(StaffVehicleRequestFragment.newInstance()));
-        }
 
         if ("admin".equals(role)) {
             addAction(container, "VIEW SYSTEM AUDIT LOGS", () -> openFragment(AdminAuditLogFragment.newInstance()));

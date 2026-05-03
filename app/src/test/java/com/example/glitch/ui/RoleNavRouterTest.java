@@ -28,7 +28,7 @@ public class RoleNavRouterTest {
     @Test
     public void roleSpecificFallbacksRemainStable() {
         assertEquals(RoleDestination.FACULTY_REQUEST, RoleNavRouter.resolveDestinationForRole(RoleDestination.DASHBOARD, "faculty"));
-        assertEquals(RoleDestination.STAFF_VEHICLES, RoleNavRouter.resolveDestinationForRole(RoleDestination.VEHICLES, "staff"));
+        assertEquals(RoleDestination.DASHBOARD, RoleNavRouter.resolveDestinationForRole(RoleDestination.VEHICLES, "staff"));
         assertEquals(RoleDestination.STUDENT_PASSES, RoleNavRouter.resolveDestinationForRole(RoleDestination.PASSES, "student"));
         assertEquals(RoleDestination.DIRECTORY, RoleNavRouter.resolveDestinationForRole(RoleDestination.DASHBOARD, "unknown"));
     }

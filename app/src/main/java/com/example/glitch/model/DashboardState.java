@@ -63,7 +63,7 @@ public class DashboardState {
 				"System Status: Active",
 				"In-Gate reporting normal activity",
 				"Level 1 - Open",
-				"Standard visitor verification required. All student/staff IDs must be swiped.",
+				"Standard visitor verification required. All student/faculty IDs must be swiped.",
 				null
 		);
 	}

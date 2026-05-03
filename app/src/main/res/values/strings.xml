@@ -8,7 +8,7 @@
     <string name="manual_entry">Manual Entry</string>
     <string name="current_protocol">Current Protocol</string>
     <string name="protocol_fallback_level">Level 1 - Open</string>
-    <string name="protocol_fallback_description">Standard visitor verification required. All student/staff IDs must be swiped.</string>
+    <string name="protocol_fallback_description">Standard visitor verification required. All student/faculty IDs must be swiped.</string>
     <string name="active_entry_requests">Active Entry Requests</string>
     <string name="real_time_update">Real-time Update</string>
     <string name="gate_label">Gate</string>
@@ -95,9 +95,14 @@
 
     <string name="guest_full_name">Guest Full Name</string>
     <string name="guest_id_number">Guest ID Number</string>
+    <string name="guest_cnic">CNIC (xxxxx-xxxxxxx-x)</string>
+    <string name="guest_has_vehicle">Guest arriving with a vehicle</string>
+    <string name="vehicle_plate_label">Vehicle Plate (AAA-123 / AAA-1234)</string>
     <string name="gate_destination">In-Gate (fixed)</string>
     <string name="submit_request_action">Submit Request</string>
     <string name="error_fill_required_fields">Please complete all required fields.</string>
+    <string name="error_invalid_cnic">Enter CNIC as xxxxx-xxxxxxx-x.</string>
+    <string name="error_invalid_vehicle_plate">Enter plate as AAA-123 or AAA-1234.</string>
 
     <string name="no_notifications">No notifications yet.</string>
     <string name="error_load_notifications">Unable to load notifications.</string>
@@ -120,7 +125,7 @@
     <string name="admin_vehicle_approve_action">Approve</string>
     <string name="admin_vehicle_deny_action">Deny</string>
 
-    <!-- US-09: Staff access request status screen -->
+    <!-- Legacy access-request status screen -->
     <string name="staff_access_request_title">My Access Requests</string>
     <string name="staff_access_request_subtitle">View the status of all access requests you have submitted.</string>
     <string name="staff_access_no_requests">No access requests submitted yet.</string>
@@ -168,7 +173,9 @@
     <string name="guard_pending_subtitle">A scanned visitor request must be resolved before continuing.</string>
     <string name="guard_pending_method_label">Verification Method: %1$s</string>
     <string name="guard_pending_request_label">Entry Request ID: %1$s</string>
-    <string name="guard_pending_guest_id_label">Guest ID: %1$s</string>
+    <string name="guard_pending_guest_id_label">CNIC: %1$s</string>
+    <string name="guard_pending_guest_type_label">Guest Type: %1$s</string>
+    <string name="guard_pending_vehicle_plate_label">Vehicle Plate: %1$s</string>
     <string name="guard_pending_sponsor_label">Sponsor: %1$s (%2$s)</string>
     <string name="guard_pending_sponsor_role_label">Sponsor Role: %1$s</string>
     <string name="guard_pending_created_label">Created At: %1$s</string>
@@ -177,6 +184,10 @@
     <string name="guard_pending_not_actionable">This pass is no longer actionable. Pending decision was cleared.</string>
     <string name="guard_pending_back_blocked">Choose Allow or Deny to continue.</string>
     <string name="guard_pending_existing_reopened">Resolve the existing pending decision first.</string>
+    <string name="guard_checkpoint_guest_verified">I have verified the guest identity.</string>
+    <string name="guard_checkpoint_vehicle_verified">I have verified the guest vehicle plate.</string>
+    <string name="guard_checkpoint_vehicle_verified_with_plate">I have verified the guest vehicle plate (%1$s).</string>
+    <string name="guard_checkpoint_required">Complete all verification checkpoints before allowing entry.</string>
 
     <string name="export_csv_action">Export CSV</string>
     <string name="no_audit_logs">No audit logs available.</string>
@@ -187,7 +198,8 @@
 
     <string name="user_uid_label">User UID</string>
     <string name="user_name_label">Display Name</string>
-    <string name="user_role_label">Role (guard/faculty/staff/student/admin)</string>
+    <string name="user_role_label">Role (guard/faculty/student/admin)</string>
+    <string name="error_invalid_user_role">Role must be guard, faculty, student, or admin.</string>
     <string name="save_user_action">Save User</string>
     <string name="no_users">No users found.</string>
     <string name="error_load_users">Unable to load users.</string>
@@ -208,7 +220,7 @@
 
     <!-- Admin vehicle review (US-10) -->
     <string name="feature_admin_vehicle_review">Vehicle Review</string>
-    <string name="admin_vehicle_review_subtitle">Review and approve or deny staff vehicle registration requests.</string>
+    <string name="admin_vehicle_review_subtitle">Review and approve or deny vehicle registration requests.</string>
     <string name="vehicle_approve_title">Approve Request</string>
     <string name="vehicle_deny_title">Deny Request</string>
     <string name="vehicle_approve_action">Approve</string>

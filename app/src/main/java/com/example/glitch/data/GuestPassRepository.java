@@ -21,6 +21,8 @@ public interface GuestPassRepository {
 			@NonNull String sponsorEmail,
 			@NonNull String guestName,
 			@NonNull String guestIdNumber,
+			boolean hasVehicle,
+			@NonNull String vehiclePlate,
 			@NonNull OperationCallback callback
 	);
 
@@ -31,6 +33,8 @@ public interface GuestPassRepository {
 			@NonNull String sponsorEmail,
 			@NonNull String guestName,
 			@NonNull String guestIdNumber,
+			boolean hasVehicle,
+			@NonNull String vehiclePlate,
 			@NonNull IssueCallback callback
 	);
 

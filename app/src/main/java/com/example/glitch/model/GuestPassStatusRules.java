@@ -43,6 +43,11 @@ public final class GuestPassStatusRules {
         return "active".equals(status) || "used".equals(status) || "overdue".equals(status);
     }
 
+    public static boolean blocksStudentIssuance(@NonNull String rawStatus) {
+        String status = rawStatus.trim().toLowerCase(Locale.getDefault());
+        return "active".equals(status) || "overdue".equals(status);
+    }
+
     public static boolean isShareable(@NonNull GuestPass pass) {
         // Only "active" passes (issued but not yet used) can be shared for scanning.
         return "active".equalsIgnoreCase(pass.getStatus());

@@ -45,6 +45,12 @@ public class UserProfileTest {
     }
 
     @Test
+    public void hasSupportedRole_returnsFalseForStaffRole() {
+        UserProfile profile = new UserProfile("u", "e@x.com", "staff", true, "Name", null, null);
+        assertFalse(profile.hasSupportedRole());
+    }
+
+    @Test
     public void fromMap_trimsRoleAndParsesStringActiveFlag() {
         Map<String, Object> map = new HashMap<>();
         map.put("email", "student@lums.edu.pk");

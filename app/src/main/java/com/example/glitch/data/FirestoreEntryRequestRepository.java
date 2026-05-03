@@ -3,10 +3,13 @@ package com.example.glitch.data;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.glitch.auth.SessionManager;
+import com.example.glitch.model.AuditEventType;
 import com.example.glitch.model.CredentialVerificationResult;
 import com.example.glitch.model.DashboardState;
 import com.example.glitch.model.EntryRequest;
 import com.example.glitch.model.GatePolicy;
+import com.example.glitch.model.UserProfile;
 import com.example.glitch.model.VerificationRules;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
@@ -64,11 +67,6 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
     static final String CREDENTIAL_VALID_FIELD = "isValid";
     static final String CREDENTIAL_NAME_FIELD = "holderName";
     static final String DENIAL_REASON_FIELD = "denialReason";
-    static final String EVENT_TYPE_FIELD = "eventType";
-    static final String EVENT_DESCRIPTION_FIELD = "description";
-    static final String EVENT_REQUEST_ID_FIELD = "requestId";
-    static final String EVENT_ACTOR_UID_FIELD = "actorUid";
-    static final String EVENT_ACTOR_ROLE_FIELD = "actorRole";
     static final String FAIL_COUNT_FIELD = "failCount";
     static final String SEVERITY_FIELD = "severity";
     static final String MESSAGE_FIELD = "message";
@@ -113,10 +111,14 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                     if (snapshots != null) {
                         for (DocumentSnapshot document : snapshots.getDocuments()) {
                             EntryRequest request = EntryRequest.fromMap(document.getId(), document.getData());
+                            String requesterRole = request.getRequesterRole().trim().toLowerCase(Locale.getDefault());
+                            boolean studentRequest = "student".equals(requesterRole);
                             
-                            // Check for overdue status (entered but past expiry)
-                            if (STATUS_ACTIVE.equals(request.getStatus()) && 
-                                request.getExpiresAt() != null && 
+                            // Overdue policy is student-only.
+                            if (studentRequest
+                                && STATUS_ACTIVE.equalsIgnoreCase(request.getStatus())
+                                && request.getExpiresAt() != null
+                                &&
                                 request.getExpiresAt().toDate().before(now)) {
                                 overdueRequestIds.add(request.getId());
                             }
@@ -151,15 +153,38 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                     .get()
                     .addOnSuccessListener(snapshot -> {
                         WriteBatch passBatch = firestore.batch();
+                        boolean hasPassUpdates = false;
                         for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                            passBatch.update(doc.getReference(), 
+                            String status = safeLower(doc.get(STATUS_FIELD));
+                            if (!STATUS_ACTIVE.equals(status) && !"used".equals(status)) {
+                                continue;
+                            }
+                            passBatch.update(
+                                    doc.getReference(),
                                     STATUS_FIELD, STATUS_OVERDUE,
-                                    UPDATED_AT_FIELD, FieldValue.serverTimestamp());
+                                    UPDATED_AT_FIELD, FieldValue.serverTimestamp()
+                            );
+                            hasPassUpdates = true;
                         }
-                        passBatch.commit();
+                        if (hasPassUpdates) {
+                            passBatch.commit();
+                        }
                         
                         // Append event for the overdue status
-                        appendAccessEvent("OVERDUE", requestId, "", "system", "Request flagged as overdue by system");
+                        appendAccessEvent(
+                                AuditEventType.REQUEST_OVERDUE,
+                                "entry_request",
+                                requestId,
+                                requestId,
+                                "system",
+                                "system",
+                                "Request flagged as overdue by system",
+                                "system_scheduler",
+                                "success",
+                                "request_expired",
+                                GatePolicy.STORED_VALUE,
+                                new HashMap<>()
+                        );
                     });
             
             batch.commit();
@@ -336,7 +361,23 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         entryRequestCollection
                 .add(payload)
                 .addOnSuccessListener(reference -> {
-                    appendAccessEvent("REQUEST_CREATED", reference.getId(), requesterUid, requesterRole, "Entry request created");
+                    Map<String, Object> metadata = new HashMap<>();
+                    metadata.put("guestName", guestName);
+                    metadata.put("guestIdNumber", guestIdNumber);
+                    appendAccessEvent(
+                            AuditEventType.REQUEST_CREATED,
+                            "entry_request",
+                            reference.getId(),
+                            reference.getId(),
+                            requesterUid,
+                            requesterRole,
+                            "Entry request created",
+                            "requester_form",
+                            "success",
+                            "",
+                            GatePolicy.STORED_VALUE,
+                            metadata
+                    );
                     callback.onComplete(true, "Entry request submitted", null);
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to create entry request", error));
@@ -353,7 +394,20 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                 .document(requestId)
                 .update(updates)
                 .addOnSuccessListener(unused -> {
-                    appendAccessEvent("ENTRY", requestId, "", "guard", "Entry logged");
+                    appendAccessEvent(
+                            AuditEventType.ENTRY_ALLOWED,
+                            "entry_request",
+                            requestId,
+                            requestId,
+                            currentActorUid("guard"),
+                            currentActorRole("guard"),
+                            "Entry logged",
+                            "guard_decision",
+                            "success",
+                            "entry_allowed",
+                            GatePolicy.STORED_VALUE,
+                            new HashMap<>()
+                    );
                     callback.onComplete(true, "Entry logged successfully", null);
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to log entry", error));
@@ -369,7 +423,20 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                 .document(requestId)
                 .update(updates)
                 .addOnSuccessListener(unused -> {
-                    appendAccessEvent("EXIT", requestId, "", "guard", "Exit logged");
+                    appendAccessEvent(
+                            AuditEventType.EXIT_LOGGED,
+                            "entry_request",
+                            requestId,
+                            requestId,
+                            currentActorUid("guard"),
+                            currentActorRole("guard"),
+                            "Exit logged",
+                            "guard_details",
+                            "success",
+                            "exit_logged",
+                            GatePolicy.STORED_VALUE,
+                            new HashMap<>()
+                    );
                     callback.onComplete(true, "Request marked as exited", null);
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to log exit", error));
@@ -385,7 +452,22 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                 .document(requestId)
                 .update(updates)
                 .addOnSuccessListener(unused -> {
-                    appendAccessEvent("DENY", requestId, "", "guard", "Request denied: " + reason);
+                    Map<String, Object> metadata = new HashMap<>();
+                    metadata.put("reason", reason.trim());
+                    appendAccessEvent(
+                            AuditEventType.ENTRY_DENIED,
+                            "entry_request",
+                            requestId,
+                            requestId,
+                            currentActorUid("guard"),
+                            currentActorRole("guard"),
+                            "Request denied: " + reason,
+                            "guard_decision",
+                            "failure",
+                            "entry_denied",
+                            GatePolicy.STORED_VALUE,
+                            metadata
+                    );
                     callback.onComplete(true, "Request denied", null);
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to deny request", error));
@@ -437,19 +519,53 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
 
     private void appendAccessEvent(
             @NonNull String eventType,
+            @NonNull String entityType,
+            @NonNull String entityId,
             @NonNull String requestId,
             @NonNull String actorUid,
             @NonNull String actorRole,
-            @NonNull String description
+            @NonNull String description,
+            @NonNull String source,
+            @NonNull String outcome,
+            @NonNull String reasonCode,
+            @NonNull String gateLabel,
+            @Nullable Map<String, Object> metadata
     ) {
-        Map<String, Object> event = new HashMap<>();
-        event.put(EVENT_TYPE_FIELD, eventType);
-        event.put(EVENT_REQUEST_ID_FIELD, requestId);
-        event.put(EVENT_ACTOR_UID_FIELD, actorUid);
-        event.put(EVENT_ACTOR_ROLE_FIELD, actorRole);
-        event.put(EVENT_DESCRIPTION_FIELD, description);
-        event.put(CREATED_AT_FIELD, FieldValue.serverTimestamp());
+        Map<String, Object> event = AuditEventPayloadFactory.build(
+                eventType,
+                actorUid,
+                actorRole,
+                entityType,
+                entityId,
+                requestId,
+                description,
+                source,
+                outcome,
+                reasonCode,
+                gateLabel,
+                metadata
+        );
         firestore.collection(COLLECTION_ACCESS_EVENTS).add(event);
+    }
+
+    @NonNull
+    private String currentActorUid(@NonNull String fallbackRole) {
+        UserProfile profile = SessionManager.getCurrentProfile();
+        if (profile == null) {
+            return "unknown_" + fallbackRole;
+        }
+        String uid = profile.getUid().trim();
+        return uid.isEmpty() ? "unknown_" + fallbackRole : uid;
+    }
+
+    @NonNull
+    private String currentActorRole(@NonNull String fallbackRole) {
+        UserProfile profile = SessionManager.getCurrentProfile();
+        if (profile == null) {
+            return fallbackRole;
+        }
+        String role = profile.getRole().trim();
+        return role.isEmpty() ? fallbackRole : role;
     }
 
     private void recordFailedVerification(@NonNull String identifier, @NonNull String message, int alertThreshold) {

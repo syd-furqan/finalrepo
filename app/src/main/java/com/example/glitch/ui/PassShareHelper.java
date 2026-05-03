@@ -41,6 +41,9 @@ public final class PassShareHelper {
         String shareText =
                 "Access Number (Pass Code): " + passCode + "\n"
                         + "Guest: " + pass.getGuestName() + "\n"
+                        + "CNIC: " + pass.getGuestIdNumber() + "\n"
+                        + "Guest Type: " + pass.getGuestType() + "\n"
+                        + "Vehicle Plate: " + (pass.hasVehicle() ? pass.getVehiclePlate() : "N/A") + "\n"
                         + "Gate: " + GatePolicy.toDisplayLabel(pass.getGateLabel()) + "\n"
                         + "Entry Request ID: " + pass.getEntryRequestId() + "\n"
                         + "Use this pass code if QR scan is unavailable.";

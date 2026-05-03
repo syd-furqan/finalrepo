@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 
 import com.google.firebase.Timestamp;
 
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -20,6 +21,9 @@ public class GuestPass {
 	private final String sponsorEmail;
 	private final String guestName;
 	private final String guestIdNumber;
+	private final boolean hasVehicle;
+	private final String vehiclePlate;
+	private final String guestType;
 	private final String passCode;
 	private final String entryRequestId;
 	private final String gateLabel;
@@ -41,6 +45,9 @@ public class GuestPass {
 			@NonNull String sponsorEmail,
 			@NonNull String guestName,
 			@NonNull String guestIdNumber,
+			boolean hasVehicle,
+			@NonNull String vehiclePlate,
+			@NonNull String guestType,
 			@NonNull String passCode,
 			@NonNull String entryRequestId,
 			@NonNull String gateLabel,
@@ -57,7 +64,14 @@ public class GuestPass {
 		this.sponsorName = sponsorName;
 		this.sponsorEmail = sponsorEmail;
 		this.guestName = guestName;
-		this.guestIdNumber = guestIdNumber;
+		String normalizedGuestId = GuestIdentityPolicy.normalizeCnic(guestIdNumber);
+		this.guestIdNumber = normalizedGuestId == null ? guestIdNumber : normalizedGuestId;
+		this.hasVehicle = hasVehicle;
+		String normalizedPlate = GuestIdentityPolicy.normalizeVehiclePlate(vehiclePlate);
+		this.vehiclePlate = normalizedPlate == null
+				? vehiclePlate.trim().toUpperCase(Locale.getDefault())
+				: normalizedPlate;
+		this.guestType = guestType.trim().isEmpty() ? GuestIdentityPolicy.guestTypeFor(hasVehicle) : guestType;
 		this.passCode = passCode;
 		this.entryRequestId = entryRequestId;
 		this.gateLabel = GatePolicy.normalizeStoredValue(gateLabel);
@@ -87,6 +101,9 @@ public class GuestPass {
 					"",
 					"",
 					"",
+					false,
+					"",
+					"non_vehicle",
 					"",
 					"",
 					GatePolicy.STORED_VALUE,
@@ -106,6 +123,9 @@ public class GuestPass {
 				asString(map.get("sponsorEmail")),
 				asString(map.get("guestName")),
 				asString(map.get("guestIdNumber")),
+				asBoolean(map.get("hasVehicle")),
+				asString(map.get("vehiclePlate")),
+				asString(map.get("guestType")),
 				asString(map.get("passCode")),
 				asString(map.get("entryRequestId")),
 				GatePolicy.normalizeStoredValue(asString(map.get("gateLabel"))),
@@ -172,6 +192,20 @@ public class GuestPass {
 	@NonNull
 	public String getGuestIdNumber() {
 		return guestIdNumber;
+	}
+
+	public boolean hasVehicle() {
+		return hasVehicle;
+	}
+
+	@NonNull
+	public String getVehiclePlate() {
+		return vehiclePlate;
+	}
+
+	@NonNull
+	public String getGuestType() {
+		return guestType;
 	}
 
 	/**
@@ -249,6 +283,20 @@ public class GuestPass {
 	@NonNull
 	private static String asString(@Nullable Object value) {
 		return value == null ? "" : String.valueOf(value);
+	}
+
+	private static boolean asBoolean(@Nullable Object value) {
+		if (value instanceof Boolean) {
+			return (Boolean) value;
+		}
+		if (value instanceof Number) {
+			return ((Number) value).intValue() != 0;
+		}
+		if (value instanceof String) {
+			String normalized = ((String) value).trim().toLowerCase(Locale.getDefault());
+			return "true".equals(normalized) || "1".equals(normalized);
+		}
+		return false;
 	}
 
 	@Nullable

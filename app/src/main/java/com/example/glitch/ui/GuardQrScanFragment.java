@@ -16,8 +16,11 @@ import androidx.fragment.app.Fragment;
 
 import com.example.glitch.R;
 import com.example.glitch.auth.SessionManager;
+import com.example.glitch.data.AuditEventLogger;
 import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
+import com.example.glitch.model.AuditEventType;
+import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.GuestPassStatusRules;
 import com.example.glitch.model.GuestPassTimePolicy;
@@ -31,6 +34,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Guard QR verification screen for single-use guest pass checks.
  */
@@ -42,6 +48,7 @@ public class GuardQrScanFragment extends Fragment {
     private com.example.glitch.model.VerificationRules currentRules = com.example.glitch.model.VerificationRules.defaultRules();
     private FirebaseFirestore firestore;
     private GuardPendingDecisionStore pendingDecisionStore;
+    private AuditEventLogger auditEventLogger;
     private ActivityResultLauncher<ScanOptions> barcodeLauncher;
 
     @NonNull
@@ -71,6 +78,7 @@ public class GuardQrScanFragment extends Fragment {
         verificationRulesRepository = RepositoryProvider.getVerificationRulesRepository();
         pendingDecisionStore = new GuardPendingDecisionStore(requireContext());
         firestore = FirebaseFirestore.getInstance();
+        auditEventLogger = new AuditEventLogger();
 
         TextView textResult = view.findViewById(R.id.text_pass_result);
         showStatusMessageFromArgs(textResult);
@@ -285,6 +293,26 @@ public class GuardQrScanFragment extends Fragment {
         }
         GuardPendingDecision decision = GuardPendingDecision.fromPass(guardUid, pass, verificationMethod);
         pendingDecisionStore.save(decision);
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("passCode", pass.getPassCode());
+        metadata.put("verificationMethod", verificationMethod);
+        metadata.put("guestName", pass.getGuestName());
+        metadata.put("hasVehicle", pass.hasVehicle());
+        metadata.put("vehiclePlate", pass.getVehiclePlate());
+        auditEventLogger.log(
+                AuditEventType.PENDING_DECISION_CREATED,
+                "guest_pass",
+                pass.getId(),
+                pass.getEntryRequestId(),
+                guardUid,
+                "guard",
+                "Guard pending decision created from pass verification",
+                "guard_scan",
+                "pending",
+                "awaiting_decision",
+                pass.getGateLabel().trim().isEmpty() ? GatePolicy.STORED_VALUE : pass.getGateLabel(),
+                metadata
+        );
         navigateToPendingDecisionScreen();
     }
 

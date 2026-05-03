@@ -78,22 +78,48 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_12"
-                    android:text="IDENTIFICATION NUMBER (CNIC/PASSPORT)"
+                    android:text="CNIC NUMBER"
                     android:textAllCaps="true"
                     android:textColor="@color/text_dark"
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_guest_cnic"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_6"
-                    android:hint="@string/guest_id_number">
+                    android:hint="@string/guest_cnic">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/input_guest_id"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:digits="0123456789"
+                        android:inputType="number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/check_guest_has_vehicle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_12"
+                    android:text="@string/guest_has_vehicle" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_guest_vehicle_plate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:hint="@string/vehicle_plate_label"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/input_guest_vehicle_plate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapCharacters"
+                        android:maxLength="8" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <LinearLayout

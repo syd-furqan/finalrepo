@@ -1,6 +1,7 @@
 package com.example.glitch;
 
 import android.Manifest;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import com.example.glitch.auth.AuthRepository;
 import com.example.glitch.auth.SessionManager;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.data.SingleGateMigrationRunner;
+import com.example.glitch.model.GuestPassTimePolicy;
 import com.example.glitch.model.UserProfile;
 import com.example.glitch.notification.GuestPassLocalAlertCoordinator;
 import com.example.glitch.ui.LoginFragment;
@@ -31,6 +33,7 @@ import com.example.glitch.ui.RoleHomeFragment;
  */
 public class MainActivity extends AppCompatActivity implements NavigationHost {
     private static final int REQUEST_POST_NOTIFICATIONS = 1201;
+    private static final boolean TEMP_ENABLE_TIME_POLICY_TEST_BYPASS = true;
 
     private AuthRepository authRepository;
     private GuestPassLocalAlertCoordinator guestPassLocalAlertCoordinator;
@@ -39,6 +42,10 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        boolean debugBuild = (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+        GuestPassTimePolicy.setTestingBypassEnabled(
+                debugBuild && TEMP_ENABLE_TIME_POLICY_TEST_BYPASS
+        );
         authRepository = RepositoryProvider.getAuthRepository();
         guestPassLocalAlertCoordinator = new GuestPassLocalAlertCoordinator(getApplicationContext());
         singleGateMigrationRunner = new SingleGateMigrationRunner();
