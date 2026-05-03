@@ -19,7 +19,9 @@ public final class GuestPassStatusRules {
         if (pass.getExpiresAt() == null) {
             return false;
         }
-        return pass.getExpiresAt().toDate().before(new Date());
+        Date now = new Date();
+        Date expiresAt = pass.getExpiresAt().toDate();
+        return !expiresAt.after(now);
     }
 
     /**

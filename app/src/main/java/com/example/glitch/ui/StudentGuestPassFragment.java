@@ -34,7 +34,6 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     private GuestPassAdapter adapter;
     private TextInputEditText inputGuestName;
     private TextInputEditText inputGuestId;
-    private TextInputEditText inputExpiryHours;
     private TextView textEmpty;
     private MaterialButton buttonCreate;
     private ListenerRegistration passListener;
@@ -60,7 +59,6 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
         repository = RepositoryProvider.getGuestPassRepository();
         inputGuestName = view.findViewById(R.id.input_pass_guest_name);
         inputGuestId = view.findViewById(R.id.input_pass_guest_id);
-        inputExpiryHours = view.findViewById(R.id.input_pass_expiry_hours);
         textEmpty = view.findViewById(R.id.text_guest_pass_empty);
         buttonCreate = view.findViewById(R.id.button_create_pass);
         MaterialButton buttonArchived = view.findViewById(R.id.button_view_archived_passes);
@@ -120,24 +118,14 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     private void createGuestPass() {
         String guestName = read(inputGuestName);
         String guestId = read(inputGuestId);
-        String expiryRaw = read(inputExpiryHours);
         UserProfile profile = AuthUiGuard.requireProfile(this);
         
-        if (guestName.isEmpty() || guestId.isEmpty() || expiryRaw.isEmpty() || profile == null) {
+        if (guestName.isEmpty() || guestId.isEmpty() || profile == null) {
             Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
             return;
         }
 
         buttonCreate.setEnabled(false); // Immediate lock
-
-        int expiryHours;
-        try {
-            expiryHours = Integer.parseInt(expiryRaw);
-        } catch (NumberFormatException e) {
-            Snackbar.make(requireView(), R.string.error_invalid_expiry, Snackbar.LENGTH_SHORT).show();
-            buttonCreate.setEnabled(true);
-            return;
-        }
 
         repository.issueGuestPassWithEntryRequest(
                 profile.getUid(),
@@ -146,7 +134,6 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
                 profile.getEmail(),
                 guestName,
                 guestId,
-                expiryHours,
                 (success, message, issuedPass, exception) -> {
                     if (!isAdded()) return;
                     requireActivity().runOnUiThread(() -> {
@@ -154,7 +141,6 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
                         if (success) {
                             inputGuestName.setText("");
                             inputGuestId.setText("");
-                            inputExpiryHours.setText("");
                         } else {
                             buttonCreate.setEnabled(true);
                         }

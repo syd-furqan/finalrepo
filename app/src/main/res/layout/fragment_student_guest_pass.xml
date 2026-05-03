@@ -102,24 +102,11 @@
                         android:layout_height="wrap_content" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
-                    android:hint="@string/pass_expiry_hours">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/input_pass_expiry_hours"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="number" />
-                </com.google.android.material.textfield.TextInputLayout>
-
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_create_pass"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:layout_marginTop="@dimen/space_16"
+                    android:layout_marginTop="@dimen/space_12"
                     android:background="@drawable/bg_button_primary"
                     android:text="@string/create_pass_action"
                     android:textAllCaps="false"
@@ -146,7 +133,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_4"
-                    android:text="This pass allows one-time vehicle entry through In-Gate."
+                    android:text="Passes can be created only between 8:30 AM and 10:30 PM and expire at 10:30 PM the same day."
                     android:textColor="@color/text_muted"
                     android:textSize="13sp" />
             </LinearLayout>

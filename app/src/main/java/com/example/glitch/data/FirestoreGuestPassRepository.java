@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.GuestPassStatusRules;
 import com.example.glitch.model.GatePolicy;
+import com.example.glitch.model.GuestPassTimePolicy;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -20,7 +21,6 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +46,8 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
     private static final String REQUEST_STATUS_DENIED = "denied";
     private static final String REQUEST_STATUS_FIELD = "status";
     private static final String REQUEST_ENTERED_AT_FIELD = "enteredAt";
+    private static final String ISSUE_WINDOW_CLOSED_MESSAGE =
+            "Guest passes can only be created between 8:30 AM and 10:30 PM.";
     private final FirebaseFirestore firestore;
     private final CollectionReference collection;
     private final CollectionReference entryRequestCollection;
@@ -71,7 +73,6 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String sponsorEmail,
             @NonNull String guestName,
             @NonNull String guestIdNumber,
-            int expiryHours,
             @NonNull OperationCallback callback
     ) {
         issueGuestPassWithEntryRequest(
@@ -81,7 +82,6 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                 sponsorEmail,
                 guestName,
                 guestIdNumber,
-                expiryHours,
                 (success, message, issuedPass, exception) -> callback.onComplete(success, message, exception)
         );
     }
@@ -94,9 +94,13 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String sponsorEmail,
             @NonNull String guestName,
             @NonNull String guestIdNumber,
-            int expiryHours,
             @NonNull IssueCallback callback
     ) {
+        if (!GuestPassTimePolicy.canIssueNow()) {
+            callback.onComplete(false, ISSUE_WINDOW_CLOSED_MESSAGE, null, null);
+            return;
+        }
+
         // 1. Immediate in-memory check
         if ("student".equalsIgnoreCase(sponsorRole) && pendingIssuances.contains(sponsorUid)) {
             callback.onComplete(false, "An issuance request is already in progress.", null, null);
@@ -117,7 +121,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                             callback.onComplete(false, "You already have an active or pending guest pass.", null, null);
                         } else {
                             // 3. Perform write
-                            performIssueGuestPass(sponsorUid, sponsorRole, sponsorName, sponsorEmail, guestName, guestIdNumber, expiryHours, (success, message, issuedPass, exception) -> {
+                            performIssueGuestPass(sponsorUid, sponsorRole, sponsorName, sponsorEmail, guestName, guestIdNumber, (success, message, issuedPass, exception) -> {
                                 pendingIssuances.remove(sponsorUid);
                                 callback.onComplete(success, message, issuedPass, exception);
                             });
@@ -128,7 +132,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                         callback.onComplete(false, "Failed to verify existing passes", null, error);
                     });
         } else {
-            performIssueGuestPass(sponsorUid, sponsorRole, sponsorName, sponsorEmail, guestName, guestIdNumber, expiryHours, callback);
+            performIssueGuestPass(sponsorUid, sponsorRole, sponsorName, sponsorEmail, guestName, guestIdNumber, callback);
         }
     }
 
@@ -139,13 +143,9 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String sponsorEmail,
             @NonNull String guestName,
             @NonNull String guestIdNumber,
-            int expiryHours,
             @NonNull IssueCallback callback
     ) {
-        int safeHours = Math.max(1, expiryHours);
-        Timestamp expiresAt = new Timestamp(
-                new Date(System.currentTimeMillis() + safeHours * 60L * 60L * 1000L)
-        );
+        Timestamp expiresAt = GuestPassTimePolicy.expiryAtToday2230();
         String normalizedGate = GatePolicy.STORED_VALUE;
         String passCode = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         DocumentReference requestRef = entryRequestCollection.document();
@@ -244,7 +244,8 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     if (snapshot != null) {
                         for (DocumentSnapshot doc : snapshot.getDocuments()) {
                             GuestPass rawPass = GuestPass.fromMap(doc.getId(), doc.getData());
-                            if (GuestPassStatusRules.isTimeExpiredActive(rawPass)) {
+                            if (GuestPassStatusRules.isTimeExpiredActive(rawPass)
+                                    || GuestPassTimePolicy.isActivePassOutOfPolicy(rawPass)) {
                                 passesToExpire.add(rawPass);
                             }
                             String status = rawPass.getStatus().trim().toLowerCase();
@@ -315,7 +316,8 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     }
                     DocumentSnapshot document = snapshot.getDocuments().get(0);
                     GuestPass rawPass = GuestPass.fromMap(document.getId(), document.getData());
-                    boolean shouldExpire = GuestPassStatusRules.isTimeExpiredActive(rawPass);
+                    boolean shouldExpire = GuestPassStatusRules.isTimeExpiredActive(rawPass)
+                            || GuestPassTimePolicy.isActivePassOutOfPolicy(rawPass);
                     GuestPass pass = normalizeExpiryForRead(rawPass);
                     if (shouldExpire) {
                         persistExpiredStatus(pass);
@@ -343,7 +345,8 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     if (!STATUS_ACTIVE.equalsIgnoreCase(pass.getStatus())) {
                         throw new IllegalStateException("Pass is not active.");
                     }
-                    if (pass.getExpiresAt() != null && pass.getExpiresAt().toDate().before(new Date())) {
+                    if (GuestPassStatusRules.isTimeExpiredActive(pass)
+                            || GuestPassTimePolicy.isActivePassOutOfPolicy(pass)) {
                         DocumentReference requestToDelete = findLinkedUnaccessedEntryRequestForDelete(
                                 transaction,
                                 pass.getEntryRequestId()
@@ -522,7 +525,8 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
 
     @NonNull
     private GuestPass normalizeExpiryForRead(@NonNull GuestPass pass) {
-        if (!GuestPassStatusRules.isTimeExpiredActive(pass)) {
+        if (!GuestPassStatusRules.isTimeExpiredActive(pass)
+                && !GuestPassTimePolicy.isActivePassOutOfPolicy(pass)) {
             return pass;
         }
         return new GuestPass(
@@ -577,7 +581,8 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                         return null;
                     }
                     GuestPass latest = GuestPass.fromMap(snapshot.getId(), snapshot.getData());
-                    if (!GuestPassStatusRules.isTimeExpiredActive(latest)) {
+                    if (!GuestPassStatusRules.isTimeExpiredActive(latest)
+                            && !GuestPassTimePolicy.isActivePassOutOfPolicy(latest)) {
                         return null;
                     }
                     DocumentReference requestToDelete = findLinkedUnaccessedEntryRequestForDelete(
