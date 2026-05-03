@@ -90,10 +90,25 @@ public class AdminVerificationRulesFragment extends Fragment {
             Snackbar.make(requireView(), R.string.error_invalid_threshold, Snackbar.LENGTH_SHORT).show();
             return;
         }
+        // Normalize banned identifiers CSV: split, trim, dedupe, join
+        String raw = read(inputBannedCsv);
+        String normalized;
+        if (raw.isEmpty()) {
+            normalized = "";
+        } else {
+            String[] parts = raw.split(",");
+            java.util.LinkedHashSet<String> set = new java.util.LinkedHashSet<>();
+            for (String p : parts) {
+                String t = p.trim();
+                if (!t.isEmpty()) set.add(t);
+            }
+            normalized = String.join(",", set);
+        }
+
         VerificationRules rules = new VerificationRules(
                 checkEnforceExpiry.isChecked(),
                 Math.max(1, threshold),
-                read(inputBannedCsv)
+                normalized
         );
         repository.saveRules(rules, (success, message, exception) -> {
             if (!isAdded()) {

@@ -158,6 +158,16 @@
                     android:textColor="@color/white" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_scan_qr"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:background="@drawable/bg_button_primary"
+                    android:text="Scan QR"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white" />
+
+                <com.google.android.material.button.MaterialButton
                     style="@style/Widget.Material3.Button.OutlinedButton"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
