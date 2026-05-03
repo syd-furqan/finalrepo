@@ -215,7 +215,7 @@ public class AdminAuditLogFragment extends Fragment {
     }
 
     private void setupRoleDropdown() {
-        List<String> roles = Arrays.asList("", "guard", "student", "faculty", "staff", "admin", "system");
+        List<String> roles = Arrays.asList("", "guard", "student", "faculty", "admin", "system");
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_dropdown_item_1line,

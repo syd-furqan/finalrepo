@@ -26,6 +26,10 @@ public class EntryRequestTest {
         map.put("hostName", "Prof. Salman");
         map.put("gateLabel", "West Wing - 02");
         map.put("guestIdNumber", "35201-1234567-1");
+        map.put("hasVehicle", true);
+        map.put("vehiclePlate", "abc-123");
+        map.put("guestType", "vehicle");
+        map.put("requesterRole", "student");
         map.put("enteredAt", entered);
         map.put("status", "pending");
         map.put("expiresAt", expires);
@@ -39,6 +43,10 @@ public class EntryRequestTest {
         assertEquals("Prof. Salman", request.getHostName());
         assertEquals(GatePolicy.STORED_VALUE, request.getGateLabel());
         assertEquals("35201-1234567-1", request.getGuestIdNumber());
+        assertEquals(true, request.hasVehicle());
+        assertEquals("ABC-123", request.getVehiclePlate());
+        assertEquals("vehicle", request.getGuestType());
+        assertEquals("student", request.getRequesterRole());
         assertEquals("pending", request.getStatus());
         assertEquals("guest", request.getIconType());
         assertNotNull(request.getEnteredAt());

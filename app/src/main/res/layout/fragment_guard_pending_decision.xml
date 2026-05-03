@@ -91,6 +91,22 @@
                     android:textSize="13sp" />
 
                 <TextView
+                    android:id="@+id/text_pending_guest_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_4"
+                    android:textColor="@color/text_dark"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/text_pending_vehicle_plate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_4"
+                    android:textColor="@color/text_dark"
+                    android:textSize="13sp" />
+
+                <TextView
                     android:id="@+id/text_pending_gate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -139,10 +155,25 @@
                 android:orientation="vertical"
                 android:padding="@dimen/space_16">
 
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/check_pending_guest_verified"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/guard_checkpoint_guest_verified" />
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/check_pending_vehicle_verified"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_4"
+                    android:text="@string/guard_checkpoint_vehicle_verified"
+                    android:visibility="gone" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_pending_allow"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
+                    android:layout_marginTop="@dimen/space_8"
                     android:backgroundTint="#059669"
                     android:text="@string/approve_entry"
                     android:textAllCaps="false"

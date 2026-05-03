@@ -68,7 +68,6 @@ public class UserProfile {
 	public boolean hasSupportedRole() {
 		return "guard".equals(role)
 				|| "faculty".equals(role)
-				|| "staff".equals(role)
 				|| "student".equals(role)
 				|| "admin".equals(role);
 	}

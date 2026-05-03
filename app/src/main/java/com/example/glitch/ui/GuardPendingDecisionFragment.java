@@ -24,6 +24,7 @@ import com.example.glitch.model.GuestPassStatusRules;
 import com.example.glitch.model.GuestPassTimePolicy;
 import com.example.glitch.model.GuardPendingDecision;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
@@ -43,6 +44,9 @@ public class GuardPendingDecisionFragment extends Fragment {
     private GuardPendingDecision pendingDecision;
     private MaterialButton buttonAllow;
     private MaterialButton buttonDeny;
+    private MaterialCheckBox checkGuestVerified;
+    private MaterialCheckBox checkVehicleVerified;
+    private boolean decisionActionable;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
     @NonNull
@@ -83,6 +87,8 @@ public class GuardPendingDecisionFragment extends Fragment {
 
         buttonAllow = view.findViewById(R.id.button_pending_allow);
         buttonDeny = view.findViewById(R.id.button_pending_deny);
+        checkGuestVerified = view.findViewById(R.id.check_pending_guest_verified);
+        checkVehicleVerified = view.findViewById(R.id.check_pending_vehicle_verified);
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.VEHICLES);
 
         String guardUid = currentGuardUid();
@@ -93,7 +99,7 @@ public class GuardPendingDecisionFragment extends Fragment {
         }
 
         bindDecision(view, pendingDecision);
-        setButtonsEnabled(false);
+        setDecisionActionable(false);
         revalidatePendingDecision();
     }
 
@@ -103,6 +109,8 @@ public class GuardPendingDecisionFragment extends Fragment {
         TextView textMethod = view.findViewById(R.id.text_pending_method);
         TextView textRequestId = view.findViewById(R.id.text_pending_request_id);
         TextView textGuestId = view.findViewById(R.id.text_pending_guest_id);
+        TextView textGuestType = view.findViewById(R.id.text_pending_guest_type);
+        TextView textVehiclePlate = view.findViewById(R.id.text_pending_vehicle_plate);
         TextView textGate = view.findViewById(R.id.text_pending_gate);
         TextView textSponsor = view.findViewById(R.id.text_pending_sponsor);
         TextView textSponsorRole = view.findViewById(R.id.text_pending_sponsor_role);
@@ -114,6 +122,14 @@ public class GuardPendingDecisionFragment extends Fragment {
         textMethod.setText(getString(R.string.guard_pending_method_label, decision.getVerificationMethod()));
         textRequestId.setText(getString(R.string.guard_pending_request_label, decision.getEntryRequestId()));
         textGuestId.setText(getString(R.string.guard_pending_guest_id_label, valueOrUnavailable(decision.getGuestIdNumber())));
+        textGuestType.setText(getString(
+                R.string.guard_pending_guest_type_label,
+                formatGuestType(decision.getGuestType())
+        ));
+        textVehiclePlate.setText(getString(
+                R.string.guard_pending_vehicle_plate_label,
+                decision.hasVehicle() ? valueOrUnavailable(decision.getVehiclePlate()) : "N/A"
+        ));
         textGate.setText(getString(R.string.gate_label) + ": " + GatePolicy.toDisplayLabel(decision.getGateLabel()));
         textSponsor.setText(getString(
                 R.string.guard_pending_sponsor_label,
@@ -151,9 +167,15 @@ public class GuardPendingDecisionFragment extends Fragment {
                         clearAndReturnToScan(getString(R.string.guard_pending_not_actionable));
                         return;
                     }
+                    if (pendingDecision.hasVehicle() && pendingDecision.getVehiclePlate().trim().isEmpty()) {
+                        recordPendingInvalidated(pass);
+                        clearAndReturnToScan(getString(R.string.guard_pending_not_actionable));
+                        return;
+                    }
                     buttonAllow.setOnClickListener(v -> allowDecision());
                     buttonDeny.setOnClickListener(v -> denyDecision());
-                    setButtonsEnabled(true);
+                    bindCheckpoints();
+                    setDecisionActionable(true);
                 });
             }
 
@@ -186,6 +208,10 @@ public class GuardPendingDecisionFragment extends Fragment {
     }
 
     private void allowDecision() {
+        if (!isAllowEligible()) {
+            Snackbar.make(requireView(), R.string.guard_checkpoint_required, Snackbar.LENGTH_SHORT).show();
+            return;
+        }
         setButtonsEnabled(false);
         entryRequestRepository.logEntry(pendingDecision.getEntryRequestId(), (entrySuccess, entryMessage, entryError) -> {
             if (!isAdded()) {
@@ -193,7 +219,7 @@ public class GuardPendingDecisionFragment extends Fragment {
             }
             if (!entrySuccess) {
                 requireActivity().runOnUiThread(() -> {
-                    setButtonsEnabled(true);
+                    setDecisionActionable(true);
                     Snackbar.make(requireView(), entryMessage, Snackbar.LENGTH_LONG).show();
                 });
                 return;
@@ -208,7 +234,7 @@ public class GuardPendingDecisionFragment extends Fragment {
                         }
                         requireActivity().runOnUiThread(() -> {
                             if (!passSuccess) {
-                                setButtonsEnabled(true);
+                                setDecisionActionable(true);
                                 Snackbar.make(requireView(), passMessage, Snackbar.LENGTH_LONG).show();
                                 return;
                             }
@@ -233,7 +259,7 @@ public class GuardPendingDecisionFragment extends Fragment {
             }
             if (!denySuccess) {
                 requireActivity().runOnUiThread(() -> {
-                    setButtonsEnabled(true);
+                    setDecisionActionable(true);
                     Snackbar.make(requireView(), denyMessage, Snackbar.LENGTH_LONG).show();
                 });
                 return;
@@ -247,7 +273,7 @@ public class GuardPendingDecisionFragment extends Fragment {
                         }
                         requireActivity().runOnUiThread(() -> {
                             if (!passSuccess) {
-                                setButtonsEnabled(true);
+                                setDecisionActionable(true);
                                 Snackbar.make(requireView(), passMessage, Snackbar.LENGTH_LONG).show();
                                 return;
                             }
@@ -274,6 +300,53 @@ public class GuardPendingDecisionFragment extends Fragment {
         buttonDeny.setEnabled(enabled);
         buttonAllow.setAlpha(enabled ? 1f : 0.6f);
         buttonDeny.setAlpha(enabled ? 1f : 0.6f);
+    }
+
+    private void bindCheckpoints() {
+        checkGuestVerified.setChecked(false);
+        checkGuestVerified.setOnCheckedChangeListener((buttonView, isChecked) -> updateAllowButtonState());
+        if (pendingDecision.hasVehicle()) {
+            checkVehicleVerified.setVisibility(View.VISIBLE);
+            String label = getString(
+                    R.string.guard_checkpoint_vehicle_verified_with_plate,
+                    valueOrUnavailable(pendingDecision.getVehiclePlate())
+            );
+            checkVehicleVerified.setText(label);
+            checkVehicleVerified.setChecked(false);
+            checkVehicleVerified.setOnCheckedChangeListener((buttonView, isChecked) -> updateAllowButtonState());
+        } else {
+            checkVehicleVerified.setVisibility(View.GONE);
+            checkVehicleVerified.setChecked(false);
+            checkVehicleVerified.setOnCheckedChangeListener(null);
+        }
+        updateAllowButtonState();
+    }
+
+    private void setDecisionActionable(boolean actionable) {
+        decisionActionable = actionable;
+        if (!actionable) {
+            setButtonsEnabled(false);
+            return;
+        }
+        buttonDeny.setEnabled(true);
+        buttonDeny.setAlpha(1f);
+        updateAllowButtonState();
+    }
+
+    private void updateAllowButtonState() {
+        boolean enabled = decisionActionable && isAllowEligible();
+        buttonAllow.setEnabled(enabled);
+        buttonAllow.setAlpha(enabled ? 1f : 0.6f);
+    }
+
+    private boolean isAllowEligible() {
+        if (!checkGuestVerified.isChecked()) {
+            return false;
+        }
+        if (pendingDecision.hasVehicle()) {
+            return checkVehicleVerified.isChecked();
+        }
+        return true;
     }
 
     private void routeToDashboard() {
@@ -312,10 +385,27 @@ public class GuardPendingDecisionFragment extends Fragment {
         return trimmed.isEmpty() ? "Not available" : trimmed;
     }
 
+    @NonNull
+    private String formatGuestType(@NonNull String value) {
+        String normalized = value.trim().toLowerCase(Locale.getDefault());
+        if (normalized.isEmpty()) {
+            return "Not available";
+        }
+        if ("vehicle".equals(normalized)) {
+            return "Vehicle";
+        }
+        if ("non_vehicle".equals(normalized)) {
+            return "Non Vehicle";
+        }
+        return value;
+    }
+
     private void recordPendingResolvedAllow() {
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("passCode", pendingDecision.getPassCode());
         metadata.put("verificationMethod", pendingDecision.getVerificationMethod());
+        metadata.put("hasVehicle", pendingDecision.hasVehicle());
+        metadata.put("vehiclePlate", pendingDecision.getVehiclePlate());
         auditEventLogger.log(
                 AuditEventType.PENDING_DECISION_RESOLVED_ALLOW,
                 "guest_pass",
@@ -336,6 +426,8 @@ public class GuardPendingDecisionFragment extends Fragment {
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("passCode", pendingDecision.getPassCode());
         metadata.put("verificationMethod", pendingDecision.getVerificationMethod());
+        metadata.put("hasVehicle", pendingDecision.hasVehicle());
+        metadata.put("vehiclePlate", pendingDecision.getVehiclePlate());
         auditEventLogger.log(
                 AuditEventType.PENDING_DECISION_RESOLVED_DENY,
                 "guest_pass",
@@ -356,6 +448,8 @@ public class GuardPendingDecisionFragment extends Fragment {
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("passCode", pendingDecision.getPassCode());
         metadata.put("verificationMethod", pendingDecision.getVerificationMethod());
+        metadata.put("hasVehicle", pendingDecision.hasVehicle());
+        metadata.put("vehiclePlate", pendingDecision.getVehiclePlate());
         if (currentPass != null) {
             metadata.put("currentStatus", currentPass.getStatus());
         }

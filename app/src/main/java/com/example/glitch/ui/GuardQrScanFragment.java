@@ -297,6 +297,8 @@ public class GuardQrScanFragment extends Fragment {
         metadata.put("passCode", pass.getPassCode());
         metadata.put("verificationMethod", verificationMethod);
         metadata.put("guestName", pass.getGuestName());
+        metadata.put("hasVehicle", pass.hasVehicle());
+        metadata.put("vehiclePlate", pass.getVehiclePlate());
         auditEventLogger.log(
                 AuditEventType.PENDING_DECISION_CREATED,
                 "guest_pass",

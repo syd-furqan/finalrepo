@@ -33,6 +33,9 @@ public class GuestPassDetailsFragment extends Fragment {
     private static final String ARG_SPONSOR_EMAIL = "arg_sponsor_email";
     private static final String ARG_GUEST_NAME = "arg_guest_name";
     private static final String ARG_GUEST_ID = "arg_guest_id";
+    private static final String ARG_HAS_VEHICLE = "arg_has_vehicle";
+    private static final String ARG_VEHICLE_PLATE = "arg_vehicle_plate";
+    private static final String ARG_GUEST_TYPE = "arg_guest_type";
     private static final String ARG_PASS_CODE = "arg_pass_code";
     private static final String ARG_ENTRY_REQUEST_ID = "arg_entry_request_id";
     private static final String ARG_GATE_LABEL = "arg_gate_label";
@@ -55,6 +58,9 @@ public class GuestPassDetailsFragment extends Fragment {
         args.putString(ARG_SPONSOR_EMAIL, pass.getSponsorEmail());
         args.putString(ARG_GUEST_NAME, pass.getGuestName());
         args.putString(ARG_GUEST_ID, pass.getGuestIdNumber());
+        args.putBoolean(ARG_HAS_VEHICLE, pass.hasVehicle());
+        args.putString(ARG_VEHICLE_PLATE, pass.getVehiclePlate());
+        args.putString(ARG_GUEST_TYPE, pass.getGuestType());
         args.putString(ARG_PASS_CODE, pass.getPassCode());
         args.putString(ARG_ENTRY_REQUEST_ID, pass.getEntryRequestId());
         args.putString(ARG_GATE_LABEL, pass.getGateLabel());
@@ -93,6 +99,9 @@ public class GuestPassDetailsFragment extends Fragment {
         String sponsorRole = safeArg(args, ARG_SPONSOR_ROLE);
         String sponsorUid = safeArg(args, ARG_SPONSOR_UID);
         String guestId = safeArg(args, ARG_GUEST_ID);
+        boolean hasVehicle = args.getBoolean(ARG_HAS_VEHICLE, false);
+        String vehiclePlate = safeArg(args, ARG_VEHICLE_PLATE);
+        String guestType = safeArg(args, ARG_GUEST_TYPE);
         String admittedByUid = safeArg(args, ARG_ADMITTED_BY_UID);
         String admissionMethod = safeArg(args, ARG_ADMISSION_METHOD);
         long expiresAt = args.getLong(ARG_EXPIRES_AT, TS_UNSET);
@@ -116,7 +125,10 @@ public class GuestPassDetailsFragment extends Fragment {
         }
 
         String body = ""
-                + "Guest ID: " + fallback(guestId) + "\n"
+                + "CNIC: " + fallback(guestId) + "\n"
+                + "Guest Type: " + formatGuestType(guestType) + "\n"
+                + "Has Vehicle: " + (hasVehicle ? "Yes" : "No") + "\n"
+                + "Vehicle Plate: " + fallback(vehiclePlate) + "\n"
                 + "Entry Request ID: " + fallback(entryRequestId) + "\n"
                 + "Gate: " + gateLabel + "\n"
                 + "Created At: " + formatMillis(createdAt) + "\n"
@@ -150,6 +162,9 @@ public class GuestPassDetailsFragment extends Fragment {
                 safeArg(args, ARG_SPONSOR_EMAIL),
                 safeArg(args, ARG_GUEST_NAME),
                 safeArg(args, ARG_GUEST_ID),
+                args.getBoolean(ARG_HAS_VEHICLE, false),
+                safeArg(args, ARG_VEHICLE_PLATE),
+                safeArg(args, ARG_GUEST_TYPE),
                 safeArg(args, ARG_PASS_CODE),
                 safeArg(args, ARG_ENTRY_REQUEST_ID),
                 safeArg(args, ARG_GATE_LABEL),
@@ -187,6 +202,21 @@ public class GuestPassDetailsFragment extends Fragment {
     @NonNull
     private static String fallback(@NonNull String value) {
         return value.trim().isEmpty() ? "Not available" : value;
+    }
+
+    @NonNull
+    private String formatGuestType(@NonNull String raw) {
+        String normalized = raw.trim().toLowerCase(Locale.getDefault());
+        if (normalized.isEmpty()) {
+            return "Not available";
+        }
+        if ("vehicle".equals(normalized)) {
+            return "Vehicle";
+        }
+        if ("non_vehicle".equals(normalized)) {
+            return "Non Vehicle";
+        }
+        return raw;
     }
 
     private static long asMillis(@Nullable Timestamp timestamp) {

@@ -33,6 +33,9 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
     private static final String ARG_ENTERED = "arg_entered";
     private static final String ARG_PROMPT_EXIT = "arg_prompt_exit";
     private static final String ARG_STATUS = "arg_status";
+    private static final String ARG_HAS_VEHICLE = "arg_has_vehicle";
+    private static final String ARG_VEHICLE_PLATE = "arg_vehicle_plate";
+    private static final String ARG_GUEST_TYPE = "arg_guest_type";
 
     /**
      * Creates bottom sheet instance for a selected request.
@@ -44,6 +47,9 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
             @NonNull String roleTag,
             @NonNull String hostName,
             @NonNull String guestIdNumber,
+            boolean hasVehicle,
+            @NonNull String vehiclePlate,
+            @NonNull String guestType,
             @NonNull String gateLabel,
             @NonNull String enteredText,
             @NonNull String expiryText,
@@ -58,6 +64,9 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         args.putString(ARG_HOST, hostName);
         args.putString(ARG_GATE, gateLabel);
         args.putString("arg_guest_id", guestIdNumber);
+        args.putBoolean(ARG_HAS_VEHICLE, hasVehicle);
+        args.putString(ARG_VEHICLE_PLATE, vehiclePlate);
+        args.putString(ARG_GUEST_TYPE, guestType);
         args.putString(ARG_ENTERED, enteredText);
         args.putString("arg_expiry", expiryText);
         args.putString(ARG_STATUS, status);
@@ -86,6 +95,9 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         String roleTag = safeArg(args, ARG_ROLE);
         String hostName = safeArg(args, ARG_HOST);
         String guestId = safeArg(args, "arg_guest_id");
+        boolean hasVehicle = args.getBoolean(ARG_HAS_VEHICLE, false);
+        String vehiclePlate = safeArg(args, ARG_VEHICLE_PLATE);
+        String guestType = safeArg(args, ARG_GUEST_TYPE);
         String gateLabel = GatePolicy.toDisplayLabel(safeArg(args, ARG_GATE));
         String enteredText = safeArg(args, ARG_ENTERED);
         String expiryText = safeArg(args, "arg_expiry");
@@ -126,7 +138,11 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         }
         
         textExpiry.setText("Expiry: " + expiryText);
-        textVisitorId.setText("Visitor ID: " + guestId);
+        textVisitorId.setText(
+                "CNIC: " + guestId + "\n"
+                        + "Guest Type: " + prettyGuestType(guestType) + "\n"
+                        + "Vehicle: " + (hasVehicle ? vehiclePlate : "No")
+        );
 
         buttonLogExit.setText("Log Exit");
         buttonLogExit.setOnClickListener(v -> confirmLogExit(requestId, fullName));
@@ -151,5 +167,20 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
     private String safeArg(@NonNull Bundle args, @NonNull String key) {
         String value = args.getString(key);
         return value == null ? "" : value;
+    }
+
+    @NonNull
+    private String prettyGuestType(@NonNull String raw) {
+        String normalized = raw.trim().toLowerCase();
+        if (normalized.isEmpty()) {
+            return "Guest";
+        }
+        if ("vehicle".equals(normalized)) {
+            return "Vehicle";
+        }
+        if ("non_vehicle".equals(normalized)) {
+            return "Non Vehicle";
+        }
+        return raw;
     }
 }

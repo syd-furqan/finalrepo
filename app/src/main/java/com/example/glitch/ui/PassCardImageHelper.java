@@ -24,7 +24,7 @@ public final class PassCardImageHelper {
     @NonNull
     public static Bitmap render(@NonNull GuestPass pass) throws Exception {
         int width = 1080;
-        int height = 1580;
+        int height = 1980;
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         canvas.drawColor(Color.parseColor("#F4F6F8"));
@@ -59,6 +59,16 @@ public final class PassCardImageHelper {
 
         int rowY = 920;
         rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Guest", pass.getGuestName());
+        rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "CNIC", pass.getGuestIdNumber());
+        rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Guest Type", prettyGuestType(pass.getGuestType()));
+        rowY = drawRow(
+                canvas,
+                labelPaint,
+                valuePaint,
+                rowY,
+                "Vehicle Plate",
+                pass.hasVehicle() ? pass.getVehiclePlate() : "--"
+        );
         rowY = drawRow(
                 canvas,
                 labelPaint,
@@ -104,5 +114,17 @@ public final class PassCardImageHelper {
             return "--";
         }
         return new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(pass.getAdmittedAt().toDate());
+    }
+
+    @NonNull
+    private static String prettyGuestType(@NonNull String rawType) {
+        String normalized = rawType.trim().toLowerCase(Locale.getDefault());
+        if ("vehicle".equals(normalized)) {
+            return "Vehicle";
+        }
+        if ("non_vehicle".equals(normalized)) {
+            return "Non Vehicle";
+        }
+        return normalized.isEmpty() ? "--" : rawType;
     }
 }

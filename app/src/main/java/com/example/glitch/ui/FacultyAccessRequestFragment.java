@@ -16,10 +16,13 @@ import com.example.glitch.R;
 import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.GuestPass;
+import com.example.glitch.model.GuestIdentityPolicy;
 import com.example.glitch.model.UserProfile;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.ListenerRegistration;
 
 /**
@@ -30,6 +33,12 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
     private GuestPassRepository repository;
     private GuestPassAdapter adapter;
     private TextView textEmpty;
+    private TextInputEditText inputGuestName;
+    private TextInputEditText inputGuestId;
+    private TextInputEditText inputVehiclePlate;
+    private TextInputLayout layoutGuestCnic;
+    private TextInputLayout layoutVehiclePlate;
+    private MaterialCheckBox checkHasVehicle;
     private ListenerRegistration passListener;
 
     @NonNull
@@ -52,8 +61,12 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
         super.onViewCreated(view, savedInstanceState);
         repository = RepositoryProvider.getGuestPassRepository();
 
-        TextInputEditText inputGuestName = view.findViewById(R.id.input_guest_name);
-        TextInputEditText inputGuestId = view.findViewById(R.id.input_guest_id);
+        inputGuestName = view.findViewById(R.id.input_guest_name);
+        inputGuestId = view.findViewById(R.id.input_guest_id);
+        inputVehiclePlate = view.findViewById(R.id.input_guest_vehicle_plate);
+        layoutGuestCnic = view.findViewById(R.id.layout_guest_cnic);
+        layoutVehiclePlate = view.findViewById(R.id.layout_guest_vehicle_plate);
+        checkHasVehicle = view.findViewById(R.id.check_guest_has_vehicle);
         MaterialButton buttonSubmit = view.findViewById(R.id.button_submit_request);
         MaterialButton buttonArchived = view.findViewById(R.id.button_view_archived_passes);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_guest_passes);
@@ -63,6 +76,15 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
         adapter = new GuestPassAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
+        GuestIdentityInputSupport.attachCnicFormatter(inputGuestId);
+        GuestIdentityInputSupport.attachVehiclePlateFormatter(inputVehiclePlate);
+        checkHasVehicle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            layoutVehiclePlate.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            if (!isChecked) {
+                inputVehiclePlate.setText("");
+                layoutVehiclePlate.setError(null);
+            }
+        });
 
         UserProfile profile = AuthUiGuard.requireProfile(this);
         if (profile != null) {
@@ -92,11 +114,29 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
         buttonSubmit.setOnClickListener(v -> {
             String guestName = read(inputGuestName);
             String guestId = read(inputGuestId);
+            boolean hasVehicle = checkHasVehicle.isChecked();
+            String vehiclePlateInput = read(inputVehiclePlate);
             UserProfile userProfile = AuthUiGuard.requireProfile(this);
 
-            if (guestName.isEmpty() || guestId.isEmpty() || userProfile == null) {
+            layoutGuestCnic.setError(null);
+            layoutVehiclePlate.setError(null);
+
+            String normalizedCnic = GuestIdentityPolicy.normalizeCnic(guestId);
+            if (guestName.isEmpty() || normalizedCnic == null || userProfile == null) {
+                if (normalizedCnic == null) {
+                    layoutGuestCnic.setError(getString(R.string.error_invalid_cnic));
+                }
                 Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
                 return;
+            }
+            String normalizedPlate = "";
+            if (hasVehicle) {
+                normalizedPlate = GuestIdentityPolicy.normalizeVehiclePlate(vehiclePlateInput);
+                if (normalizedPlate == null) {
+                    layoutVehiclePlate.setError(getString(R.string.error_invalid_vehicle_plate));
+                    Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
+                    return;
+                }
             }
 
             repository.issueGuestPassWithEntryRequest(
@@ -105,13 +145,24 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
                     userProfile.getDisplayName(),
                     userProfile.getEmail(),
                     guestName,
-                    guestId,
+                    normalizedCnic,
+                    hasVehicle,
+                    normalizedPlate,
                     (success, message, issuedPass, exception) -> {
                         if (!isAdded()) {
                             return;
                         }
-                        requireActivity().runOnUiThread(() ->
-                                Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
+                        requireActivity().runOnUiThread(() -> {
+                            Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show();
+                            if (success) {
+                                inputGuestName.setText("");
+                                inputGuestId.setText("");
+                                checkHasVehicle.setChecked(false);
+                                inputVehiclePlate.setText("");
+                                layoutGuestCnic.setError(null);
+                                layoutVehiclePlate.setError(null);
+                            }
+                        });
                     }
             );
         });

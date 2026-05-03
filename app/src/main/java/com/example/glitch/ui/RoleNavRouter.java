@@ -138,7 +138,6 @@ public final class RoleNavRouter {
                 if ("admin".equals(role)) return RoleDestination.AUDIT;
                 if ("guard".equals(role)) return RoleDestination.DASHBOARD;
                 if ("faculty".equals(role)) return RoleDestination.FACULTY_REQUEST;
-                if ("staff".equals(role)) return RoleDestination.STAFF_VEHICLES;
                 // Student dashboard should be the Hub (Directory) or a summary, not creation.
                 if ("student".equals(role)) return RoleDestination.DIRECTORY;
                 return RoleDestination.DIRECTORY;
@@ -146,14 +145,12 @@ public final class RoleNavRouter {
                 if ("admin".equals(role)) return RoleDestination.RULES;
                 if ("guard".equals(role)) return RoleDestination.SEARCH;
                 if ("faculty".equals(role)) return RoleDestination.FACULTY_NOTIFICATIONS;
-                if ("staff".equals(role)) return RoleDestination.STAFF_ACCESS_STATUS;
                 if ("student".equals(role)) return RoleDestination.STUDENT_PASSES;
                 return RoleDestination.DASHBOARD;
             case VEHICLES:
                 if ("admin".equals(role)) return RoleDestination.ADMIN_VEHICLES;
                 if ("guard".equals(role)) return RoleDestination.SCAN;
                 if ("faculty".equals(role)) return RoleDestination.FACULTY_REQUEST;
-                if ("staff".equals(role)) return RoleDestination.STAFF_VEHICLES;
                 // Students don't have a vehicles screen yet, return to Hub.
                 if ("student".equals(role)) return RoleDestination.DIRECTORY;
                 return RoleDestination.DASHBOARD;
@@ -201,10 +198,6 @@ public final class RoleNavRouter {
                 return FacultyAccessRequestFragment.newInstance();
             case FACULTY_NOTIFICATIONS:
                 return FacultyNotificationsFragment.newInstance();
-            case STAFF_VEHICLES:
-                return StaffVehicleRequestFragment.newInstance();
-            case STAFF_ACCESS_STATUS:
-                return StaffAccessRequestStatusFragment.newInstance();
             case STUDENT_PASSES:
                 return StudentGuestPassFragment.newInstance();
             case GUARD_DENY:

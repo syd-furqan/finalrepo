@@ -111,10 +111,14 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                     if (snapshots != null) {
                         for (DocumentSnapshot document : snapshots.getDocuments()) {
                             EntryRequest request = EntryRequest.fromMap(document.getId(), document.getData());
+                            String requesterRole = request.getRequesterRole().trim().toLowerCase(Locale.getDefault());
+                            boolean studentRequest = "student".equals(requesterRole);
                             
-                            // Check for overdue status (entered but past expiry)
-                            if (STATUS_ACTIVE.equals(request.getStatus()) && 
-                                request.getExpiresAt() != null && 
+                            // Overdue policy is student-only.
+                            if (studentRequest
+                                && STATUS_ACTIVE.equalsIgnoreCase(request.getStatus())
+                                && request.getExpiresAt() != null
+                                &&
                                 request.getExpiresAt().toDate().before(now)) {
                                 overdueRequestIds.add(request.getId());
                             }
@@ -149,12 +153,22 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                     .get()
                     .addOnSuccessListener(snapshot -> {
                         WriteBatch passBatch = firestore.batch();
+                        boolean hasPassUpdates = false;
                         for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                            passBatch.update(doc.getReference(), 
+                            String status = safeLower(doc.get(STATUS_FIELD));
+                            if (!STATUS_ACTIVE.equals(status) && !"used".equals(status)) {
+                                continue;
+                            }
+                            passBatch.update(
+                                    doc.getReference(),
                                     STATUS_FIELD, STATUS_OVERDUE,
-                                    UPDATED_AT_FIELD, FieldValue.serverTimestamp());
+                                    UPDATED_AT_FIELD, FieldValue.serverTimestamp()
+                            );
+                            hasPassUpdates = true;
                         }
-                        passBatch.commit();
+                        if (hasPassUpdates) {
+                            passBatch.commit();
+                        }
                         
                         // Append event for the overdue status
                         appendAccessEvent(
