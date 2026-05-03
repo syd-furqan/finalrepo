@@ -15,9 +15,10 @@ import java.util.Date;
 public class GuestPassStatusRulesTest {
 
     @Test
-    public void isArchivedStatus_matchesExpiredAndCancelled() {
+    public void isArchivedStatus_matchesExpiredCancelledAndDenied() {
         assertTrue(GuestPassStatusRules.isArchivedStatus("expired"));
         assertTrue(GuestPassStatusRules.isArchivedStatus("cancelled"));
+        assertTrue(GuestPassStatusRules.isArchivedStatus("denied"));
         assertFalse(GuestPassStatusRules.isArchivedStatus("active"));
         assertFalse(GuestPassStatusRules.isArchivedStatus("used"));
     }
@@ -37,6 +38,7 @@ public class GuestPassStatusRulesTest {
     public void isShareable_blocksArchivedPasses() {
         assertFalse(GuestPassStatusRules.isShareable(passWith("expired", null)));
         assertFalse(GuestPassStatusRules.isShareable(passWith("cancelled", null)));
+        assertFalse(GuestPassStatusRules.isShareable(passWith("denied", null)));
         assertTrue(GuestPassStatusRules.isShareable(passWith("active", null)));
         assertTrue(GuestPassStatusRules.isShareable(passWith("used", null)));
     }

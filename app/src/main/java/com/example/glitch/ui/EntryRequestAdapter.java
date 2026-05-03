@@ -53,17 +53,6 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
     @Override
     public void onBindViewHolder(@NonNull EntryRequestViewHolder holder, int position) {
         EntryRequest request = requests.get(position);
-        if ("pending".equals(request.getStatus())) {
-            holder.buttonLogExit.setText("Check In");
-            holder.buttonLogExit.setOnClickListener(v -> {
-                listener.onLogEntryClicked(request);
-            });
-        } else {
-            holder.buttonLogExit.setText("Log Exit");
-            holder.buttonLogExit.setOnClickListener(v -> {
-                listener.onLogExitClicked(request);
-            });
-        }
 
         holder.textName.setText(request.getFullName());
         holder.textRoleChip.setText(request.getRoleTag());
@@ -112,7 +101,6 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
         final TextView textGate;
         final TextView textEntered;
         final MaterialButton buttonDetails;
-        final MaterialButton buttonLogExit;
 
         EntryRequestViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -123,14 +111,10 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
             textGate = itemView.findViewById(R.id.text_gate);
             textEntered = itemView.findViewById(R.id.text_entered);
             buttonDetails = itemView.findViewById(R.id.button_details);
-            buttonLogExit = itemView.findViewById(R.id.button_log_exit);
         }
     }
 
     public interface EntryActionListener {
         void onDetailsClicked(@NonNull EntryRequest request);
-        void onLogEntryClicked(@NonNull EntryRequest request);;
-
-        void onLogExitClicked(@NonNull EntryRequest request);
     }
 }

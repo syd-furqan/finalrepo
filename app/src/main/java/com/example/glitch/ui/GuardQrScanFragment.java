@@ -11,10 +11,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.glitch.R;
+import com.example.glitch.auth.SessionManager;
+import com.example.glitch.data.EntryRequestRepository;
 import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.GuestPass;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentReference;
@@ -31,6 +34,9 @@ import java.util.Date;
  * Guard QR verification screen for single-use guest pass checks.
  */
 public class GuardQrScanFragment extends Fragment {
+    private static final String DEFAULT_GATE_LABEL = "Main Gate";
+
+    private EntryRequestRepository entryRequestRepository;
     private GuestPassRepository guestPassRepository;
     private com.example.glitch.data.VerificationRulesRepository verificationRulesRepository;
     private com.example.glitch.model.VerificationRules currentRules = com.example.glitch.model.VerificationRules.defaultRules();
@@ -51,6 +57,7 @@ public class GuardQrScanFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        entryRequestRepository = RepositoryProvider.getRepository();
         guestPassRepository = RepositoryProvider.getGuestPassRepository();
         verificationRulesRepository = RepositoryProvider.getVerificationRulesRepository();
         firestore = FirebaseFirestore.getInstance();
@@ -64,7 +71,7 @@ public class GuardQrScanFragment extends Fragment {
                 Snackbar.make(requireView(), R.string.error_verify_credential, Snackbar.LENGTH_SHORT).show();
                 return;
             }
-            verifyPassOnly(contents, textResult);
+            verifyPassOnly(contents, "QR_SCAN", textResult);
         });
 
         // 2. Setup Manual Validation
@@ -79,7 +86,7 @@ public class GuardQrScanFragment extends Fragment {
                 textResult.setText(R.string.error_pass_code_required);
                 return;
             }
-            verifyPassOnly(passCode, textResult);
+            verifyPassOnly(passCode, "PASS_CODE", textResult);
         });
 
         // 3. Setup QR Scan Button
@@ -129,14 +136,18 @@ public class GuardQrScanFragment extends Fragment {
                 }));
     }
 
-    private void verifyPassOnly(@NonNull String rawCode, @NonNull TextView textResult) {
+    private void verifyPassOnly(
+            @NonNull String rawCode,
+            @NonNull String verificationMethod,
+            @NonNull TextView textResult
+    ) {
         String passCode = rawCode.trim().toUpperCase();
         guestPassRepository.findPassByCode(passCode, new GuestPassRepository.PassLookupListener() {
             @Override
             public void onData(@Nullable GuestPass pass) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() ->
-                        handlePassLookupResult(pass, passCode, textResult));
+                        handlePassLookupResult(pass, passCode, verificationMethod, textResult));
             }
 
             @Override
@@ -151,6 +162,7 @@ public class GuardQrScanFragment extends Fragment {
     private void handlePassLookupResult(
             @Nullable GuestPass pass,
             @NonNull String scannedCode,
+            @NonNull String verificationMethod,
             @NonNull TextView textResult
     ) {
         if (pass == null) {
@@ -181,11 +193,114 @@ public class GuardQrScanFragment extends Fragment {
             return;
         }
 
-        textResult.setText(getString(R.string.pass_verified_go_dashboard, pass.getEntryRequestId()));
-        Snackbar.make(requireView(), R.string.route_to_dashboard_for_admission, Snackbar.LENGTH_SHORT).show();
-        if (requireActivity() instanceof NavigationHost) {
-            ((NavigationHost) requireActivity()).showFragment(DashboardFragment.newInstance(), true);
-        }
+        showDecisionDialog(pass, verificationMethod, textResult);
+    }
+
+    private void showDecisionDialog(
+            @NonNull GuestPass pass,
+            @NonNull String verificationMethod,
+            @NonNull TextView textResult
+    ) {
+        String gateLabel = pass.getGateLabel().trim().isEmpty() ? DEFAULT_GATE_LABEL : pass.getGateLabel().trim();
+        new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.guard_scan_decision_title)
+                .setMessage(getString(
+                        R.string.guard_scan_decision_message,
+                        pass.getGuestName(),
+                        pass.getPassCode(),
+                        pass.getEntryRequestId(),
+                        gateLabel
+                ))
+                .setNegativeButton(R.string.deny_entry, (dialog, which) ->
+                        denyVisitor(pass, verificationMethod, textResult))
+                .setPositiveButton(R.string.approve_entry, (dialog, which) ->
+                        admitVisitor(pass, verificationMethod, textResult))
+                .setNeutralButton(R.string.cancel_action, (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    private void admitVisitor(
+            @NonNull GuestPass pass,
+            @NonNull String verificationMethod,
+            @NonNull TextView textResult
+    ) {
+        String gateLabel = pass.getGateLabel().trim().isEmpty() ? DEFAULT_GATE_LABEL : pass.getGateLabel().trim();
+        String guardUid = SessionManager.getCurrentProfile() == null
+                ? ""
+                : SessionManager.getCurrentProfile().getUid();
+
+        entryRequestRepository.logEntry(pass.getEntryRequestId(), gateLabel, (entrySuccess, entryMessage, entryError) -> {
+            if (!isAdded()) {
+                return;
+            }
+            if (!entrySuccess) {
+                requireActivity().runOnUiThread(() -> textResult.setText(entryMessage));
+                return;
+            }
+            guestPassRepository.markPassAdmittedByEntryRequestId(
+                    pass.getEntryRequestId(),
+                    guardUid,
+                    verificationMethod,
+                    (passSuccess, passMessage, passError) -> {
+                        if (!isAdded()) {
+                            return;
+                        }
+                        requireActivity().runOnUiThread(() -> {
+                            if (passSuccess) {
+                                textResult.setText(R.string.guard_scan_accept_success);
+                            } else {
+                                textResult.setText(getString(
+                                        R.string.guard_scan_accept_with_pass_update_warning,
+                                        passMessage
+                                ));
+                            }
+                        });
+                        if (requireActivity() instanceof NavigationHost) {
+                            ((NavigationHost) requireActivity()).showFragment(DashboardFragment.newInstance(), true);
+                        }
+                    }
+            );
+        });
+    }
+
+    private void denyVisitor(
+            @NonNull GuestPass pass,
+            @NonNull String verificationMethod,
+            @NonNull TextView textResult
+    ) {
+        String guardUid = SessionManager.getCurrentProfile() == null
+                ? ""
+                : SessionManager.getCurrentProfile().getUid();
+        String reason = getString(R.string.guard_scan_default_deny_reason, verificationMethod);
+
+        entryRequestRepository.denyRequest(pass.getEntryRequestId(), reason, (denySuccess, denyMessage, denyError) -> {
+            if (!isAdded()) {
+                return;
+            }
+            if (!denySuccess) {
+                requireActivity().runOnUiThread(() -> textResult.setText(denyMessage));
+                return;
+            }
+            guestPassRepository.markPassDeniedByEntryRequestId(
+                    pass.getEntryRequestId(),
+                    guardUid,
+                    (passSuccess, passMessage, passError) -> {
+                        if (!isAdded()) {
+                            return;
+                        }
+                        requireActivity().runOnUiThread(() -> {
+                            if (passSuccess) {
+                                textResult.setText(R.string.guard_scan_deny_success);
+                            } else {
+                                textResult.setText(getString(
+                                        R.string.guard_scan_deny_with_pass_update_warning,
+                                        passMessage
+                                ));
+                            }
+                        });
+                    }
+            );
+        });
     }
 
     @NonNull

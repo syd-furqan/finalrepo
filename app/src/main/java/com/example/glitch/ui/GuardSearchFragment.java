@@ -76,17 +76,6 @@ public class GuardSearchFragment extends Fragment implements EntryRequestAdapter
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.PASSES);
     }
 
-    @Override
-    public void onLogEntryClicked(@NonNull EntryRequest request) {
-        if (!isAdded()) {
-            return;
-        }
-        Snackbar.make(requireView(), R.string.route_to_dashboard_for_admission, Snackbar.LENGTH_LONG).show();
-        if (requireActivity() instanceof NavigationHost) {
-            ((NavigationHost) requireActivity()).showFragment(DashboardFragment.newInstance(), true);
-        }
-    }
-
     private void runSearch() {
         String query = read(inputSearch);
         repository.searchRequests(query, new EntryRequestRepository.RequestListListener() {
@@ -147,17 +136,6 @@ public class GuardSearchFragment extends Fragment implements EntryRequestAdapter
     @Override
     public void onDetailsClicked(@NonNull EntryRequest request) {
         openVerificationProfile(request);
-    }
-
-    @Override
-    public void onLogExitClicked(@NonNull EntryRequest request) {
-        repository.logExit(request.getId(), (success, message, exception) -> {
-            if (!isAdded()) {
-                return;
-            }
-            requireActivity().runOnUiThread(() ->
-                    Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
-        });
     }
 
     private void openVerificationProfile(@NonNull EntryRequest request) {

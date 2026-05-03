@@ -1,6 +1,5 @@
 package com.example.glitch.ui;
 
-import android.app.Dialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,21 +72,6 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         return inflater.inflate(R.layout.bottom_sheet_entry_details, container, false);
     }
 
-    private void confirmLogEntry(@NonNull String requestId, @NonNull String fullName) {
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Confirm Entry")
-                .setMessage("Grant campus access to " + fullName + "?")
-                .setNegativeButton(R.string.cancel_action, (dialogInterface, i) -> dialogInterface.dismiss())
-                .setPositiveButton("Grant", (dialogInterface, i) -> {
-                    Bundle result = new Bundle();
-                    result.putString(RESULT_REQUEST_ID, requestId);
-                    result.putBoolean("is_entry_action", true);
-                    getParentFragmentManager().setFragmentResult(RESULT_KEY, result);
-                    dismiss();
-                })
-                .show();
-    }
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -115,13 +99,8 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         MaterialButton buttonClose = view.findViewById(R.id.button_close);
         MaterialButton buttonLogExit = view.findViewById(R.id.button_sheet_log_exit);
 
-        if ("--:--".equals(enteredText)) {
-            buttonLogExit.setText("Grant Entry");
-            buttonLogExit.setOnClickListener(v -> confirmLogEntry(requestId, fullName));
-        } else {
-            buttonLogExit.setText("Log Exit");
-            buttonLogExit.setOnClickListener(v -> confirmLogExit(requestId, fullName));
-        }
+        buttonLogExit.setText("Log Exit");
+        buttonLogExit.setOnClickListener(v -> confirmLogExit(requestId, fullName));
 
         buttonClose.setOnClickListener(v -> dismiss());
 

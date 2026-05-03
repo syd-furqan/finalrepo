@@ -62,6 +62,12 @@ public interface GuestPassRepository {
 			@NonNull OperationCallback callback
 	);
 
+	void markPassDeniedByEntryRequestId(
+			@NonNull String entryRequestId,
+			@NonNull String deniedByUid,
+			@NonNull OperationCallback callback
+	);
+
 	interface PassListListener {
 		void onData(@NonNull List<GuestPass> passes);
 

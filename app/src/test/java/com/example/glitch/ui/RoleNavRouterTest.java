@@ -13,7 +13,7 @@ public class RoleNavRouterTest {
     public void adminBottomNavMapsToAdminScreens() {
         assertEquals(RoleDestination.AUDIT, RoleNavRouter.resolveDestinationForRole(RoleDestination.DASHBOARD, "admin"));
         assertEquals(RoleDestination.RULES, RoleNavRouter.resolveDestinationForRole(RoleDestination.PASSES, "admin"));
-        assertEquals(RoleDestination.ALERTS, RoleNavRouter.resolveDestinationForRole(RoleDestination.VEHICLES, "admin"));
+        assertEquals(RoleDestination.ADMIN_VEHICLES, RoleNavRouter.resolveDestinationForRole(RoleDestination.VEHICLES, "admin"));
         assertEquals(RoleDestination.DIRECTORY, RoleNavRouter.resolveDestinationForRole(RoleDestination.DIRECTORY, "admin"));
     }
 
