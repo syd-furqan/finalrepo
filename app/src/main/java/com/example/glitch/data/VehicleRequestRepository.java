@@ -23,10 +23,20 @@ public interface VehicleRequestRepository {
 
 	void listenVehicleRequests(@NonNull String requesterUid, @NonNull RequestListListener listener);
 
+	void listenAllVehicleRequests(@NonNull RequestListListener listener);
+
 	void updateVehicleRequest(
 			@NonNull String requestId,
 			@NonNull String plateNumber,
 			@NonNull String vehicleModel,
+			@NonNull OperationCallback callback
+	);
+
+	void reviewVehicleRequest(
+			@NonNull String requestId,
+			@NonNull String adminUid,
+			boolean approved,
+			@NonNull String note,
 			@NonNull OperationCallback callback
 	);
 

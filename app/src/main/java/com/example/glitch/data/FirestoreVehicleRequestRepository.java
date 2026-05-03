@@ -78,6 +78,29 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
     }
 
     @Override
+    public void listenAllVehicleRequests(@NonNull RequestListListener listener) {
+        removeListeners();
+        registration = collection
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null) {
+                        listener.onError(error);
+                        return;
+                    }
+                    List<VehicleRequestRecord> result = new ArrayList<>();
+                    if (snapshot != null) {
+                        for (DocumentSnapshot document : snapshot.getDocuments()) {
+                            result.add(VehicleRequestRecord.fromMap(document.getId(), document.getData()));
+                        }
+                    }
+                    result.sort(Comparator.comparing(
+                            VehicleRequestRecord::getCreatedAt,
+                            java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())
+                    ).reversed());
+                    listener.onData(result);
+                });
+    }
+
+    @Override
     public void updateVehicleRequest(
             @NonNull String requestId,
             @NonNull String plateNumber,
@@ -92,6 +115,25 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
                 .update(updates)
                 .addOnSuccessListener(unused -> callback.onComplete(true, "Vehicle request updated", null))
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to update request", error));
+    }
+
+    @Override
+    public void reviewVehicleRequest(
+            @NonNull String requestId,
+            @NonNull String adminUid,
+            boolean approved,
+            @NonNull String note,
+            @NonNull OperationCallback callback
+    ) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("status", approved ? "approved" : "denied");
+        updates.put("adminUid", adminUid);
+        updates.put("adminNote", note);
+        updates.put("updatedAt", FieldValue.serverTimestamp());
+        collection.document(requestId)
+                .update(updates)
+                .addOnSuccessListener(unused -> callback.onComplete(true, approved ? "Request approved" : "Request denied", null))
+                .addOnFailureListener(error -> callback.onComplete(false, "Failed to review request", error));
     }
 
     @Override

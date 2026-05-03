@@ -112,6 +112,12 @@
     <string name="no_vehicle_requests">No vehicle requests yet.</string>
     <string name="error_vehicle_load">Unable to load vehicle requests.</string>
     <string name="vehicle_status_summary">Pending: %1$d  ·  Approved: %2$d  ·  Denied: %3$d</string>
+    <string name="admin_vehicle_review_admin_only">This section is restricted to administrators only.</string>
+    <string name="admin_vehicle_requester_label">Requester: %s</string>
+    <string name="admin_vehicle_review_title">Vehicle Review</string>
+    <string name="admin_vehicle_review_empty">No vehicles pending review.</string>
+    <string name="admin_vehicle_approve_action">Approve</string>
+    <string name="admin_vehicle_deny_action">Deny</string>
 
     <!-- US-09: Staff access request status screen -->
     <string name="staff_access_request_title">My Access Requests</string>

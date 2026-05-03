@@ -17,8 +17,11 @@ public class VehicleRequestRecord {
 	private final String requesterUid;
 	private final String plateNumber;
 	private final String vehicleModel;
+	private final String vehicleColor;
 	private final String status;
+	private final String adminNote;
 	private final Timestamp createdAt;
+	private final Timestamp updatedAt;
 
 	/**
 	 * Creates an immutable vehicle request record.
@@ -28,15 +31,21 @@ public class VehicleRequestRecord {
 			@NonNull String requesterUid,
 			@NonNull String plateNumber,
 			@NonNull String vehicleModel,
+			@NonNull String vehicleColor,
 			@NonNull String status,
-			@Nullable Timestamp createdAt
+			@NonNull String adminNote,
+			@Nullable Timestamp createdAt,
+			@Nullable Timestamp updatedAt
 	) {
 		this.id = id;
 		this.requesterUid = requesterUid;
 		this.plateNumber = plateNumber;
 		this.vehicleModel = vehicleModel;
+		this.vehicleColor = vehicleColor;
 		this.status = status;
+		this.adminNote = adminNote;
 		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
 	}
 
 	/**
@@ -49,15 +58,18 @@ public class VehicleRequestRecord {
 	@NonNull
 	public static VehicleRequestRecord fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
 		if (map == null) {
-			return new VehicleRequestRecord(id, "", "", "", "", null);
+			return new VehicleRequestRecord(id, "", "", "", "", "pending", "", null, null);
 		}
 		return new VehicleRequestRecord(
 				id,
 				asString(map.get("requesterUid")),
 				asString(map.get("plateNumber")),
 				asString(map.get("vehicleModel")),
+				asString(map.get("vehicleColor")),
 				asString(map.get("status")),
-				asTimestamp(map.get("createdAt"))
+				asString(map.get("adminNote")),
+				asTimestamp(map.get("createdAt")),
+				asTimestamp(map.get("updatedAt"))
 		);
 	}
 
@@ -94,11 +106,33 @@ public class VehicleRequestRecord {
 	}
 
 	/**
+	 * Alias for vehicle model/description used in admin review.
+	 */
+	@NonNull
+	public String getVehicleDescription() {
+		return vehicleModel;
+	}
+
+	@NonNull
+	public String getVehicleColor() {
+		return vehicleColor;
+	}
+
+	/**
 	 * @return workflow status (pending/approved/denied).
 	 */
 	@NonNull
 	public String getStatus() {
 		return status;
+	}
+
+	public boolean isPending() {
+		return "pending".equalsIgnoreCase(status);
+	}
+
+	@NonNull
+	public String getReviewNote() {
+		return adminNote;
 	}
 
 	/**
@@ -107,6 +141,11 @@ public class VehicleRequestRecord {
 	@Nullable
 	public Timestamp getCreatedAt() {
 		return createdAt;
+	}
+
+	@Nullable
+	public Timestamp getReviewedAt() {
+		return updatedAt;
 	}
 
 	@NonNull
