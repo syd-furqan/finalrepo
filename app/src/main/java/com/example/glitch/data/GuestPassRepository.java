@@ -21,7 +21,6 @@ public interface GuestPassRepository {
 			@NonNull String sponsorEmail,
 			@NonNull String guestName,
 			@NonNull String guestIdNumber,
-			int expiryHours,
 			@NonNull OperationCallback callback
 	);
 
@@ -32,7 +31,6 @@ public interface GuestPassRepository {
 			@NonNull String sponsorEmail,
 			@NonNull String guestName,
 			@NonNull String guestIdNumber,
-			int expiryHours,
 			@NonNull IssueCallback callback
 	);
 

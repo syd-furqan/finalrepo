@@ -27,8 +27,6 @@ import com.google.firebase.firestore.ListenerRegistration;
  * Updated to manage Firestore listener lifecycle explicitly.
  */
 public class FacultyAccessRequestFragment extends Fragment implements GuestPassAdapter.GuestPassActionListener {
-    private static final int MAX_EXPIRY_HOURS = 336;
-
     private GuestPassRepository repository;
     private GuestPassAdapter adapter;
     private TextView textEmpty;
@@ -56,7 +54,6 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
 
         TextInputEditText inputGuestName = view.findViewById(R.id.input_guest_name);
         TextInputEditText inputGuestId = view.findViewById(R.id.input_guest_id);
-        TextInputEditText inputExpiryHours = view.findViewById(R.id.input_request_expiry_hours);
         MaterialButton buttonSubmit = view.findViewById(R.id.button_submit_request);
         MaterialButton buttonArchived = view.findViewById(R.id.button_view_archived_passes);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_guest_passes);
@@ -95,17 +92,10 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
         buttonSubmit.setOnClickListener(v -> {
             String guestName = read(inputGuestName);
             String guestId = read(inputGuestId);
-            String expiryRaw = read(inputExpiryHours);
             UserProfile userProfile = AuthUiGuard.requireProfile(this);
 
-            if (guestName.isEmpty() || guestId.isEmpty() || expiryRaw.isEmpty() || userProfile == null) {
+            if (guestName.isEmpty() || guestId.isEmpty() || userProfile == null) {
                 Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
-                return;
-            }
-
-            Integer expiryHours = parseExpiryHours(expiryRaw);
-            if (expiryHours == null) {
-                Snackbar.make(requireView(), R.string.error_invalid_expiry, Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
@@ -116,7 +106,6 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
                     userProfile.getEmail(),
                     guestName,
                     guestId,
-                    expiryHours,
                     (success, message, issuedPass, exception) -> {
                         if (!isAdded()) {
                             return;
@@ -133,20 +122,6 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
     private String read(@NonNull TextInputEditText input) {
         CharSequence value = input.getText();
         return value == null ? "" : value.toString().trim();
-    }
-
-    @Nullable
-    private Integer parseExpiryHours(@NonNull String rawHours) {
-        int hours;
-        try {
-            hours = Integer.parseInt(rawHours.trim());
-        } catch (NumberFormatException ignored) {
-            return null;
-        }
-        if (hours <= 0 || hours > MAX_EXPIRY_HOURS) {
-            return null;
-        }
-        return hours;
     }
 
     @Override

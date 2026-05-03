@@ -132,7 +132,6 @@
     <string name="staff_access_submitted_unknown">Submission time unknown</string>
     <string name="staff_access_unknown_guest">Unknown Guest</string>
 
-    <string name="pass_expiry_hours">Pass Expiry (hours)</string>
     <string name="create_pass_action">Create Guest Pass</string>
     <string name="cancel_pass_action">Cancel Pass</string>
     <string name="view_archived_passes_action">View Archived Passes</string>
@@ -144,7 +143,6 @@
     <string name="archived_pass_read_only">Archived passes are read-only.</string>
     <string name="no_guest_passes">No guest passes yet.</string>
     <string name="error_guest_pass_load">Unable to load guest passes.</string>
-    <string name="error_invalid_expiry">Enter a valid expiry in hours.</string>
     <string name="pass_code_label">Access Number (Pass Code): %1$s</string>
     <string name="pass_expires_label">Expires: %1$s</string>
     <string name="pass_expiry_unknown">Expiry unavailable</string>
@@ -155,6 +153,7 @@
     <string name="pass_not_found">Pass not found.</string>
     <string name="pass_not_active">Pass is not active.</string>
     <string name="pass_expired">Pass has expired.</string>
+    <string name="pass_not_valid_time_window">Guest passes are valid only between 8:30 AM and 10:30 PM.</string>
     <string name="pass_orphan_invalid">Pass is invalid (missing linked entry request).</string>
     <string name="pass_verified_go_dashboard">Pass verified. Open Dashboard to approve entry for request: %1$s</string>
     <string name="route_to_dashboard_for_admission">Approve entry from Dashboard to complete admission.</string>
@@ -165,6 +164,19 @@
     <string name="guard_scan_deny_success">Visitor denied. Request and pass were updated.</string>
     <string name="guard_scan_deny_with_pass_update_warning">Visitor denied, but guest-pass update had an issue: %1$s</string>
     <string name="guard_scan_default_deny_reason">Denied at gate via %1$s verification.</string>
+    <string name="guard_pending_title">Pending Guard Decision</string>
+    <string name="guard_pending_subtitle">A scanned visitor request must be resolved before continuing.</string>
+    <string name="guard_pending_method_label">Verification Method: %1$s</string>
+    <string name="guard_pending_request_label">Entry Request ID: %1$s</string>
+    <string name="guard_pending_guest_id_label">Guest ID: %1$s</string>
+    <string name="guard_pending_sponsor_label">Sponsor: %1$s (%2$s)</string>
+    <string name="guard_pending_sponsor_role_label">Sponsor Role: %1$s</string>
+    <string name="guard_pending_created_label">Created At: %1$s</string>
+    <string name="guard_pending_expires_label">Expires At: %1$s</string>
+    <string name="guard_pending_missing">No pending decision found for this guard.</string>
+    <string name="guard_pending_not_actionable">This pass is no longer actionable. Pending decision was cleared.</string>
+    <string name="guard_pending_back_blocked">Choose Allow or Deny to continue.</string>
+    <string name="guard_pending_existing_reopened">Resolve the existing pending decision first.</string>
 
     <string name="export_csv_action">Export CSV</string>
     <string name="no_audit_logs">No audit logs available.</string>

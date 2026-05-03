@@ -84,7 +84,10 @@
                         android:id="@+id/input_pass_code"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textAllCaps="true" />
+                        android:inputType="textCapCharacters|textNoSuggestions|textVisiblePassword"
+                        android:imeOptions="actionDone"
+                        android:maxLength="8"
+                        android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
