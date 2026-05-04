@@ -52,7 +52,6 @@ public class FirestoreVerificationRulesRepository implements VerificationRulesRe
     public void saveRules(@NonNull VerificationRules rules, @NonNull SaveCallback callback) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("enforceIdExpiry", rules.isEnforceIdExpiry());
-        payload.put("alertThreshold", rules.getAlertThreshold());
         payload.put("bannedIdentifiersCsv", rules.getBannedIdentifiersCsv());
         payload.put("updatedAt", FieldValue.serverTimestamp());
         firestore.collection(COLLECTION).document(DOC_CURRENT)

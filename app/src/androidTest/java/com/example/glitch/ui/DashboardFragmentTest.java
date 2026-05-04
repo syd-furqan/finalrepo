@@ -79,8 +79,15 @@ public class DashboardFragmentTest {
                     "Ahmed Mansoor",
                     "Guest",
                     "Prof. Salman",
-                    "West Wing - 02",
+                    "in-gate",
                     "CNIC-12345",
+                    false,
+                    "",
+                    "non_vehicle",
+                    "student",
+                    "",
+                    "",
+                    "",
                     new Timestamp(1720400000L, 0),
                     "active",
                     null,
@@ -115,7 +122,6 @@ public class DashboardFragmentTest {
                 @NonNull String requesterRole,
                 @NonNull String guestName,
                 @NonNull String guestIdNumber,
-                @NonNull String gateLabel,
                 @NonNull String hostName,
                 @Nullable Timestamp expiresAt,
                 @NonNull CompletionCallback callback
@@ -124,7 +130,7 @@ public class DashboardFragmentTest {
         }
 
         @Override
-        public void logEntry(@NonNull String requestId, @NonNull String gateLabel, @NonNull CompletionCallback callback) {
+        public void logEntry(@NonNull String requestId, @NonNull CompletionCallback callback) {
             callback.onComplete(true, "ok", null);
         }
 
@@ -137,6 +143,16 @@ public class DashboardFragmentTest {
         @Override
         public void denyRequest(@NonNull String requestId, @NonNull String reason, @NonNull CompletionCallback callback) {
             callback.onComplete(true, "ok", null);
+        }
+
+        @Override
+        public void reportViolation(@NonNull String requestId, @NonNull CompletionCallback callback) {
+            callback.onComplete(true, "ok", null);
+        }
+
+        @Override
+        public void listenRequestsByRequester(@NonNull String requesterUid, @NonNull RequestListListener listener) {
+            listener.onData(new ArrayList<>());
         }
 
         @Override

@@ -20,6 +20,7 @@ public class GuestPassStatusRulesTest {
         assertTrue(GuestPassStatusRules.isArchivedStatus("cancelled"));
         assertTrue(GuestPassStatusRules.isArchivedStatus("denied"));
         assertTrue(GuestPassStatusRules.isArchivedStatus("exited"));
+        assertFalse(GuestPassStatusRules.isArchivedStatus("reported"));
         assertFalse(GuestPassStatusRules.isArchivedStatus("active"));
         assertFalse(GuestPassStatusRules.isArchivedStatus("used"));
     }
@@ -43,6 +44,18 @@ public class GuestPassStatusRulesTest {
         assertFalse(GuestPassStatusRules.isShareable(passWith("exited", null)));
         assertTrue(GuestPassStatusRules.isShareable(passWith("active", null)));
         assertFalse(GuestPassStatusRules.isShareable(passWith("used", null)));
+    }
+
+    @Test
+    public void blocksStudentIssuance_forInProgressStatuses() {
+        assertTrue(GuestPassStatusRules.blocksStudentIssuance("active"));
+        assertTrue(GuestPassStatusRules.blocksStudentIssuance("used"));
+        assertTrue(GuestPassStatusRules.blocksStudentIssuance("overdue"));
+        assertTrue(GuestPassStatusRules.blocksStudentIssuance("reported"));
+        assertFalse(GuestPassStatusRules.blocksStudentIssuance("expired"));
+        assertFalse(GuestPassStatusRules.blocksStudentIssuance("cancelled"));
+        assertFalse(GuestPassStatusRules.blocksStudentIssuance("denied"));
+        assertFalse(GuestPassStatusRules.blocksStudentIssuance("exited"));
     }
 
     private GuestPass passWith(String status, Timestamp expiresAt) {

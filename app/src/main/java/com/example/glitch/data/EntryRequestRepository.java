@@ -67,6 +67,11 @@ public interface EntryRequestRepository {
 	void denyRequest(@NonNull String requestId, @NonNull String reason, @NonNull CompletionCallback callback);
 
 	/**
+	 * Marks a live entry as security-reported by guard action.
+	 */
+	void reportViolation(@NonNull String requestId, @NonNull CompletionCallback callback);
+
+	/**
 	 * Starts realtime updates for all requests submitted by a specific requester (US-09).
 	 */
 	void listenRequestsByRequester(@NonNull String requesterUid, @NonNull RequestListListener listener);

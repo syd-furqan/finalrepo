@@ -12,7 +12,6 @@ import java.util.Map;
  */
 public class VerificationRules {
 	private final boolean enforceIdExpiry;
-	private final int alertThreshold;
 	private final String bannedIdentifiersCsv;
 
 	/**
@@ -20,11 +19,9 @@ public class VerificationRules {
 	 */
 	public VerificationRules(
 			boolean enforceIdExpiry,
-			int alertThreshold,
 			@NonNull String bannedIdentifiersCsv
 	) {
 		this.enforceIdExpiry = enforceIdExpiry;
-		this.alertThreshold = alertThreshold;
 		this.bannedIdentifiersCsv = bannedIdentifiersCsv;
 	}
 
@@ -41,7 +38,6 @@ public class VerificationRules {
 		}
 		return new VerificationRules(
 				asBoolean(map.get("enforceIdExpiry")),
-				asInt(map.get("alertThreshold"), 3),
 				asString(map.get("bannedIdentifiersCsv"))
 		);
 	}
@@ -51,7 +47,7 @@ public class VerificationRules {
 	 */
 	@NonNull
 	public static VerificationRules defaultRules() {
-		return new VerificationRules(true, 3, "");
+		return new VerificationRules(true, "");
 	}
 
 	/**
@@ -59,13 +55,6 @@ public class VerificationRules {
 	 */
 	public boolean isEnforceIdExpiry() {
 		return enforceIdExpiry;
-	}
-
-	/**
-	 * @return failed-verification threshold used for alert generation.
-	 */
-	public int getAlertThreshold() {
-		return alertThreshold;
 	}
 
 	/**
@@ -81,13 +70,6 @@ public class VerificationRules {
 			return (Boolean) value;
 		}
 		return false;
-	}
-
-	private static int asInt(@Nullable Object value, int fallback) {
-		if (value instanceof Number) {
-			return ((Number) value).intValue();
-		}
-		return fallback;
 	}
 
 	@NonNull

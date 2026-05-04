@@ -60,10 +60,8 @@ This ledger replaces the old generic sprint narrative with a product-state and n
 
 ### N1 — Sponsor Vehicle Program
 **Priority:** P0  
-- Faculty one-time personal vehicle registration.
-- Student one-time personal vehicle registration.
-- Admin approval/denial flow.
-- Approved vehicle credential activation for verification.
+- Faculty/student registration, admin review, and registered-vehicle visibility are implemented.
+- Remaining work: verification-layer integration for approved sponsor vehicles.
 
 ### N2 — Guard Incident Reporting
 **Priority:** P0  
@@ -72,18 +70,17 @@ This ledger replaces the old generic sprint narrative with a product-state and n
 
 ### N3 — Admin Intervention Workflow
 **Priority:** P0  
-- Admin incident/alert triage queue.
-- Intervention actions: fine sponsor, ban guest.
-- Full audit correlation for interventions.
+- Incident triage and intervention actions (ban/fine) are in progress.
+- Full lifecycle correlation (alert -> intervention -> audit) is being hardened.
 
 ### N4 — Traffic Monitoring and History
 **Priority:** P1  
-- Admin traffic statistics dashboards and historical trend slices.
+- KPI/trend/breakdown dashboard implementation is in progress.
 
 ### N5 — Guard Shift Management
 **Priority:** P1  
-- Admin shift assignment/rotation model.
-- Guard-facing shift visibility.
+- Admin shift templates and primary-guard assignment are in progress.
+- Guard off-shift enforcement and override audit trail are in progress.
 
 ---
 

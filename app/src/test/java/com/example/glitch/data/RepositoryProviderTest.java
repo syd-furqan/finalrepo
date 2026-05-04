@@ -102,6 +102,11 @@ public class RepositoryProviderTest {
         }
 
         @Override
+        public void reportViolation(@NonNull String requestId, @NonNull CompletionCallback callback) {
+            callback.onComplete(true, "ok", null);
+        }
+
+        @Override
         public void listenRequestsByRequester(@NonNull String requesterUid, @NonNull RequestListListener listener) {
             listener.onData(Collections.emptyList());
         }

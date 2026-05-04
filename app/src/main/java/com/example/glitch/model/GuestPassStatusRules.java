@@ -40,12 +40,15 @@ public final class GuestPassStatusRules {
      */
     public static boolean isInProgress(@NonNull String rawStatus) {
         String status = rawStatus.trim().toLowerCase(Locale.getDefault());
-        return "active".equals(status) || "used".equals(status) || "overdue".equals(status);
+        return "active".equals(status) || "used".equals(status) || "overdue".equals(status) || "reported".equals(status);
     }
 
     public static boolean blocksStudentIssuance(@NonNull String rawStatus) {
         String status = rawStatus.trim().toLowerCase(Locale.getDefault());
-        return "active".equals(status) || "overdue".equals(status);
+        return "active".equals(status)
+                || "used".equals(status)
+                || "overdue".equals(status)
+                || "reported".equals(status);
     }
 
     public static boolean isShareable(@NonNull GuestPass pass) {

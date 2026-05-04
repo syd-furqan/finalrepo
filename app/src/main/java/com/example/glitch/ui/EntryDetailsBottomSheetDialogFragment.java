@@ -36,6 +36,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
     private static final String ARG_HAS_VEHICLE = "arg_has_vehicle";
     private static final String ARG_VEHICLE_PLATE = "arg_vehicle_plate";
     private static final String ARG_GUEST_TYPE = "arg_guest_type";
+    private static final String ARG_ADMITTED_BY = "arg_admitted_by";
 
     /**
      * Creates bottom sheet instance for a selected request.
@@ -52,6 +53,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
             @NonNull String guestType,
             @NonNull String gateLabel,
             @NonNull String enteredText,
+            @NonNull String admittedByText,
             @NonNull String expiryText,
             @NonNull String status,
             boolean promptExit
@@ -68,6 +70,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         args.putString(ARG_VEHICLE_PLATE, vehiclePlate);
         args.putString(ARG_GUEST_TYPE, guestType);
         args.putString(ARG_ENTERED, enteredText);
+        args.putString(ARG_ADMITTED_BY, admittedByText);
         args.putString("arg_expiry", expiryText);
         args.putString(ARG_STATUS, status);
         args.putBoolean(ARG_PROMPT_EXIT, promptExit);
@@ -100,6 +103,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         String guestType = safeArg(args, ARG_GUEST_TYPE);
         String gateLabel = GatePolicy.toDisplayLabel(safeArg(args, ARG_GATE));
         String enteredText = safeArg(args, ARG_ENTERED);
+        String admittedByText = safeArg(args, ARG_ADMITTED_BY);
         String expiryText = safeArg(args, "arg_expiry");
         String status = safeArg(args, ARG_STATUS);
         boolean promptExit = args.getBoolean(ARG_PROMPT_EXIT, false);
@@ -111,6 +115,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         TextView textRequestHost = view.findViewById(R.id.text_request_host);
         TextView textRequestGate = view.findViewById(R.id.text_request_gate);
         TextView textRequestEntered = view.findViewById(R.id.text_request_entered);
+        TextView textRequestAdmittedBy = view.findViewById(R.id.text_request_admitted_by);
         TextView textExpiry = view.findViewById(R.id.text_request_expiry);
         TextView textRequestId = view.findViewById(R.id.text_request_id);
         MaterialButton buttonClose = view.findViewById(R.id.button_close);
@@ -130,6 +135,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         textRequestHost.setText(getString(R.string.unknown_host_prefix, hostName));
         textRequestGate.setText(getString(R.string.gate_label) + ": " + gateLabel);
         textRequestEntered.setText(getString(R.string.entered_label) + ": " + enteredText);
+        textRequestAdmittedBy.setText(getString(R.string.admitted_by_label, admittedByText));
         textRequestId.setText(getString(R.string.request_id_label) + ": " + requestId);
         
         if (promptExit && !"overdue".equalsIgnoreCase(status)) {

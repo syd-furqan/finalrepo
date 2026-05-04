@@ -47,6 +47,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
     private static final String STATUS_DENIED = "denied";
     private static final String STATUS_OVERDUE = "overdue";
     private static final String STATUS_EXITED = "exited";
+    private static final String STATUS_REPORTED = "reported";
     private static final String REQUEST_STATUS_PENDING = "pending";
     private static final String REQUEST_STATUS_DENIED = "denied";
     private static final String REQUEST_STATUS_FIELD = "status";
@@ -58,6 +59,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
     private final FirebaseFirestore firestore;
     private final CollectionReference collection;
     private final CollectionReference entryRequestCollection;
+    private final InterventionRepository interventionRepository;
     
     // In-memory lock to prevent rapid-click duplicates for the same user
     private final Set<String> pendingIssuances = new HashSet<>();
@@ -70,6 +72,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
         this.firestore = firestore;
         this.collection = firestore.collection(COLLECTION_GUEST_PASSES);
         this.entryRequestCollection = firestore.collection(COLLECTION_ENTRY_REQUESTS);
+        this.interventionRepository = new FirestoreInterventionRepository(firestore);
     }
 
     @Override
@@ -134,6 +137,41 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             return;
         }
 
+        interventionRepository.isGuestBanned(normalizedCnic, (banned, record, message) -> {
+            if (banned) {
+                callback.onComplete(false, "This guest is banned from campus entry.", null, null);
+                return;
+            }
+            if (message.startsWith("ERROR_")) {
+                callback.onComplete(false, "Unable to verify banned-list status right now.", null, null);
+                return;
+            }
+            continueIssuanceAfterBanCheck(
+                    sponsorUid,
+                    sponsorRole,
+                    sponsorName,
+                    sponsorEmail,
+                    trimmedGuestName,
+                    normalizedCnic,
+                    hasVehicle,
+                    normalizedVehiclePlate,
+                    callback
+            );
+        });
+    }
+
+    private void continueIssuanceAfterBanCheck(
+            @NonNull String sponsorUid,
+            @NonNull String sponsorRole,
+            @NonNull String sponsorName,
+            @NonNull String sponsorEmail,
+            @NonNull String trimmedGuestName,
+            @NonNull String normalizedCnic,
+            boolean hasVehicle,
+            @NonNull String normalizedVehiclePlate,
+            @NonNull IssueCallback callback
+    ) {
+
         // 1. Immediate in-memory check
         if ("student".equalsIgnoreCase(sponsorRole) && pendingIssuances.contains(sponsorUid)) {
             callback.onComplete(false, "An issuance request is already in progress.", null, null);
@@ -145,13 +183,13 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             
             // 2. Database check
             collection.whereEqualTo("sponsorUid", sponsorUid)
-                    .whereIn("status", Arrays.asList(STATUS_ACTIVE, STATUS_OVERDUE))
+                    .whereIn("status", Arrays.asList(STATUS_ACTIVE, STATUS_USED, STATUS_OVERDUE, STATUS_REPORTED))
                     .limit(1)
                     .get()
                     .addOnSuccessListener(snapshot -> {
                         if (!snapshot.isEmpty()) {
                             pendingIssuances.remove(sponsorUid);
-                            callback.onComplete(false, "You already have an active or overdue guest pass.", null, null);
+                            callback.onComplete(false, "You already have an active guest in progress.", null, null);
                         } else {
                             // 3. Perform write
                             performIssueGuestPass(
@@ -585,9 +623,30 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
     }
 
     @Override
+    public void markPassReportedByEntryRequestId(
+            @NonNull String entryRequestId,
+            @NonNull String reportedByUid,
+            @NonNull OperationCallback callback
+    ) {
+        collection.whereEqualTo("entryRequestId", entryRequestId.trim())
+                .whereIn("status", Arrays.asList(STATUS_ACTIVE, STATUS_USED, STATUS_OVERDUE))
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) {
+                        callback.onComplete(true, "No linked in-progress guest pass.", null);
+                        return;
+                    }
+                    String passId = snapshot.getDocuments().get(0).getId();
+                    markPassReported(passId, reportedByUid, callback);
+                })
+                .addOnFailureListener(error -> callback.onComplete(false, safeMessage(error), error));
+    }
+
+    @Override
     public void markPassExitedByEntryRequestId(@NonNull String entryRequestId, @NonNull OperationCallback callback) {
         collection.whereEqualTo("entryRequestId", entryRequestId.trim())
-                .whereIn("status", Arrays.asList(STATUS_USED, STATUS_OVERDUE))
+                .whereIn("status", Arrays.asList(STATUS_USED, STATUS_OVERDUE, STATUS_REPORTED))
                 .limit(1)
                 .get()
                 .addOnSuccessListener(snapshot -> {
@@ -630,7 +689,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
         List<GuestPass> candidates = new ArrayList<>();
         for (GuestPass pass : passes) {
             String status = pass.getStatus().trim().toLowerCase();
-            if (("used".equals(status) || "overdue".equals(status))
+            if (("used".equals(status) || "overdue".equals(status) || STATUS_REPORTED.equals(status))
                     && !pass.getEntryRequestId().trim().isEmpty()) {
                 candidates.add(pass);
             }
@@ -720,6 +779,57 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                         );
                     }
                     callback.onComplete(true, "Pass denied", null);
+                })
+                .addOnFailureListener(error -> callback.onComplete(false, safeMessage(error), error));
+    }
+
+    private void markPassReported(
+            @NonNull String passId,
+            @NonNull String reportedByUid,
+            @NonNull OperationCallback callback
+    ) {
+        DocumentReference passRef = collection.document(passId);
+        firestore.runTransaction(transaction -> {
+                    DocumentSnapshot snapshot = transaction.get(passRef);
+                    if (!snapshot.exists()) {
+                        throw new IllegalStateException("Pass not found.");
+                    }
+                    GuestPass pass = GuestPass.fromMap(snapshot.getId(), snapshot.getData());
+                    String status = pass.getStatus().trim().toLowerCase();
+                    if (STATUS_REPORTED.equals(status)) {
+                        return pass;
+                    }
+                    if (!(STATUS_ACTIVE.equals(status) || STATUS_USED.equals(status) || STATUS_OVERDUE.equals(status))) {
+                        throw new IllegalStateException("Only active/admitted/overdue passes can be reported.");
+                    }
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("status", STATUS_REPORTED);
+                    updates.put("admittedByUid", reportedByUid);
+                    updates.put("admissionMethod", "REPORTED");
+                    updates.put("updatedAt", FieldValue.serverTimestamp());
+                    transaction.update(passRef, updates);
+                    return pass;
+                })
+                .addOnSuccessListener(pass -> {
+                    if (pass != null) {
+                        Map<String, Object> metadata = new HashMap<>();
+                        metadata.put("passCode", pass.getPassCode());
+                        appendAccessEvent(
+                                AuditEventType.PASS_REPORTED,
+                                "guest_pass",
+                                pass.getId(),
+                                pass.getEntryRequestId(),
+                                reportedByUid,
+                                "guard",
+                                "Guest pass moved to reported state",
+                                "guard_violation",
+                                "failure",
+                                "pass_reported",
+                                pass.getGateLabel(),
+                                metadata
+                        );
+                    }
+                    callback.onComplete(true, "Pass reported", null);
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, safeMessage(error), error));
     }

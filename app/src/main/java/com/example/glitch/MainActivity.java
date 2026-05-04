@@ -24,6 +24,7 @@ import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.data.SingleGateMigrationRunner;
 import com.example.glitch.model.GuestPassTimePolicy;
 import com.example.glitch.model.UserProfile;
+import com.example.glitch.notification.ChargeLocalAlertCoordinator;
 import com.example.glitch.notification.GuestPassLocalAlertCoordinator;
 import com.example.glitch.notification.VehicleApplicationLocalAlertCoordinator;
 import com.example.glitch.ui.LoginFragment;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
 
     private AuthRepository authRepository;
     private GuestPassLocalAlertCoordinator guestPassLocalAlertCoordinator;
+    private ChargeLocalAlertCoordinator chargeLocalAlertCoordinator;
     private VehicleApplicationLocalAlertCoordinator vehicleApplicationLocalAlertCoordinator;
     private SingleGateMigrationRunner singleGateMigrationRunner;
 
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
         );
         authRepository = RepositoryProvider.getAuthRepository();
         guestPassLocalAlertCoordinator = new GuestPassLocalAlertCoordinator(getApplicationContext());
+        chargeLocalAlertCoordinator = new ChargeLocalAlertCoordinator(getApplicationContext());
         vehicleApplicationLocalAlertCoordinator = new VehicleApplicationLocalAlertCoordinator(getApplicationContext());
         singleGateMigrationRunner = new SingleGateMigrationRunner();
         EdgeToEdge.enable(this);
@@ -97,6 +100,9 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
         if (guestPassLocalAlertCoordinator != null) {
             guestPassLocalAlertCoordinator.stop();
         }
+        if (chargeLocalAlertCoordinator != null) {
+            chargeLocalAlertCoordinator.stop();
+        }
         if (vehicleApplicationLocalAlertCoordinator != null) {
             vehicleApplicationLocalAlertCoordinator.stop();
         }
@@ -115,6 +121,9 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
         ensurePostNotificationPermission(profile);
         if (guestPassLocalAlertCoordinator != null) {
             guestPassLocalAlertCoordinator.start(profile);
+        }
+        if (chargeLocalAlertCoordinator != null) {
+            chargeLocalAlertCoordinator.start(profile);
         }
         if (vehicleApplicationLocalAlertCoordinator != null) {
             vehicleApplicationLocalAlertCoordinator.start(profile);
@@ -163,6 +172,9 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
     protected void onDestroy() {
         if (guestPassLocalAlertCoordinator != null) {
             guestPassLocalAlertCoordinator.stop();
+        }
+        if (chargeLocalAlertCoordinator != null) {
+            chargeLocalAlertCoordinator.stop();
         }
         if (vehicleApplicationLocalAlertCoordinator != null) {
             vehicleApplicationLocalAlertCoordinator.stop();

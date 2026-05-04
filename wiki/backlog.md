@@ -53,19 +53,19 @@
 |---|---|---|---|---|---|
 | AGO-01 | Complete advanced audit workflows (structured event readability, strong filter/export ergonomics). | admin | In Progress | P1 | Existing audit foundation is present; UX/report depth expansion pending. |
 | AGO-02 | Receive and triage guard-submitted incidents from a dedicated admin queue. | admin | Planned | P0 | Linked to guard incident reporting. |
-| AGO-03 | Record intervention actions (fine sponsor, ban guest) with audit trail. | admin | Planned | P0 | Must retain decision provenance. |
-| AGO-04 | Traffic monitoring dashboard with statistics and historical trend views. | admin | Planned | P1 | Includes admitted/denied/exited trend slices. |
-| AGO-05 | Guard management for day/night shift assignment and rotation. | admin | Planned | P1 | Shift model and assignment UX required. |
+| AGO-03 | Record intervention actions (fine sponsor, ban guest) with audit trail. | admin | In Progress | P0 | Ban + fine lifecycle and audit events being integrated. |
+| AGO-04 | Traffic monitoring dashboard with statistics and historical trend views. | admin | In Progress | P1 | KPI/trend/breakdown analytics rollout in progress. |
+| AGO-05 | Guard management for day/night shift assignment and rotation. | admin | In Progress | P1 | Template + assignment + enforcement in progress. |
 
 ### Epic D — Sponsor Vehicle Program (**Vehicle-Program First Priority**)
 
 | ID | Story | Primary Role | Status | Priority | Notes |
 |---|---|---|---|---|---|
-| SVP-01 | Faculty one-time personal vehicle registration request. | faculty | Planned | P0 | Separate from guest-vehicle info capture. |
-| SVP-02 | Student one-time personal vehicle registration request. | student | Planned | P0 | Separate from guest-vehicle info capture. |
-| SVP-03 | Admin approval/denial pipeline for personal vehicle registration. | admin | Planned | P0 | Required to activate vehicle credentials. |
-| SVP-04 | Persist approved personal vehicle credential for gate verification. | admin/guard | Planned | P0 | Must integrate with verification subsystem. |
-| SVP-05 | Sponsor visibility into personal vehicle registration status/history. | faculty/student | Planned | P1 | Submission + decision transparency. |
+| SVP-01 | Faculty one-time personal vehicle registration request. | faculty | Done | P0 | Implemented with document upload + validation. |
+| SVP-02 | Student one-time personal vehicle registration request. | student | Done | P0 | Implemented with category-based sticker eligibility. |
+| SVP-03 | Admin approval/denial pipeline for personal vehicle registration. | admin | Done | P0 | Implemented with received/approve/deny lifecycle. |
+| SVP-04 | Persist approved personal vehicle credential for gate verification. | admin/guard | In Progress | P0 | Registered-vehicle persistence done; gate verification coupling pending. |
+| SVP-05 | Sponsor visibility into personal vehicle registration status/history. | faculty/student | Done | P1 | Open application, history and registered vehicles visible. |
 
 ---
 
