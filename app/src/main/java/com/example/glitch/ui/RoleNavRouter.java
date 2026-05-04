@@ -150,9 +150,8 @@ public final class RoleNavRouter {
             case VEHICLES:
                 if ("admin".equals(role)) return RoleDestination.ADMIN_VEHICLES;
                 if ("guard".equals(role)) return RoleDestination.SCAN;
-                if ("faculty".equals(role)) return RoleDestination.FACULTY_REQUEST;
-                // Students don't have a vehicles screen yet, return to Hub.
-                if ("student".equals(role)) return RoleDestination.DIRECTORY;
+                if ("faculty".equals(role)) return RoleDestination.SPONSOR_VEHICLES;
+                if ("student".equals(role)) return RoleDestination.SPONSOR_VEHICLES;
                 return RoleDestination.DASHBOARD;
             case DIRECTORY:
                 return RoleDestination.DIRECTORY;
@@ -204,6 +203,8 @@ public final class RoleNavRouter {
                 return GuardDenyFragment.newInstance();
             case ADMIN_VEHICLES:
                 return AdminVehicleReviewFragment.newInstance();
+            case SPONSOR_VEHICLES:
+                return SponsorVehicleRegistrationFragment.newInstance();
             default:
                 return null;
         }

@@ -11,6 +11,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -24,6 +25,7 @@ import com.example.glitch.data.SingleGateMigrationRunner;
 import com.example.glitch.model.GuestPassTimePolicy;
 import com.example.glitch.model.UserProfile;
 import com.example.glitch.notification.GuestPassLocalAlertCoordinator;
+import com.example.glitch.notification.VehicleApplicationLocalAlertCoordinator;
 import com.example.glitch.ui.LoginFragment;
 import com.example.glitch.ui.NavigationHost;
 import com.example.glitch.ui.RoleHomeFragment;
@@ -37,10 +39,12 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
 
     private AuthRepository authRepository;
     private GuestPassLocalAlertCoordinator guestPassLocalAlertCoordinator;
+    private VehicleApplicationLocalAlertCoordinator vehicleApplicationLocalAlertCoordinator;
     private SingleGateMigrationRunner singleGateMigrationRunner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         super.onCreate(savedInstanceState);
         boolean debugBuild = (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
         GuestPassTimePolicy.setTestingBypassEnabled(
@@ -48,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
         );
         authRepository = RepositoryProvider.getAuthRepository();
         guestPassLocalAlertCoordinator = new GuestPassLocalAlertCoordinator(getApplicationContext());
+        vehicleApplicationLocalAlertCoordinator = new VehicleApplicationLocalAlertCoordinator(getApplicationContext());
         singleGateMigrationRunner = new SingleGateMigrationRunner();
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
@@ -92,6 +97,9 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
         if (guestPassLocalAlertCoordinator != null) {
             guestPassLocalAlertCoordinator.stop();
         }
+        if (vehicleApplicationLocalAlertCoordinator != null) {
+            vehicleApplicationLocalAlertCoordinator.stop();
+        }
         if (clearBackStack) {
             clearBackStack();
         }
@@ -107,6 +115,9 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
         ensurePostNotificationPermission(profile);
         if (guestPassLocalAlertCoordinator != null) {
             guestPassLocalAlertCoordinator.start(profile);
+        }
+        if (vehicleApplicationLocalAlertCoordinator != null) {
+            vehicleApplicationLocalAlertCoordinator.start(profile);
         }
         if (singleGateMigrationRunner != null) {
             singleGateMigrationRunner.runIfNeeded(profile.getRole(), profile.getUid());
@@ -152,6 +163,9 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
     protected void onDestroy() {
         if (guestPassLocalAlertCoordinator != null) {
             guestPassLocalAlertCoordinator.stop();
+        }
+        if (vehicleApplicationLocalAlertCoordinator != null) {
+            vehicleApplicationLocalAlertCoordinator.stop();
         }
         super.onDestroy();
     }

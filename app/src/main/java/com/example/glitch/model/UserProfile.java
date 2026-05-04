@@ -19,6 +19,7 @@ public class UserProfile {
 	private final String role;
 	private final boolean isActive;
 	private final String displayName;
+	private final String studentCategory;
 	private final Timestamp createdAt;
 	private final Timestamp updatedAt;
 
@@ -31,6 +32,7 @@ public class UserProfile {
 			@NonNull String role,
 			boolean isActive,
 			@NonNull String displayName,
+			@NonNull String studentCategory,
 			@Nullable Timestamp createdAt,
 			@Nullable Timestamp updatedAt
 	) {
@@ -39,8 +41,21 @@ public class UserProfile {
 		this.role = role;
 		this.isActive = isActive;
 		this.displayName = displayName;
+		this.studentCategory = studentCategory;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+	}
+
+	public UserProfile(
+			@NonNull String uid,
+			@NonNull String email,
+			@NonNull String role,
+			boolean isActive,
+			@NonNull String displayName,
+			@Nullable Timestamp createdAt,
+			@Nullable Timestamp updatedAt
+	) {
+		this(uid, email, role, isActive, displayName, "", createdAt, updatedAt);
 	}
 
 	/**
@@ -49,7 +64,7 @@ public class UserProfile {
 	@NonNull
 	public static UserProfile fromMap(@NonNull String uid, @Nullable Map<String, Object> map) {
 		if (map == null) {
-			return new UserProfile(uid, "", "", false, "", null, null);
+			return new UserProfile(uid, "", "", false, "", "", null, null);
 		}
 		return new UserProfile(
 				uid,
@@ -57,6 +72,7 @@ public class UserProfile {
 				asString(map.get("role")).trim().toLowerCase(Locale.getDefault()),
 				asBoolean(map.get("isActive")),
 				asString(map.get("displayName")),
+				asString(map.get("studentCategory")).trim().toLowerCase(Locale.getDefault()),
 				asTimestamp(map.get("createdAt")),
 				asTimestamp(map.get("updatedAt"))
 		);
@@ -109,6 +125,14 @@ public class UserProfile {
 	@NonNull
 	public String getDisplayName() {
 		return displayName;
+	}
+
+	/**
+	 * @return student category value used for parking-sticker eligibility.
+	 */
+	@NonNull
+	public String getStudentCategory() {
+		return studentCategory;
 	}
 
 	/**

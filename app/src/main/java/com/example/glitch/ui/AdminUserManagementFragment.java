@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.glitch.R;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.data.UserManagementRepository;
+import com.example.glitch.model.VehicleStickerPolicy;
 import com.example.glitch.model.UserProfile;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -35,6 +36,7 @@ public class AdminUserManagementFragment extends Fragment implements UserManagem
     private TextInputEditText inputEmail;
     private TextInputEditText inputRole;
     private TextInputEditText inputName;
+    private TextInputEditText inputStudentCategory;
 
     @NonNull
     public static AdminUserManagementFragment newInstance() {
@@ -59,6 +61,7 @@ public class AdminUserManagementFragment extends Fragment implements UserManagem
         inputEmail = view.findViewById(R.id.input_user_email);
         inputRole = view.findViewById(R.id.input_user_role);
         inputName = view.findViewById(R.id.input_user_name);
+        inputStudentCategory = view.findViewById(R.id.input_user_student_category);
         MaterialButton buttonSave = view.findViewById(R.id.button_save_user);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_users);
         textEmpty = view.findViewById(R.id.text_users_empty);
@@ -98,6 +101,7 @@ public class AdminUserManagementFragment extends Fragment implements UserManagem
         String email = read(inputEmail);
         String role = read(inputRole).toLowerCase(Locale.getDefault());
         String name = read(inputName);
+        String studentCategory = read(inputStudentCategory).toLowerCase(Locale.getDefault());
         if (uid.isEmpty() || email.isEmpty() || role.isEmpty() || name.isEmpty()) {
             Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
             return;
@@ -109,7 +113,12 @@ public class AdminUserManagementFragment extends Fragment implements UserManagem
             Snackbar.make(requireView(), R.string.error_invalid_user_role, Snackbar.LENGTH_SHORT).show();
             return;
         }
-        repository.upsertUser(uid, email, role, name, true, (success, message, exception) -> {
+        if ("student".equals(role)
+                && !VehicleStickerPolicy.isSupportedStudentCategory(studentCategory)) {
+            Snackbar.make(requireView(), "Student category must be day_scholar, hostelite, or redc.", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+        repository.upsertUser(uid, email, role, name, studentCategory, true, (success, message, exception) -> {
             if (!isAdded()) {
                 return;
             }

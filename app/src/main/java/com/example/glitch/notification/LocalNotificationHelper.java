@@ -23,6 +23,9 @@ public class LocalNotificationHelper {
     private static final String CHANNEL_ID_GUEST_PASS = "guest_pass_lifecycle";
     private static final String CHANNEL_NAME_GUEST_PASS = "Guest Pass Updates";
     private static final String CHANNEL_DESCRIPTION_GUEST_PASS = "Alerts for guest pass lifecycle changes.";
+    private static final String CHANNEL_ID_VEHICLE_PROGRAM = "vehicle_program_updates";
+    private static final String CHANNEL_NAME_VEHICLE_PROGRAM = "Vehicle Program Updates";
+    private static final String CHANNEL_DESCRIPTION_VEHICLE_PROGRAM = "Alerts for vehicle registration/removal application updates.";
 
     private final Context appContext;
 
@@ -45,9 +48,33 @@ public class LocalNotificationHelper {
         );
         channel.setDescription(CHANNEL_DESCRIPTION_GUEST_PASS);
         manager.createNotificationChannel(channel);
+        NotificationChannel vehicleChannel = new NotificationChannel(
+                CHANNEL_ID_VEHICLE_PROGRAM,
+                CHANNEL_NAME_VEHICLE_PROGRAM,
+                NotificationManager.IMPORTANCE_DEFAULT
+        );
+        vehicleChannel.setDescription(CHANNEL_DESCRIPTION_VEHICLE_PROGRAM);
+        manager.createNotificationChannel(vehicleChannel);
     }
 
     public boolean showGuestPassLifecycleNotification(
+            @NonNull String title,
+            @NonNull String message,
+            int notificationId
+    ) {
+        return showOnChannel(CHANNEL_ID_GUEST_PASS, title, message, notificationId);
+    }
+
+    public boolean showVehicleProgramNotification(
+            @NonNull String title,
+            @NonNull String message,
+            int notificationId
+    ) {
+        return showOnChannel(CHANNEL_ID_VEHICLE_PROGRAM, title, message, notificationId);
+    }
+
+    private boolean showOnChannel(
+            @NonNull String channelId,
             @NonNull String title,
             @NonNull String message,
             int notificationId
@@ -68,7 +95,7 @@ public class LocalNotificationHelper {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(appContext, CHANNEL_ID_GUEST_PASS)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(appContext, channelId)
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 .setContentTitle(title)
                 .setContentText(message)

@@ -73,7 +73,14 @@ public class AdminAuditLogFragment extends Fragment {
             "VEHICLE_REQUEST_CREATED",
             "VEHICLE_REQUEST_UPDATED",
             "VEHICLE_REQUEST_APPROVED",
-            "VEHICLE_REQUEST_DENIED"
+            "VEHICLE_REQUEST_DENIED",
+            "VEHICLE_APPLICATION_SUBMITTED",
+            "VEHICLE_APPLICATION_RECEIVED",
+            "VEHICLE_APPLICATION_APPROVED",
+            "VEHICLE_APPLICATION_DENIED",
+            "VEHICLE_APPLICATION_CANCELLED",
+            "VEHICLE_REMOVAL_SUBMITTED",
+            "VEHICLE_REMOVAL_APPROVED"
     );
 
     private AuditLogRepository repository;
