@@ -67,6 +67,7 @@ public class FirestoreUserManagementRepository implements UserManagementReposito
             @NonNull String email,
             @NonNull String role,
             @NonNull String displayName,
+            @NonNull String studentCategory,
             boolean isActive,
             @NonNull OperationCallback callback
     ) {
@@ -74,6 +75,7 @@ public class FirestoreUserManagementRepository implements UserManagementReposito
         payload.put("email", email.trim().toLowerCase(Locale.getDefault()));
         payload.put("role", role.trim().toLowerCase(Locale.getDefault()));
         payload.put("displayName", displayName.trim());
+        payload.put("studentCategory", studentCategory.trim().toLowerCase(Locale.getDefault()));
         payload.put("isActive", isActive);
         payload.put("updatedAt", FieldValue.serverTimestamp());
         payload.put("createdAt", FieldValue.serverTimestamp());

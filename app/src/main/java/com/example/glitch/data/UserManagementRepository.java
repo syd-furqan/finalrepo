@@ -23,6 +23,7 @@ public interface UserManagementRepository {
 			@NonNull String email,
 			@NonNull String role,
 			@NonNull String displayName,
+			@NonNull String studentCategory,
 			boolean isActive,
 			@NonNull OperationCallback callback
 	);

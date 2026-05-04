@@ -114,6 +114,12 @@ public class VehicleRequestAdapter extends RecyclerView.Adapter<VehicleRequestAd
         if ("rejected".equals(status) || "denied".equals(status)) {
             return new ChipStyle(R.drawable.bg_chip_alert_critical, R.color.danger_red);
         }
+        if ("cancelled".equals(status)) {
+            return new ChipStyle(R.drawable.bg_chip_alert_critical, R.color.danger_red);
+        }
+        if ("received".equals(status)) {
+            return new ChipStyle(R.drawable.bg_chip_role, R.color.primary_navy);
+        }
         return new ChipStyle(R.drawable.bg_chip_role, R.color.primary_navy);
     }
 

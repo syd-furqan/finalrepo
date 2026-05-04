@@ -32,8 +32,7 @@ public class VehicleRequestRecordTest {
         assertEquals("staff-1", record.getRequesterUid());
         assertEquals("LEA-1234", record.getPlateNumber());
         assertEquals("Corolla", record.getVehicleModel());
-        assertEquals("pending", record.getStatus());
+        assertEquals("submitted", record.getStatus());
         assertNotNull(record.getCreatedAt());
     }
 }
-

@@ -75,6 +75,33 @@
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_view_vehicle_details"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginEnd="@dimen/space_8"
+            android:background="@drawable/bg_chip_role"
+            android:paddingHorizontal="@dimen/space_16"
+            android:text="@string/details_action"
+            android:textAllCaps="false"
+            android:textColor="@color/primary_navy"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_mark_vehicle_received"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginEnd="@dimen/space_8"
+            android:background="@drawable/bg_chip_role"
+            android:paddingHorizontal="@dimen/space_16"
+            android:text="Mark Received"
+            android:textAllCaps="false"
+            android:textColor="@color/primary_navy"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_deny_vehicle"
             android:layout_width="wrap_content"
             android:layout_height="40dp"

@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,12 +22,16 @@ import java.util.Locale;
 
 /**
  * RecyclerView adapter for the admin vehicle request review screen.
- * Pending rows show approve/deny buttons; reviewed rows show the review note.
  */
 public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicleReviewAdapter.ViewHolder> {
 
     public interface ActionListener {
+        void onViewDetails(@NonNull VehicleRequestRecord record);
+
+        void onMarkReceived(@NonNull VehicleRequestRecord record);
+
         void onApprove(@NonNull VehicleRequestRecord record);
+
         void onDeny(@NonNull VehicleRequestRecord record);
     }
 
@@ -57,13 +60,11 @@ public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicle
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         VehicleRequestRecord record = items.get(position);
         holder.textPlate.setText(record.getPlateNumber());
-
-        String description = record.getVehicleDescription();
-        String color = record.getVehicleColor().trim();
-        holder.textDetails.setText(color.isEmpty() ? description : description + "  |  " + color);
-
-        holder.textRequester.setText(record.getRequesterUid());
-        holder.textSubmitted.setText(formatTimestamp(holder, record.getCreatedAt(), "Submitted: "));
+        String details = (record.isRemovalRequest() ? "REMOVE • " : "REGISTER • ")
+                + record.getVehicleDescription();
+        holder.textDetails.setText(details);
+        holder.textRequester.setText(record.getRequesterUid() + " • " + record.getRequesterRole());
+        holder.textSubmitted.setText(formatTimestamp(record.getCreatedAt(), "Submitted: "));
 
         String status = record.getStatus();
         VehicleRequestAdapter.ChipStyle chipStyle = VehicleRequestAdapter.resolveStatusStyle(status);
@@ -71,20 +72,34 @@ public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicle
         holder.textStatus.setBackgroundResource(chipStyle.backgroundRes);
         holder.textStatus.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), chipStyle.textColorRes));
 
-        boolean pending = record.isPending();
-        holder.buttonApprove.setVisibility(pending ? View.VISIBLE : View.GONE);
-        holder.buttonDeny.setVisibility(pending ? View.VISIBLE : View.GONE);
+        holder.buttonDetails.setOnClickListener(v -> actionListener.onViewDetails(record));
 
-        if (pending) {
+        if (record.isSubmitted()) {
+            holder.buttonMarkReceived.setVisibility(View.VISIBLE);
+            holder.buttonApprove.setVisibility(View.GONE);
+            holder.buttonDeny.setVisibility(View.VISIBLE);
+            holder.buttonMarkReceived.setOnClickListener(v -> actionListener.onMarkReceived(record));
+            holder.buttonDeny.setOnClickListener(v -> actionListener.onDeny(record));
             holder.textReviewed.setVisibility(View.GONE);
+            return;
+        }
+
+        if (record.isReceived()) {
+            holder.buttonMarkReceived.setVisibility(View.GONE);
+            holder.buttonApprove.setVisibility(View.VISIBLE);
+            holder.buttonDeny.setVisibility(View.VISIBLE);
             holder.buttonApprove.setOnClickListener(v -> actionListener.onApprove(record));
             holder.buttonDeny.setOnClickListener(v -> actionListener.onDeny(record));
-        } else {
-            holder.textReviewed.setVisibility(View.VISIBLE);
-            String note = record.getReviewNote().trim();
-            String reviewedAt = formatTimestamp(holder, record.getReviewedAt(), "Reviewed: ");
-            holder.textReviewed.setText(note.isEmpty() ? reviewedAt : reviewedAt + "  ·  " + note);
+            holder.textReviewed.setVisibility(View.GONE);
+            return;
         }
+
+        holder.buttonMarkReceived.setVisibility(View.GONE);
+        holder.buttonApprove.setVisibility(View.GONE);
+        holder.buttonDeny.setVisibility(View.GONE);
+        holder.textReviewed.setVisibility(View.VISIBLE);
+        holder.textReviewed.setText(formatTimestamp(record.getReviewedAt(), "Reviewed: ")
+                + "  ·  " + (record.getReviewNote().trim().isEmpty() ? "No note" : record.getReviewNote().trim()));
     }
 
     @Override
@@ -93,13 +108,13 @@ public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicle
     }
 
     @NonNull
-    private String formatTimestamp(@NonNull ViewHolder holder, @Nullable Timestamp timestamp, @NonNull String prefix) {
+    private String formatTimestamp(Timestamp timestamp, @NonNull String prefix) {
         if (timestamp == null) {
             return prefix + "Unknown";
         }
-        DateFormat fmt = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+        DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
         Date date = timestamp.toDate();
-        return prefix + fmt.format(date);
+        return prefix + format.format(date);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -109,6 +124,8 @@ public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicle
         final TextView textRequester;
         final TextView textSubmitted;
         final TextView textReviewed;
+        final MaterialButton buttonDetails;
+        final MaterialButton buttonMarkReceived;
         final MaterialButton buttonApprove;
         final MaterialButton buttonDeny;
 
@@ -120,6 +137,8 @@ public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicle
             textRequester = itemView.findViewById(R.id.text_admin_vehicle_requester);
             textSubmitted = itemView.findViewById(R.id.text_admin_vehicle_submitted);
             textReviewed = itemView.findViewById(R.id.text_admin_vehicle_reviewed);
+            buttonDetails = itemView.findViewById(R.id.button_view_vehicle_details);
+            buttonMarkReceived = itemView.findViewById(R.id.button_mark_vehicle_received);
             buttonApprove = itemView.findViewById(R.id.button_approve_vehicle);
             buttonDeny = itemView.findViewById(R.id.button_deny_vehicle);
         }

@@ -1,9 +1,13 @@
 package com.example.glitch.ui;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,15 +21,22 @@ import com.example.glitch.R;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.data.VehicleRequestRepository;
 import com.example.glitch.model.UserProfile;
+import com.example.glitch.model.VehicleDocumentRef;
 import com.example.glitch.model.VehicleRequestRecord;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
+import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 
 /**
- * Admin screen for reviewing all staff vehicle registration requests (US-10).
- * Pattern: Realtime list fragment; approve/deny actions run Firestore transactions.
+ * Admin screen for reviewing sponsor vehicle applications.
  */
 public class AdminVehicleReviewFragment extends Fragment implements AdminVehicleReviewAdapter.ActionListener {
 
@@ -33,6 +44,8 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
     private AdminVehicleReviewAdapter adapter;
     private TextView textEmpty;
     private TextView textSummary;
+    private AutoCompleteTextView inputStatusFilter;
+    private List<VehicleRequestRecord> allRequests = new ArrayList<>();
 
     @NonNull
     public static AdminVehicleReviewFragment newInstance() {
@@ -65,6 +78,7 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
         repository = RepositoryProvider.getVehicleRequestRepository();
         textEmpty = view.findViewById(R.id.text_vehicle_review_empty);
         textSummary = view.findViewById(R.id.text_vehicle_review_summary);
+        inputStatusFilter = view.findViewById(R.id.input_vehicle_review_status_filter);
 
         RecyclerView recyclerView = view.findViewById(R.id.recycler_vehicle_review);
         adapter = new AdminVehicleReviewAdapter(this);
@@ -72,15 +86,15 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
         recyclerView.setAdapter(adapter);
 
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.VEHICLES);
+        setupStatusFilter();
 
         repository.listenAllVehicleRequests(new VehicleRequestRepository.RequestListListener() {
             @Override
             public void onData(@NonNull List<VehicleRequestRecord> requests) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
-                    adapter.submitList(requests);
-                    textEmpty.setVisibility(requests.isEmpty() ? View.VISIBLE : View.GONE);
-                    bindSummary(requests);
+                    allRequests = new ArrayList<>(requests);
+                    renderFiltered();
                 });
             }
 
@@ -90,6 +104,48 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
                 requireActivity().runOnUiThread(() ->
                         Snackbar.make(requireView(), R.string.error_vehicle_load, Snackbar.LENGTH_LONG).show());
             }
+        });
+    }
+
+    private void setupStatusFilter() {
+        List<String> statuses = Arrays.asList("all", "submitted", "received", "approved", "denied", "cancelled");
+        ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                statuses
+        );
+        inputStatusFilter.setAdapter(filterAdapter);
+        inputStatusFilter.setText("all", false);
+        inputStatusFilter.setOnItemClickListener((parent, view, position, id) -> renderFiltered());
+    }
+
+    private void renderFiltered() {
+        String status = inputStatusFilter.getText() == null
+                ? "all"
+                : inputStatusFilter.getText().toString().trim().toLowerCase(Locale.getDefault());
+        List<VehicleRequestRecord> filtered = new ArrayList<>();
+        for (VehicleRequestRecord record : allRequests) {
+            if ("all".equals(status) || record.getStatus().equalsIgnoreCase(status)) {
+                filtered.add(record);
+            }
+        }
+        adapter.submitList(filtered);
+        textEmpty.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
+        bindSummary(filtered);
+    }
+
+    @Override
+    public void onViewDetails(@NonNull VehicleRequestRecord record) {
+        showDetailsDialog(record);
+    }
+
+    @Override
+    public void onMarkReceived(@NonNull VehicleRequestRecord record) {
+        UserProfile profile = AuthUiGuard.requireProfile(this);
+        if (profile == null) return;
+        repository.markVehicleRequestReceived(record.getId(), profile.getUid(), (success, message, exception) -> {
+            if (!isAdded()) return;
+            requireActivity().runOnUiThread(() -> Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
         });
     }
 
@@ -140,20 +196,210 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
         );
     }
 
+    private void showDetailsDialog(@NonNull VehicleRequestRecord record) {
+        StringBuilder body = new StringBuilder();
+        body.append("Request ID: ").append(record.getId()).append("\n")
+                .append("Kind: ").append(record.getRequestKind()).append("\n")
+                .append("Status: ").append(record.getStatus()).append("\n")
+                .append("Requester UID: ").append(record.getRequesterUid()).append("\n")
+                .append("Requester Role: ").append(record.getRequesterRole()).append("\n")
+                .append("Student Category: ").append(fallback(record.getStudentCategory())).append("\n")
+                .append("Sticker: ").append(fallback(record.getStickerType())).append("\n")
+                .append("Plate: ").append(fallback(record.getPlateNumber())).append("\n")
+                .append("Vehicle: ").append(fallback(record.getVehicleDescription())).append("\n")
+                .append("Owner Self: ").append(record.isOwner() ? "Yes" : "No").append("\n")
+                .append("Linked Vehicle ID: ").append(fallback(record.getLinkedVehicleId())).append("\n")
+                .append("Removal Reason: ").append(fallback(record.getRemovalReason())).append("\n")
+                .append("Received By: ").append(fallback(record.getReceivedByUid())).append("\n")
+                .append("Reviewer: ").append(fallback(record.getReviewerUid())).append("\n")
+                .append("Review Note: ").append(fallback(record.getReviewNote()));
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Vehicle Application Details")
+                .setMessage(body.toString())
+                .setPositiveButton(R.string.close_action, null)
+                .setNeutralButton("Open Attachments", (dialog, which) -> showAttachmentPicker(record))
+                .show();
+    }
+
+    private void showAttachmentPicker(@NonNull VehicleRequestRecord record) {
+        List<String> labels = new ArrayList<>();
+        List<VehicleDocumentRef> docs = new ArrayList<>();
+        addAttachment(labels, docs, "Applicant CNIC", record.getApplicantCnicDoc());
+        addAttachment(labels, docs, "Registration", record.getRegistrationDoc());
+        addAttachment(labels, docs, "Owner CNIC", record.getOwnerCnicDoc());
+        List<VehicleDocumentRef> evidenceDocs = record.getEvidenceDocs();
+        for (int i = 0; i < evidenceDocs.size(); i++) {
+            addAttachment(labels, docs, "Evidence " + (i + 1), evidenceDocs.get(i));
+        }
+        if (labels.isEmpty()) {
+            Snackbar.make(requireView(), "No attachments available", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Application Attachments")
+                .setItems(labels.toArray(new String[0]), (dialog, which) -> openAttachment(docs.get(which)))
+                .show();
+    }
+
+    private void addAttachment(@NonNull List<String> labels, @NonNull List<VehicleDocumentRef> docs, @NonNull String label, @NonNull VehicleDocumentRef doc) {
+        if (doc.getDownloadUrl().trim().isEmpty() && doc.getStoragePath().trim().isEmpty()) {
+            return;
+        }
+        labels.add(label + " • " + fallback(doc.getName()));
+        docs.add(doc);
+    }
+
+    private void openAttachment(@NonNull VehicleDocumentRef doc) {
+        String url = doc.getDownloadUrl().trim();
+        if (!url.isEmpty()) {
+            openUrl(url);
+            return;
+        }
+        String storagePath = doc.getStoragePath().trim();
+        if (storagePath.isEmpty()) {
+            Snackbar.make(requireView(), "Attachment link unavailable", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+        resolveAttachmentUrl(storagePath, resolveBucketCandidates(doc), 0);
+    }
+
+    private void resolveAttachmentUrl(
+            @NonNull String storagePath,
+            @NonNull List<String> buckets,
+            int index
+    ) {
+        if (index >= buckets.size()) {
+            Snackbar.make(requireView(), "Unable to resolve attachment URL", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+        StorageReference reference = buildStorageReference(buckets.get(index), storagePath);
+        reference.getDownloadUrl()
+                .addOnSuccessListener(uri -> openUrl(uri.toString()))
+                .addOnFailureListener(error -> {
+                    if (shouldTryNextBucket(error, index, buckets)) {
+                        resolveAttachmentUrl(storagePath, buckets, index + 1);
+                        return;
+                    }
+                    Snackbar.make(requireView(), "Unable to resolve attachment URL", Snackbar.LENGTH_SHORT).show();
+                });
+    }
+
+    @NonNull
+    private StorageReference buildStorageReference(
+            @NonNull String bucket,
+            @NonNull String storagePath
+    ) {
+        if (bucket.trim().isEmpty()) {
+            return FirebaseStorage.getInstance().getReference().child(storagePath);
+        }
+        return FirebaseStorage.getInstance("gs://" + bucket).getReference().child(storagePath);
+    }
+
+    @NonNull
+    private List<String> resolveBucketCandidates(@NonNull VehicleDocumentRef doc) {
+        LinkedHashSet<String> buckets = new LinkedHashSet<>();
+        addBucketCandidate(buckets, doc.getBucket());
+        addBucketCandidate(buckets, FirebaseStorage.getInstance().getReference().getBucket());
+        for (String bucket : new ArrayList<>(buckets)) {
+            addBucketCandidate(buckets, alternateBucketFor(bucket));
+        }
+        if (buckets.isEmpty()) {
+            buckets.add("");
+        }
+        return new ArrayList<>(buckets);
+    }
+
+    private void addBucketCandidate(
+            @NonNull LinkedHashSet<String> buckets,
+            @Nullable String raw
+    ) {
+        String normalized = normalizeBucket(raw);
+        if (!normalized.isEmpty()) {
+            buckets.add(normalized);
+        }
+    }
+
+    @NonNull
+    private String normalizeBucket(@Nullable String raw) {
+        if (raw == null) {
+            return "";
+        }
+        String value = raw.trim();
+        if (value.startsWith("gs://")) {
+            value = value.substring(5);
+        }
+        while (value.endsWith("/")) {
+            value = value.substring(0, value.length() - 1);
+        }
+        return value;
+    }
+
+    @NonNull
+    private String alternateBucketFor(@NonNull String bucket) {
+        if (bucket.endsWith(".firebasestorage.app")) {
+            return bucket.replace(".firebasestorage.app", ".appspot.com");
+        }
+        if (bucket.endsWith(".appspot.com")) {
+            return bucket.replace(".appspot.com", ".firebasestorage.app");
+        }
+        return "";
+    }
+
+    private boolean shouldTryNextBucket(
+            @NonNull Exception error,
+            int index,
+            @NonNull List<String> buckets
+    ) {
+        if (index >= buckets.size() - 1) {
+            return false;
+        }
+        if (!(error instanceof StorageException)) {
+            return false;
+        }
+        int code = ((StorageException) error).getErrorCode();
+        return code == -13010 || code == -13011 || code == -13012;
+    }
+
+    private void openUrl(@NonNull String url) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(intent);
+        } catch (Exception e) {
+            Snackbar.make(requireView(), "Unable to open attachment", Snackbar.LENGTH_SHORT).show();
+        }
+    }
+
+    @NonNull
+    private String fallback(@Nullable String value) {
+        return value == null || value.trim().isEmpty() ? "N/A" : value;
+    }
+
     private void bindSummary(@NonNull List<VehicleRequestRecord> requests) {
         if (requests.isEmpty()) {
             textSummary.setVisibility(View.GONE);
             return;
         }
-        int pending = 0, approved = 0, denied = 0;
+        int submitted = 0;
+        int received = 0;
+        int approved = 0;
+        int denied = 0;
+        int cancelled = 0;
         for (VehicleRequestRecord r : requests) {
-            String s = r.getStatus().trim().toLowerCase();
-            if ("approved".equals(s)) approved++;
-            else if ("denied".equals(s)) denied++;
-            else pending++;
+            String s = r.getStatus().trim().toLowerCase(Locale.getDefault());
+            if (VehicleRequestRecord.STATUS_SUBMITTED.equals(s)) submitted++;
+            else if (VehicleRequestRecord.STATUS_RECEIVED.equals(s)) received++;
+            else if (VehicleRequestRecord.STATUS_APPROVED.equals(s)) approved++;
+            else if (VehicleRequestRecord.STATUS_DENIED.equals(s)) denied++;
+            else if (VehicleRequestRecord.STATUS_CANCELLED.equals(s)) cancelled++;
         }
         textSummary.setVisibility(View.VISIBLE);
-        textSummary.setText(getString(R.string.vehicle_status_summary, pending, approved, denied));
+        textSummary.setText("Submitted: " + submitted
+                + "  ·  Received: " + received
+                + "  ·  Approved: " + approved
+                + "  ·  Denied: " + denied
+                + "  ·  Cancelled: " + cancelled);
     }
 
     @Override

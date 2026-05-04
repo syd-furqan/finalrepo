@@ -199,6 +199,7 @@
     <string name="user_uid_label">User UID</string>
     <string name="user_name_label">Display Name</string>
     <string name="user_role_label">Role (guard/faculty/student/admin)</string>
+    <string name="user_student_category_label">Student Category (day_scholar/hostelite/redc)</string>
     <string name="error_invalid_user_role">Role must be guard, faculty, student, or admin.</string>
     <string name="save_user_action">Save User</string>
     <string name="no_users">No users found.</string>

@@ -99,11 +99,15 @@ public class RoleHomeFragment extends Fragment {
 
         if ("student".equals(role) || "admin".equals(role)) {
             addAction(container, getString(R.string.feature_student_guest_pass), () -> openFragment(StudentGuestPassFragment.newInstance()));
+            if ("student".equals(role)) {
+                addAction(container, "Vehicle Registration", () -> openFragment(SponsorVehicleRegistrationFragment.newInstance()));
+            }
         }
 
         if ("faculty".equals(role)) {
             addAction(container, getString(R.string.feature_faculty_submit_request), () -> openFragment(FacultyAccessRequestFragment.newInstance()));
             addAction(container, getString(R.string.feature_faculty_notifications), () -> openFragment(FacultyNotificationsFragment.newInstance()));
+            addAction(container, "Vehicle Registration", () -> openFragment(SponsorVehicleRegistrationFragment.newInstance()));
         }
 
         if ("admin".equals(role)) {
