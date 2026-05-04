@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,11 +24,17 @@ import java.util.Locale;
  */
 public class SecurityAlertAdapter extends RecyclerView.Adapter<SecurityAlertAdapter.AlertViewHolder> {
     private final List<SecurityAlert> items = new ArrayList<>();
+    @Nullable
+    private AlertActionListener actionListener;
 
     public void submitList(@NonNull List<SecurityAlert> alerts) {
         items.clear();
         items.addAll(alerts);
         notifyDataSetChanged();
+    }
+
+    public void setActionListener(@Nullable AlertActionListener actionListener) {
+        this.actionListener = actionListener;
     }
 
     @NonNull
@@ -40,13 +47,54 @@ public class SecurityAlertAdapter extends RecyclerView.Adapter<SecurityAlertAdap
     @Override
     public void onBindViewHolder(@NonNull AlertViewHolder holder, int position) {
         SecurityAlert alert = items.get(position);
-        holder.textIdentifier.setText(alert.getIdentifier());
         String severity = alert.getSeverity() == null ? "" : alert.getSeverity();
         holder.textSeverity.setText(severity.toUpperCase(Locale.getDefault()));
         ChipStyle chipStyle = resolveSeverityStyle(severity);
         holder.textSeverity.setBackgroundResource(chipStyle.backgroundRes);
         holder.textSeverity.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), chipStyle.textColorRes));
-        holder.textMessage.setText(alert.getMessage() + " (fails: " + alert.getFailCount() + ")");
+        String requestId = alert.getEntryRequestId().trim().isEmpty()
+                ? alert.getIdentifier()
+                : alert.getEntryRequestId();
+        holder.textIdentifier.setText("Entry Report: " + requestId);
+        String reporter = alert.getReportedByName().trim();
+        if (reporter.isEmpty()) {
+            reporter = alert.getReportedByUid().trim();
+        }
+        String reporterRole = alert.getReportedByRole().trim();
+        if (!reporterRole.isEmpty()) {
+            reporter = reporter.isEmpty() ? reporterRole : reporter + " (" + reporterRole + ")";
+        }
+        if (reporter.trim().isEmpty()) {
+            reporter = "Unknown guard";
+        }
+        String guestName = alert.getGuestName().trim().isEmpty() ? "Unknown" : alert.getGuestName().trim();
+        String guestId = alert.getGuestIdNumber().trim().isEmpty() ? "N/A" : alert.getGuestIdNumber().trim();
+        String host = alert.getHostName().trim().isEmpty() ? "N/A" : alert.getHostName().trim();
+        String requester = alert.getRequesterUid().trim().isEmpty() ? "N/A" : alert.getRequesterUid().trim();
+        if (!alert.getRequesterRole().trim().isEmpty()) {
+            requester = requester + " (" + alert.getRequesterRole().trim() + ")";
+        }
+        String gate = alert.getGateLabel().trim().isEmpty() ? "In-Gate" : alert.getGateLabel().trim();
+        String incidentStatus = alert.getIncidentStatus().trim().isEmpty()
+                ? "new"
+                : alert.getIncidentStatus().trim();
+        String intervention = alert.getInterventionSummary().trim().isEmpty()
+                ? "N/A"
+                : alert.getInterventionSummary().trim();
+        holder.textMessage.setText(
+                alert.getMessage()
+                        + "\nIncident: " + incidentStatus
+                        + "\nIntervention: " + intervention
+                        + "\nGuard: " + reporter
+                        + "\nVisitor: " + guestName + " [" + guestId + "]"
+                        + "\nSponsor: " + host + " / " + requester
+                        + "\nGate: " + gate
+        );
+        holder.itemView.setOnClickListener(v -> {
+            if (actionListener != null) {
+                actionListener.onAlertSelected(alert);
+            }
+        });
     }
 
     @Override
@@ -87,5 +135,9 @@ public class SecurityAlertAdapter extends RecyclerView.Adapter<SecurityAlertAdap
             this.backgroundRes = backgroundRes;
             this.textColorRes = textColorRes;
         }
+    }
+
+    interface AlertActionListener {
+        void onAlertSelected(@NonNull SecurityAlert alert);
     }
 }

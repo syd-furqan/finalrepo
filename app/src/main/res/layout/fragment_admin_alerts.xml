@@ -27,186 +27,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#FFEEE9"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:padding="@dimen/space_24">
-
-                <FrameLayout
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:background="@color/danger_red"
-                    android:foregroundGravity="center">
-
-                    <ImageView
-                        android:layout_width="44dp"
-                        android:layout_height="38dp"
-                        android:layout_gravity="center"
-                        android:src="@android:drawable/ic_dialog_alert"
-                        android:tint="@color/white" />
-                </FrameLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_16"
-                    android:text="UNAUTHORIZED"
-                    android:textColor="@color/danger_red"
-                    android:textSize="36sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Access Denied to Sector 7-G"
-                    android:textColor="@color/danger_text"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
-                android:background="@color/surface_alt"
-                android:orientation="vertical"
-                android:padding="@dimen/space_16">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Julian Vane"
-                    android:textColor="@color/text_dark"
-                    android:textSize="28sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="GUEST ID: #GV-9920"
-                    android:textAllCaps="true"
-                    android:textColor="@color/text_muted"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_12"
-                    android:text="ENTRY ATTEMPT TIME"
-                    android:textAllCaps="true"
-                    android:textColor="@color/text_muted"
-                    android:textSize="10sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="14:22:08 | Oct 24, 2023"
-                    android:textColor="@color/text_dark"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
-                    android:text="FLAGGED TERMINAL"
-                    android:textAllCaps="true"
-                    android:textColor="@color/text_muted"
-                    android:textSize="10sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="In-Gate Terminal"
-                    android:textColor="@color/text_dark"
-                    android:textSize="16sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
-                android:background="@color/surface_alt"
-                android:orientation="vertical"
-                android:padding="@dimen/space_16">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@android:drawable/ic_dialog_alert"
-                    android:drawablePadding="@dimen/space_8"
-                    android:text="Reason for Denial"
-                    android:textColor="@color/danger_red"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:drawableTint="@color/danger_red" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_12"
-                    android:text="Credentials expired 48 hours ago. Attempted access to Restricted Zone &quot;Sector 7-G&quot; without required High-Level Clearance certificate."
-                    android:textColor="@color/text_muted"
-                    android:textSize="16sp" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_12"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="RISK LEVEL"
-                        android:textAllCaps="true"
-                        android:textColor="@color/text_muted"
-                        android:textSize="10sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_chip_alert_critical"
-                        android:paddingHorizontal="@dimen/space_12"
-                        android:paddingVertical="4dp"
-                        android:text="CRITICAL"
-                        android:textColor="@color/danger_red"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="@dimen/space_16"
-                android:background="@drawable/bg_button_primary"
-                android:text="OVERRIDE ACCESS (SUPERVISOR)"
-                android:textAllCaps="false"
-                android:textColor="@color/white" />
-
-            <com.google.android.material.button.MaterialButton
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="@dimen/space_8"
-                android:text="FILE INCIDENT REPORT"
-                android:textAllCaps="false" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
-                android:gravity="center"
-                android:text="Automated lock-down protocol initiated for In-Gate terminal."
-                android:textColor="@color/text_muted"
-                android:textSize="12sp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
                 android:background="@drawable/bg_card_protocol"
                 android:orientation="vertical"
                 android:padding="@dimen/space_16">
@@ -223,9 +43,54 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_12"
-                    android:text="Live administrative alerts and repeated verification failures."
+                    android:text="Live administrative alerts for reported entry incidents."
                     android:textColor="#CCFFFFFF"
                     android:textSize="12sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_12"
+                android:orientation="vertical">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Incident Status">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/input_alert_status_filter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:hint="Severity">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/input_alert_severity_filter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:hint="Source">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/input_alert_source_filter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="none" />
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
             <TextView

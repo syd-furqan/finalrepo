@@ -74,8 +74,18 @@
                     android:layout_marginStart="4dp"
                     android:textColor="@color/text_muted"
                     android:textSize="14sp" />
-            </LinearLayout>
+                </LinearLayout>
         </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/button_overflow"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/entry_actions"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_more"
+            android:tint="@color/text_muted" />
     </LinearLayout>
 
     <LinearLayout

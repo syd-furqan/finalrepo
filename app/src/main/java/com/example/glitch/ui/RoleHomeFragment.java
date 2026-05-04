@@ -112,6 +112,8 @@ public class RoleHomeFragment extends Fragment {
 
         if ("admin".equals(role)) {
             addAction(container, "VIEW SYSTEM AUDIT LOGS", () -> openFragment(AdminAuditLogFragment.newInstance()));
+            addAction(container, "TRAFFIC ANALYTICS", () -> openFragment(AdminTrafficAnalyticsFragment.newInstance()));
+            addAction(container, getString(R.string.feature_admin_charges), () -> openFragment(AdminChargesFragment.newInstance()));
             addAction(container, getString(R.string.feature_admin_users), () -> openFragment(AdminUserManagementFragment.newInstance()));
             addAction(container, getString(R.string.feature_admin_rules), () -> openFragment(AdminVerificationRulesFragment.newInstance()));
             addAction(container, getString(R.string.feature_admin_alerts), () -> openFragment(AdminAlertsFragment.newInstance()));

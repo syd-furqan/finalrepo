@@ -28,9 +28,6 @@ import com.example.glitch.model.GuardPendingDecision;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
@@ -44,9 +41,7 @@ public class GuardQrScanFragment extends Fragment {
     private static final String ARG_STATUS_MESSAGE = "arg_status_message";
 
     private GuestPassRepository guestPassRepository;
-    private com.example.glitch.data.VerificationRulesRepository verificationRulesRepository;
-    private com.example.glitch.model.VerificationRules currentRules = com.example.glitch.model.VerificationRules.defaultRules();
-    private FirebaseFirestore firestore;
+    private com.example.glitch.data.InterventionRepository interventionRepository;
     private GuardPendingDecisionStore pendingDecisionStore;
     private AuditEventLogger auditEventLogger;
     private ActivityResultLauncher<ScanOptions> barcodeLauncher;
@@ -75,9 +70,8 @@ public class GuardQrScanFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         guestPassRepository = RepositoryProvider.getGuestPassRepository();
-        verificationRulesRepository = RepositoryProvider.getVerificationRulesRepository();
+        interventionRepository = RepositoryProvider.getInterventionRepository();
         pendingDecisionStore = new GuardPendingDecisionStore(requireContext());
-        firestore = FirebaseFirestore.getInstance();
         auditEventLogger = new AuditEventLogger();
 
         TextView textResult = view.findViewById(R.id.text_pass_result);
@@ -137,19 +131,6 @@ public class GuardQrScanFragment extends Fragment {
             barcodeLauncher.launch(options);
         });
 
-        // 4. Listen to Verification Rules
-        verificationRulesRepository.listenRules(new com.example.glitch.data.VerificationRulesRepository.RulesListener() {
-            @Override
-            public void onData(@NonNull com.example.glitch.model.VerificationRules rules) {
-                currentRules = rules;
-            }
-
-            @Override
-            public void onError(@NonNull Exception exception) {
-                // ignore; keep defaults
-            }
-        });
-
         reopenPendingDecisionIfAny(textResult);
     }
 
@@ -199,29 +180,6 @@ public class GuardQrScanFragment extends Fragment {
         ((NavigationHost) requireActivity()).showFragment(GuardPendingDecisionFragment.newInstance(), false);
     }
 
-    private void recordFailedAttempt(@NonNull String identifier) {
-        DocumentReference counterRef = firestore.collection("failed_counts").document(identifier);
-        counterRef.set(new java.util.HashMap<String, Object>() {{
-                    put("count", FieldValue.increment(1));
-                    put("lastFailedAt", FieldValue.serverTimestamp());
-                }}, com.google.firebase.firestore.SetOptions.merge())
-                .addOnSuccessListener(v -> counterRef.get().addOnSuccessListener(snapshot -> {
-                    long count = snapshot.getLong("count") == null ? 0L : snapshot.getLong("count");
-                    int threshold = Math.max(1, currentRules.getAlertThreshold());
-                    if (count >= threshold) {
-                        DocumentReference alertRef = firestore.collection("alerts").document(identifier);
-                        java.util.Map<String, Object> payload = new java.util.HashMap<>();
-                        payload.put("identifier", identifier);
-                        payload.put("failCount", (int) count);
-                        payload.put("severity", count >= (threshold * 2) ? "HIGH" : "MEDIUM");
-                        payload.put("message", "Repeated failed verification attempts");
-                        payload.put("lastFailedAt", FieldValue.serverTimestamp());
-                        payload.put("createdAt", FieldValue.serverTimestamp());
-                        alertRef.set(payload, com.google.firebase.firestore.SetOptions.merge());
-                    }
-                }));
-    }
-
     private void verifyPassOnly(
             @NonNull String rawCode,
             @NonNull String verificationMethod,
@@ -230,6 +188,14 @@ public class GuardQrScanFragment extends Fragment {
         if (reopenPendingDecisionIfAny(textResult)) {
             return;
         }
+        verifyPassAfterShiftCheck(rawCode, verificationMethod, textResult);
+    }
+
+    private void verifyPassAfterShiftCheck(
+            @NonNull String rawCode,
+            @NonNull String verificationMethod,
+            @NonNull TextView textResult
+    ) {
         if (!GuestPassTimePolicy.isEntryWindowOpenNow()) {
             textResult.setText(R.string.pass_not_valid_time_window);
             return;
@@ -240,51 +206,68 @@ public class GuardQrScanFragment extends Fragment {
             public void onData(@Nullable GuestPass pass) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() ->
-                        handlePassLookupResult(pass, passCode, verificationMethod, textResult));
+                        handlePassLookupResult(pass, verificationMethod, textResult));
             }
 
             @Override
             public void onError(@NonNull Exception exception) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> textResult.setText(R.string.error_verify_credential));
-                recordFailedAttempt(passCode);
             }
         });
     }
 
     private void handlePassLookupResult(
             @Nullable GuestPass pass,
-            @NonNull String scannedCode,
             @NonNull String verificationMethod,
             @NonNull TextView textResult
     ) {
         if (pass == null) {
             textResult.setText(R.string.pass_not_found);
-            recordFailedAttempt(scannedCode);
             return;
         }
         if ("expired".equalsIgnoreCase(pass.getStatus())) {
             textResult.setText(R.string.pass_expired);
-            recordFailedAttempt(scannedCode);
             return;
         }
         if (!"active".equalsIgnoreCase(pass.getStatus())) {
             textResult.setText(R.string.pass_not_active);
-            recordFailedAttempt(scannedCode);
             return;
         }
 
         if (GuestPassStatusRules.isTimeExpiredActive(pass)) {
             textResult.setText(R.string.pass_expired);
-            recordFailedAttempt(scannedCode);
             return;
         }
 
         if (pass.getEntryRequestId().trim().isEmpty()) {
             textResult.setText(R.string.pass_orphan_invalid);
-            recordFailedAttempt(scannedCode);
             return;
         }
+
+        interventionRepository.isGuestBanned(pass.getGuestIdNumber(), (banned, record, message) -> {
+            if (!isAdded()) {
+                return;
+            }
+            requireActivity().runOnUiThread(() -> {
+                if (banned) {
+                    textResult.setText(R.string.pass_guest_banned);
+                    return;
+                }
+                if (message.startsWith("ERROR_")) {
+                    textResult.setText(R.string.error_banned_check_unavailable);
+                    return;
+                }
+                persistPendingDecision(pass, verificationMethod, textResult);
+            });
+        });
+    }
+
+    private void persistPendingDecision(
+            @NonNull GuestPass pass,
+            @NonNull String verificationMethod,
+            @NonNull TextView textResult
+    ) {
 
         String guardUid = currentGuardUid();
         if (guardUid.trim().isEmpty()) {
@@ -333,6 +316,5 @@ public class GuardQrScanFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (verificationRulesRepository != null) verificationRulesRepository.removeListeners();
     }
 }

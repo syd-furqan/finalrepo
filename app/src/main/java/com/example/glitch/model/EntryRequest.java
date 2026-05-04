@@ -24,6 +24,9 @@ public class EntryRequest {
 	private final String vehiclePlate;
 	private final String guestType;
 	private final String requesterRole;
+	private final String admittedByUid;
+	private final String admittedByRole;
+	private final String admittedByName;
 	private final Timestamp enteredAt;
 	private final String status;
 	private final Timestamp expiresAt;
@@ -43,6 +46,9 @@ public class EntryRequest {
 			@NonNull String vehiclePlate,
 			@NonNull String guestType,
 			@NonNull String requesterRole,
+			@NonNull String admittedByUid,
+			@NonNull String admittedByRole,
+			@NonNull String admittedByName,
 			@Nullable Timestamp enteredAt,
 			@NonNull String status,
 			@Nullable Timestamp expiresAt,
@@ -60,6 +66,9 @@ public class EntryRequest {
 		this.vehiclePlate = normalizedPlate == null ? vehiclePlate : normalizedPlate;
 		this.guestType = guestType.trim().isEmpty() ? GuestIdentityPolicy.guestTypeFor(hasVehicle) : guestType;
 		this.requesterRole = requesterRole.trim().toLowerCase(Locale.getDefault());
+		this.admittedByUid = admittedByUid.trim();
+		this.admittedByRole = admittedByRole.trim().toLowerCase(Locale.getDefault());
+		this.admittedByName = admittedByName.trim();
 		this.enteredAt = enteredAt;
 		this.status = status;
 		this.expiresAt = expiresAt;
@@ -73,7 +82,7 @@ public class EntryRequest {
 	public static EntryRequest fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
 		if (map == null) {
 			return new EntryRequest(id, "", "", "", GatePolicy.STORED_VALUE, "",
-					false, "", "non_vehicle", "", null, "active", null, "");
+					false, "", "non_vehicle", "", "", "", "", null, "active", null, "");
 		}
 
 		return new EntryRequest(
@@ -87,6 +96,9 @@ public class EntryRequest {
 				asString(map.get("vehiclePlate")),
 				asString(map.get("guestType")),
 				asString(map.get("requesterRole")),
+				asString(map.get("admittedByUid")),
+				asString(map.get("admittedByRole")),
+				asString(map.get("admittedByName")),
 				asTimestamp(map.get("enteredAt")),
 				asStringOrDefault(map.get("status"), "active"),
 				asTimestamp(map.get("expiresAt")),
@@ -159,6 +171,21 @@ public class EntryRequest {
 	@NonNull
 	public String getRequesterRole() {
 		return requesterRole;
+	}
+
+	@NonNull
+	public String getAdmittedByUid() {
+		return admittedByUid;
+	}
+
+	@NonNull
+	public String getAdmittedByRole() {
+		return admittedByRole;
+	}
+
+	@NonNull
+	public String getAdmittedByName() {
+		return admittedByName;
 	}
 
 	/**

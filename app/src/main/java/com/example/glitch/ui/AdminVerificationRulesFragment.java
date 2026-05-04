@@ -26,7 +26,6 @@ import com.google.android.material.textfield.TextInputEditText;
 public class AdminVerificationRulesFragment extends Fragment {
     private VerificationRulesRepository repository;
     private MaterialCheckBox checkEnforceExpiry;
-    private TextInputEditText inputAlertThreshold;
     private TextInputEditText inputBannedCsv;
 
     @NonNull
@@ -49,7 +48,6 @@ public class AdminVerificationRulesFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         repository = RepositoryProvider.getVerificationRulesRepository();
         checkEnforceExpiry = view.findViewById(R.id.checkbox_enforce_expiry);
-        inputAlertThreshold = view.findViewById(R.id.input_alert_threshold);
         inputBannedCsv = view.findViewById(R.id.input_banned_csv);
         MaterialButton buttonSave = view.findViewById(R.id.button_save_rules);
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.PASSES);
@@ -78,18 +76,10 @@ public class AdminVerificationRulesFragment extends Fragment {
 
     private void bindRules(@NonNull VerificationRules rules) {
         checkEnforceExpiry.setChecked(rules.isEnforceIdExpiry());
-        inputAlertThreshold.setText(String.valueOf(rules.getAlertThreshold()));
         inputBannedCsv.setText(rules.getBannedIdentifiersCsv());
     }
 
     private void saveRules() {
-        int threshold;
-        try {
-            threshold = Integer.parseInt(read(inputAlertThreshold));
-        } catch (NumberFormatException e) {
-            Snackbar.make(requireView(), R.string.error_invalid_threshold, Snackbar.LENGTH_SHORT).show();
-            return;
-        }
         // Normalize banned identifiers CSV: split, trim, dedupe, join
         String raw = read(inputBannedCsv);
         String normalized;
@@ -107,7 +97,6 @@ public class AdminVerificationRulesFragment extends Fragment {
 
         VerificationRules rules = new VerificationRules(
                 checkEnforceExpiry.isChecked(),
-                Math.max(1, threshold),
                 normalized
         );
         repository.saveRules(rules, (success, message, exception) -> {

@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Firestore implementation for security alerts feed.
  * Pattern: Realtime collection adapter over alerts.
- * Known issue: ordering uses lastFailedAt descending and assumes field availability.
+ * Scope: reported entry alerts only.
  */
 public class FirestoreAlertRepository implements AlertRepository {
     private final FirebaseFirestore firestore;
@@ -32,7 +32,8 @@ public class FirestoreAlertRepository implements AlertRepository {
     public void listenAlerts(@NonNull AlertListener listener) {
         removeListeners();
         registration = firestore.collection("alerts")
-                .orderBy("lastFailedAt", Query.Direction.DESCENDING)
+                .whereEqualTo("alertType", "entry_report")
+                .orderBy("createdAt", Query.Direction.DESCENDING)
                 .addSnapshotListener((snapshot, error) -> {
                     if (error != null) {
                         listener.onError(error);

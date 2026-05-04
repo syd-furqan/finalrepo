@@ -3,11 +3,13 @@ package com.example.glitch.ui;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,10 +32,16 @@ import java.util.Locale;
 public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapter.EntryRequestViewHolder> {
     private final List<EntryRequest> requests = new ArrayList<>();
     private final EntryActionListener listener;
+    private final boolean showViolationAction;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a", Locale.getDefault());
 
     public EntryRequestAdapter(@NonNull EntryActionListener listener) {
+        this(listener, false);
+    }
+
+    public EntryRequestAdapter(@NonNull EntryActionListener listener, boolean showViolationAction) {
         this.listener = listener;
+        this.showViolationAction = showViolationAction;
     }
 
     /**
@@ -62,7 +70,7 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
         
         // Visual indicator for overdue status
         if (isOverdue) {
-            holder.textRoleChip.setBackgroundResource(R.drawable.bg_chip_role_danger); // We will need to create this or use a color
+            holder.textRoleChip.setBackgroundResource(R.drawable.bg_chip_role_danger);
             holder.textRoleChip.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.white));
             holder.textEntered.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.danger_red));
         } else {
@@ -78,6 +86,24 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
         holder.imageRequestIcon.setImageResource(iconForType(request.getIconType()));
 
         holder.buttonDetails.setOnClickListener(view -> listener.onDetailsClicked(request));
+        if (showViolationAction) {
+            holder.buttonOverflow.setVisibility(View.VISIBLE);
+            holder.buttonOverflow.setOnClickListener(view -> {
+                PopupMenu menu = new PopupMenu(view.getContext(), view);
+                menu.getMenuInflater().inflate(R.menu.menu_entry_request_actions, menu.getMenu());
+                menu.setOnMenuItemClickListener(item -> {
+                    if (item.getItemId() == R.id.action_mark_violation) {
+                        listener.onMarkViolationClicked(request);
+                        return true;
+                    }
+                    return false;
+                });
+                menu.show();
+            });
+        } else {
+            holder.buttonOverflow.setVisibility(View.GONE);
+            holder.buttonOverflow.setOnClickListener(null);
+        }
     }
 
     @Override
@@ -116,6 +142,7 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
         final TextView textGate;
         final TextView textEntered;
         final MaterialButton buttonDetails;
+        final ImageButton buttonOverflow;
 
         EntryRequestViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -126,10 +153,15 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
             textGate = itemView.findViewById(R.id.text_gate);
             textEntered = itemView.findViewById(R.id.text_entered);
             buttonDetails = itemView.findViewById(R.id.button_details);
+            buttonOverflow = itemView.findViewById(R.id.button_overflow);
         }
     }
 
     public interface EntryActionListener {
         void onDetailsClicked(@NonNull EntryRequest request);
+
+        default void onMarkViolationClicked(@NonNull EntryRequest request) {
+            // Default no-op; only guard dashboard wires this action.
+        }
     }
 }

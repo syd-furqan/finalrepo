@@ -24,6 +24,7 @@ public final class RepositoryProvider {
     private static UserManagementRepository userManagementRepository;
     private static VerificationRulesRepository verificationRulesRepository;
     private static AlertRepository alertRepository;
+    private static InterventionRepository interventionRepository;
 
     private RepositoryProvider() {
     }
@@ -134,6 +135,17 @@ public final class RepositoryProvider {
     }
 
     /**
+     * Returns intervention repository instance.
+     */
+    @NonNull
+    public static InterventionRepository getInterventionRepository() {
+        if (interventionRepository == null) {
+            interventionRepository = new FirestoreInterventionRepository();
+        }
+        return interventionRepository;
+    }
+
+    /**
      * Injects test repository override.
      */
     public static void setOverrideRepository(@Nullable EntryRequestRepository repository) {
@@ -162,5 +174,6 @@ public final class RepositoryProvider {
         userManagementRepository = null;
         verificationRulesRepository = null;
         alertRepository = null;
+        interventionRepository = null;
     }
 }

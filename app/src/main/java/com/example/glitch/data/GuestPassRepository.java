@@ -68,6 +68,12 @@ public interface GuestPassRepository {
 			@NonNull OperationCallback callback
 	);
 
+	void markPassReportedByEntryRequestId(
+			@NonNull String entryRequestId,
+			@NonNull String reportedByUid,
+			@NonNull OperationCallback callback
+	);
+
 	/**
 	 * Updates the linked guest pass to 'exited' status.
 	 */

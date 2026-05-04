@@ -75,7 +75,9 @@ Primary design reference: [GateSync Figma](https://www.figma.com/design/VYLrX3ly
 
 ### 5. Admin Oversight (Current)
 - Admin can access audit, user management, rules, and alerts surfaces.
-- Audit foundation and export exist; deeper intervention workflows are planned.
+- Audit foundation and export exist with filter/pagination.
+- Security alerts are reported-entry incident queue with intervention actions in progress (ban/fine).
+- Shift management and analytics surfaces are in progress.
 
 ---
 

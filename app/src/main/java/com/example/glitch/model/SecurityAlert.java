@@ -14,10 +14,25 @@ import java.util.Map;
  */
 public class SecurityAlert {
 	private final String id;
+	private final String alertType;
 	private final String identifier;
 	private final int failCount;
 	private final String severity;
 	private final String message;
+	private final String entryRequestId;
+	private final String reportedByUid;
+	private final String reportedByRole;
+	private final String reportedByName;
+	private final String guestName;
+	private final String guestIdNumber;
+	private final String hostName;
+	private final String requesterUid;
+	private final String requesterRole;
+	private final String gateLabel;
+	private final String reasonCode;
+	private final String source;
+	private final String incidentStatus;
+	private final String interventionSummary;
 	private final Timestamp createdAt;
 
 	/**
@@ -25,17 +40,47 @@ public class SecurityAlert {
 	 */
 	public SecurityAlert(
 			@NonNull String id,
+			@NonNull String alertType,
 			@NonNull String identifier,
 			int failCount,
 			@NonNull String severity,
 			@NonNull String message,
+			@NonNull String entryRequestId,
+			@NonNull String reportedByUid,
+			@NonNull String reportedByRole,
+			@NonNull String reportedByName,
+			@NonNull String guestName,
+			@NonNull String guestIdNumber,
+			@NonNull String hostName,
+			@NonNull String requesterUid,
+			@NonNull String requesterRole,
+			@NonNull String gateLabel,
+			@NonNull String reasonCode,
+			@NonNull String source,
+			@NonNull String incidentStatus,
+			@NonNull String interventionSummary,
 			@Nullable Timestamp createdAt
 	) {
 		this.id = id;
+		this.alertType = alertType;
 		this.identifier = identifier;
 		this.failCount = failCount;
 		this.severity = severity;
 		this.message = message;
+		this.entryRequestId = entryRequestId;
+		this.reportedByUid = reportedByUid;
+		this.reportedByRole = reportedByRole;
+		this.reportedByName = reportedByName;
+		this.guestName = guestName;
+		this.guestIdNumber = guestIdNumber;
+		this.hostName = hostName;
+		this.requesterUid = requesterUid;
+		this.requesterRole = requesterRole;
+		this.gateLabel = gateLabel;
+		this.reasonCode = reasonCode;
+		this.source = source;
+		this.incidentStatus = incidentStatus;
+		this.interventionSummary = interventionSummary;
 		this.createdAt = createdAt;
 	}
 
@@ -49,14 +94,57 @@ public class SecurityAlert {
 	@NonNull
 	public static SecurityAlert fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
 		if (map == null) {
-			return new SecurityAlert(id, "", 0, "", "", null);
+			return new SecurityAlert(
+					id,
+					"",
+					"",
+					0,
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					"",
+					null
+			);
+		}
+		String alertType = asString(map.get("alertType"));
+		String entryRequestId = asString(map.get("entryRequestId"));
+		String identifier = asString(map.get("identifier"));
+		if (identifier.trim().isEmpty() && !entryRequestId.trim().isEmpty()) {
+			identifier = entryRequestId;
 		}
 		return new SecurityAlert(
 				id,
-				asString(map.get("identifier")),
+				alertType,
+				identifier,
 				asInt(map.get("failCount")),
 				asString(map.get("severity")),
 				asString(map.get("message")),
+				entryRequestId,
+				asString(map.get("reportedByUid")),
+				asString(map.get("reportedByRole")),
+				asString(map.get("reportedByName")),
+				asString(map.get("guestName")),
+				asString(map.get("guestIdNumber")),
+				asString(map.get("hostName")),
+				asString(map.get("requesterUid")),
+				asString(map.get("requesterRole")),
+				asString(map.get("gateLabel")),
+				asString(map.get("reportReasonCode")),
+				asString(map.get("reportSource")),
+				asString(map.get("incidentStatus")),
+				asString(map.get("interventionSummary")),
 				asTimestamp(map.get("createdAt"))
 		);
 	}
@@ -67,6 +155,11 @@ public class SecurityAlert {
 	@NonNull
 	public String getId() {
 		return id;
+	}
+
+	@NonNull
+	public String getAlertType() {
+		return alertType;
 	}
 
 	/**
@@ -98,6 +191,80 @@ public class SecurityAlert {
 	@NonNull
 	public String getMessage() {
 		return message;
+	}
+
+	@NonNull
+	public String getEntryRequestId() {
+		return entryRequestId;
+	}
+
+	@NonNull
+	public String getReportedByUid() {
+		return reportedByUid;
+	}
+
+	@NonNull
+	public String getReportedByRole() {
+		return reportedByRole;
+	}
+
+	@NonNull
+	public String getReportedByName() {
+		return reportedByName;
+	}
+
+	@NonNull
+	public String getGuestName() {
+		return guestName;
+	}
+
+	@NonNull
+	public String getGuestIdNumber() {
+		return guestIdNumber;
+	}
+
+	@NonNull
+	public String getHostName() {
+		return hostName;
+	}
+
+	@NonNull
+	public String getRequesterUid() {
+		return requesterUid;
+	}
+
+	@NonNull
+	public String getRequesterRole() {
+		return requesterRole;
+	}
+
+	@NonNull
+	public String getGateLabel() {
+		return gateLabel;
+	}
+
+	@NonNull
+	public String getReasonCode() {
+		return reasonCode;
+	}
+
+	@NonNull
+	public String getSource() {
+		return source;
+	}
+
+	@NonNull
+	public String getIncidentStatus() {
+		return incidentStatus;
+	}
+
+	@NonNull
+	public String getInterventionSummary() {
+		return interventionSummary;
+	}
+
+	public boolean isEntryReportAlert() {
+		return "entry_report".equalsIgnoreCase(alertType);
 	}
 
 	/**

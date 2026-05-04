@@ -1,6 +1,7 @@
 package com.example.glitch.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import com.google.firebase.Timestamp;
 
@@ -32,5 +33,31 @@ public class SecurityAlertTest {
         assertEquals("HIGH", alert.getSeverity());
         assertEquals("Repeated failed verification", alert.getMessage());
         assertEquals(createdAt, alert.getCreatedAt());
+    }
+
+    @Test
+    public void fromMap_mapsEntryReportFields() {
+        Timestamp createdAt = new Timestamp(401, 0);
+        Map<String, Object> map = new HashMap<>();
+        map.put("alertType", "entry_report");
+        map.put("entryRequestId", "req-44");
+        map.put("severity", "HIGH");
+        map.put("message", "Guard reported violation");
+        map.put("reportedByUid", "guard-1");
+        map.put("reportedByRole", "guard");
+        map.put("reportReasonCode", "guard_violation");
+        map.put("reportSource", "guard_manual");
+        map.put("createdAt", createdAt);
+
+        SecurityAlert alert = SecurityAlert.fromMap("alert-2", map);
+
+        assertEquals("entry_report", alert.getAlertType());
+        assertEquals("req-44", alert.getEntryRequestId());
+        assertEquals("req-44", alert.getIdentifier());
+        assertEquals("guard-1", alert.getReportedByUid());
+        assertEquals("guard", alert.getReportedByRole());
+        assertEquals("guard_violation", alert.getReasonCode());
+        assertEquals("guard_manual", alert.getSource());
+        assertTrue(alert.isEntryReportAlert());
     }
 }

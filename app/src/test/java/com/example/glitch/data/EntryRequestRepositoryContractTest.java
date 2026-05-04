@@ -97,6 +97,12 @@ public class EntryRequestRepositoryContractTest {
         }
 
         @Override
+        public void reportViolation(@NonNull String requestId, @NonNull CompletionCallback callback) {
+            statusByRequestId.put(requestId, "reported");
+            callback.onComplete(true, "ok", null);
+        }
+
+        @Override
         public void listenRequestsByRequester(@NonNull String requesterUid, @NonNull RequestListListener listener) {
             listener.onData(new ArrayList<>());
         }
