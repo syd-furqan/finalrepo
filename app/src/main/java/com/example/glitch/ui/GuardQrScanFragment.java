@@ -95,7 +95,7 @@ public class GuardQrScanFragment extends Fragment {
                 new InputFilter.AllCaps(),
                 new InputFilter.LengthFilter(8)
         });
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.VEHICLES);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.SCAN);
 
         buttonValidate.setOnClickListener(v -> {
             String passCode = read(inputPassCode);

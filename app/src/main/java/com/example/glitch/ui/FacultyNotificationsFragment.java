@@ -61,7 +61,7 @@ public class FacultyNotificationsFragment extends Fragment implements Notificati
         adapter = new NotificationAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.PASSES);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.FACULTY_NOTIFICATIONS);
         buttonMarkAllRead.setOnClickListener(v -> markAllNotificationsRead());
 
         UserProfile profile = AuthUiGuard.requireProfile(this);

@@ -156,7 +156,7 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
         registeredRecycler.setAdapter(registeredVehicleAdapter);
         historyRecycler.setAdapter(historyAdapter);
 
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.VEHICLES);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.SPONSOR_VEHICLES);
         GuestIdentityInputSupport.attachVehiclePlateFormatter(inputPlate);
 
         documentPicker = registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::handleDocumentPicked);

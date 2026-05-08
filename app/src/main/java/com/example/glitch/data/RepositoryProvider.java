@@ -22,6 +22,8 @@ public final class RepositoryProvider {
     private static NotificationRepository notificationRepository;
     private static AuditLogRepository auditLogRepository;
     private static UserManagementRepository userManagementRepository;
+    private static VerificationRulesRepository verificationRulesRepository;
+    private static AlertRepository alertRepository;
     private static InterventionRepository interventionRepository;
     private static ViolationReportRepository violationReportRepository;
 
@@ -112,6 +114,28 @@ public final class RepositoryProvider {
     }
 
     /**
+     * Returns verification rules repository instance.
+     */
+    @NonNull
+    public static VerificationRulesRepository getVerificationRulesRepository() {
+        if (verificationRulesRepository == null) {
+            verificationRulesRepository = new FirestoreVerificationRulesRepository();
+        }
+        return verificationRulesRepository;
+    }
+
+    /**
+     * Returns security alert repository instance.
+     */
+    @NonNull
+    public static AlertRepository getAlertRepository() {
+        if (alertRepository == null) {
+            alertRepository = new FirestoreAlertRepository();
+        }
+        return alertRepository;
+    }
+
+    /**
      * Returns intervention repository instance.
      */
     @NonNull
@@ -160,6 +184,8 @@ public final class RepositoryProvider {
         notificationRepository = null;
         auditLogRepository = null;
         userManagementRepository = null;
+        verificationRulesRepository = null;
+        alertRepository = null;
         interventionRepository = null;
         violationReportRepository = null;
     }

@@ -85,7 +85,7 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
 
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.VEHICLES);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.ADMIN_VEHICLES);
         setupStatusFilter();
 
         repository.listenAllVehicleRequests(new VehicleRequestRepository.RequestListListener() {

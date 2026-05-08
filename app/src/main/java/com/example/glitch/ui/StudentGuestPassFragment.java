@@ -78,7 +78,7 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
         adapter = new GuestPassAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.PASSES);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.STUDENT_PASSES);
         GuestIdentityInputSupport.attachCnicFormatter(inputGuestId);
         GuestIdentityInputSupport.attachVehiclePlateFormatter(inputVehiclePlate);
         checkHasVehicle.setOnCheckedChangeListener((buttonView, isChecked) -> {

@@ -85,7 +85,7 @@ public class VerificationResultFragment extends Fragment {
         MaterialButton buttonApprove = view.findViewById(R.id.button_approve);
         MaterialButton buttonDeny = view.findViewById(R.id.button_deny);
 
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.PASSES);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.SEARCH);
         textName.setText(name);
         textMeta.setText(getString(R.string.verification_meta, role, host));
         textGate.setText(gate);

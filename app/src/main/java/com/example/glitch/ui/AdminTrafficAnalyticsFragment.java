@@ -97,7 +97,7 @@ public class AdminTrafficAnalyticsFragment extends Fragment {
         });
         buttonDrilldown.setOnClickListener(v -> RoleNavRouter.route(this, RoleDestination.AUDIT));
 
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.DASHBOARD);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.ADMIN_ANALYTICS);
         loadAnalytics();
     }
 
