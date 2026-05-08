@@ -15,80 +15,91 @@ import com.example.glitch.auth.SessionManager;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.UserProfile;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 /**
- * Centralized role-aware router for bottom-nav and CTA navigation actions.
- * Updated to handle backstack more intelligently and fix student routing loops.
+ * Centralized role-aware router for bottom-nav and hub navigation actions.
  */
 public final class RoleNavRouter {
     private RoleNavRouter() {
     }
 
-    /**
-     * Binds shared bottom navigation clicks and active-state styling for a fragment.
-     */
+    private static final class NavItem {
+        private final RoleDestination destination;
+        private final String label;
+        private final int iconResId;
+
+        private NavItem(@NonNull RoleDestination destination, @NonNull String label, int iconResId) {
+            this.destination = destination;
+            this.label = label;
+            this.iconResId = iconResId;
+        }
+    }
+
     public static void bindBottomNav(
             @NonNull View root,
             @NonNull Fragment owner,
             @NonNull RoleDestination active
     ) {
-        LinearLayout dashboard = root.findViewById(R.id.nav_item_dashboard);
-        LinearLayout passes = root.findViewById(R.id.nav_item_passes);
-        LinearLayout vehicles = root.findViewById(R.id.nav_item_vehicles);
-        LinearLayout directory = root.findViewById(R.id.nav_item_directory);
-        LinearLayout logout = root.findViewById(R.id.nav_item_logout);
+        LinearLayout[] slots = new LinearLayout[]{
+                root.findViewById(R.id.nav_item_dashboard),
+                root.findViewById(R.id.nav_item_passes),
+                root.findViewById(R.id.nav_item_vehicles),
+                root.findViewById(R.id.nav_item_directory),
+                root.findViewById(R.id.nav_item_logout)
+        };
+        int[] iconIds = new int[]{
+                R.id.nav_icon_dashboard,
+                R.id.nav_icon_passes,
+                R.id.nav_icon_vehicles,
+                R.id.nav_icon_directory,
+                R.id.nav_icon_logout
+        };
+        int[] labelIds = new int[]{
+                R.id.nav_label_dashboard,
+                R.id.nav_label_passes,
+                R.id.nav_label_vehicles,
+                R.id.nav_label_directory,
+                R.id.nav_label_logout
+        };
 
-        if (dashboard == null || passes == null || vehicles == null || directory == null || logout == null) {
-            return;
+        for (LinearLayout slot : slots) {
+            if (slot == null) {
+                return;
+            }
         }
 
-        dashboard.setOnClickListener(v -> route(owner, RoleDestination.DASHBOARD));
-        passes.setOnClickListener(v -> route(owner, RoleDestination.PASSES));
-        vehicles.setOnClickListener(v -> route(owner, RoleDestination.VEHICLES));
-        directory.setOnClickListener(v -> route(owner, RoleDestination.DIRECTORY));
-        logout.setOnClickListener(v -> route(owner, RoleDestination.LOGOUT));
+        UserProfile profile = SessionManager.getCurrentProfile();
+        String role = profile == null ? "" : profile.getRole();
+        List<NavItem> items = navItemsForRole(role);
+        RoleDestination activeDestination = resolveActiveDestinationForRole(active, role);
 
-        styleItem(
-                owner,
-                dashboard,
-                R.id.nav_icon_dashboard,
-                R.id.nav_label_dashboard,
-                active == RoleDestination.DASHBOARD
-        );
-        styleItem(
-                owner,
-                passes,
-                R.id.nav_icon_passes,
-                R.id.nav_label_passes,
-                active == RoleDestination.PASSES
-        );
-        styleItem(
-                owner,
-                vehicles,
-                R.id.nav_icon_vehicles,
-                R.id.nav_label_vehicles,
-                active == RoleDestination.VEHICLES
-        );
-        styleItem(
-                owner,
-                directory,
-                R.id.nav_icon_directory,
-                R.id.nav_label_directory,
-                active == RoleDestination.DIRECTORY
-        );
-        styleItem(
-                owner,
-                logout,
-                R.id.nav_icon_logout,
-                R.id.nav_label_logout,
-                active == RoleDestination.LOGOUT
-        );
+        for (int i = 0; i < slots.length; i++) {
+            LinearLayout slot = slots[i];
+            if (i >= items.size()) {
+                slot.setVisibility(View.GONE);
+                slot.setOnClickListener(null);
+                continue;
+            }
+            NavItem item = items.get(i);
+            slot.setVisibility(View.VISIBLE);
+            slot.setOnClickListener(v -> route(owner, item.destination));
+
+            ImageView icon = slot.findViewById(iconIds[i]);
+            TextView label = slot.findViewById(labelIds[i]);
+            if (icon != null) {
+                icon.setImageResource(item.iconResId);
+            }
+            if (label != null) {
+                label.setText(item.label);
+            }
+            styleItem(owner, slot, iconIds[i], labelIds[i], item.destination == activeDestination);
+        }
     }
 
-    /**
-     * Routes to a destination according to the authenticated role.
-     */
     public static void route(@NonNull Fragment owner, @NonNull RoleDestination destination) {
         if (!owner.isAdded()) {
             return;
@@ -111,22 +122,14 @@ public final class RoleNavRouter {
             return;
         }
         Fragment target = createFragmentForDestination(resolved, profile);
-        if (target == null) {
-            return;
-        }
-        if (owner.getClass().equals(target.getClass())) {
+        if (target == null || owner.getClass().equals(target.getClass())) {
             return;
         }
         if (owner.requireActivity() instanceof NavigationHost) {
-            // For Bottom Nav primary destinations, we do NOT add to backstack to avoid bloat.
-            // Sub-screens (like Details) should still use host.showFragment(f, true).
             ((NavigationHost) owner.requireActivity()).showFragment(target, false);
         }
     }
 
-    /**
-     * Resolves bottom-nav routes into concrete role destinations.
-     */
     @NonNull
     public static RoleDestination resolveDestinationForRole(
             @NonNull RoleDestination destination,
@@ -135,29 +138,26 @@ public final class RoleNavRouter {
         String role = normalize(rawRole);
         switch (destination) {
             case DASHBOARD:
-                if ("admin".equals(role)) return RoleDestination.VIOLATION_DIRECTORY;
+                if ("admin".equals(role)) return RoleDestination.AUDIT;
                 if ("guard".equals(role)) return RoleDestination.DASHBOARD;
                 if ("faculty".equals(role)) return RoleDestination.FACULTY_REQUEST;
                 if ("monitor".equals(role)) return RoleDestination.MONITOR_REPORT;
-                if ("student".equals(role)) return RoleDestination.DIRECTORY;
+                if ("student".equals(role)) return RoleDestination.STUDENT_PASSES;
                 return RoleDestination.DIRECTORY;
             case PASSES:
-                if ("admin".equals(role)) return RoleDestination.ADMIN_CHARGES;
-                if ("guard".equals(role)) return RoleDestination.MONITOR_REPORT;
+                if ("admin".equals(role)) return RoleDestination.ALERTS;
+                if ("guard".equals(role)) return RoleDestination.SCAN;
                 if ("faculty".equals(role)) return RoleDestination.FACULTY_NOTIFICATIONS;
                 if ("monitor".equals(role)) return RoleDestination.MONITOR_MY_REPORTS;
                 if ("student".equals(role)) return RoleDestination.STUDENT_PASSES;
-                return RoleDestination.DASHBOARD;
+                return RoleDestination.DIRECTORY;
             case VEHICLES:
-                if ("admin".equals(role)) return RoleDestination.ADMIN_VEHICLES;
+                if ("admin".equals(role)) return RoleDestination.VIOLATION_DIRECTORY;
                 if ("guard".equals(role)) return RoleDestination.SCAN;
                 if ("faculty".equals(role)) return RoleDestination.SPONSOR_VEHICLES;
                 if ("student".equals(role)) return RoleDestination.SPONSOR_VEHICLES;
-                return RoleDestination.DASHBOARD;
+                return RoleDestination.DIRECTORY;
             case DIRECTORY:
-                if ("admin".equals(role)) return RoleDestination.BANNED_LIST;
-                if ("student".equals(role)) return RoleDestination.DIRECTORY;
-                if ("monitor".equals(role)) return RoleDestination.DIRECTORY;
                 return RoleDestination.DIRECTORY;
             case LOGOUT:
                 return RoleDestination.LOGOUT;
@@ -166,8 +166,104 @@ public final class RoleNavRouter {
         }
     }
 
+    @NonNull
+    public static List<RoleDestination> getPrimaryDestinationsForRole(@Nullable String rawRole) {
+        List<RoleDestination> destinations = new ArrayList<>();
+        for (NavItem item : navItemsForRole(rawRole)) {
+            if (item.destination != RoleDestination.LOGOUT) {
+                destinations.add(item.destination);
+            }
+        }
+        return Collections.unmodifiableList(destinations);
+    }
+
+    @NonNull
+    public static List<RoleDestination> getHubDestinationsForRole(@Nullable String rawRole) {
+        String role = normalize(rawRole);
+        List<RoleDestination> destinations = new ArrayList<>();
+        if ("admin".equals(role)) {
+            destinations.add(RoleDestination.USERS);
+            destinations.add(RoleDestination.ADMIN_VEHICLES);
+            destinations.add(RoleDestination.BANNED_LIST);
+            destinations.add(RoleDestination.ADMIN_CHARGES);
+            destinations.add(RoleDestination.RULES);
+            destinations.add(RoleDestination.ADMIN_ANALYTICS);
+            destinations.add(RoleDestination.DASHBOARD);
+            destinations.add(RoleDestination.SEARCH);
+            destinations.add(RoleDestination.SCAN);
+            destinations.add(RoleDestination.STUDENT_PASSES);
+        } else {
+            destinations.addAll(getPrimaryDestinationsForRole(role));
+        }
+        return Collections.unmodifiableList(destinations);
+    }
+
+    @NonNull
+    public static RoleDestination getDefaultDestinationForRole(@Nullable String rawRole) {
+        List<RoleDestination> destinations = getPrimaryDestinationsForRole(rawRole);
+        if (destinations.isEmpty()) {
+            return RoleDestination.DIRECTORY;
+        }
+        return destinations.get(0);
+    }
+
+    @NonNull
+    public static String getLabelForDestination(
+            @NonNull RoleDestination destination,
+            @Nullable String rawRole
+    ) {
+        switch (destination) {
+            case DASHBOARD:
+                return "Dashboard";
+            case SEARCH:
+                return "Search & Verify";
+            case SCAN:
+                return "QR Scan";
+            case AUDIT:
+                return "Audit Logs";
+            case USERS:
+                return "Users";
+            case RULES:
+                return "Verification Rules";
+            case ALERTS:
+                return "Alerts";
+            case FACULTY_REQUEST:
+                return "Access Requests";
+            case FACULTY_NOTIFICATIONS:
+                return "Notifications";
+            case STUDENT_PASSES:
+                return "Guest Passes";
+            case SPONSOR_VEHICLES:
+                return "Vehicles";
+            case ADMIN_VEHICLES:
+                return "Vehicle Review";
+            case MONITOR_REPORT:
+                return "Report Violation";
+            case MONITOR_MY_REPORTS:
+                return "My Reports";
+            case VIOLATION_DIRECTORY:
+                return "Violations";
+            case BANNED_LIST:
+                return "Banned Guests";
+            case STUDENT_CHARGES:
+                return "My Charges";
+            case STUDENT_WARNINGS:
+                return "My Warnings";
+            case ADMIN_CHARGES:
+                return "Charges";
+            case ADMIN_ANALYTICS:
+                return "Traffic Analytics";
+            case DIRECTORY:
+                return "admin".equals(normalize(rawRole)) ? "More" : "Home";
+            case LOGOUT:
+                return "Logout";
+            default:
+                return "Home";
+        }
+    }
+
     @Nullable
-    private static Fragment createFragmentForDestination(
+    public static Fragment createFragmentForDestination(
             @NonNull RoleDestination destination,
             @Nullable UserProfile profile
     ) {
@@ -189,6 +285,10 @@ public final class RoleNavRouter {
                 return AdminAuditLogFragment.newInstance();
             case USERS:
                 return AdminUserManagementFragment.newInstance();
+            case RULES:
+                return AdminVerificationRulesFragment.newInstance();
+            case ALERTS:
+                return AdminAlertsFragment.newInstance();
             case FACULTY_REQUEST:
                 return FacultyAccessRequestFragment.newInstance();
             case FACULTY_NOTIFICATIONS:
@@ -205,17 +305,73 @@ public final class RoleNavRouter {
                 return MonitorMyReportsFragment.newInstance();
             case VIOLATION_DIRECTORY:
                 return AdminViolationDirectoryFragment.newInstance();
-            case ADMIN_CHARGES:
-                return AdminChargesFragment.newInstance();
             case BANNED_LIST:
                 return AdminBannedListFragment.newInstance();
             case STUDENT_CHARGES:
                 return StudentChargesFragment.newInstance();
             case STUDENT_WARNINGS:
                 return StudentWarningsFragment.newInstance();
+            case ADMIN_CHARGES:
+                return AdminChargesFragment.newInstance();
+            case ADMIN_ANALYTICS:
+                return AdminTrafficAnalyticsFragment.newInstance();
+            case GUARD_DENY:
+                return GuardDenyFragment.newInstance();
             default:
                 return null;
         }
+    }
+
+    @NonNull
+    private static List<NavItem> navItemsForRole(@Nullable String rawRole) {
+        String role = normalize(rawRole);
+        List<NavItem> items = new ArrayList<>();
+        if ("guard".equals(role)) {
+            items.add(new NavItem(RoleDestination.DASHBOARD, "Dashboard", android.R.drawable.ic_dialog_dialer));
+            items.add(new NavItem(RoleDestination.SCAN, "QR Scan", android.R.drawable.ic_menu_camera));
+        } else if ("student".equals(role)) {
+            items.add(new NavItem(RoleDestination.STUDENT_PASSES, "Guest Passes", android.R.drawable.ic_menu_agenda));
+            items.add(new NavItem(RoleDestination.SPONSOR_VEHICLES, "Vehicles", android.R.drawable.ic_menu_directions));
+        } else if ("faculty".equals(role)) {
+            items.add(new NavItem(RoleDestination.FACULTY_REQUEST, "Access Requests", android.R.drawable.ic_menu_send));
+            items.add(new NavItem(RoleDestination.FACULTY_NOTIFICATIONS, "Notifications", android.R.drawable.ic_dialog_email));
+            items.add(new NavItem(RoleDestination.SPONSOR_VEHICLES, "Vehicles", android.R.drawable.ic_menu_directions));
+        } else if ("monitor".equals(role)) {
+            items.add(new NavItem(RoleDestination.MONITOR_REPORT, "Report", android.R.drawable.ic_menu_upload));
+            items.add(new NavItem(RoleDestination.MONITOR_MY_REPORTS, "My Reports", android.R.drawable.ic_menu_agenda));
+        } else if ("admin".equals(role)) {
+            items.add(new NavItem(RoleDestination.AUDIT, "Audit", android.R.drawable.ic_menu_recent_history));
+            items.add(new NavItem(RoleDestination.ALERTS, "Alerts", android.R.drawable.ic_dialog_alert));
+            items.add(new NavItem(RoleDestination.VIOLATION_DIRECTORY, "Violations", android.R.drawable.ic_menu_report_image));
+            items.add(new NavItem(RoleDestination.DIRECTORY, "More", android.R.drawable.ic_menu_more));
+        } else {
+            items.add(new NavItem(RoleDestination.DIRECTORY, "Home", android.R.drawable.ic_menu_myplaces));
+        }
+        items.add(new NavItem(RoleDestination.LOGOUT, "Logout", android.R.drawable.ic_lock_power_off));
+        return items;
+    }
+
+    @NonNull
+    private static RoleDestination resolveActiveDestinationForRole(
+            @NonNull RoleDestination active,
+            @Nullable String rawRole
+    ) {
+        String role = normalize(rawRole);
+        RoleDestination resolved = resolveDestinationForRole(active, role);
+        if ("admin".equals(role)
+                && (resolved == RoleDestination.USERS
+                || resolved == RoleDestination.ADMIN_VEHICLES
+                || resolved == RoleDestination.BANNED_LIST
+                || resolved == RoleDestination.ADMIN_CHARGES
+                || resolved == RoleDestination.RULES
+                || resolved == RoleDestination.ADMIN_ANALYTICS
+                || resolved == RoleDestination.DASHBOARD
+                || resolved == RoleDestination.SEARCH
+                || resolved == RoleDestination.SCAN
+                || resolved == RoleDestination.STUDENT_PASSES)) {
+            return RoleDestination.DIRECTORY;
+        }
+        return resolved;
     }
 
     @NonNull

@@ -46,7 +46,7 @@ public class GuardDenyFragment extends Fragment {
         TextInputEditText inputRequestId = view.findViewById(R.id.input_request_id);
         TextInputEditText inputReason = view.findViewById(R.id.input_denial_reason);
         MaterialButton buttonSubmit = view.findViewById(R.id.button_submit_denial);
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.DIRECTORY);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.GUARD_DENY);
         buttonSubmit.setOnClickListener(v -> {
             String requestId = read(inputRequestId);
             String reason = read(inputReason);

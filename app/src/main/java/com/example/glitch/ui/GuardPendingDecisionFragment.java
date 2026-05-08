@@ -89,7 +89,7 @@ public class GuardPendingDecisionFragment extends Fragment {
         buttonDeny = view.findViewById(R.id.button_pending_deny);
         checkGuestVerified = view.findViewById(R.id.check_pending_guest_verified);
         checkVehicleVerified = view.findViewById(R.id.check_pending_vehicle_verified);
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.VEHICLES);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.SCAN);
 
         String guardUid = currentGuardUid();
         pendingDecision = pendingDecisionStore.getForGuard(guardUid);

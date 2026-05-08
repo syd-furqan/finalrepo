@@ -29,7 +29,9 @@ import com.example.glitch.notification.GuestPassLocalAlertCoordinator;
 import com.example.glitch.notification.VehicleApplicationLocalAlertCoordinator;
 import com.example.glitch.ui.LoginFragment;
 import com.example.glitch.ui.NavigationHost;
+import com.example.glitch.ui.RoleDestination;
 import com.example.glitch.ui.RoleHomeFragment;
+import com.example.glitch.ui.RoleNavRouter;
 
 /**
  * Host activity that owns the fragment container for the app's primary navigation surface.
@@ -134,14 +136,19 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
         if (clearBackStack) {
             clearBackStack();
         }
+        RoleDestination landingDestination = RoleNavRouter.getDefaultDestinationForRole(profile.getRole());
+        Fragment landingFragment = RoleNavRouter.createFragmentForDestination(landingDestination, profile);
+        if (landingFragment == null) {
+            landingFragment = RoleHomeFragment.newInstance(
+                    profile.getUid(),
+                    profile.getDisplayName(),
+                    profile.getEmail(),
+                    profile.getRole()
+            );
+        }
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragment_container, RoleHomeFragment.newInstance(
-                        profile.getUid(),
-                        profile.getDisplayName(),
-                        profile.getEmail(),
-                        profile.getRole()
-                ))
+                .replace(R.id.fragment_container, landingFragment)
                 .commit();
     }
 

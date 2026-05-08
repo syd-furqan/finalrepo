@@ -71,7 +71,7 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
         MaterialButton buttonArchived = view.findViewById(R.id.button_view_archived_passes);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_guest_passes);
         textEmpty = view.findViewById(R.id.text_guest_pass_empty);
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.DASHBOARD);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.FACULTY_REQUEST);
 
         adapter = new GuestPassAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));

@@ -69,7 +69,7 @@ public class AdminUserManagementFragment extends Fragment implements UserManagem
         adapter = new UserManagementAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.DIRECTORY);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.USERS);
 
         repository.listenUsers(new UserManagementRepository.UserListListener() {
             @Override

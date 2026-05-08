@@ -18,9 +18,7 @@ import com.google.android.material.button.MaterialButton;
 import java.util.Locale;
 
 /**
- * Role-based landing screen that routes users to story-specific feature screens.
- * Pattern: Hub fragment with dynamic action list by authenticated role.
- * Known issue: role hub uses button list instead of final polished bottom navigation flows.
+ * Role hub used as a compact overflow page for role-specific primary and secondary actions.
  */
 public class RoleHomeFragment extends Fragment {
     private static final String ARG_UID = "arg_uid";
@@ -62,7 +60,6 @@ public class RoleHomeFragment extends Fragment {
             return;
         }
         Bundle args = requireArguments();
-        String uid = safeArg(args, ARG_UID);
         String displayName = safeArg(args, ARG_DISPLAY_NAME);
         String email = safeArg(args, ARG_EMAIL);
         String role = safeArg(args, ARG_ROLE).toLowerCase(Locale.getDefault());
@@ -89,42 +86,17 @@ public class RoleHomeFragment extends Fragment {
     }
 
     private void bindRoleActions(@NonNull LinearLayout container, @NonNull String role) {
-        if ("guard".equals(role)) {
-            addAction(container, "Guard Dashboard", () -> openFragment(DashboardFragment.newInstance()));
-            addAction(container, "Search & Verify", () -> openFragment(GuardSearchFragment.newInstance()));
-            addAction(container, "Scan Guest QR Code", () -> openFragment(GuardQrScanFragment.newInstance()));
-            addAction(container, "Submit Violation Report", () -> openFragment(MonitorViolationReportFragment.newInstanceForGuard()));
-        }
-
-        if ("monitor".equals(role)) {
-            addAction(container, "Submit Violation Report", () -> openFragment(MonitorViolationReportFragment.newInstance()));
-            addAction(container, "My Reports", () -> openFragment(MonitorMyReportsFragment.newInstance()));
-        }
-
-        if ("student".equals(role)) {
-            addAction(container, getString(R.string.feature_student_guest_pass), () -> openFragment(StudentGuestPassFragment.newInstance()));
-            addAction(container, "Vehicle Registration", () -> openFragment(SponsorVehicleRegistrationFragment.newInstance()));
-            addAction(container, "My Charges", () -> openFragment(StudentChargesFragment.newInstance()));
-            addAction(container, "My Warnings", () -> openFragment(StudentWarningsFragment.newInstance()));
-        }
-
-        if ("faculty".equals(role)) {
-            addAction(container, getString(R.string.feature_faculty_submit_request), () -> openFragment(FacultyAccessRequestFragment.newInstance()));
-            addAction(container, getString(R.string.feature_faculty_notifications), () -> openFragment(FacultyNotificationsFragment.newInstance()));
-            addAction(container, "Vehicle Registration", () -> openFragment(SponsorVehicleRegistrationFragment.newInstance()));
-        }
-
-        if ("admin".equals(role)) {
-            addAction(container, "Violation Directory", () -> openFragment(AdminViolationDirectoryFragment.newInstance()));
-            addAction(container, "Banned Guest List", () -> openFragment(AdminBannedListFragment.newInstance()));
-            addAction(container, "Charges", () -> openFragment(AdminChargesFragment.newInstance()));
-            addAction(container, "System Audit Logs", () -> openFragment(AdminAuditLogFragment.newInstance()));
-            addAction(container, "Traffic Analytics", () -> openFragment(AdminTrafficAnalyticsFragment.newInstance()));
-            addAction(container, getString(R.string.feature_admin_users), () -> openFragment(AdminUserManagementFragment.newInstance()));
-            addAction(container, "Guard Dashboard", () -> openFragment(DashboardFragment.newInstance()));
-            addAction(container, "Search & Verify", () -> openFragment(GuardSearchFragment.newInstance()));
-            addAction(container, "Scan Guest QR Code", () -> openFragment(GuardQrScanFragment.newInstance()));
-            addAction(container, getString(R.string.feature_student_guest_pass), () -> openFragment(StudentGuestPassFragment.newInstance()));
+        for (RoleDestination destination : RoleNavRouter.getHubDestinationsForRole(role)) {
+            if (destination == RoleDestination.DIRECTORY
+                    || destination == RoleDestination.LOGOUT
+                    || RoleNavRouter.createFragmentForDestination(destination, null) == null) {
+                continue;
+            }
+            addAction(
+                    container,
+                    RoleNavRouter.getLabelForDestination(destination, role),
+                    () -> openDestination(destination)
+            );
         }
     }
 
@@ -142,6 +114,13 @@ public class RoleHomeFragment extends Fragment {
         button.setLayoutParams(params);
         button.setOnClickListener(v -> action.run());
         container.addView(button);
+    }
+
+    private void openDestination(@NonNull RoleDestination destination) {
+        Fragment fragment = RoleNavRouter.createFragmentForDestination(destination, null);
+        if (fragment != null) {
+            openFragment(fragment);
+        }
     }
 
     private void openFragment(@NonNull Fragment fragment) {

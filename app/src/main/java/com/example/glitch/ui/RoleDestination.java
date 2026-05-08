@@ -10,6 +10,7 @@ public enum RoleDestination {
     AUDIT,
     USERS,
     ALERTS,
+    RULES,
     FACULTY_REQUEST,
     FACULTY_NOTIFICATIONS,
     STUDENT_PASSES,
@@ -23,5 +24,6 @@ public enum RoleDestination {
     BANNED_LIST,
     STUDENT_CHARGES,
     STUDENT_WARNINGS,
-    ADMIN_CHARGES
+    ADMIN_CHARGES,
+    ADMIN_ANALYTICS
 }

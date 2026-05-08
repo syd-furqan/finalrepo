@@ -95,6 +95,13 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
 
     private void setupSearch(View view) {
         TextInputEditText editSearch = view.findViewById(R.id.edit_search_requests);
+        if (editSearch == null) {
+            return;
+        }
+        View searchContainer = (View) editSearch.getParent();
+        if (searchContainer != null) {
+            searchContainer.setVisibility(View.GONE);
+        }
 
         editSearch.addTextChangedListener(new android.text.TextWatcher() {
             @Override
@@ -156,30 +163,24 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         View buttonManualEntry = root.findViewById(R.id.button_manual_entry);
         View fabAction = root.findViewById(R.id.fab_action);
 
-        buttonScanQr.setOnClickListener(v -> {
-            if ("guard".equalsIgnoreCase(role) || "admin".equalsIgnoreCase(role)) {
-                RoleNavRouter.route(this, RoleDestination.SCAN);
-            } else {
-                Snackbar.make(requireView(), "Access Restricted to Guards/Admins", Snackbar.LENGTH_SHORT).show();
-            }
-        });
-
         if (buttonNotifications != null) {
-            if ("admin".equalsIgnoreCase(role)) {
-                buttonNotifications.setOnClickListener(v -> RoleNavRouter.route(this, RoleDestination.AUDIT));
-            } else {
-                buttonNotifications.setOnClickListener(view ->
-                        Snackbar.make(requireView(), "No new notifications", Snackbar.LENGTH_SHORT).show());
-            }
+            buttonNotifications.setVisibility(View.GONE);
+            buttonNotifications.setOnClickListener(null);
+        }
+        if (buttonManualEntry != null) {
+            buttonManualEntry.setVisibility(View.GONE);
+            buttonManualEntry.setOnClickListener(null);
+        }
+        if (fabAction != null) {
+            fabAction.setVisibility(View.GONE);
+            fabAction.setOnClickListener(null);
         }
 
-        buttonManualEntry.setOnClickListener(view -> RoleNavRouter.route(this, RoleDestination.SEARCH));
-
-        fabAction.setOnClickListener(v -> {
-            if ("student".equalsIgnoreCase(role) || "admin".equalsIgnoreCase(role)) {
-                RoleNavRouter.route(this, RoleDestination.STUDENT_PASSES);
+        buttonScanQr.setOnClickListener(v -> {
+            if ("guard".equalsIgnoreCase(role)) {
+                RoleNavRouter.route(this, RoleDestination.SCAN);
             } else {
-                Snackbar.make(requireView(), "Access Restricted to Students/Admins", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(requireView(), "Access Restricted to Guards", Snackbar.LENGTH_SHORT).show();
             }
         });
     }
