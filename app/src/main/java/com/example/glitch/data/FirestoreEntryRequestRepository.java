@@ -10,7 +10,6 @@ import com.example.glitch.model.DashboardState;
 import com.example.glitch.model.EntryRequest;
 import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.UserProfile;
-import com.example.glitch.model.VerificationRules;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -42,8 +41,6 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
     static final String COLLECTION_CREDENTIALS = "credentials";
     static final String COLLECTION_ACCESS_EVENTS = "access_events";
     static final String COLLECTION_ALERTS = "alerts";
-    static final String COLLECTION_VERIFICATION_RULES = "verification_rules";
-    static final String DOC_CURRENT_RULES = "current";
     static final String DASHBOARD_STATE_DOC = "dashboard_state";
     static final String TYPE_FIELD = "type";
     static final String TYPE_REQUEST = "request";
@@ -374,53 +371,15 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
             listener.onData(new CredentialVerificationResult(false, "", "", "Enter a credential identifier"));
             return;
         }
-
-        firestore.collection(COLLECTION_VERIFICATION_RULES)
-                .document(DOC_CURRENT_RULES)
-                .get()
-                .addOnSuccessListener(ruleSnapshot -> verifyCredentialWithRules(
-                        normalizedIdentifier,
-                        VerificationRules.fromMap(ruleSnapshot.getData()),
-                        listener
-                ))
-                .addOnFailureListener(error -> verifyCredentialWithRules(
-                        normalizedIdentifier,
-                        VerificationRules.defaultRules(),
-                        listener
-                ));
-    }
-
-    private void verifyCredentialWithRules(
-            @NonNull String identifier,
-            @NonNull VerificationRules rules,
-            @NonNull CredentialListener listener
-    ) {
-        Set<String> bannedIdentifiers = parseBannedIdentifiers(rules.getBannedIdentifiersCsv());
-        if (bannedIdentifiers.contains(identifier.toLowerCase(Locale.getDefault()))) {
-            listener.onData(new CredentialVerificationResult(
-                    false,
-                    identifier,
-                    "",
-                    "Credential is blocked by policy."
-            ));
-            return;
-        }
-
         firestore.collection(COLLECTION_CREDENTIALS)
-                .whereEqualTo(CREDENTIAL_IDENTIFIER_FIELD, identifier)
+                .whereEqualTo(CREDENTIAL_IDENTIFIER_FIELD, normalizedIdentifier)
                 .limit(1)
                 .get()
                 .addOnSuccessListener(snapshot -> {
                     if (snapshot.isEmpty()) {
-                        listener.onData(new CredentialVerificationResult(
-                                false,
-                                identifier,
-                                "",
-                                "Credential not found."
-                        ));
+                        listener.onData(new CredentialVerificationResult(false, normalizedIdentifier, "", "Credential not found."));
                         return;
                     }
-
                     DocumentSnapshot doc = snapshot.getDocuments().get(0);
                     boolean isValid = false;
                     Object isValidField = doc.get(CREDENTIAL_VALID_FIELD);
@@ -428,30 +387,16 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                         isValid = (Boolean) isValidField;
                     }
                     String holderName = doc.getString(CREDENTIAL_NAME_FIELD);
-                    if (holderName == null) {
-                        holderName = "";
-                    }
-
+                    if (holderName == null) holderName = "";
                     String failureMessage = "Credential is not valid.";
-                    if (rules.isEnforceIdExpiry() && isExpired(doc.get(EXPIRY_AT_FIELD))) {
+                    if (isExpired(doc.get(EXPIRY_AT_FIELD))) {
                         isValid = false;
                         failureMessage = "Credential has expired.";
                     }
-
                     if (isValid) {
-                        listener.onData(new CredentialVerificationResult(
-                                true,
-                                identifier,
-                                holderName,
-                                "Credential verified successfully."
-                        ));
+                        listener.onData(new CredentialVerificationResult(true, normalizedIdentifier, holderName, "Credential verified successfully."));
                     } else {
-                        listener.onData(new CredentialVerificationResult(
-                                false,
-                                identifier,
-                                holderName,
-                                failureMessage
-                        ));
+                        listener.onData(new CredentialVerificationResult(false, normalizedIdentifier, holderName, failureMessage));
                     }
                 })
                 .addOnFailureListener(listener::onError);
@@ -1009,22 +954,6 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         }
         Timestamp expiry = (Timestamp) expiryValue;
         return expiry.toDate().before(new Date());
-    }
-
-    @NonNull
-    private Set<String> parseBannedIdentifiers(@NonNull String csv) {
-        if (csv.trim().isEmpty()) {
-            return new HashSet<>();
-        }
-        String[] tokens = csv.split(",");
-        Set<String> banned = new HashSet<>();
-        for (String token : Arrays.asList(tokens)) {
-            String value = token.trim().toLowerCase(Locale.getDefault());
-            if (!value.isEmpty()) {
-                banned.add(value);
-            }
-        }
-        return banned;
     }
 
     @NonNull

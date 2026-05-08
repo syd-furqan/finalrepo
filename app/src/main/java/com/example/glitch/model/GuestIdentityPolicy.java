@@ -16,6 +16,12 @@ public final class GuestIdentityPolicy {
     private GuestIdentityPolicy() {
     }
 
+    @NonNull
+    public static String normalizeCnicOrEmpty(@Nullable String rawValue) {
+        String result = normalizeCnic(rawValue);
+        return result == null ? "" : result;
+    }
+
     @Nullable
     public static String normalizeCnic(@Nullable String rawValue) {
         String digits = extractDigits(rawValue);

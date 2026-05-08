@@ -5,13 +5,10 @@ import androidx.annotation.Nullable;
 
 import com.example.glitch.model.FineCaseRecord;
 import com.example.glitch.model.GuestBanRecord;
-import com.example.glitch.model.IncidentInterventionRecord;
+import com.example.glitch.model.StudentWarning;
 
 import java.util.List;
 
-/**
- * Contract for admin intervention operations (ban/fine) and incident linkage.
- */
 public interface InterventionRepository {
 
     void isGuestBanned(@NonNull String cnic, @NonNull BanCheckCallback callback);
@@ -20,8 +17,7 @@ public interface InterventionRepository {
             @NonNull String cnic,
             @NonNull String adminUid,
             @NonNull String reasonCode,
-            @NonNull String sourceAlertId,
-            @NonNull String sourceRequestId,
+            @NonNull String sourceReportId,
             @NonNull OperationCallback callback
     );
 
@@ -31,56 +27,43 @@ public interface InterventionRepository {
             @NonNull OperationCallback callback
     );
 
-    void issueFine(
-            @NonNull String sponsorUid,
-            @NonNull String requestId,
-            @NonNull String alertId,
-            double amount,
-            @NonNull String currency,
-            @NonNull String reasonCode,
-            @NonNull String adminUid,
-            @NonNull OperationCallback callback
-    );
-
-    void createChargeForAlert(
-            @NonNull String alertId,
-            @NonNull String requestId,
+    void createChargeForReport(
+            @NonNull String violationReportId,
             @NonNull String sponsorUid,
             @NonNull String guestName,
             @NonNull String guestIdNumber,
+            @NonNull String violationLevel,
             @NonNull String adminUid,
             @NonNull OperationCallback callback
     );
 
-    void resolveChargePaid(
+    void issueWarning(
+            @NonNull String targetUid,
+            @NonNull String targetName,
+            @NonNull String targetRole,
+            @NonNull String violationReportId,
+            @NonNull String violationLevel,
+            @NonNull String detail,
+            @NonNull String adminUid,
+            @NonNull OperationCallback callback
+    );
+
+    void requestChargeRemoval(
+            @NonNull String chargeId,
+            @NonNull String paymentNote,
+            @NonNull String studentUid,
+            @NonNull OperationCallback callback
+    );
+
+    void approveChargeRemoval(
             @NonNull String chargeId,
             @NonNull String adminUid,
             @NonNull OperationCallback callback
     );
 
-    void resolveChargeRemoved(
+    void rejectChargeRemoval(
             @NonNull String chargeId,
             @NonNull String adminUid,
-            @NonNull OperationCallback callback
-    );
-
-    void waiveFineByRequestId(
-            @NonNull String requestId,
-            @NonNull String adminUid,
-            @NonNull OperationCallback callback
-    );
-
-    void settleFineByRequestId(
-            @NonNull String requestId,
-            @NonNull String adminUid,
-            @NonNull OperationCallback callback
-    );
-
-    void closeIncident(
-            @NonNull String alertId,
-            @NonNull String requestId,
-            @NonNull String adminUid,
-            @NonNull String summary,
             @NonNull OperationCallback callback
     );
 
@@ -88,7 +71,9 @@ public interface InterventionRepository {
 
     void listenFineCases(@NonNull FineListListener listener);
 
-    void listenInterventions(@NonNull InterventionListListener listener);
+    void listenChargesByStudent(@NonNull String studentUid, @NonNull FineListListener listener);
+
+    void listenWarningsByStudent(@NonNull String studentUid, @NonNull WarningListListener listener);
 
     void removeListeners();
 
@@ -102,19 +87,16 @@ public interface InterventionRepository {
 
     interface BanListListener {
         void onData(@NonNull List<GuestBanRecord> bans);
-
         void onError(@NonNull Exception exception);
     }
 
     interface FineListListener {
         void onData(@NonNull List<FineCaseRecord> fineCases);
-
         void onError(@NonNull Exception exception);
     }
 
-    interface InterventionListListener {
-        void onData(@NonNull List<IncidentInterventionRecord> interventions);
-
+    interface WarningListListener {
+        void onData(@NonNull List<StudentWarning> warnings);
         void onError(@NonNull Exception exception);
     }
 }

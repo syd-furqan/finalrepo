@@ -85,7 +85,8 @@ public class UserProfile {
 		return "guard".equals(role)
 				|| "faculty".equals(role)
 				|| "student".equals(role)
-				|| "admin".equals(role);
+				|| "admin".equals(role)
+				|| "monitor".equals(role);
 	}
 
 	/**

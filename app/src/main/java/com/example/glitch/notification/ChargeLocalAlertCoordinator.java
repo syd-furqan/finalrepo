@@ -110,7 +110,7 @@ public class ChargeLocalAlertCoordinator {
 
     private void dispatch(@NonNull ChargeLocalAlertType type, @NonNull FineCaseRecord record) {
         String guestName = fallback(record.getGuestName(), "Guest");
-        String requestId = fallback(record.getRequestId(), "N/A");
+        String requestId = fallback(record.getViolationReportId(), "N/A");
         String title;
         String message;
         switch (type) {
