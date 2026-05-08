@@ -13,22 +13,18 @@ import com.example.glitch.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
 
-/**
- * Bottom sheet for charge details and resolution actions.
- */
 public class AdminChargeDetailsBottomSheetFragment extends BottomSheetDialogFragment {
     public static final String TAG = "AdminChargeDetailsBottomSheet";
     public static final String RESULT_KEY = "admin_charge_details_result";
     public static final String RESULT_ACTION = "result_action";
     public static final String RESULT_CHARGE_ID = "result_charge_id";
 
-    public static final String ACTION_MARK_PAID = "mark_paid";
-    public static final String ACTION_REMOVE_CHARGE = "remove_charge";
+    public static final String ACTION_APPROVE_REMOVAL = "approve_removal";
+    public static final String ACTION_REJECT_REMOVAL = "reject_removal";
 
     private static final String ARG_CHARGE_ID = "arg_charge_id";
     private static final String ARG_STATUS = "arg_status";
-    private static final String ARG_REQUEST_ID = "arg_request_id";
-    private static final String ARG_ALERT_ID = "arg_alert_id";
+    private static final String ARG_REPORT_ID = "arg_report_id";
     private static final String ARG_GUEST = "arg_guest";
     private static final String ARG_SPONSOR_UID = "arg_sponsor_uid";
 
@@ -36,8 +32,7 @@ public class AdminChargeDetailsBottomSheetFragment extends BottomSheetDialogFrag
     public static AdminChargeDetailsBottomSheetFragment newInstance(
             @NonNull String chargeId,
             @NonNull String status,
-            @NonNull String requestId,
-            @NonNull String alertId,
+            @NonNull String reportId,
             @NonNull String guest,
             @NonNull String sponsorUid
     ) {
@@ -45,8 +40,7 @@ public class AdminChargeDetailsBottomSheetFragment extends BottomSheetDialogFrag
         Bundle args = new Bundle();
         args.putString(ARG_CHARGE_ID, chargeId);
         args.putString(ARG_STATUS, status);
-        args.putString(ARG_REQUEST_ID, requestId);
-        args.putString(ARG_ALERT_ID, alertId);
+        args.putString(ARG_REPORT_ID, reportId);
         args.putString(ARG_GUEST, guest);
         args.putString(ARG_SPONSOR_UID, sponsorUid);
         fragment.setArguments(args);
@@ -55,11 +49,7 @@ public class AdminChargeDetailsBottomSheetFragment extends BottomSheetDialogFrag
 
     @Nullable
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState
-    ) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.bottom_sheet_admin_charge_details, container, false);
     }
 
@@ -70,34 +60,36 @@ public class AdminChargeDetailsBottomSheetFragment extends BottomSheetDialogFrag
 
         String chargeId = safe(args, ARG_CHARGE_ID);
         String status = safe(args, ARG_STATUS);
-        String requestId = safe(args, ARG_REQUEST_ID);
-        String alertId = safe(args, ARG_ALERT_ID);
+        String reportId = safe(args, ARG_REPORT_ID);
         String guest = safe(args, ARG_GUEST);
         String sponsorUid = safe(args, ARG_SPONSOR_UID);
 
         TextView textStatus = view.findViewById(R.id.text_charge_detail_status);
         TextView textChargeId = view.findViewById(R.id.text_charge_detail_id);
-        TextView textRequestId = view.findViewById(R.id.text_charge_detail_request_id);
-        TextView textAlertId = view.findViewById(R.id.text_charge_detail_alert_id);
+        TextView textReportId = view.findViewById(R.id.text_charge_detail_request_id);
         TextView textGuest = view.findViewById(R.id.text_charge_detail_guest);
         TextView textSponsorUid = view.findViewById(R.id.text_charge_detail_sponsor_uid);
-        View actionContainer = view.findViewById(R.id.container_charge_actions);
-        MaterialButton buttonPaid = view.findViewById(R.id.button_charge_mark_paid);
-        MaterialButton buttonRemove = view.findViewById(R.id.button_charge_remove);
+        View containerActions = view.findViewById(R.id.container_charge_actions);
+        MaterialButton buttonApprove = view.findViewById(R.id.button_charge_mark_paid);
+        MaterialButton buttonReject = view.findViewById(R.id.button_charge_remove);
         MaterialButton buttonClose = view.findViewById(R.id.button_charge_close);
 
         textStatus.setText("Status: " + status);
         textChargeId.setText("Charge ID: " + chargeId);
-        textRequestId.setText("Request ID: " + requestId);
-        textAlertId.setText("Alert ID: " + alertId);
+        textReportId.setText("Report ID: " + reportId);
         textGuest.setText("Visitor: " + guest);
         textSponsorUid.setText("Sponsor UID: " + sponsorUid);
 
-        boolean actionable = "charged".equalsIgnoreCase(status.trim());
-        actionContainer.setVisibility(actionable ? View.VISIBLE : View.GONE);
+        boolean removalRequested = "removal requested".equalsIgnoreCase(status.trim());
+        containerActions.setVisibility(removalRequested ? View.VISIBLE : View.GONE);
 
-        buttonPaid.setOnClickListener(v -> dispatch(ACTION_MARK_PAID, chargeId));
-        buttonRemove.setOnClickListener(v -> dispatch(ACTION_REMOVE_CHARGE, chargeId));
+        if (removalRequested) {
+            buttonApprove.setText("Approve Removal");
+            buttonReject.setText("Reject Removal");
+        }
+
+        buttonApprove.setOnClickListener(v -> dispatch(ACTION_APPROVE_REMOVAL, chargeId));
+        buttonReject.setOnClickListener(v -> dispatch(ACTION_REJECT_REMOVAL, chargeId));
         buttonClose.setOnClickListener(v -> dismiss());
     }
 

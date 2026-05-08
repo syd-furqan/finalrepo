@@ -135,16 +135,17 @@ public final class RoleNavRouter {
         String role = normalize(rawRole);
         switch (destination) {
             case DASHBOARD:
-                if ("admin".equals(role)) return RoleDestination.AUDIT;
+                if ("admin".equals(role)) return RoleDestination.VIOLATION_DIRECTORY;
                 if ("guard".equals(role)) return RoleDestination.DASHBOARD;
                 if ("faculty".equals(role)) return RoleDestination.FACULTY_REQUEST;
-                // Student dashboard should be the Hub (Directory) or a summary, not creation.
+                if ("monitor".equals(role)) return RoleDestination.MONITOR_REPORT;
                 if ("student".equals(role)) return RoleDestination.DIRECTORY;
                 return RoleDestination.DIRECTORY;
             case PASSES:
-                if ("admin".equals(role)) return RoleDestination.RULES;
-                if ("guard".equals(role)) return RoleDestination.SEARCH;
+                if ("admin".equals(role)) return RoleDestination.ADMIN_CHARGES;
+                if ("guard".equals(role)) return RoleDestination.MONITOR_REPORT;
                 if ("faculty".equals(role)) return RoleDestination.FACULTY_NOTIFICATIONS;
+                if ("monitor".equals(role)) return RoleDestination.MONITOR_MY_REPORTS;
                 if ("student".equals(role)) return RoleDestination.STUDENT_PASSES;
                 return RoleDestination.DASHBOARD;
             case VEHICLES:
@@ -154,6 +155,9 @@ public final class RoleNavRouter {
                 if ("student".equals(role)) return RoleDestination.SPONSOR_VEHICLES;
                 return RoleDestination.DASHBOARD;
             case DIRECTORY:
+                if ("admin".equals(role)) return RoleDestination.BANNED_LIST;
+                if ("student".equals(role)) return RoleDestination.DIRECTORY;
+                if ("monitor".equals(role)) return RoleDestination.DIRECTORY;
                 return RoleDestination.DIRECTORY;
             case LOGOUT:
                 return RoleDestination.LOGOUT;
@@ -170,10 +174,6 @@ public final class RoleNavRouter {
         switch (destination) {
             case DASHBOARD:
                 return DashboardFragment.newInstance();
-            case PASSES:
-                return DashboardFragment.newInstance();
-            case VEHICLES:
-                return DashboardFragment.newInstance();
             case DIRECTORY:
                 return RoleHomeFragment.newInstance(
                         safeProfileValue(profile, true),
@@ -189,22 +189,30 @@ public final class RoleNavRouter {
                 return AdminAuditLogFragment.newInstance();
             case USERS:
                 return AdminUserManagementFragment.newInstance();
-            case RULES:
-                return AdminVerificationRulesFragment.newInstance();
-            case ALERTS:
-                return AdminAlertsFragment.newInstance();
             case FACULTY_REQUEST:
                 return FacultyAccessRequestFragment.newInstance();
             case FACULTY_NOTIFICATIONS:
                 return FacultyNotificationsFragment.newInstance();
             case STUDENT_PASSES:
                 return StudentGuestPassFragment.newInstance();
-            case GUARD_DENY:
-                return GuardDenyFragment.newInstance();
             case ADMIN_VEHICLES:
                 return AdminVehicleReviewFragment.newInstance();
             case SPONSOR_VEHICLES:
                 return SponsorVehicleRegistrationFragment.newInstance();
+            case MONITOR_REPORT:
+                return MonitorViolationReportFragment.newInstance();
+            case MONITOR_MY_REPORTS:
+                return MonitorMyReportsFragment.newInstance();
+            case VIOLATION_DIRECTORY:
+                return AdminViolationDirectoryFragment.newInstance();
+            case ADMIN_CHARGES:
+                return AdminChargesFragment.newInstance();
+            case BANNED_LIST:
+                return AdminBannedListFragment.newInstance();
+            case STUDENT_CHARGES:
+                return StudentChargesFragment.newInstance();
+            case STUDENT_WARNINGS:
+                return StudentWarningsFragment.newInstance();
             default:
                 return null;
         }

@@ -46,7 +46,7 @@ public class AdminChargeAdapter extends RecyclerView.Adapter<AdminChargeAdapter.
         String status = charge.getChargeDisplayStatus();
         holder.textChargeId.setText("Charge: " + charge.getId());
         holder.textStatus.setText(status.toUpperCase(Locale.getDefault()));
-        holder.textRequest.setText("Request: " + valueOr(charge.getRequestId(), "N/A"));
+        holder.textRequest.setText("Report: " + valueOr(charge.getViolationReportId(), "N/A"));
         holder.textGuest.setText("Visitor: " + valueOr(charge.getGuestName(), "Unknown")
                 + " (" + valueOr(charge.getGuestIdNumber(), "N/A") + ")");
         holder.textSponsor.setText("Sponsor UID: " + valueOr(charge.getSponsorUid(), "N/A"));

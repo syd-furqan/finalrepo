@@ -89,19 +89,23 @@ public class RoleHomeFragment extends Fragment {
     }
 
     private void bindRoleActions(@NonNull LinearLayout container, @NonNull String role) {
-        if ("guard".equals(role) || "admin".equals(role)) {
-
-            addAction(container, "View Guard Dashboard", () -> openFragment(DashboardFragment.newInstance()));
-            addAction(container, "Search And Verify", () -> openFragment(GuardSearchFragment.newInstance()));
+        if ("guard".equals(role)) {
+            addAction(container, "Guard Dashboard", () -> openFragment(DashboardFragment.newInstance()));
+            addAction(container, "Search & Verify", () -> openFragment(GuardSearchFragment.newInstance()));
             addAction(container, "Scan Guest QR Code", () -> openFragment(GuardQrScanFragment.newInstance()));
-            addAction(container, "Deny / Flag Access", () -> openFragment(GuardDenyFragment.newInstance()));
+            addAction(container, "Submit Violation Report", () -> openFragment(MonitorViolationReportFragment.newInstanceForGuard()));
         }
 
-        if ("student".equals(role) || "admin".equals(role)) {
+        if ("monitor".equals(role)) {
+            addAction(container, "Submit Violation Report", () -> openFragment(MonitorViolationReportFragment.newInstance()));
+            addAction(container, "My Reports", () -> openFragment(MonitorMyReportsFragment.newInstance()));
+        }
+
+        if ("student".equals(role)) {
             addAction(container, getString(R.string.feature_student_guest_pass), () -> openFragment(StudentGuestPassFragment.newInstance()));
-            if ("student".equals(role)) {
-                addAction(container, "Vehicle Registration", () -> openFragment(SponsorVehicleRegistrationFragment.newInstance()));
-            }
+            addAction(container, "Vehicle Registration", () -> openFragment(SponsorVehicleRegistrationFragment.newInstance()));
+            addAction(container, "My Charges", () -> openFragment(StudentChargesFragment.newInstance()));
+            addAction(container, "My Warnings", () -> openFragment(StudentWarningsFragment.newInstance()));
         }
 
         if ("faculty".equals(role)) {
@@ -111,12 +115,16 @@ public class RoleHomeFragment extends Fragment {
         }
 
         if ("admin".equals(role)) {
-            addAction(container, "VIEW SYSTEM AUDIT LOGS", () -> openFragment(AdminAuditLogFragment.newInstance()));
-            addAction(container, "TRAFFIC ANALYTICS", () -> openFragment(AdminTrafficAnalyticsFragment.newInstance()));
-            addAction(container, getString(R.string.feature_admin_charges), () -> openFragment(AdminChargesFragment.newInstance()));
+            addAction(container, "Violation Directory", () -> openFragment(AdminViolationDirectoryFragment.newInstance()));
+            addAction(container, "Banned Guest List", () -> openFragment(AdminBannedListFragment.newInstance()));
+            addAction(container, "Charges", () -> openFragment(AdminChargesFragment.newInstance()));
+            addAction(container, "System Audit Logs", () -> openFragment(AdminAuditLogFragment.newInstance()));
+            addAction(container, "Traffic Analytics", () -> openFragment(AdminTrafficAnalyticsFragment.newInstance()));
             addAction(container, getString(R.string.feature_admin_users), () -> openFragment(AdminUserManagementFragment.newInstance()));
-            addAction(container, getString(R.string.feature_admin_rules), () -> openFragment(AdminVerificationRulesFragment.newInstance()));
-            addAction(container, getString(R.string.feature_admin_alerts), () -> openFragment(AdminAlertsFragment.newInstance()));
+            addAction(container, "Guard Dashboard", () -> openFragment(DashboardFragment.newInstance()));
+            addAction(container, "Search & Verify", () -> openFragment(GuardSearchFragment.newInstance()));
+            addAction(container, "Scan Guest QR Code", () -> openFragment(GuardQrScanFragment.newInstance()));
+            addAction(container, getString(R.string.feature_student_guest_pass), () -> openFragment(StudentGuestPassFragment.newInstance()));
         }
     }
 

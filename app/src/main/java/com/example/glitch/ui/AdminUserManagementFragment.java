@@ -109,7 +109,8 @@ public class AdminUserManagementFragment extends Fragment implements UserManagem
         if (!("guard".equals(role)
                 || "faculty".equals(role)
                 || "student".equals(role)
-                || "admin".equals(role))) {
+                || "admin".equals(role)
+                || "monitor".equals(role))) {
             Snackbar.make(requireView(), R.string.error_invalid_user_role, Snackbar.LENGTH_SHORT).show();
             return;
         }

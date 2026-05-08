@@ -23,9 +23,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Admin page for charge history and charge resolution actions.
- */
 public class AdminChargesFragment extends Fragment {
     private InterventionRepository interventionRepository;
     private AdminChargeAdapter adapter;
@@ -39,11 +36,7 @@ public class AdminChargesFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState
-    ) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_admin_charges, container, false);
     }
 
@@ -58,7 +51,7 @@ public class AdminChargesFragment extends Fragment {
         adapter.setListener(this::openChargeDetails);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.DIRECTORY);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.ADMIN_CHARGES);
 
         getParentFragmentManager().setFragmentResultListener(
                 AdminChargeDetailsBottomSheetFragment.RESULT_KEY,
@@ -69,17 +62,13 @@ public class AdminChargesFragment extends Fragment {
         interventionRepository.listenFineCases(new InterventionRepository.FineListListener() {
             @Override
             public void onData(@NonNull List<FineCaseRecord> fineCases) {
-                if (!isAdded()) {
-                    return;
-                }
+                if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
                     allCharges.clear();
                     allCharges.addAll(fineCases);
                     allCharges.sort(Comparator.comparing(
-                                    FineCaseRecord::getCreatedAt,
-                                    Comparator.nullsLast(Comparator.naturalOrder())
-                            )
-                            .reversed());
+                            FineCaseRecord::getCreatedAt,
+                            Comparator.nullsLast(Comparator.naturalOrder())).reversed());
                     adapter.submitList(allCharges);
                     textEmpty.setVisibility(allCharges.isEmpty() ? View.VISIBLE : View.GONE);
                 });
@@ -87,9 +76,7 @@ public class AdminChargesFragment extends Fragment {
 
             @Override
             public void onError(@NonNull Exception exception) {
-                if (!isAdded()) {
-                    return;
-                }
+                if (!isAdded()) return;
                 requireActivity().runOnUiThread(() ->
                         Snackbar.make(requireView(), R.string.error_load_charges, Snackbar.LENGTH_LONG).show());
             }
@@ -99,22 +86,17 @@ public class AdminChargesFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (interventionRepository != null) {
-            interventionRepository.removeListeners();
-        }
+        if (interventionRepository != null) interventionRepository.removeListeners();
     }
 
     private void openChargeDetails(@NonNull FineCaseRecord record) {
-        if (!isAdded()) {
-            return;
-        }
+        if (!isAdded()) return;
         String guest = valueOr(record.getGuestName(), "Unknown")
                 + " (" + valueOr(record.getGuestIdNumber(), "N/A") + ")";
         AdminChargeDetailsBottomSheetFragment.newInstance(
                         record.getId(),
                         capitalize(record.getChargeDisplayStatus()),
-                        valueOr(record.getRequestId(), "N/A"),
-                        valueOr(record.getAlertId(), "N/A"),
+                        valueOr(record.getViolationReportId(), "N/A"),
                         guest,
                         valueOr(record.getSponsorUid(), "N/A")
                 )
@@ -124,18 +106,16 @@ public class AdminChargesFragment extends Fragment {
     private void handleChargeAction(@NonNull Bundle result) {
         String action = valueOr(result.getString(AdminChargeDetailsBottomSheetFragment.RESULT_ACTION), "");
         String chargeId = valueOr(result.getString(AdminChargeDetailsBottomSheetFragment.RESULT_CHARGE_ID), "");
-        if (chargeId.isEmpty()) {
-            return;
-        }
-        if (AdminChargeDetailsBottomSheetFragment.ACTION_MARK_PAID.equals(action)) {
-            interventionRepository.resolveChargePaid(chargeId, currentAdminUid(), (success, message, exception) -> {
+        if (chargeId.isEmpty()) return;
+
+        String adminUid = adminUid();
+        if (AdminChargeDetailsBottomSheetFragment.ACTION_APPROVE_REMOVAL.equals(action)) {
+            interventionRepository.approveChargeRemoval(chargeId, adminUid, (success, message, exception) -> {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
             });
-            return;
-        }
-        if (AdminChargeDetailsBottomSheetFragment.ACTION_REMOVE_CHARGE.equals(action)) {
-            interventionRepository.resolveChargeRemoved(chargeId, currentAdminUid(), (success, message, exception) -> {
+        } else if (AdminChargeDetailsBottomSheetFragment.ACTION_REJECT_REMOVAL.equals(action)) {
+            interventionRepository.rejectChargeRemoval(chargeId, adminUid, (success, message, exception) -> {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
             });
@@ -143,28 +123,22 @@ public class AdminChargesFragment extends Fragment {
     }
 
     @NonNull
-    private String currentAdminUid() {
-        if (SessionManager.getCurrentProfile() == null) {
-            return "unknown_admin";
-        }
+    private String adminUid() {
+        if (SessionManager.getCurrentProfile() == null) return "unknown_admin";
         String uid = SessionManager.getCurrentProfile().getUid().trim();
         return uid.isEmpty() ? "unknown_admin" : uid;
     }
 
     @NonNull
     private String valueOr(@Nullable String value, @NonNull String fallback) {
-        if (value == null) {
-            return fallback;
-        }
+        if (value == null) return fallback;
         String trimmed = value.trim();
         return trimmed.isEmpty() ? fallback : trimmed;
     }
 
     @NonNull
     private String capitalize(@NonNull String text) {
-        if (text.isEmpty()) {
-            return text;
-        }
+        if (text.isEmpty()) return text;
         return Character.toUpperCase(text.charAt(0)) + text.substring(1);
     }
 }

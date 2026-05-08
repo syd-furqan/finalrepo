@@ -14,11 +14,11 @@ public class FineCaseRecord {
     public static final String STATUS_ISSUED = "issued";
     public static final String STATUS_WAIVED = "waived";
     public static final String STATUS_SETTLED = "settled";
+    public static final String STATUS_REMOVAL_REQUESTED = "removal_requested";
 
     private final String id;
     private final String sponsorUid;
-    private final String requestId;
-    private final String alertId;
+    private final String violationReportId;
     private final String guestName;
     private final String guestIdNumber;
     private final double amount;
@@ -26,6 +26,7 @@ public class FineCaseRecord {
     private final String reasonCode;
     private final String status;
     private final String issuedByUid;
+    private final String paymentNote;
     private final Timestamp createdAt;
     private final Timestamp updatedAt;
     private final Timestamp resolvedAt;
@@ -33,8 +34,7 @@ public class FineCaseRecord {
     public FineCaseRecord(
             @NonNull String id,
             @NonNull String sponsorUid,
-            @NonNull String requestId,
-            @NonNull String alertId,
+            @NonNull String violationReportId,
             @NonNull String guestName,
             @NonNull String guestIdNumber,
             double amount,
@@ -42,14 +42,14 @@ public class FineCaseRecord {
             @NonNull String reasonCode,
             @NonNull String status,
             @NonNull String issuedByUid,
+            @NonNull String paymentNote,
             @Nullable Timestamp createdAt,
             @Nullable Timestamp updatedAt,
             @Nullable Timestamp resolvedAt
     ) {
         this.id = id;
         this.sponsorUid = sponsorUid;
-        this.requestId = requestId;
-        this.alertId = alertId;
+        this.violationReportId = violationReportId;
         this.guestName = guestName;
         this.guestIdNumber = guestIdNumber;
         this.amount = amount;
@@ -57,6 +57,7 @@ public class FineCaseRecord {
         this.reasonCode = reasonCode;
         this.status = status;
         this.issuedByUid = issuedByUid;
+        this.paymentNote = paymentNote;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.resolvedAt = resolvedAt;
@@ -65,13 +66,16 @@ public class FineCaseRecord {
     @NonNull
     public static FineCaseRecord fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
         if (map == null) {
-            return new FineCaseRecord(id, "", "", "", "", "", 0.0, "PKR", "", STATUS_ISSUED, "", null, null, null);
+            return new FineCaseRecord(id, "", "", "", "", 0.0, "PKR", "", STATUS_ISSUED, "", "", null, null, null);
+        }
+        String reportId = asString(map.get("violationReportId"));
+        if (reportId.isEmpty()) {
+            reportId = asString(map.get("alertId"));
         }
         return new FineCaseRecord(
                 id,
                 asString(map.get("sponsorUid")),
-                asString(map.get("requestId")),
-                asString(map.get("alertId")),
+                reportId,
                 asString(map.get("guestName")),
                 asString(map.get("guestIdNumber")),
                 asDouble(map.get("amount")),
@@ -79,6 +83,7 @@ public class FineCaseRecord {
                 asString(map.get("reasonCode")),
                 asStringOr(map.get("status"), STATUS_ISSUED),
                 asString(map.get("issuedByUid")),
+                asString(map.get("paymentNote")),
                 asTimestamp(map.get("createdAt")),
                 asTimestamp(map.get("updatedAt")),
                 asTimestamp(map.get("resolvedAt"))
@@ -87,6 +92,10 @@ public class FineCaseRecord {
 
     public boolean isOpen() {
         return STATUS_ISSUED.equalsIgnoreCase(status);
+    }
+
+    public boolean isRemovalRequested() {
+        return STATUS_REMOVAL_REQUESTED.equalsIgnoreCase(status);
     }
 
     @NonNull
@@ -100,13 +109,13 @@ public class FineCaseRecord {
     }
 
     @NonNull
-    public String getRequestId() {
-        return requestId;
+    public String getViolationReportId() {
+        return violationReportId;
     }
 
     @NonNull
-    public String getAlertId() {
-        return alertId;
+    public String getPaymentNote() {
+        return paymentNote;
     }
 
     @NonNull
@@ -145,6 +154,9 @@ public class FineCaseRecord {
         }
         if (STATUS_WAIVED.equalsIgnoreCase(status)) {
             return "removed";
+        }
+        if (STATUS_REMOVAL_REQUESTED.equalsIgnoreCase(status)) {
+            return "removal requested";
         }
         return "charged";
     }
