@@ -110,6 +110,17 @@
                     android:textAllCaps="false"
                     android:textColor="@color/white" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_log_exit_from_scan"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:background="@drawable/bg_button_primary"
+                    android:text="@string/log_exit_action"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:visibility="gone" />
+
                 <TextView
                     android:id="@+id/text_pass_result"
                     android:layout_width="match_parent"
