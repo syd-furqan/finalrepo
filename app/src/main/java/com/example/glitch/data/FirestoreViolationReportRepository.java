@@ -4,13 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.glitch.model.GuestIdentityPolicy;
-import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.ViolationReport;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +20,7 @@ import java.util.Map;
 
 public class FirestoreViolationReportRepository implements ViolationReportRepository {
     private static final String COLLECTION_REPORTS = "violation_reports";
+    private static final String COLLECTION_ALERTS = "alerts";
     private static final String COLLECTION_PASSES = "guest_passes";
     private static final String COLLECTION_USERS = "users";
 
@@ -52,6 +53,7 @@ public class FirestoreViolationReportRepository implements ViolationReportReposi
             @NonNull String subjectStudentUid,
             @NonNull String subjectStudentName,
             @NonNull String subjectStudentEmail,
+            @NonNull String subjectStudentId,
             @NonNull OperationCallback callback
     ) {
         if (detail.trim().isEmpty() || violationLevel.trim().isEmpty()) {
@@ -74,12 +76,35 @@ public class FirestoreViolationReportRepository implements ViolationReportReposi
         payload.put("subjectStudentUid", subjectStudentUid.trim());
         payload.put("subjectStudentName", subjectStudentName.trim());
         payload.put("subjectStudentEmail", subjectStudentEmail.trim());
+        payload.put("subjectStudentId", subjectStudentId.trim());
         payload.put("status", ViolationReport.STATUS_PENDING);
         payload.put("createdAt", FieldValue.serverTimestamp());
         payload.put("updatedAt", FieldValue.serverTimestamp());
-        firestore.collection(COLLECTION_REPORTS)
-                .add(payload)
-                .addOnSuccessListener(ref -> callback.onComplete(true, "Violation report submitted.", null))
+        DocumentReference reportRef = firestore.collection(COLLECTION_REPORTS).document();
+        DocumentReference alertRef = firestore.collection(COLLECTION_ALERTS)
+                .document("violation_report_" + reportRef.getId());
+        WriteBatch batch = firestore.batch();
+        batch.set(reportRef, payload);
+        batch.set(alertRef, AdminAlertPayloadFactory.manualViolation(
+                reportRef.getId(),
+                reporterUid,
+                reporterRole,
+                reporterName,
+                detail,
+                violationLevel,
+                subjectType,
+                guestCnic,
+                guestName,
+                sponsorUid,
+                sponsorName,
+                sponsorRole,
+                subjectStudentUid,
+                subjectStudentName,
+                subjectStudentEmail,
+                subjectStudentId
+        ));
+        batch.commit()
+                .addOnSuccessListener(unused -> callback.onComplete(true, "Violation report submitted.", null))
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to submit report.", error));
     }
 
@@ -172,26 +197,28 @@ public class FirestoreViolationReportRepository implements ViolationReportReposi
     }
 
     @Override
-    public void findStudentByEmail(@NonNull String email, @NonNull StudentInfoCallback callback) {
-        String normalizedEmail = email.trim().toLowerCase();
-        if (normalizedEmail.isEmpty()) {
-            callback.onNotFound("Enter a valid email.");
+    public void findStudentByStudentId(@NonNull String studentId, @NonNull StudentInfoCallback callback) {
+        String normalizedStudentId = studentId.trim();
+        if (normalizedStudentId.isEmpty()) {
+            callback.onNotFound("Enter a valid student ID.");
             return;
         }
         firestore.collection(COLLECTION_USERS)
-                .whereEqualTo("email", normalizedEmail)
+                .whereEqualTo("studentId", normalizedStudentId)
                 .whereEqualTo("role", "student")
                 .limit(1)
                 .get()
                 .addOnSuccessListener(snapshot -> {
                     if (snapshot.isEmpty()) {
-                        callback.onNotFound("No student found with this email.");
+                        callback.onNotFound("No student found with this student ID.");
                         return;
                     }
                     DocumentSnapshot doc = snapshot.getDocuments().get(0);
                     String uid = doc.getId();
                     String name = asString(doc.get("displayName"));
-                    callback.onFound(uid, name);
+                    String email = asString(doc.get("email"));
+                    String foundStudentId = asString(doc.get("studentId"));
+                    callback.onFound(uid, name, email, foundStudentId);
                 })
                 .addOnFailureListener(callback::onError);
     }

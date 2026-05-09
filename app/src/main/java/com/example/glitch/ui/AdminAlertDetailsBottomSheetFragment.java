@@ -30,8 +30,10 @@ public class AdminAlertDetailsBottomSheetFragment extends BottomSheetDialogFragm
 
     public static final String ACTION_LOG_EXIT = "log_exit";
     public static final String ACTION_CHARGE = "charge";
+    public static final String ACTION_MARK_REVIEWED = "mark_reviewed";
 
     private static final String ARG_ALERT_ID = "arg_alert_id";
+    private static final String ARG_ALERT_TYPE = "arg_alert_type";
     private static final String ARG_REQUEST_ID = "arg_request_id";
     private static final String ARG_INCIDENT_STATUS = "arg_incident_status";
     private static final String ARG_INTERVENTION_SUMMARY = "arg_intervention_summary";
@@ -49,6 +51,7 @@ public class AdminAlertDetailsBottomSheetFragment extends BottomSheetDialogFragm
     @NonNull
     public static AdminAlertDetailsBottomSheetFragment newInstance(
             @NonNull String alertId,
+            @NonNull String alertType,
             @NonNull String requestId,
             @NonNull String incidentStatus,
             @NonNull String interventionSummary,
@@ -66,6 +69,7 @@ public class AdminAlertDetailsBottomSheetFragment extends BottomSheetDialogFragm
         AdminAlertDetailsBottomSheetFragment fragment = new AdminAlertDetailsBottomSheetFragment();
         Bundle args = new Bundle();
         args.putString(ARG_ALERT_ID, alertId);
+        args.putString(ARG_ALERT_TYPE, alertType);
         args.putString(ARG_REQUEST_ID, requestId);
         args.putString(ARG_INCIDENT_STATUS, incidentStatus);
         args.putString(ARG_INTERVENTION_SUMMARY, interventionSummary);
@@ -99,6 +103,7 @@ public class AdminAlertDetailsBottomSheetFragment extends BottomSheetDialogFragm
         Bundle args = requireArguments();
 
         String alertId = safe(args, ARG_ALERT_ID);
+        String alertType = safe(args, ARG_ALERT_TYPE);
         String requestId = safe(args, ARG_REQUEST_ID);
         String incidentStatus = safe(args, ARG_INCIDENT_STATUS);
         String interventionSummary = safe(args, ARG_INTERVENTION_SUMMARY);
@@ -129,33 +134,49 @@ public class AdminAlertDetailsBottomSheetFragment extends BottomSheetDialogFragm
 
         textIncidentStatus.setText(labelValue("Incident", valueOr(incidentStatus, "new")));
         textInterventionSummary.setText(labelValue("Intervention", valueOr(interventionSummary, "N/A")));
-        textGuard.setText(labelValue("Guard", valueOr(guard, "Unknown")));
-        textVisitor.setText(labelValue("Visitor", valueOr(visitor, "N/A")));
-        textSponsor.setText(labelValue("Sponsor", valueOr(sponsor, "N/A")));
+        textGuard.setText(labelValue(actorLabel(alertType), valueOr(guard, "Unknown")));
+        textVisitor.setText(labelValue(subjectLabel(alertType), valueOr(visitor, "N/A")));
+        textSponsor.setText(labelValue(ownerLabel(alertType), valueOr(sponsor, "N/A")));
         textGate.setText(labelValue("Gate", valueOr(gate, "In-Gate")));
         textReason.setText(labelValue("Reason", valueOr(reason, "N/A")));
         textSource.setText(labelValue("Source", valueOr(source, "N/A")));
         textMessage.setText(labelValue("Message", valueOr(message, "N/A")));
 
-        boolean actionable = "new".equalsIgnoreCase(incidentStatus.trim());
-        actionsContainer.setVisibility(actionable ? View.VISIBLE : View.GONE);
-
-        buttonLogExit.setOnClickListener(v -> dispatchAction(
-                ACTION_LOG_EXIT,
-                alertId,
-                requestId,
-                sponsorUid,
-                guestName,
-                guestId
-        ));
-        buttonCharge.setOnClickListener(v -> dispatchAction(
-                ACTION_CHARGE,
-                alertId,
-                requestId,
-                sponsorUid,
-                guestName,
-                guestId
-        ));
+        boolean actionable = isEntryReport(alertType)
+                && "new".equalsIgnoreCase(incidentStatus.trim())
+                && !requestId.trim().isEmpty();
+        boolean reviewOnly = "new".equalsIgnoreCase(incidentStatus.trim()) && !actionable;
+        actionsContainer.setVisibility(actionable || reviewOnly ? View.VISIBLE : View.GONE);
+        if (reviewOnly) {
+            buttonLogExit.setText("Mark Reviewed");
+            buttonLogExit.setOnClickListener(v -> dispatchAction(
+                    ACTION_MARK_REVIEWED,
+                    alertId,
+                    requestId,
+                    sponsorUid,
+                    guestName,
+                    guestId
+            ));
+            buttonCharge.setVisibility(View.GONE);
+        } else {
+            buttonLogExit.setOnClickListener(v -> dispatchAction(
+                    ACTION_LOG_EXIT,
+                    alertId,
+                    requestId,
+                    sponsorUid,
+                    guestName,
+                    guestId
+            ));
+            buttonCharge.setVisibility(View.VISIBLE);
+            buttonCharge.setOnClickListener(v -> dispatchAction(
+                    ACTION_CHARGE,
+                    alertId,
+                    requestId,
+                    sponsorUid,
+                    guestName,
+                    guestId
+            ));
+        }
         buttonClose.setOnClickListener(v -> dismiss());
     }
 
@@ -193,5 +214,35 @@ public class AdminAlertDetailsBottomSheetFragment extends BottomSheetDialogFragm
     @NonNull
     private String labelValue(@NonNull String label, @NonNull String value) {
         return label + ": " + value;
+    }
+
+    @NonNull
+    private String actorLabel(@NonNull String alertType) {
+        return isEntryReport(alertType) ? "Guard" : "Actor";
+    }
+
+    @NonNull
+    private String subjectLabel(@NonNull String alertType) {
+        String normalized = alertType.trim().toLowerCase(Locale.getDefault());
+        if ("vehicle_review".equals(normalized)) {
+            return "Vehicle";
+        }
+        if ("charge_review".equals(normalized)) {
+            return "Charge";
+        }
+        return isEntryReport(alertType) ? "Visitor" : "Subject";
+    }
+
+    @NonNull
+    private String ownerLabel(@NonNull String alertType) {
+        String normalized = alertType.trim().toLowerCase(Locale.getDefault());
+        if ("vehicle_review".equals(normalized) || "charge_review".equals(normalized)) {
+            return "Owner";
+        }
+        return "Sponsor";
+    }
+
+    private boolean isEntryReport(@NonNull String alertType) {
+        return "entry_report".equalsIgnoreCase(alertType.trim());
     }
 }

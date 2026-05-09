@@ -20,6 +20,7 @@ public class UserProfile {
 	private final boolean isActive;
 	private final String displayName;
 	private final String studentCategory;
+	private final String studentId;
 	private final Timestamp createdAt;
 	private final Timestamp updatedAt;
 
@@ -33,6 +34,7 @@ public class UserProfile {
 			boolean isActive,
 			@NonNull String displayName,
 			@NonNull String studentCategory,
+			@NonNull String studentId,
 			@Nullable Timestamp createdAt,
 			@Nullable Timestamp updatedAt
 	) {
@@ -42,8 +44,22 @@ public class UserProfile {
 		this.isActive = isActive;
 		this.displayName = displayName;
 		this.studentCategory = studentCategory;
+		this.studentId = studentId.trim();
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+	}
+
+	public UserProfile(
+			@NonNull String uid,
+			@NonNull String email,
+			@NonNull String role,
+			boolean isActive,
+			@NonNull String displayName,
+			@NonNull String studentCategory,
+			@Nullable Timestamp createdAt,
+			@Nullable Timestamp updatedAt
+	) {
+		this(uid, email, role, isActive, displayName, studentCategory, "", createdAt, updatedAt);
 	}
 
 	public UserProfile(
@@ -55,7 +71,7 @@ public class UserProfile {
 			@Nullable Timestamp createdAt,
 			@Nullable Timestamp updatedAt
 	) {
-		this(uid, email, role, isActive, displayName, "", createdAt, updatedAt);
+		this(uid, email, role, isActive, displayName, "", "", createdAt, updatedAt);
 	}
 
 	/**
@@ -64,7 +80,7 @@ public class UserProfile {
 	@NonNull
 	public static UserProfile fromMap(@NonNull String uid, @Nullable Map<String, Object> map) {
 		if (map == null) {
-			return new UserProfile(uid, "", "", false, "", "", null, null);
+			return new UserProfile(uid, "", "", false, "", "", "", null, null);
 		}
 		return new UserProfile(
 				uid,
@@ -73,6 +89,7 @@ public class UserProfile {
 				asBoolean(map.get("isActive")),
 				asString(map.get("displayName")),
 				asString(map.get("studentCategory")).trim().toLowerCase(Locale.getDefault()),
+				asString(map.get("studentId")),
 				asTimestamp(map.get("createdAt")),
 				asTimestamp(map.get("updatedAt"))
 		);
@@ -134,6 +151,14 @@ public class UserProfile {
 	@NonNull
 	public String getStudentCategory() {
 		return studentCategory;
+	}
+
+	/**
+	 * @return institution student id for student users.
+	 */
+	@NonNull
+	public String getStudentId() {
+		return studentId;
 	}
 
 	/**

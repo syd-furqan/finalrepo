@@ -23,13 +23,26 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.List;
 
 public class AdminBannedListFragment extends Fragment {
+    private static final String ARG_TARGET_CNIC = "target_cnic";
+
     private InterventionRepository interventionRepository;
     private BannedGuestAdapter adapter;
     private TextView textEmpty;
+    private RecyclerView recyclerView;
+    private String targetCnic = "";
 
     @NonNull
     public static AdminBannedListFragment newInstance() {
         return new AdminBannedListFragment();
+    }
+
+    @NonNull
+    public static AdminBannedListFragment newInstance(@NonNull String targetCnic) {
+        AdminBannedListFragment fragment = new AdminBannedListFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_TARGET_CNIC, targetCnic.trim());
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -43,8 +56,10 @@ public class AdminBannedListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         interventionRepository = RepositoryProvider.getInterventionRepository();
         textEmpty = view.findViewById(R.id.text_banned_empty);
+        Bundle args = getArguments();
+        targetCnic = args == null ? "" : safe(args.getString(ARG_TARGET_CNIC));
 
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_banned_guests);
+        recyclerView = view.findViewById(R.id.recycler_banned_guests);
         adapter = new BannedGuestAdapter();
         adapter.setListener(this::confirmUnban);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -59,6 +74,7 @@ public class AdminBannedListFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     adapter.submitList(bans);
                     textEmpty.setVisibility(bans.isEmpty() ? View.VISIBLE : View.GONE);
+                    scrollToTargetBan();
                 });
             }
 
@@ -81,9 +97,28 @@ public class AdminBannedListFragment extends Fragment {
         });
     }
 
+    private void scrollToTargetBan() {
+        if (targetCnic.trim().isEmpty() || recyclerView == null) {
+            return;
+        }
+        int position = adapter.indexOfCnic(targetCnic);
+        if (position == RecyclerView.NO_POSITION) {
+            Snackbar.make(requireView(), "Linked banned guest was not found.", Snackbar.LENGTH_LONG).show();
+            targetCnic = "";
+            return;
+        }
+        recyclerView.post(() -> recyclerView.smoothScrollToPosition(position));
+        targetCnic = "";
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (interventionRepository != null) interventionRepository.removeListeners();
+    }
+
+    @NonNull
+    private String safe(@Nullable String value) {
+        return value == null ? "" : value.trim();
     }
 }

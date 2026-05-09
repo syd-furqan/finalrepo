@@ -86,6 +86,10 @@ public class RoleHomeFragment extends Fragment {
     }
 
     private void bindRoleActions(@NonNull LinearLayout container, @NonNull String role) {
+        if ("admin".equals(role)) {
+            bindAdminDashboardActions(container, role);
+            return;
+        }
         for (RoleDestination destination : RoleNavRouter.getHubDestinationsForRole(role)) {
             if (destination == RoleDestination.DIRECTORY
                     || destination == RoleDestination.LOGOUT
@@ -98,6 +102,59 @@ public class RoleHomeFragment extends Fragment {
                     () -> openDestination(destination)
             );
         }
+    }
+
+    private void bindAdminDashboardActions(@NonNull LinearLayout container, @NonNull String role) {
+        addSectionHeader(container, "Admin Setup");
+        addDestinationAction(container, RoleDestination.USERS, role);
+
+        addSectionHeader(container, "Security");
+        for (RoleDestination destination : RoleNavRouter.getAdminCategoryDestinations(RoleDestination.ADMIN_SECURITY)) {
+            addDestinationAction(container, destination, role);
+        }
+
+        addSectionHeader(container, "Access");
+        for (RoleDestination destination : RoleNavRouter.getAdminCategoryDestinations(RoleDestination.ADMIN_ACCESS)) {
+            addDestinationAction(container, destination, role);
+        }
+
+        addSectionHeader(container, "Audit");
+        for (RoleDestination destination : RoleNavRouter.getAdminCategoryDestinations(RoleDestination.AUDIT)) {
+            addDestinationAction(container, destination, role);
+        }
+    }
+
+    private void addDestinationAction(
+            @NonNull LinearLayout container,
+            @NonNull RoleDestination destination,
+            @NonNull String role
+    ) {
+        if (RoleNavRouter.createFragmentForDestination(destination, null) == null) {
+            return;
+        }
+        addAction(
+                container,
+                RoleNavRouter.getLabelForDestination(destination, role),
+                () -> openDestination(destination)
+        );
+    }
+
+    private void addSectionHeader(@NonNull LinearLayout container, @NonNull String label) {
+        TextView header = new TextView(requireContext());
+        header.setText(label);
+        header.setTextColor(requireContext().getColor(R.color.text_dark));
+        header.setTextSize(13);
+        header.setTypeface(header.getTypeface(), android.graphics.Typeface.BOLD);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.topMargin = container.getChildCount() == 0
+                ? 0
+                : (int) (getResources().getDisplayMetrics().density * 14);
+        params.bottomMargin = (int) (getResources().getDisplayMetrics().density * 8);
+        header.setLayoutParams(params);
+        container.addView(header);
     }
 
     private void addAction(@NonNull LinearLayout container, @NonNull String label, @NonNull Runnable action) {

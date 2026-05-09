@@ -35,7 +35,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Describe the incident and verify the guest before submitting."
+                android:text="Describe the incident and verify the visitor or student before submitting."
                 android:textColor="@color/text_muted"
                 android:textSize="13sp" />
 
@@ -120,7 +120,7 @@
                 </RadioGroup>
             </LinearLayout>
 
-            <!-- Subject type toggle (guard only - hidden for monitor) -->
+            <!-- Subject type toggle -->
             <LinearLayout
                 android:id="@+id/container_subject_toggle"
                 android:layout_width="match_parent"
@@ -128,8 +128,7 @@
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_card_white"
                 android:orientation="vertical"
-                android:padding="16dp"
-                android:visibility="gone">
+                android:padding="16dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -152,7 +151,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:checked="true"
-                        android:text="Guest"
+                        android:text="Visitor"
                         android:textColor="@color/text_dark" />
 
                     <RadioButton
@@ -165,7 +164,7 @@
                 </RadioGroup>
             </LinearLayout>
 
-            <!-- Guest CNIC verification panel -->
+            <!-- Visitor verification panel -->
             <LinearLayout
                 android:id="@+id/container_guest_verify"
                 android:layout_width="match_parent"
@@ -178,17 +177,52 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Guest Credentials"
+                    android:text="Visitor Credentials"
                     android:textColor="@color/text_dark"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
+                <RadioGroup
+                    android:id="@+id/radio_visitor_lookup_method"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/radio_lookup_qr"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="QR"
+                        android:textColor="@color/text_dark" />
+
+                    <RadioButton
+                        android:id="@+id/radio_lookup_passcode"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:text="Passcode"
+                        android:textColor="@color/text_dark" />
+
+                    <RadioButton
+                        android:id="@+id/radio_lookup_cnic"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="CNIC"
+                        android:textColor="@color/text_dark" />
+                </RadioGroup>
+
                 <LinearLayout
+                    android:id="@+id/container_guest_cnic_lookup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
@@ -211,6 +245,46 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Verify"
+                        android:textAllCaps="false" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/container_guest_passcode_lookup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:hint="Passcode or QR text">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_guest_pass_code"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textCapCharacters" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_verify_guest_passcode"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="Verify"
+                        android:textAllCaps="false" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_scan_guest_qr"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Scan"
                         android:textAllCaps="false" />
                 </LinearLayout>
 
@@ -242,7 +316,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- Student email verification panel (guard only) -->
+            <!-- Student ID verification panel -->
             <LinearLayout
                 android:id="@+id/container_student_verify"
                 android:layout_width="match_parent"
@@ -256,7 +330,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Student Email"
+                    android:text="Student ID"
                     android:textColor="@color/text_dark"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -273,13 +347,13 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        android:hint="Student email address">
+                        android:hint="Student ID">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/input_student_email"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textEmailAddress" />
+                            android:inputType="textCapCharacters" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton

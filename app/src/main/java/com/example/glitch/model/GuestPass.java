@@ -19,6 +19,7 @@ public class GuestPass {
 	private final String sponsorRole;
 	private final String sponsorName;
 	private final String sponsorEmail;
+	private final String sponsorStudentId;
 	private final String guestName;
 	private final String guestIdNumber;
 	private final boolean hasVehicle;
@@ -43,6 +44,7 @@ public class GuestPass {
 			@NonNull String sponsorRole,
 			@NonNull String sponsorName,
 			@NonNull String sponsorEmail,
+			@NonNull String sponsorStudentId,
 			@NonNull String guestName,
 			@NonNull String guestIdNumber,
 			boolean hasVehicle,
@@ -63,6 +65,7 @@ public class GuestPass {
 		this.sponsorRole = sponsorRole;
 		this.sponsorName = sponsorName;
 		this.sponsorEmail = sponsorEmail;
+		this.sponsorStudentId = sponsorStudentId.trim();
 		this.guestName = guestName;
 		String normalizedGuestId = GuestIdentityPolicy.normalizeCnic(guestIdNumber);
 		this.guestIdNumber = normalizedGuestId == null ? guestIdNumber : normalizedGuestId;
@@ -83,6 +86,32 @@ public class GuestPass {
 		this.createdAt = createdAt;
 	}
 
+	public GuestPass(
+			@NonNull String id,
+			@NonNull String sponsorUid,
+			@NonNull String sponsorRole,
+			@NonNull String sponsorName,
+			@NonNull String sponsorEmail,
+			@NonNull String guestName,
+			@NonNull String guestIdNumber,
+			boolean hasVehicle,
+			@NonNull String vehiclePlate,
+			@NonNull String guestType,
+			@NonNull String passCode,
+			@NonNull String entryRequestId,
+			@NonNull String gateLabel,
+			@NonNull String status,
+			@Nullable Timestamp expiresAt,
+			@Nullable Timestamp admittedAt,
+			@NonNull String admittedByUid,
+			@NonNull String admissionMethod,
+			@Nullable Timestamp createdAt
+	) {
+		this(id, sponsorUid, sponsorRole, sponsorName, sponsorEmail, "", guestName, guestIdNumber,
+				hasVehicle, vehiclePlate, guestType, passCode, entryRequestId, gateLabel, status,
+				expiresAt, admittedAt, admittedByUid, admissionMethod, createdAt);
+	}
+
 	/**
 	 * Maps Firestore data into a {@link GuestPass}.
 	 *
@@ -95,6 +124,7 @@ public class GuestPass {
 		if (map == null) {
 			return new GuestPass(
 					id,
+					"",
 					"",
 					"",
 					"",
@@ -121,6 +151,7 @@ public class GuestPass {
 				asString(map.get("sponsorRole")),
 				asString(map.get("sponsorName")),
 				asString(map.get("sponsorEmail")),
+				asStringOr(map.get("sponsorStudentId"), asString(map.get("studentId"))),
 				asString(map.get("guestName")),
 				asString(map.get("guestIdNumber")),
 				asBoolean(map.get("hasVehicle")),
@@ -152,6 +183,14 @@ public class GuestPass {
 	@NonNull
 	public String getSponsorEmail() {
 		return sponsorEmail;
+	}
+
+	/**
+	 * @return student id of the sponsoring student, when applicable.
+	 */
+	@NonNull
+	public String getSponsorStudentId() {
+		return sponsorStudentId;
 	}
 
 	/**
@@ -283,6 +322,12 @@ public class GuestPass {
 	@NonNull
 	private static String asString(@Nullable Object value) {
 		return value == null ? "" : String.valueOf(value);
+	}
+
+	@NonNull
+	private static String asStringOr(@Nullable Object value, @NonNull String fallback) {
+		String parsed = asString(value);
+		return parsed.trim().isEmpty() ? fallback : parsed;
 	}
 
 	private static boolean asBoolean(@Nullable Object value) {

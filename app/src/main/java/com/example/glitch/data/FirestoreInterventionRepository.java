@@ -15,6 +15,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +31,7 @@ public class FirestoreInterventionRepository implements InterventionRepository {
     private static final String COLLECTION_STUDENT_WARNINGS = "student_warnings";
     private static final String COLLECTION_ENTRY_REQUESTS = "entry_requests";
     private static final String COLLECTION_GUEST_PASSES = "guest_passes";
+    private static final String COLLECTION_ALERTS = "alerts";
 
     private final FirebaseFirestore firestore;
     private final AuditEventLogger auditEventLogger;
@@ -261,9 +264,18 @@ public class FirestoreInterventionRepository implements InterventionRepository {
         updates.put("status", FineCaseRecord.STATUS_REMOVAL_REQUESTED);
         updates.put("paymentNote", paymentNote.trim());
         updates.put("updatedAt", FieldValue.serverTimestamp());
-        firestore.collection(COLLECTION_FINE_CASES)
-                .document(chargeId.trim())
-                .set(updates, com.google.firebase.firestore.SetOptions.merge())
+        String normalizedChargeId = chargeId.trim();
+        DocumentReference chargeRef = firestore.collection(COLLECTION_FINE_CASES).document(normalizedChargeId);
+        DocumentReference alertRef = firestore.collection(COLLECTION_ALERTS)
+                .document("charge_review_" + normalizedChargeId);
+        WriteBatch batch = firestore.batch();
+        batch.set(chargeRef, updates, SetOptions.merge());
+        batch.set(alertRef, AdminAlertPayloadFactory.chargeReview(
+                normalizedChargeId,
+                studentUid,
+                paymentNote
+        ));
+        batch.commit()
                 .addOnSuccessListener(unused -> callback.onComplete(true, "Removal request submitted.", null))
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to submit removal request.", error));
     }

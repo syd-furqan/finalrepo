@@ -145,7 +145,6 @@ public class AdminTrafficAnalyticsFragment extends Fragment {
                 });
 
         firestore.collection("alerts")
-                .whereEqualTo("alertType", "entry_report")
                 .whereGreaterThanOrEqualTo("createdAt", fromTs)
                 .whereLessThanOrEqualTo("createdAt", toTs)
                 .get()

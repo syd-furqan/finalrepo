@@ -48,6 +48,19 @@ public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicle
         notifyDataSetChanged();
     }
 
+    public int indexOfRequestId(@NonNull String requestId) {
+        String target = requestId.trim();
+        if (target.isEmpty()) {
+            return RecyclerView.NO_POSITION;
+        }
+        for (int i = 0; i < items.size(); i++) {
+            if (target.equals(items.get(i).getId())) {
+                return i;
+            }
+        }
+        return RecyclerView.NO_POSITION;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

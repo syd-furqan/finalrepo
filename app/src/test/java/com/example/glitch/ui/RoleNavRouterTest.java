@@ -49,19 +49,45 @@ public class RoleNavRouterTest {
     }
 
     @Test
-    public void adminPrimaryPagesAreAuditAlertsViolationsAndMore() {
+    public void adminPrimaryPagesAreDashboardSecurityAccessAndAudit() {
         assertEquals(
                 Arrays.asList(
-                        RoleDestination.AUDIT,
-                        RoleDestination.ALERTS,
-                        RoleDestination.VIOLATION_DIRECTORY,
-                        RoleDestination.DIRECTORY
+                        RoleDestination.DIRECTORY,
+                        RoleDestination.ADMIN_SECURITY,
+                        RoleDestination.ADMIN_ACCESS,
+                        RoleDestination.AUDIT
                 ),
                 RoleNavRouter.getPrimaryDestinationsForRole("admin")
         );
-        assertEquals(RoleDestination.AUDIT, RoleNavRouter.getDefaultDestinationForRole("admin"));
-        assertEquals(RoleDestination.AUDIT, RoleNavRouter.resolveDestinationForRole(RoleDestination.DASHBOARD, "admin"));
-        assertEquals(RoleDestination.ALERTS, RoleNavRouter.resolveDestinationForRole(RoleDestination.PASSES, "admin"));
+        assertEquals(RoleDestination.DIRECTORY, RoleNavRouter.getDefaultDestinationForRole("admin"));
+        assertEquals(RoleDestination.DIRECTORY, RoleNavRouter.resolveDestinationForRole(RoleDestination.DASHBOARD, "admin"));
+        assertEquals(RoleDestination.ADMIN_SECURITY, RoleNavRouter.resolveDestinationForRole(RoleDestination.PASSES, "admin"));
+        assertEquals(RoleDestination.ADMIN_ACCESS, RoleNavRouter.resolveDestinationForRole(RoleDestination.VEHICLES, "admin"));
+    }
+
+    @Test
+    public void adminCategoriesContainInternalPages() {
+        assertEquals(
+                Arrays.asList(
+                        RoleDestination.ALERTS,
+                        RoleDestination.VIOLATION_DIRECTORY,
+                        RoleDestination.BANNED_LIST,
+                        RoleDestination.ADMIN_CHARGES
+                ),
+                RoleNavRouter.getAdminCategoryDestinations(RoleDestination.ADMIN_SECURITY)
+        );
+        assertEquals(
+                Arrays.asList(
+                        RoleDestination.DASHBOARD,
+                        RoleDestination.SCAN,
+                        RoleDestination.ADMIN_VEHICLES
+                ),
+                RoleNavRouter.getAdminCategoryDestinations(RoleDestination.ADMIN_ACCESS)
+        );
+        assertEquals(
+                Arrays.asList(RoleDestination.AUDIT, RoleDestination.ADMIN_ANALYTICS),
+                RoleNavRouter.getAdminCategoryDestinations(RoleDestination.AUDIT)
+        );
     }
 
     @Test

@@ -30,6 +30,7 @@ public class EntryRequestTest {
         map.put("vehiclePlate", "abc-123");
         map.put("guestType", "vehicle");
         map.put("requesterRole", "student");
+        map.put("studentId", "STU-123");
         map.put("enteredAt", entered);
         map.put("status", "pending");
         map.put("expiresAt", expires);
@@ -47,6 +48,7 @@ public class EntryRequestTest {
         assertEquals("ABC-123", request.getVehiclePlate());
         assertEquals("vehicle", request.getGuestType());
         assertEquals("student", request.getRequesterRole());
+        assertEquals("STU-123", request.getRequesterStudentId());
         assertEquals("pending", request.getStatus());
         assertEquals("guest", request.getIconType());
         assertNotNull(request.getEnteredAt());

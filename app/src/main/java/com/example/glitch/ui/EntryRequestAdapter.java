@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,16 +31,14 @@ import java.util.Locale;
 public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapter.EntryRequestViewHolder> {
     private final List<EntryRequest> requests = new ArrayList<>();
     private final EntryActionListener listener;
-    private final boolean showViolationAction;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a", Locale.getDefault());
 
     public EntryRequestAdapter(@NonNull EntryActionListener listener) {
-        this(listener, false);
+        this.listener = listener;
     }
 
     public EntryRequestAdapter(@NonNull EntryActionListener listener, boolean showViolationAction) {
         this.listener = listener;
-        this.showViolationAction = showViolationAction;
     }
 
     /**
@@ -86,24 +83,8 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
         holder.imageRequestIcon.setImageResource(iconForType(request.getIconType()));
 
         holder.buttonDetails.setOnClickListener(view -> listener.onDetailsClicked(request));
-        if (showViolationAction) {
-            holder.buttonOverflow.setVisibility(View.VISIBLE);
-            holder.buttonOverflow.setOnClickListener(view -> {
-                PopupMenu menu = new PopupMenu(view.getContext(), view);
-                menu.getMenuInflater().inflate(R.menu.menu_entry_request_actions, menu.getMenu());
-                menu.setOnMenuItemClickListener(item -> {
-                    if (item.getItemId() == R.id.action_mark_violation) {
-                        listener.onMarkViolationClicked(request);
-                        return true;
-                    }
-                    return false;
-                });
-                menu.show();
-            });
-        } else {
-            holder.buttonOverflow.setVisibility(View.GONE);
-            holder.buttonOverflow.setOnClickListener(null);
-        }
+        holder.buttonOverflow.setVisibility(View.GONE);
+        holder.buttonOverflow.setOnClickListener(null);
     }
 
     @Override
@@ -160,8 +141,6 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
     public interface EntryActionListener {
         void onDetailsClicked(@NonNull EntryRequest request);
 
-        default void onMarkViolationClicked(@NonNull EntryRequest request) {
-            // Default no-op; only guard dashboard wires this action.
-        }
+        default void onMarkViolationClicked(@NonNull EntryRequest request) {}
     }
 }

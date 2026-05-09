@@ -92,6 +92,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                 sponsorRole,
                 sponsorName,
                 sponsorEmail,
+                "",
                 guestName,
                 guestIdNumber,
                 hasVehicle,
@@ -106,6 +107,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String sponsorRole,
             @NonNull String sponsorName,
             @NonNull String sponsorEmail,
+            @NonNull String sponsorStudentId,
             @NonNull String guestName,
             @NonNull String guestIdNumber,
             boolean hasVehicle,
@@ -151,6 +153,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     sponsorRole,
                     sponsorName,
                     sponsorEmail,
+                    sponsorStudentId,
                     trimmedGuestName,
                     normalizedCnic,
                     hasVehicle,
@@ -165,6 +168,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String sponsorRole,
             @NonNull String sponsorName,
             @NonNull String sponsorEmail,
+            @NonNull String sponsorStudentId,
             @NonNull String trimmedGuestName,
             @NonNull String normalizedCnic,
             boolean hasVehicle,
@@ -197,6 +201,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                                     sponsorRole,
                                     sponsorName,
                                     sponsorEmail,
+                                    sponsorStudentId,
                                     trimmedGuestName,
                                     normalizedCnic,
                                     hasVehicle,
@@ -217,6 +222,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     sponsorRole,
                     sponsorName,
                     sponsorEmail,
+                    sponsorStudentId,
                     trimmedGuestName,
                     normalizedCnic,
                     hasVehicle,
@@ -231,6 +237,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String sponsorRole,
             @NonNull String sponsorName,
             @NonNull String sponsorEmail,
+            @NonNull String sponsorStudentId,
             @NonNull String guestName,
             @NonNull String guestIdNumber,
             boolean hasVehicle,
@@ -259,6 +266,8 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
         requestData.put("expiresAt", expiresAt);
         requestData.put("requesterUid", sponsorUid);
         requestData.put("requesterRole", sponsorRole);
+        requestData.put("studentId", sponsorStudentId.trim());
+        requestData.put("sponsorStudentId", sponsorStudentId.trim());
         requestData.put("createdAt", FieldValue.serverTimestamp());
         requestData.put("updatedAt", FieldValue.serverTimestamp());
 
@@ -267,6 +276,8 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
         data.put("sponsorRole", sponsorRole);
         data.put("sponsorName", sponsorName);
         data.put("sponsorEmail", sponsorEmail);
+        data.put("studentId", sponsorStudentId.trim());
+        data.put("sponsorStudentId", sponsorStudentId.trim());
         data.put("guestName", guestName);
         data.put("guestIdNumber", guestIdNumber);
         data.put("hasVehicle", hasVehicle);
@@ -294,6 +305,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                             sponsorRole,
                             sponsorName,
                             sponsorEmail,
+                            sponsorStudentId,
                             guestName,
                             guestIdNumber,
                             hasVehicle,
@@ -846,6 +858,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                 pass.getSponsorRole(),
                 pass.getSponsorName(),
                 pass.getSponsorEmail(),
+                pass.getSponsorStudentId(),
                 pass.getGuestName(),
                 pass.getGuestIdNumber(),
                 pass.hasVehicle(),

@@ -144,6 +144,7 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
                     userProfile.getRole(),
                     userProfile.getDisplayName(),
                     userProfile.getEmail(),
+                    userProfile.getStudentId(),
                     guestName,
                     normalizedCnic,
                     hasVehicle,

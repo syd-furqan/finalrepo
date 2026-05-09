@@ -20,7 +20,6 @@ import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.DashboardState;
 import com.example.glitch.model.EntryRequest;
 import com.example.glitch.model.UserProfile;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.Timestamp;
@@ -151,8 +150,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
 
     private void setupRecycler(@NonNull View root) {
         RecyclerView recyclerView = root.findViewById(R.id.requests_recycler);
-        boolean allowViolationAction = "guard".equalsIgnoreCase(currentRole);
-        adapter = new EntryRequestAdapter(this, allowViolationAction);
+        adapter = new EntryRequestAdapter(this, false);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
     }
@@ -310,49 +308,6 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
     @Override
     public void onDetailsClicked(@NonNull EntryRequest request) {
         openEntryDetails(request, false);
-    }
-
-    @Override
-    public void onMarkViolationClicked(@NonNull EntryRequest request) {
-        if (!"guard".equalsIgnoreCase(currentRole)) {
-            Snackbar.make(requireView(), R.string.only_guard_violation_report, Snackbar.LENGTH_SHORT).show();
-            return;
-        }
-        new MaterialAlertDialogBuilder(requireContext())
-                .setTitle(R.string.mark_violation_action)
-                .setMessage(getString(R.string.mark_violation_confirm_message, request.getFullName()))
-                .setNegativeButton(R.string.cancel_action, (dialog, which) -> dialog.dismiss())
-                .setPositiveButton(R.string.confirm_action, (dialog, which) -> reportViolation(request))
-                .show();
-    }
-
-    private void reportViolation(@NonNull EntryRequest request) {
-        repository.reportViolation(request.getId(), (success, message, error) -> {
-            if (!isAdded()) {
-                return;
-            }
-            if (!success) {
-                requireActivity().runOnUiThread(() ->
-                        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
-                return;
-            }
-            guestPassRepository.markPassReportedByEntryRequestId(request.getId(), currentUid, (passSuccess, passMessage, passError) -> {
-                if (!isAdded()) {
-                    return;
-                }
-                requireActivity().runOnUiThread(() -> {
-                    if (passSuccess) {
-                        Snackbar.make(requireView(), R.string.mark_violation_success, Snackbar.LENGTH_SHORT).show();
-                    } else {
-                        Snackbar.make(
-                                requireView(),
-                                getString(R.string.mark_violation_partial_success, passMessage),
-                                Snackbar.LENGTH_LONG
-                        ).show();
-                    }
-                });
-            });
-        });
     }
 
     private void openEntryDetails(@NonNull EntryRequest request, boolean promptExit) {

@@ -170,6 +170,7 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
                 profile.getRole(),
                 profile.getDisplayName(),
                 profile.getEmail(),
+                profile.getStudentId(),
                 guestName,
                 normalizedCnic,
                 hasVehicle,

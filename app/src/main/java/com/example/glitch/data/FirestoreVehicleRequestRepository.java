@@ -26,6 +26,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
@@ -50,6 +51,7 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
     private static final String COLLECTION_VEHICLE_REQUESTS = "vehicle_requests";
     private static final String COLLECTION_REGISTERED_VEHICLES = "registered_vehicles";
     private static final String COLLECTION_ACCESS_EVENTS = "access_events";
+    private static final String COLLECTION_ALERTS = "alerts";
 
     private static final String STATUS_SUBMITTED = VehicleRequestRecord.STATUS_SUBMITTED;
     private static final String STATUS_RECEIVED = VehicleRequestRecord.STATUS_RECEIVED;
@@ -188,7 +190,18 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
                         payload.put("createdAt", FieldValue.serverTimestamp());
                         payload.put("updatedAt", FieldValue.serverTimestamp());
 
-                        requestRef.set(payload)
+                        DocumentReference alertRef = firestore.collection(COLLECTION_ALERTS)
+                                .document("vehicle_review_" + requestId);
+                        WriteBatch batch = firestore.batch();
+                        batch.set(requestRef, payload);
+                        batch.set(alertRef, AdminAlertPayloadFactory.vehicleReview(
+                                requestId,
+                                requesterUid,
+                                requesterRole,
+                                VehicleRequestRecord.KIND_REGISTER,
+                                plate
+                        ));
+                        batch.commit()
                                 .addOnSuccessListener(unused -> {
                                     appendVehicleEvent(
                                             "VEHICLE_APPLICATION_SUBMITTED",
@@ -309,7 +322,18 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
                                     payload.put("createdAt", FieldValue.serverTimestamp());
                                     payload.put("updatedAt", FieldValue.serverTimestamp());
 
-                                    requestRef.set(payload)
+                                    DocumentReference alertRef = firestore.collection(COLLECTION_ALERTS)
+                                            .document("vehicle_review_" + requestId);
+                                    WriteBatch batch = firestore.batch();
+                                    batch.set(requestRef, payload);
+                                    batch.set(alertRef, AdminAlertPayloadFactory.vehicleReview(
+                                            requestId,
+                                            requesterUid,
+                                            requesterRole,
+                                            VehicleRequestRecord.KIND_REMOVE,
+                                            vehicle.getPlateNumber()
+                                    ));
+                                    batch.commit()
                                             .addOnSuccessListener(unused -> {
                                                 appendVehicleEvent(
                                                         "VEHICLE_REMOVAL_SUBMITTED",

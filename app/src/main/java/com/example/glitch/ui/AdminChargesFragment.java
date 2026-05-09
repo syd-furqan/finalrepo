@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glitch.R;
 import com.example.glitch.auth.SessionManager;
+import com.example.glitch.data.AlertRepository;
 import com.example.glitch.data.InterventionRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.FineCaseRecord;
@@ -24,14 +25,28 @@ import java.util.Comparator;
 import java.util.List;
 
 public class AdminChargesFragment extends Fragment {
+    private static final String ARG_TARGET_CHARGE_ID = "target_charge_id";
+
     private InterventionRepository interventionRepository;
+    private AlertRepository alertRepository;
     private AdminChargeAdapter adapter;
     private TextView textEmpty;
+    private RecyclerView recyclerView;
+    private String targetChargeId = "";
     private final List<FineCaseRecord> allCharges = new ArrayList<>();
 
     @NonNull
     public static AdminChargesFragment newInstance() {
         return new AdminChargesFragment();
+    }
+
+    @NonNull
+    public static AdminChargesFragment newInstance(@NonNull String targetChargeId) {
+        AdminChargesFragment fragment = new AdminChargesFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_TARGET_CHARGE_ID, targetChargeId.trim());
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -44,8 +59,11 @@ public class AdminChargesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         interventionRepository = RepositoryProvider.getInterventionRepository();
+        alertRepository = RepositoryProvider.getAlertRepository();
         textEmpty = view.findViewById(R.id.text_charges_empty);
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_charges);
+        Bundle args = getArguments();
+        targetChargeId = args == null ? "" : valueOr(args.getString(ARG_TARGET_CHARGE_ID), "");
+        recyclerView = view.findViewById(R.id.recycler_charges);
 
         adapter = new AdminChargeAdapter();
         adapter.setListener(this::openChargeDetails);
@@ -71,6 +89,7 @@ public class AdminChargesFragment extends Fragment {
                             Comparator.nullsLast(Comparator.naturalOrder())).reversed());
                     adapter.submitList(allCharges);
                     textEmpty.setVisibility(allCharges.isEmpty() ? View.VISIBLE : View.GONE);
+                    scrollToTargetCharge();
                 });
             }
 
@@ -112,14 +131,54 @@ public class AdminChargesFragment extends Fragment {
         if (AdminChargeDetailsBottomSheetFragment.ACTION_APPROVE_REMOVAL.equals(action)) {
             interventionRepository.approveChargeRemoval(chargeId, adminUid, (success, message, exception) -> {
                 if (!isAdded()) return;
-                requireActivity().runOnUiThread(() -> Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
+                requireActivity().runOnUiThread(() -> {
+                    if (success) {
+                        updateLinkedChargeAlert(chargeId, "Charge removal approved.");
+                    }
+                    Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show();
+                });
             });
         } else if (AdminChargeDetailsBottomSheetFragment.ACTION_REJECT_REMOVAL.equals(action)) {
             interventionRepository.rejectChargeRemoval(chargeId, adminUid, (success, message, exception) -> {
                 if (!isAdded()) return;
-                requireActivity().runOnUiThread(() -> Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
+                requireActivity().runOnUiThread(() -> {
+                    if (success) {
+                        updateLinkedChargeAlert(chargeId, "Charge removal rejected.");
+                    }
+                    Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show();
+                });
             });
         }
+    }
+
+    private void scrollToTargetCharge() {
+        if (targetChargeId.trim().isEmpty() || recyclerView == null) {
+            return;
+        }
+        int position = adapter.indexOfChargeId(targetChargeId);
+        if (position == RecyclerView.NO_POSITION) {
+            Snackbar.make(requireView(), "Linked charge was not found.", Snackbar.LENGTH_LONG).show();
+            targetChargeId = "";
+            return;
+        }
+        recyclerView.post(() -> recyclerView.smoothScrollToPosition(position));
+        targetChargeId = "";
+    }
+
+    private void updateLinkedChargeAlert(@NonNull String chargeId, @NonNull String summary) {
+        if (alertRepository == null) {
+            return;
+        }
+        alertRepository.updateLinkedAlertStatus(
+                "chargeId",
+                chargeId,
+                "actioned",
+                summary,
+                adminUid(),
+                (success, message, exception) -> {
+                    // Charge records remain the source of truth; alert status mirrors best effort.
+                }
+        );
     }
 
     @NonNull

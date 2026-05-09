@@ -32,6 +32,19 @@ public class AdminChargeAdapter extends RecyclerView.Adapter<AdminChargeAdapter.
         notifyDataSetChanged();
     }
 
+    public int indexOfChargeId(@NonNull String chargeId) {
+        String target = chargeId.trim();
+        if (target.isEmpty()) {
+            return RecyclerView.NO_POSITION;
+        }
+        for (int i = 0; i < charges.size(); i++) {
+            if (target.equals(charges.get(i).getId())) {
+                return i;
+            }
+        }
+        return RecyclerView.NO_POSITION;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

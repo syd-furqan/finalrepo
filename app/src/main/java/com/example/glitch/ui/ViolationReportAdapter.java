@@ -31,6 +31,19 @@ public class ViolationReportAdapter extends RecyclerView.Adapter<ViolationReport
         notifyDataSetChanged();
     }
 
+    public int indexOfReportId(@NonNull String reportId) {
+        String target = reportId.trim();
+        if (target.isEmpty()) {
+            return RecyclerView.NO_POSITION;
+        }
+        for (int i = 0; i < reports.size(); i++) {
+            if (target.equals(reports.get(i).getId())) {
+                return i;
+            }
+        }
+        return RecyclerView.NO_POSITION;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

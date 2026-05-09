@@ -39,17 +39,30 @@ import java.util.Locale;
  * Admin screen for reviewing sponsor vehicle applications.
  */
 public class AdminVehicleReviewFragment extends Fragment implements AdminVehicleReviewAdapter.ActionListener {
+    private static final String ARG_TARGET_REQUEST_ID = "target_request_id";
 
     private VehicleRequestRepository repository;
+    private com.example.glitch.data.AlertRepository alertRepository;
     private AdminVehicleReviewAdapter adapter;
     private TextView textEmpty;
     private TextView textSummary;
     private AutoCompleteTextView inputStatusFilter;
+    private RecyclerView recyclerView;
+    private String targetRequestId = "";
     private List<VehicleRequestRecord> allRequests = new ArrayList<>();
 
     @NonNull
     public static AdminVehicleReviewFragment newInstance() {
         return new AdminVehicleReviewFragment();
+    }
+
+    @NonNull
+    public static AdminVehicleReviewFragment newInstance(@NonNull String targetRequestId) {
+        AdminVehicleReviewFragment fragment = new AdminVehicleReviewFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_TARGET_REQUEST_ID, targetRequestId.trim());
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -76,11 +89,14 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
         }
 
         repository = RepositoryProvider.getVehicleRequestRepository();
+        alertRepository = RepositoryProvider.getAlertRepository();
         textEmpty = view.findViewById(R.id.text_vehicle_review_empty);
         textSummary = view.findViewById(R.id.text_vehicle_review_summary);
         inputStatusFilter = view.findViewById(R.id.input_vehicle_review_status_filter);
+        Bundle args = getArguments();
+        targetRequestId = args == null ? "" : safe(args.getString(ARG_TARGET_REQUEST_ID));
 
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_vehicle_review);
+        recyclerView = view.findViewById(R.id.recycler_vehicle_review);
         adapter = new AdminVehicleReviewAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
@@ -132,6 +148,7 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
         adapter.submitList(filtered);
         textEmpty.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);
         bindSummary(filtered);
+        scrollToTargetRequest();
     }
 
     @Override
@@ -190,8 +207,46 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
                 note,
                 (success, message, exception) -> {
                     if (!isAdded()) return;
-                    requireActivity().runOnUiThread(() ->
-                            Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show());
+                    requireActivity().runOnUiThread(() -> {
+                        if (success) {
+                            updateLinkedVehicleAlert(
+                                    record.getId(),
+                                    approved ? "Vehicle request approved." : "Vehicle request denied."
+                            );
+                        }
+                        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show();
+                    });
+                }
+        );
+    }
+
+    private void scrollToTargetRequest() {
+        if (targetRequestId.trim().isEmpty() || recyclerView == null) {
+            return;
+        }
+        int position = adapter.indexOfRequestId(targetRequestId);
+        if (position == RecyclerView.NO_POSITION) {
+            Snackbar.make(requireView(), "Linked vehicle request was not found.", Snackbar.LENGTH_LONG).show();
+            targetRequestId = "";
+            return;
+        }
+        recyclerView.post(() -> recyclerView.smoothScrollToPosition(position));
+        targetRequestId = "";
+    }
+
+    private void updateLinkedVehicleAlert(@NonNull String requestId, @NonNull String summary) {
+        UserProfile profile = AuthUiGuard.requireProfile(this);
+        if (profile == null || alertRepository == null) {
+            return;
+        }
+        alertRepository.updateLinkedAlertStatus(
+                "vehicleRequestId",
+                requestId,
+                "actioned",
+                summary,
+                profile.getUid(),
+                (success, message, exception) -> {
+                    // Vehicle review remains the source of truth; alert status is best-effort mirror state.
                 }
         );
     }
@@ -374,6 +429,11 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
     @NonNull
     private String fallback(@Nullable String value) {
         return value == null || value.trim().isEmpty() ? "N/A" : value;
+    }
+
+    @NonNull
+    private String safe(@Nullable String value) {
+        return value == null ? "" : value.trim();
     }
 
     private void bindSummary(@NonNull List<VehicleRequestRecord> requests) {

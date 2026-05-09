@@ -24,6 +24,7 @@ public interface UserManagementRepository {
 			@NonNull String role,
 			@NonNull String displayName,
 			@NonNull String studentCategory,
+			@NonNull String studentId,
 			boolean isActive,
 			@NonNull OperationCallback callback
 	);

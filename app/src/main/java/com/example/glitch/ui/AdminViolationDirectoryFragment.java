@@ -22,13 +22,26 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.List;
 
 public class AdminViolationDirectoryFragment extends Fragment {
+    private static final String ARG_TARGET_REPORT_ID = "target_report_id";
+
     private ViolationReportRepository repository;
     private ViolationReportAdapter adapter;
     private TextView textEmpty;
+    private RecyclerView recyclerView;
+    private String targetReportId = "";
 
     @NonNull
     public static AdminViolationDirectoryFragment newInstance() {
         return new AdminViolationDirectoryFragment();
+    }
+
+    @NonNull
+    public static AdminViolationDirectoryFragment newInstance(@NonNull String targetReportId) {
+        AdminViolationDirectoryFragment fragment = new AdminViolationDirectoryFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_TARGET_REPORT_ID, targetReportId.trim());
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -42,8 +55,10 @@ public class AdminViolationDirectoryFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         repository = RepositoryProvider.getViolationReportRepository();
         textEmpty = view.findViewById(R.id.text_reports_empty);
+        Bundle args = getArguments();
+        targetReportId = args == null ? "" : safe(args.getString(ARG_TARGET_REPORT_ID));
 
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_violation_reports);
+        recyclerView = view.findViewById(R.id.recycler_violation_reports);
         adapter = new ViolationReportAdapter();
         adapter.setListener(this::openViolationDetail);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -74,6 +89,7 @@ public class AdminViolationDirectoryFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     adapter.submitList(reports);
                     textEmpty.setVisibility(reports.isEmpty() ? View.VISIBLE : View.GONE);
+                    scrollToTargetReport();
                 });
             }
 
@@ -92,9 +108,28 @@ public class AdminViolationDirectoryFragment extends Fragment {
                 .show(getParentFragmentManager(), AdminViolationDetailBottomSheetFragment.TAG);
     }
 
+    private void scrollToTargetReport() {
+        if (targetReportId.trim().isEmpty() || recyclerView == null) {
+            return;
+        }
+        int position = adapter.indexOfReportId(targetReportId);
+        if (position == RecyclerView.NO_POSITION) {
+            Snackbar.make(requireView(), "Linked violation report was not found.", Snackbar.LENGTH_LONG).show();
+            targetReportId = "";
+            return;
+        }
+        recyclerView.post(() -> recyclerView.smoothScrollToPosition(position));
+        targetReportId = "";
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (repository != null) repository.removeListeners();
+    }
+
+    @NonNull
+    private String safe(@Nullable String value) {
+        return value == null ? "" : value.trim();
     }
 }

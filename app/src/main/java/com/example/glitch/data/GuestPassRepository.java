@@ -31,6 +31,7 @@ public interface GuestPassRepository {
 			@NonNull String sponsorRole,
 			@NonNull String sponsorName,
 			@NonNull String sponsorEmail,
+			@NonNull String sponsorStudentId,
 			@NonNull String guestName,
 			@NonNull String guestIdNumber,
 			boolean hasVehicle,

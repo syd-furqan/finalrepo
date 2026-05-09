@@ -25,6 +25,7 @@ public interface ViolationReportRepository {
             @NonNull String subjectStudentUid,
             @NonNull String subjectStudentName,
             @NonNull String subjectStudentEmail,
+            @NonNull String subjectStudentId,
             @NonNull OperationCallback callback
     );
 
@@ -38,7 +39,7 @@ public interface ViolationReportRepository {
 
     void findActivePasForCnic(@NonNull String cnic, @NonNull PassInfoCallback callback);
 
-    void findStudentByEmail(@NonNull String email, @NonNull StudentInfoCallback callback);
+    void findStudentByStudentId(@NonNull String studentId, @NonNull StudentInfoCallback callback);
 
     void removeListeners();
 
@@ -58,7 +59,12 @@ public interface ViolationReportRepository {
     }
 
     interface StudentInfoCallback {
-        void onFound(@NonNull String studentUid, @NonNull String studentName);
+        void onFound(
+                @NonNull String studentUid,
+                @NonNull String studentName,
+                @NonNull String studentEmail,
+                @NonNull String studentId
+        );
         void onNotFound(@NonNull String message);
         void onError(@NonNull Exception exception);
     }

@@ -16,6 +16,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.glitch.R;
 import com.example.glitch.auth.SessionManager;
+import com.example.glitch.data.AdminAlertPayloadFactory;
+import com.example.glitch.data.AlertRepository;
 import com.example.glitch.data.AuditEventLogger;
 import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
@@ -42,6 +44,7 @@ public class GuardQrScanFragment extends Fragment {
 
     private GuestPassRepository guestPassRepository;
     private com.example.glitch.data.InterventionRepository interventionRepository;
+    private AlertRepository alertRepository;
     private GuardPendingDecisionStore pendingDecisionStore;
     private AuditEventLogger auditEventLogger;
     private ActivityResultLauncher<ScanOptions> barcodeLauncher;
@@ -71,6 +74,7 @@ public class GuardQrScanFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         guestPassRepository = RepositoryProvider.getGuestPassRepository();
         interventionRepository = RepositoryProvider.getInterventionRepository();
+        alertRepository = RepositoryProvider.getAlertRepository();
         pendingDecisionStore = new GuardPendingDecisionStore(requireContext());
         auditEventLogger = new AuditEventLogger();
 
@@ -251,6 +255,7 @@ public class GuardQrScanFragment extends Fragment {
             }
             requireActivity().runOnUiThread(() -> {
                 if (banned) {
+                    createBannedGuestScanAlert(pass);
                     textResult.setText(R.string.pass_guest_banned);
                     return;
                 }
@@ -311,6 +316,24 @@ public class GuardQrScanFragment extends Fragment {
             return "";
         }
         return SessionManager.getCurrentProfile().getUid();
+    }
+
+    private void createBannedGuestScanAlert(@NonNull GuestPass pass) {
+        if (alertRepository == null) {
+            return;
+        }
+        String guardUid = currentGuardUid();
+        String guardName = "";
+        if (SessionManager.getCurrentProfile() != null) {
+            guardName = SessionManager.getCurrentProfile().getDisplayName();
+        }
+        alertRepository.createAlert(
+                null,
+                AdminAlertPayloadFactory.bannedGuestScan(pass, guardUid, guardName),
+                (success, message, exception) -> {
+                    // Best-effort admin alert; the guard-facing scan result remains the primary UX.
+                }
+        );
     }
 
     @Override
