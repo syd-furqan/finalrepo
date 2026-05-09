@@ -444,6 +444,26 @@ public class FirestoreViolationReportRepository implements ViolationReportReposi
     }
 
     @Override
+    public void getReportById(@NonNull String reportId, @NonNull SingleReportListener listener) {
+        String normalizedId = reportId.trim();
+        if (normalizedId.isEmpty()) {
+            listener.onData(null);
+            return;
+        }
+        firestore.collection(COLLECTION_REPORTS)
+                .document(normalizedId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (!doc.exists()) {
+                        listener.onData(null);
+                        return;
+                    }
+                    listener.onData(ViolationReport.fromMap(doc.getId(), doc.getData()));
+                })
+                .addOnFailureListener(listener::onError);
+    }
+
+    @Override
     public void ignoreReport(@NonNull String reportId, @NonNull String adminUid, @NonNull OperationCallback callback) {
         updateReportStatus(reportId, ViolationReport.STATUS_IGNORED, callback);
     }

@@ -537,6 +537,25 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
     }
 
     @Override
+    public void findPassById(@NonNull String passId, @NonNull PassLookupListener listener) {
+        String normalizedId = passId.trim();
+        if (normalizedId.isEmpty()) {
+            listener.onData(null);
+            return;
+        }
+        collection.document(normalizedId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (!snapshot.exists()) {
+                        listener.onData(null);
+                        return;
+                    }
+                    listener.onData(GuestPass.fromMap(snapshot.getId(), snapshot.getData()));
+                })
+                .addOnFailureListener(listener::onError);
+    }
+
+    @Override
     public void markPassAdmitted(
             @NonNull String passId,
             @NonNull String admittedByUid,
