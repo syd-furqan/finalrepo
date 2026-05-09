@@ -54,10 +54,14 @@ public class MonitorViolationReportFragment extends Fragment {
 
     private String verifiedGuestName = "";
     private String verifiedGuestCnic = "";
+    private String verifiedGuestPhone = "";
     private String verifiedGuestPassId = "";
+    private String verifiedEntryRequestId = "";
+    private String verifiedGuestPassStatus = "";
     private String verifiedSponsorUid = "";
     private String verifiedSponsorName = "";
     private String verifiedSponsorRole = "";
+    private String verifiedSponsorStudentId = "";
     private String verifiedStudentUid = "";
     private String verifiedStudentName = "";
     private String verifiedStudentEmail = "";
@@ -165,9 +169,30 @@ public class MonitorViolationReportFragment extends Fragment {
         }
         repository.findActivePasForCnic(normalized, new ViolationReportRepository.PassInfoCallback() {
             @Override
-            public void onFound(@NonNull String guestName, @NonNull String guestPassId, @NonNull String sponsorUid, @NonNull String sponsorName, @NonNull String sponsorRole) {
+            public void onFound(
+                    @NonNull String guestName,
+                    @NonNull String guestPhone,
+                    @NonNull String guestPassId,
+                    @NonNull String entryRequestId,
+                    @NonNull String passStatus,
+                    @NonNull String sponsorUid,
+                    @NonNull String sponsorName,
+                    @NonNull String sponsorRole,
+                    @NonNull String sponsorStudentId
+            ) {
                 if (!isAdded()) return;
-                requireActivity().runOnUiThread(() -> bindVerifiedGuest(guestName, normalized, guestPassId, sponsorUid, sponsorName, sponsorRole));
+                requireActivity().runOnUiThread(() -> bindVerifiedGuest(
+                        guestName,
+                        guestPhone,
+                        normalized,
+                        guestPassId,
+                        entryRequestId,
+                        passStatus,
+                        sponsorUid,
+                        sponsorName,
+                        sponsorRole,
+                        sponsorStudentId
+                ));
             }
 
             @Override
@@ -209,11 +234,15 @@ public class MonitorViolationReportFragment extends Fragment {
                     }
                     bindVerifiedGuest(
                             pass.getGuestName(),
+                            pass.getGuestPhone(),
                             pass.getGuestIdNumber(),
                             pass.getId(),
+                            pass.getEntryRequestId(),
+                            pass.getStatus(),
                             pass.getSponsorUid(),
                             pass.getSponsorName(),
-                            pass.getSponsorRole()
+                            pass.getSponsorRole(),
+                            pass.getSponsorStudentId()
                     );
                 });
             }
@@ -228,20 +257,29 @@ public class MonitorViolationReportFragment extends Fragment {
 
     private void bindVerifiedGuest(
             @NonNull String guestName,
+            @NonNull String guestPhone,
             @NonNull String guestCnic,
             @NonNull String guestPassId,
+            @NonNull String entryRequestId,
+            @NonNull String passStatus,
             @NonNull String sponsorUid,
             @NonNull String sponsorName,
-            @NonNull String sponsorRole
+            @NonNull String sponsorRole,
+            @NonNull String sponsorStudentId
     ) {
         verifiedGuestName = guestName;
         verifiedGuestCnic = guestCnic;
+        verifiedGuestPhone = guestPhone;
         verifiedGuestPassId = guestPassId;
+        verifiedEntryRequestId = entryRequestId;
+        verifiedGuestPassStatus = passStatus;
         verifiedSponsorUid = sponsorUid;
         verifiedSponsorName = sponsorName;
         verifiedSponsorRole = sponsorRole;
+        verifiedSponsorStudentId = sponsorStudentId;
         guestVerified = true;
-        textVerifiedGuestName.setText("Visitor: " + guestName + " | CNIC: " + guestCnic);
+        String phoneText = guestPhone.trim().isEmpty() ? "" : " | Phone: " + guestPhone;
+        textVerifiedGuestName.setText("Visitor: " + guestName + " | CNIC: " + guestCnic + phoneText);
         textVerifiedSponsor.setText("Sponsor: " + sponsorName + " (" + sponsorRole + ")");
         containerVerifiedGuest.setVisibility(View.VISIBLE);
         updateSubmitState();
@@ -308,10 +346,14 @@ public class MonitorViolationReportFragment extends Fragment {
         studentVerified = false;
         verifiedGuestName = "";
         verifiedGuestCnic = "";
+        verifiedGuestPhone = "";
         verifiedGuestPassId = "";
+        verifiedEntryRequestId = "";
+        verifiedGuestPassStatus = "";
         verifiedSponsorUid = "";
         verifiedSponsorName = "";
         verifiedSponsorRole = "";
+        verifiedSponsorStudentId = "";
         verifiedStudentUid = "";
         verifiedStudentName = "";
         verifiedStudentEmail = "";
@@ -356,10 +398,14 @@ public class MonitorViolationReportFragment extends Fragment {
                 subjectType,
                 visitor ? verifiedGuestCnic : "",
                 verifiedGuestName,
+                verifiedGuestPhone,
                 verifiedGuestPassId,
+                verifiedEntryRequestId,
+                verifiedGuestPassStatus,
                 verifiedSponsorUid,
                 verifiedSponsorName,
                 verifiedSponsorRole,
+                verifiedSponsorStudentId,
                 verifiedStudentUid,
                 verifiedStudentName,
                 verifiedStudentEmail,

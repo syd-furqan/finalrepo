@@ -60,6 +60,7 @@ public final class PassCardImageHelper {
         int rowY = 920;
         rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Guest", pass.getGuestName());
         rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "CNIC", pass.getGuestIdNumber());
+        rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Phone", pass.getGuestPhone());
         rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Guest Type", prettyGuestType(pass.getGuestType()));
         rowY = drawRow(
                 canvas,

@@ -68,6 +68,7 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
     private final CollectionReference requestCollection;
     private final CollectionReference registeredVehicleCollection;
     private final ContentResolver contentResolver;
+    private final UserNotificationWriter notificationWriter;
     private final List<ListenerRegistration> registrations = new ArrayList<>();
 
     public FirestoreVehicleRequestRepository() {
@@ -84,6 +85,7 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
         this.requestCollection = firestore.collection(COLLECTION_VEHICLE_REQUESTS);
         this.registeredVehicleCollection = firestore.collection(COLLECTION_REGISTERED_VEHICLES);
         this.contentResolver = appContext.getContentResolver();
+        this.notificationWriter = new UserNotificationWriter(firestore);
     }
 
     @Override
@@ -201,6 +203,15 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
                                 VehicleRequestRecord.KIND_REGISTER,
                                 plate
                         ));
+                        addVehicleNotificationToBatch(
+                                batch,
+                                requesterUid,
+                                requesterRole,
+                                "vehicle_submitted",
+                                requestId,
+                                "Vehicle Application Submitted",
+                                "Application submitted for " + plate + "."
+                        );
                         batch.commit()
                                 .addOnSuccessListener(unused -> {
                                     appendVehicleEvent(
@@ -333,6 +344,15 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
                                             VehicleRequestRecord.KIND_REMOVE,
                                             vehicle.getPlateNumber()
                                     ));
+                                    addVehicleNotificationToBatch(
+                                            batch,
+                                            requesterUid,
+                                            requesterRole,
+                                            "vehicle_removal_submitted",
+                                            requestId,
+                                            "Vehicle Removal Submitted",
+                                            "Removal request submitted for " + vehicle.getPlateNumber() + "."
+                                    );
                                     batch.commit()
                                             .addOnSuccessListener(unused -> {
                                                 appendVehicleEvent(
@@ -476,6 +496,16 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
                             record == null ? "" : record.getRequesterRole(),
                             "Vehicle application cancelled"
                     );
+                    if (record != null) {
+                        writeVehicleNotification(
+                                record.getRequesterUid(),
+                                record.getRequesterRole(),
+                                "vehicle_cancelled",
+                                requestId,
+                                "Vehicle Application Cancelled",
+                                "Application for " + record.getPlateNumber() + " was cancelled."
+                        );
+                    }
                     callback.onComplete(true, "Vehicle application cancelled", null);
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, safeMessage(error), error));
@@ -512,6 +542,16 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
                             "admin",
                             "Vehicle application marked as received"
                     );
+                    if (record != null) {
+                        writeVehicleNotification(
+                                record.getRequesterUid(),
+                                record.getRequesterRole(),
+                                "vehicle_received",
+                                requestId,
+                                "Vehicle Application Received",
+                                "Application for " + record.getPlateNumber() + " was marked received."
+                        );
+                    }
                     callback.onComplete(true, "Application marked as received", null);
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, safeMessage(error), error));
@@ -609,6 +649,22 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
                             "admin",
                             message
                     );
+                    if (record != null) {
+                        String notificationType = approved && record.isRemovalRequest()
+                                ? "vehicle_removal_approved"
+                                : approved ? "vehicle_approved" : "vehicle_denied";
+                        String title = approved && record.isRemovalRequest()
+                                ? "Vehicle Removal Approved"
+                                : approved ? "Vehicle Application Approved" : "Vehicle Application Denied";
+                        writeVehicleNotification(
+                                record.getRequesterUid(),
+                                record.getRequesterRole(),
+                                notificationType,
+                                requestId,
+                                title,
+                                message + " for " + record.getPlateNumber() + "."
+                        );
+                    }
                     callback.onComplete(true, message, null);
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, safeMessage(error), error));
@@ -1108,6 +1164,35 @@ public class FirestoreVehicleRequestRepository implements VehicleRequestReposito
             return (Exception) throwable;
         }
         return new Exception(throwable);
+    }
+
+    private void addVehicleNotificationToBatch(
+            @NonNull WriteBatch batch,
+            @NonNull String requesterUid,
+            @NonNull String requesterRole,
+            @NonNull String type,
+            @NonNull String requestId,
+            @NonNull String title,
+            @NonNull String message
+    ) {
+        if (!UserNotificationWriter.supportsRole(requesterRole)) {
+            return;
+        }
+        notificationWriter.addToBatch(batch, requesterUid, type, requestId, title, message, COLLECTION_VEHICLE_REQUESTS);
+    }
+
+    private void writeVehicleNotification(
+            @NonNull String requesterUid,
+            @NonNull String requesterRole,
+            @NonNull String type,
+            @NonNull String requestId,
+            @NonNull String title,
+            @NonNull String message
+    ) {
+        if (!UserNotificationWriter.supportsRole(requesterRole)) {
+            return;
+        }
+        notificationWriter.write(requesterUid, type, requestId, title, message, COLLECTION_VEHICLE_REQUESTS);
     }
 
     private interface CanSubmitCallback {

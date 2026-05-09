@@ -145,6 +145,7 @@ public class GuardSearchFragment extends Fragment implements EntryRequestAdapter
                 request.getFullName(),
                 request.getRoleTag(),
                 request.getHostName(),
+                request.getGuestPhone(),
                 request.getGateLabel(),
                 entered
         );

@@ -33,6 +33,7 @@ public class GuestPassDetailsFragment extends Fragment {
     private static final String ARG_SPONSOR_EMAIL = "arg_sponsor_email";
     private static final String ARG_GUEST_NAME = "arg_guest_name";
     private static final String ARG_GUEST_ID = "arg_guest_id";
+    private static final String ARG_GUEST_PHONE = "arg_guest_phone";
     private static final String ARG_HAS_VEHICLE = "arg_has_vehicle";
     private static final String ARG_VEHICLE_PLATE = "arg_vehicle_plate";
     private static final String ARG_GUEST_TYPE = "arg_guest_type";
@@ -58,6 +59,7 @@ public class GuestPassDetailsFragment extends Fragment {
         args.putString(ARG_SPONSOR_EMAIL, pass.getSponsorEmail());
         args.putString(ARG_GUEST_NAME, pass.getGuestName());
         args.putString(ARG_GUEST_ID, pass.getGuestIdNumber());
+        args.putString(ARG_GUEST_PHONE, pass.getGuestPhone());
         args.putBoolean(ARG_HAS_VEHICLE, pass.hasVehicle());
         args.putString(ARG_VEHICLE_PLATE, pass.getVehiclePlate());
         args.putString(ARG_GUEST_TYPE, pass.getGuestType());
@@ -99,6 +101,7 @@ public class GuestPassDetailsFragment extends Fragment {
         String sponsorRole = safeArg(args, ARG_SPONSOR_ROLE);
         String sponsorUid = safeArg(args, ARG_SPONSOR_UID);
         String guestId = safeArg(args, ARG_GUEST_ID);
+        String guestPhone = safeArg(args, ARG_GUEST_PHONE);
         boolean hasVehicle = args.getBoolean(ARG_HAS_VEHICLE, false);
         String vehiclePlate = safeArg(args, ARG_VEHICLE_PLATE);
         String guestType = safeArg(args, ARG_GUEST_TYPE);
@@ -126,6 +129,7 @@ public class GuestPassDetailsFragment extends Fragment {
 
         String body = ""
                 + "CNIC: " + fallback(guestId) + "\n"
+                + "Phone: " + fallback(guestPhone) + "\n"
                 + "Guest Type: " + formatGuestType(guestType) + "\n"
                 + "Has Vehicle: " + (hasVehicle ? "Yes" : "No") + "\n"
                 + "Vehicle Plate: " + fallback(vehiclePlate) + "\n"
@@ -162,6 +166,7 @@ public class GuestPassDetailsFragment extends Fragment {
                 safeArg(args, ARG_SPONSOR_EMAIL),
                 safeArg(args, ARG_GUEST_NAME),
                 safeArg(args, ARG_GUEST_ID),
+                safeArg(args, ARG_GUEST_PHONE),
                 args.getBoolean(ARG_HAS_VEHICLE, false),
                 safeArg(args, ARG_VEHICLE_PLATE),
                 safeArg(args, ARG_GUEST_TYPE),

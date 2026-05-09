@@ -59,6 +59,7 @@ public class ViolationReportAdapter extends RecyclerView.Adapter<ViolationReport
 
         String subjectName = report.isGuestViolation()
                 ? valueOr(report.getGuestName(), "Unknown Guest") + " (" + valueOr(report.getGuestCnic(), "N/A") + ")"
+                + " / " + valueOr(report.getGuestPhone(), "No phone")
                 : valueOr(report.getSubjectStudentName(), "Unknown Student");
         holder.textSubjectName.setText(subjectName);
         holder.textReporterName.setText("Reported by: " + valueOr(report.getReporterName(), "Unknown") + " (" + report.getReporterRole() + ")");

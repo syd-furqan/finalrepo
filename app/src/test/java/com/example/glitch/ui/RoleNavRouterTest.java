@@ -23,9 +23,13 @@ public class RoleNavRouterTest {
     }
 
     @Test
-    public void studentPrimaryPagesAreGuestPassesAndVehicles() {
+    public void studentPrimaryPagesAreGuestPassesVehiclesAndNotifications() {
         assertEquals(
-                Arrays.asList(RoleDestination.STUDENT_PASSES, RoleDestination.SPONSOR_VEHICLES),
+                Arrays.asList(
+                        RoleDestination.STUDENT_PASSES,
+                        RoleDestination.SPONSOR_VEHICLES,
+                        RoleDestination.NOTIFICATIONS
+                ),
                 RoleNavRouter.getPrimaryDestinationsForRole("student")
         );
         assertEquals(RoleDestination.STUDENT_PASSES, RoleNavRouter.getDefaultDestinationForRole("student"));
@@ -38,14 +42,14 @@ public class RoleNavRouterTest {
         assertEquals(
                 Arrays.asList(
                         RoleDestination.FACULTY_REQUEST,
-                        RoleDestination.FACULTY_NOTIFICATIONS,
+                        RoleDestination.NOTIFICATIONS,
                         RoleDestination.SPONSOR_VEHICLES
                 ),
                 RoleNavRouter.getPrimaryDestinationsForRole("faculty")
         );
         assertEquals(RoleDestination.FACULTY_REQUEST, RoleNavRouter.getDefaultDestinationForRole("faculty"));
         assertEquals(RoleDestination.FACULTY_REQUEST, RoleNavRouter.resolveDestinationForRole(RoleDestination.DASHBOARD, "faculty"));
-        assertEquals(RoleDestination.FACULTY_NOTIFICATIONS, RoleNavRouter.resolveDestinationForRole(RoleDestination.PASSES, "faculty"));
+        assertEquals(RoleDestination.NOTIFICATIONS, RoleNavRouter.resolveDestinationForRole(RoleDestination.PASSES, "faculty"));
     }
 
     @Test

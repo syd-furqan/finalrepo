@@ -25,6 +25,7 @@ public class SecurityAlert {
 	private final String reportedByName;
 	private final String guestName;
 	private final String guestIdNumber;
+	private final String guestPhone;
 	private final String hostName;
 	private final String requesterUid;
 	private final String requesterRole;
@@ -56,6 +57,7 @@ public class SecurityAlert {
 			@NonNull String reportedByName,
 			@NonNull String guestName,
 			@NonNull String guestIdNumber,
+			@NonNull String guestPhone,
 			@NonNull String hostName,
 			@NonNull String requesterUid,
 			@NonNull String requesterRole,
@@ -83,6 +85,7 @@ public class SecurityAlert {
 		this.reportedByName = reportedByName;
 		this.guestName = guestName;
 		this.guestIdNumber = guestIdNumber;
+		this.guestPhone = guestPhone;
 		this.hostName = hostName;
 		this.requesterUid = requesterUid;
 		this.requesterRole = requesterRole;
@@ -135,6 +138,7 @@ public class SecurityAlert {
 					"",
 					"",
 					"",
+					"",
 					null
 			);
 		}
@@ -157,6 +161,7 @@ public class SecurityAlert {
 				asString(map.get("reportedByName")),
 				asString(map.get("guestName")),
 				asString(map.get("guestIdNumber")),
+				asString(map.get("guestPhone")),
 				asString(map.get("hostName")),
 				asString(map.get("requesterUid")),
 				asString(map.get("requesterRole")),
@@ -246,6 +251,11 @@ public class SecurityAlert {
 	@NonNull
 	public String getGuestIdNumber() {
 		return guestIdNumber;
+	}
+
+	@NonNull
+	public String getGuestPhone() {
+		return guestPhone;
 	}
 
 	@NonNull

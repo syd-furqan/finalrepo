@@ -24,9 +24,7 @@ import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.data.SingleGateMigrationRunner;
 import com.example.glitch.model.GuestPassTimePolicy;
 import com.example.glitch.model.UserProfile;
-import com.example.glitch.notification.ChargeLocalAlertCoordinator;
-import com.example.glitch.notification.GuestPassLocalAlertCoordinator;
-import com.example.glitch.notification.VehicleApplicationLocalAlertCoordinator;
+import com.example.glitch.notification.NotificationLocalAlertCoordinator;
 import com.example.glitch.ui.LoginFragment;
 import com.example.glitch.ui.NavigationHost;
 import com.example.glitch.ui.RoleDestination;
@@ -41,9 +39,7 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
     private static final boolean TEMP_ENABLE_TIME_POLICY_TEST_BYPASS = true;
 
     private AuthRepository authRepository;
-    private GuestPassLocalAlertCoordinator guestPassLocalAlertCoordinator;
-    private ChargeLocalAlertCoordinator chargeLocalAlertCoordinator;
-    private VehicleApplicationLocalAlertCoordinator vehicleApplicationLocalAlertCoordinator;
+    private NotificationLocalAlertCoordinator notificationLocalAlertCoordinator;
     private SingleGateMigrationRunner singleGateMigrationRunner;
 
     @Override
@@ -55,9 +51,7 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
                 debugBuild && TEMP_ENABLE_TIME_POLICY_TEST_BYPASS
         );
         authRepository = RepositoryProvider.getAuthRepository();
-        guestPassLocalAlertCoordinator = new GuestPassLocalAlertCoordinator(getApplicationContext());
-        chargeLocalAlertCoordinator = new ChargeLocalAlertCoordinator(getApplicationContext());
-        vehicleApplicationLocalAlertCoordinator = new VehicleApplicationLocalAlertCoordinator(getApplicationContext());
+        notificationLocalAlertCoordinator = new NotificationLocalAlertCoordinator(getApplicationContext());
         singleGateMigrationRunner = new SingleGateMigrationRunner();
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
@@ -99,14 +93,8 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
 
     @Override
     public void showLogin(boolean clearBackStack) {
-        if (guestPassLocalAlertCoordinator != null) {
-            guestPassLocalAlertCoordinator.stop();
-        }
-        if (chargeLocalAlertCoordinator != null) {
-            chargeLocalAlertCoordinator.stop();
-        }
-        if (vehicleApplicationLocalAlertCoordinator != null) {
-            vehicleApplicationLocalAlertCoordinator.stop();
+        if (notificationLocalAlertCoordinator != null) {
+            notificationLocalAlertCoordinator.stop();
         }
         if (clearBackStack) {
             clearBackStack();
@@ -121,14 +109,8 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
     public void showRoleHome(@NonNull UserProfile profile, boolean clearBackStack) {
         SessionManager.setCurrentProfile(profile);
         ensurePostNotificationPermission(profile);
-        if (guestPassLocalAlertCoordinator != null) {
-            guestPassLocalAlertCoordinator.start(profile);
-        }
-        if (chargeLocalAlertCoordinator != null) {
-            chargeLocalAlertCoordinator.start(profile);
-        }
-        if (vehicleApplicationLocalAlertCoordinator != null) {
-            vehicleApplicationLocalAlertCoordinator.start(profile);
+        if (notificationLocalAlertCoordinator != null) {
+            notificationLocalAlertCoordinator.start(profile);
         }
         if (singleGateMigrationRunner != null) {
             singleGateMigrationRunner.runIfNeeded(profile.getRole(), profile.getUid());
@@ -177,14 +159,8 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
 
     @Override
     protected void onDestroy() {
-        if (guestPassLocalAlertCoordinator != null) {
-            guestPassLocalAlertCoordinator.stop();
-        }
-        if (chargeLocalAlertCoordinator != null) {
-            chargeLocalAlertCoordinator.stop();
-        }
-        if (vehicleApplicationLocalAlertCoordinator != null) {
-            vehicleApplicationLocalAlertCoordinator.stop();
+        if (notificationLocalAlertCoordinator != null) {
+            notificationLocalAlertCoordinator.stop();
         }
         super.onDestroy();
     }
@@ -193,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             return;
         }
-        if (!GuestPassLocalAlertCoordinator.isSupportedSponsorRole(profile.getRole())) {
+        if (!NotificationLocalAlertCoordinator.isSupportedRole(profile.getRole())) {
             return;
         }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)

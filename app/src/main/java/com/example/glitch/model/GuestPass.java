@@ -22,6 +22,7 @@ public class GuestPass {
 	private final String sponsorStudentId;
 	private final String guestName;
 	private final String guestIdNumber;
+	private final String guestPhone;
 	private final boolean hasVehicle;
 	private final String vehiclePlate;
 	private final String guestType;
@@ -47,6 +48,7 @@ public class GuestPass {
 			@NonNull String sponsorStudentId,
 			@NonNull String guestName,
 			@NonNull String guestIdNumber,
+			@NonNull String guestPhone,
 			boolean hasVehicle,
 			@NonNull String vehiclePlate,
 			@NonNull String guestType,
@@ -69,6 +71,8 @@ public class GuestPass {
 		this.guestName = guestName;
 		String normalizedGuestId = GuestIdentityPolicy.normalizeCnic(guestIdNumber);
 		this.guestIdNumber = normalizedGuestId == null ? guestIdNumber : normalizedGuestId;
+		String normalizedPhone = GuestIdentityPolicy.normalizePhone(guestPhone);
+		this.guestPhone = normalizedPhone == null ? guestPhone.trim() : normalizedPhone;
 		this.hasVehicle = hasVehicle;
 		String normalizedPlate = GuestIdentityPolicy.normalizeVehiclePlate(vehiclePlate);
 		this.vehiclePlate = normalizedPlate == null
@@ -107,7 +111,34 @@ public class GuestPass {
 			@NonNull String admissionMethod,
 			@Nullable Timestamp createdAt
 	) {
-		this(id, sponsorUid, sponsorRole, sponsorName, sponsorEmail, "", guestName, guestIdNumber,
+		this(id, sponsorUid, sponsorRole, sponsorName, sponsorEmail, "", guestName, guestIdNumber, "",
+				hasVehicle, vehiclePlate, guestType, passCode, entryRequestId, gateLabel, status,
+				expiresAt, admittedAt, admittedByUid, admissionMethod, createdAt);
+	}
+
+	public GuestPass(
+			@NonNull String id,
+			@NonNull String sponsorUid,
+			@NonNull String sponsorRole,
+			@NonNull String sponsorName,
+			@NonNull String sponsorEmail,
+			@NonNull String guestName,
+			@NonNull String guestIdNumber,
+			@NonNull String guestPhone,
+			boolean hasVehicle,
+			@NonNull String vehiclePlate,
+			@NonNull String guestType,
+			@NonNull String passCode,
+			@NonNull String entryRequestId,
+			@NonNull String gateLabel,
+			@NonNull String status,
+			@Nullable Timestamp expiresAt,
+			@Nullable Timestamp admittedAt,
+			@NonNull String admittedByUid,
+			@NonNull String admissionMethod,
+			@Nullable Timestamp createdAt
+	) {
+		this(id, sponsorUid, sponsorRole, sponsorName, sponsorEmail, "", guestName, guestIdNumber, guestPhone,
 				hasVehicle, vehiclePlate, guestType, passCode, entryRequestId, gateLabel, status,
 				expiresAt, admittedAt, admittedByUid, admissionMethod, createdAt);
 	}
@@ -124,6 +155,7 @@ public class GuestPass {
 		if (map == null) {
 			return new GuestPass(
 					id,
+					"",
 					"",
 					"",
 					"",
@@ -154,6 +186,7 @@ public class GuestPass {
 				asStringOr(map.get("sponsorStudentId"), asString(map.get("studentId"))),
 				asString(map.get("guestName")),
 				asString(map.get("guestIdNumber")),
+				asString(map.get("guestPhone")),
 				asBoolean(map.get("hasVehicle")),
 				asString(map.get("vehiclePlate")),
 				asString(map.get("guestType")),
@@ -231,6 +264,14 @@ public class GuestPass {
 	@NonNull
 	public String getGuestIdNumber() {
 		return guestIdNumber;
+	}
+
+	/**
+	 * @return guest phone number captured at pass creation.
+	 */
+	@NonNull
+	public String getGuestPhone() {
+		return guestPhone;
 	}
 
 	public boolean hasVehicle() {

@@ -29,12 +29,14 @@ public class FirestoreInterventionRepository implements InterventionRepository {
     private static final String COLLECTION_GUEST_BANS = "guest_bans";
     private static final String COLLECTION_FINE_CASES = "fine_cases";
     private static final String COLLECTION_STUDENT_WARNINGS = "student_warnings";
+    private static final String COLLECTION_GUEST_WARNINGS = "guest_warnings";
     private static final String COLLECTION_ENTRY_REQUESTS = "entry_requests";
     private static final String COLLECTION_GUEST_PASSES = "guest_passes";
     private static final String COLLECTION_ALERTS = "alerts";
 
     private final FirebaseFirestore firestore;
     private final AuditEventLogger auditEventLogger;
+    private final UserNotificationWriter notificationWriter;
     private ListenerRegistration bansRegistration;
     private ListenerRegistration fineRegistration;
     private ListenerRegistration studentFineRegistration;
@@ -47,6 +49,7 @@ public class FirestoreInterventionRepository implements InterventionRepository {
     FirestoreInterventionRepository(@NonNull FirebaseFirestore firestore) {
         this.firestore = firestore;
         this.auditEventLogger = new AuditEventLogger(firestore);
+        this.notificationWriter = new UserNotificationWriter(firestore);
     }
 
     @Override
@@ -134,6 +137,73 @@ public class FirestoreInterventionRepository implements InterventionRepository {
     }
 
     @Override
+    public void banGuestUntil(
+            @NonNull String cnic,
+            @NonNull String guestName,
+            @NonNull String guestPhone,
+            @NonNull String adminUid,
+            @NonNull String reasonCode,
+            @NonNull String sourceReportId,
+            @NonNull Timestamp endAt,
+            @NonNull OperationCallback callback
+    ) {
+        String normalizedCnic = GuestIdentityPolicy.normalizeCnic(cnic);
+        if (normalizedCnic == null) {
+            callback.onComplete(false, "Enter CNIC as xxxxx-xxxxxxx-x.", null);
+            return;
+        }
+        firestore.collection(COLLECTION_GUEST_BANS)
+                .whereEqualTo("cnic", normalizedCnic)
+                .whereEqualTo("status", GuestBanRecord.STATUS_ACTIVE)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    DocumentReference banRef = snapshot.isEmpty()
+                            ? firestore.collection(COLLECTION_GUEST_BANS).document()
+                            : snapshot.getDocuments().get(0).getReference();
+                    Map<String, Object> payload = new HashMap<>();
+                    payload.put("cnic", normalizedCnic);
+                    payload.put("guestName", guestName.trim());
+                    payload.put("guestPhone", guestPhone.trim());
+                    payload.put("status", GuestBanRecord.STATUS_ACTIVE);
+                    payload.put("reasonCode", reasonCode.trim());
+                    payload.put("sourceReportId", sourceReportId.trim());
+                    payload.put("bannedByUid", adminUid.trim());
+                    payload.put("endAt", endAt);
+                    payload.put("updatedAt", FieldValue.serverTimestamp());
+                    if (snapshot.isEmpty()) {
+                        payload.put("startAt", FieldValue.serverTimestamp());
+                        payload.put("createdAt", FieldValue.serverTimestamp());
+                    }
+                    banRef.set(payload, SetOptions.merge())
+                            .addOnSuccessListener(unused -> {
+                                Map<String, Object> metadata = new HashMap<>();
+                                metadata.put("cnic", normalizedCnic);
+                                metadata.put("guestName", guestName.trim());
+                                metadata.put("guestPhone", guestPhone.trim());
+                                metadata.put("sourceReportId", sourceReportId.trim());
+                                auditEventLogger.log(
+                                        AuditEventType.GUEST_BANNED,
+                                        "guest_ban",
+                                        banRef.getId(),
+                                        sourceReportId.trim().isEmpty() ? banRef.getId() : sourceReportId.trim(),
+                                        adminUid.trim(),
+                                        "admin",
+                                        snapshot.isEmpty() ? "Guest CNIC added to banned list until selected date" : "Guest CNIC ban updated until selected date",
+                                        "admin_intervention",
+                                        "success",
+                                        reasonCode.trim().isEmpty() ? "ban_guest" : reasonCode.trim(),
+                                        GatePolicy.STORED_VALUE,
+                                        metadata
+                                );
+                                callback.onComplete(true, snapshot.isEmpty() ? "Guest banned." : "Guest ban updated.", null);
+                            })
+                            .addOnFailureListener(error -> callback.onComplete(false, "Failed to ban guest.", error));
+                })
+                .addOnFailureListener(error -> callback.onComplete(false, "Failed to check existing ban.", error));
+    }
+
+    @Override
     public void unbanGuest(@NonNull String banId, @NonNull String adminUid, @NonNull OperationCallback callback) {
         if (banId.trim().isEmpty()) {
             callback.onComplete(false, "Ban ID is required.", null);
@@ -214,9 +284,67 @@ public class FirestoreInterventionRepository implements InterventionRepository {
                             GatePolicy.STORED_VALUE,
                             metadata
                     );
+                    notificationWriter.write(
+                            sponsorUid,
+                            "fine_issued",
+                            ref.getId(),
+                            "Fine Issued",
+                            "A security charge was issued for " + guestName.trim() + ".",
+                            COLLECTION_FINE_CASES
+                    );
                     callback.onComplete(true, "Charge issued.", null);
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to issue charge.", error));
+    }
+
+    @Override
+    public void createStudentFineForReport(
+            @NonNull String violationReportId,
+            @NonNull String studentUid,
+            @NonNull String studentId,
+            @NonNull String studentName,
+            @NonNull String violationLevel,
+            double amount,
+            @NonNull String reason,
+            @NonNull String adminUid,
+            @NonNull OperationCallback callback
+    ) {
+        if (studentId.trim().isEmpty()) {
+            callback.onComplete(false, "Student ID is required for a fine.", null);
+            return;
+        }
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("sponsorUid", studentUid.trim());
+        payload.put("studentUid", studentUid.trim());
+        payload.put("studentId", studentId.trim());
+        payload.put("studentName", studentName.trim());
+        payload.put("violationReportId", violationReportId.trim());
+        payload.put("guestName", studentName.trim());
+        payload.put("guestIdNumber", studentId.trim());
+        payload.put("amount", amount);
+        payload.put("currency", "PKR");
+        payload.put("reasonCode", violationLevel.trim());
+        payload.put("reason", reason.trim());
+        payload.put("status", FineCaseRecord.STATUS_ISSUED);
+        payload.put("issuedByUid", adminUid.trim());
+        payload.put("paymentNote", "");
+        payload.put("createdAt", FieldValue.serverTimestamp());
+        payload.put("updatedAt", FieldValue.serverTimestamp());
+        payload.put("resolvedAt", null);
+        firestore.collection(COLLECTION_FINE_CASES)
+                .add(payload)
+                .addOnSuccessListener(ref -> {
+                    notificationWriter.write(
+                            studentUid,
+                            "fine_issued",
+                            ref.getId(),
+                            "Fine Issued",
+                            "A fine of PKR " + amount + " was issued for violation " + violationLevel.toUpperCase() + ".",
+                            COLLECTION_FINE_CASES
+                    );
+                    callback.onComplete(true, "Fine issued.", null);
+                })
+                .addOnFailureListener(error -> callback.onComplete(false, "Failed to issue fine.", error));
     }
 
     @Override
@@ -250,6 +378,135 @@ public class FirestoreInterventionRepository implements InterventionRepository {
     }
 
     @Override
+    public void issueGuestWarningForCnic(
+            @NonNull String guestCnic,
+            @NonNull String guestName,
+            @NonNull String guestPhone,
+            @NonNull String violationReportId,
+            @NonNull String violationLevel,
+            @NonNull String detail,
+            @NonNull String adminUid,
+            @NonNull OperationCallback callback
+    ) {
+        String normalizedCnic = GuestIdentityPolicy.normalizeCnic(guestCnic);
+        if (normalizedCnic == null) {
+            callback.onComplete(false, "Guest CNIC is required for warning.", null);
+            return;
+        }
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("guestCnic", normalizedCnic);
+        payload.put("guestName", guestName.trim());
+        payload.put("guestPhone", guestPhone.trim());
+        payload.put("violationReportId", violationReportId.trim());
+        payload.put("violationLevel", violationLevel.trim());
+        payload.put("detail", detail.trim());
+        payload.put("issuedByUid", adminUid.trim());
+        payload.put("createdAt", FieldValue.serverTimestamp());
+        firestore.collection(COLLECTION_GUEST_WARNINGS)
+                .add(payload)
+                .addOnSuccessListener(ref -> callback.onComplete(true, "Guest warning recorded.", null))
+                .addOnFailureListener(error -> callback.onComplete(false, "Failed to record guest warning.", error));
+    }
+
+    @Override
+    public void updateGuestPassStatusForViolation(
+            @NonNull String guestPassId,
+            @NonNull String entryRequestId,
+            @NonNull String targetStatus,
+            @NonNull String targetEntryRequestStatus,
+            @NonNull String adminUid,
+            @NonNull String reason,
+            @NonNull OperationCallback callback
+    ) {
+        if (!guestPassId.trim().isEmpty()) {
+            updateGuestPassDocumentStatus(guestPassId.trim(), entryRequestId, targetStatus, targetEntryRequestStatus, adminUid, reason, callback);
+            return;
+        }
+        if (entryRequestId.trim().isEmpty()) {
+            callback.onComplete(true, "No linked guest pass.", null);
+            return;
+        }
+        firestore.collection(COLLECTION_GUEST_PASSES)
+                .whereEqualTo("entryRequestId", entryRequestId.trim())
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) {
+                        callback.onComplete(true, "No linked guest pass.", null);
+                        return;
+                    }
+                    updateGuestPassDocumentStatus(
+                            snapshot.getDocuments().get(0).getId(),
+                            entryRequestId,
+                            targetStatus,
+                            targetEntryRequestStatus,
+                            adminUid,
+                            reason,
+                            callback
+                    );
+                })
+                .addOnFailureListener(error -> callback.onComplete(false, "Failed to find linked guest pass.", error));
+    }
+
+    private void updateGuestPassDocumentStatus(
+            @NonNull String guestPassId,
+            @NonNull String entryRequestId,
+            @NonNull String targetStatus,
+            @NonNull String targetEntryRequestStatus,
+            @NonNull String adminUid,
+            @NonNull String reason,
+            @NonNull OperationCallback callback
+    ) {
+        String normalizedStatus = targetStatus.trim().toLowerCase();
+        if (normalizedStatus.isEmpty()) {
+            callback.onComplete(false, "Guest pass target status is required.", null);
+            return;
+        }
+
+        WriteBatch batch = firestore.batch();
+        DocumentReference passRef = firestore.collection(COLLECTION_GUEST_PASSES).document(guestPassId.trim());
+        Map<String, Object> passUpdates = new HashMap<>();
+        passUpdates.put("status", normalizedStatus);
+        passUpdates.put("violationReviewByUid", adminUid.trim());
+        passUpdates.put("violationReviewReason", reason.trim());
+        passUpdates.put("updatedAt", FieldValue.serverTimestamp());
+        if ("exited".equals(normalizedStatus)) {
+            passUpdates.put("exitedAt", FieldValue.serverTimestamp());
+        }
+        batch.set(passRef, passUpdates, SetOptions.merge());
+
+        if (!entryRequestId.trim().isEmpty()) {
+            DocumentReference requestRef = firestore.collection(COLLECTION_ENTRY_REQUESTS).document(entryRequestId.trim());
+            String normalizedRequestStatus = targetEntryRequestStatus.trim().toLowerCase();
+            Map<String, Object> requestUpdates = new HashMap<>();
+            requestUpdates.put("violationReviewByUid", adminUid.trim());
+            requestUpdates.put("violationReviewReason", reason.trim());
+            requestUpdates.put("updatedAt", FieldValue.serverTimestamp());
+            if (normalizedRequestStatus.isEmpty()) {
+                if ("exited".equals(normalizedStatus)) {
+                    normalizedRequestStatus = "exited";
+                } else if ("active".equals(normalizedStatus)) {
+                    normalizedRequestStatus = "pending";
+                } else if ("used".equals(normalizedStatus)) {
+                    normalizedRequestStatus = "active";
+                } else {
+                    normalizedRequestStatus = normalizedStatus;
+                }
+            }
+            requestUpdates.put("status", normalizedRequestStatus);
+            if ("exited".equals(normalizedRequestStatus)) {
+                requestUpdates.put("status", "exited");
+                requestUpdates.put("exitedAt", FieldValue.serverTimestamp());
+            }
+            batch.set(requestRef, requestUpdates, SetOptions.merge());
+        }
+
+        batch.commit()
+                .addOnSuccessListener(unused -> callback.onComplete(true, "Guest pass updated.", null))
+                .addOnFailureListener(error -> callback.onComplete(false, "Failed to update guest pass.", error));
+    }
+
+    @Override
     public void requestChargeRemoval(
             @NonNull String chargeId,
             @NonNull String paymentNote,
@@ -276,7 +533,17 @@ public class FirestoreInterventionRepository implements InterventionRepository {
                 paymentNote
         ));
         batch.commit()
-                .addOnSuccessListener(unused -> callback.onComplete(true, "Removal request submitted.", null))
+                .addOnSuccessListener(unused -> {
+                    notificationWriter.write(
+                            studentUid,
+                            "charge_removal_requested",
+                            normalizedChargeId,
+                            "Charge Removal Requested",
+                            "Your charge removal request was submitted for review.",
+                            COLLECTION_FINE_CASES
+                    );
+                    callback.onComplete(true, "Removal request submitted.", null);
+                })
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to submit removal request.", error));
     }
 
@@ -314,8 +581,34 @@ public class FirestoreInterventionRepository implements InterventionRepository {
         firestore.collection(COLLECTION_FINE_CASES)
                 .document(chargeId.trim())
                 .set(updates, com.google.firebase.firestore.SetOptions.merge())
-                .addOnSuccessListener(unused -> callback.onComplete(true, successMessage, null))
+                .addOnSuccessListener(unused -> {
+                    notifyChargeStatusChanged(chargeId.trim(), newStatus);
+                    callback.onComplete(true, successMessage, null);
+                })
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to update charge.", error));
+    }
+
+    private void notifyChargeStatusChanged(@NonNull String chargeId, @NonNull String status) {
+        firestore.collection(COLLECTION_FINE_CASES)
+                .document(chargeId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    FineCaseRecord record = FineCaseRecord.fromMap(doc.getId(), doc.getData());
+                    String uid = record.getSponsorUid();
+                    String title;
+                    String message;
+                    if (FineCaseRecord.STATUS_WAIVED.equalsIgnoreCase(status)) {
+                        title = "Fine Removed";
+                        message = "Your fine removal request was approved.";
+                    } else if (FineCaseRecord.STATUS_SETTLED.equalsIgnoreCase(status)) {
+                        title = "Fine Settled";
+                        message = "Your fine was marked as settled.";
+                    } else {
+                        title = "Fine Removal Rejected";
+                        message = "Your fine removal request was rejected.";
+                    }
+                    notificationWriter.write(uid, "fine_" + status, chargeId, title, message, COLLECTION_FINE_CASES);
+                });
     }
 
     @Override

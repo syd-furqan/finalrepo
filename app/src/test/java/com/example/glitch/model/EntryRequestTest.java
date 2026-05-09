@@ -26,6 +26,7 @@ public class EntryRequestTest {
         map.put("hostName", "Prof. Salman");
         map.put("gateLabel", "West Wing - 02");
         map.put("guestIdNumber", "35201-1234567-1");
+        map.put("guestPhone", "+923001234567");
         map.put("hasVehicle", true);
         map.put("vehiclePlate", "abc-123");
         map.put("guestType", "vehicle");
@@ -44,6 +45,7 @@ public class EntryRequestTest {
         assertEquals("Prof. Salman", request.getHostName());
         assertEquals(GatePolicy.STORED_VALUE, request.getGateLabel());
         assertEquals("35201-1234567-1", request.getGuestIdNumber());
+        assertEquals("+923001234567", request.getGuestPhone());
         assertEquals(true, request.hasVehicle());
         assertEquals("ABC-123", request.getVehiclePlate());
         assertEquals("vehicle", request.getGuestType());

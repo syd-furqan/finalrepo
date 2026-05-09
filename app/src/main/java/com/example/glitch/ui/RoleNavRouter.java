@@ -150,7 +150,7 @@ public final class RoleNavRouter {
             case PASSES:
                 if ("admin".equals(role)) return RoleDestination.ADMIN_SECURITY;
                 if ("guard".equals(role)) return RoleDestination.SCAN;
-                if ("faculty".equals(role)) return RoleDestination.FACULTY_NOTIFICATIONS;
+                if ("faculty".equals(role)) return RoleDestination.NOTIFICATIONS;
                 if ("monitor".equals(role)) return RoleDestination.MONITOR_MY_REPORTS;
                 if ("student".equals(role)) return RoleDestination.STUDENT_PASSES;
                 return RoleDestination.DIRECTORY;
@@ -162,6 +162,8 @@ public final class RoleNavRouter {
                 return RoleDestination.DIRECTORY;
             case DIRECTORY:
                 return RoleDestination.DIRECTORY;
+            case FACULTY_NOTIFICATIONS:
+                return RoleDestination.NOTIFICATIONS;
             case LOGOUT:
                 return RoleDestination.LOGOUT;
             default:
@@ -253,6 +255,7 @@ public final class RoleNavRouter {
             case FACULTY_REQUEST:
                 return "Access Requests";
             case FACULTY_NOTIFICATIONS:
+            case NOTIFICATIONS:
                 return "Notifications";
             case STUDENT_PASSES:
                 return "Guest Passes";
@@ -319,7 +322,8 @@ public final class RoleNavRouter {
             case FACULTY_REQUEST:
                 return FacultyAccessRequestFragment.newInstance();
             case FACULTY_NOTIFICATIONS:
-                return FacultyNotificationsFragment.newInstance();
+            case NOTIFICATIONS:
+                return NotificationCenterFragment.newInstance();
             case STUDENT_PASSES:
                 return StudentGuestPassFragment.newInstance();
             case ADMIN_VEHICLES:
@@ -363,9 +367,10 @@ public final class RoleNavRouter {
         } else if ("student".equals(role)) {
             items.add(new NavItem(RoleDestination.STUDENT_PASSES, "Guest Passes", android.R.drawable.ic_menu_agenda));
             items.add(new NavItem(RoleDestination.SPONSOR_VEHICLES, "Vehicles", android.R.drawable.ic_menu_directions));
+            items.add(new NavItem(RoleDestination.NOTIFICATIONS, "Notifications", android.R.drawable.ic_dialog_email));
         } else if ("faculty".equals(role)) {
             items.add(new NavItem(RoleDestination.FACULTY_REQUEST, "Access Requests", android.R.drawable.ic_menu_send));
-            items.add(new NavItem(RoleDestination.FACULTY_NOTIFICATIONS, "Notifications", android.R.drawable.ic_dialog_email));
+            items.add(new NavItem(RoleDestination.NOTIFICATIONS, "Notifications", android.R.drawable.ic_dialog_email));
             items.add(new NavItem(RoleDestination.SPONSOR_VEHICLES, "Vehicles", android.R.drawable.ic_menu_directions));
         } else if ("monitor".equals(role)) {
             items.add(new NavItem(RoleDestination.MONITOR_REPORT, "Report", android.R.drawable.ic_menu_upload));

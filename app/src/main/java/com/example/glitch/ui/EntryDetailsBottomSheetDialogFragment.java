@@ -48,6 +48,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
             @NonNull String roleTag,
             @NonNull String hostName,
             @NonNull String guestIdNumber,
+            @NonNull String guestPhone,
             boolean hasVehicle,
             @NonNull String vehiclePlate,
             @NonNull String guestType,
@@ -66,6 +67,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         args.putString(ARG_HOST, hostName);
         args.putString(ARG_GATE, gateLabel);
         args.putString("arg_guest_id", guestIdNumber);
+        args.putString("arg_guest_phone", guestPhone);
         args.putBoolean(ARG_HAS_VEHICLE, hasVehicle);
         args.putString(ARG_VEHICLE_PLATE, vehiclePlate);
         args.putString(ARG_GUEST_TYPE, guestType);
@@ -98,6 +100,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         String roleTag = safeArg(args, ARG_ROLE);
         String hostName = safeArg(args, ARG_HOST);
         String guestId = safeArg(args, "arg_guest_id");
+        String guestPhone = safeArg(args, "arg_guest_phone");
         boolean hasVehicle = args.getBoolean(ARG_HAS_VEHICLE, false);
         String vehiclePlate = safeArg(args, ARG_VEHICLE_PLATE);
         String guestType = safeArg(args, ARG_GUEST_TYPE);
@@ -146,6 +149,7 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         textExpiry.setText("Expiry: " + expiryText);
         textVisitorId.setText(
                 "CNIC: " + guestId + "\n"
+                        + "Phone: " + fallback(guestPhone) + "\n"
                         + "Guest Type: " + prettyGuestType(guestType) + "\n"
                         + "Vehicle: " + (hasVehicle ? vehiclePlate : "No")
         );
@@ -173,6 +177,11 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
     private String safeArg(@NonNull Bundle args, @NonNull String key) {
         String value = args.getString(key);
         return value == null ? "" : value;
+    }
+
+    @NonNull
+    private String fallback(@NonNull String value) {
+        return value.trim().isEmpty() ? "Not available" : value;
     }
 
     @NonNull

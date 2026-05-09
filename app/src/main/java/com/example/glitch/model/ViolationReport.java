@@ -11,6 +11,10 @@ public class ViolationReport {
     public static final String STATUS_PENDING = "pending";
     public static final String STATUS_ACTIONED = "actioned";
     public static final String STATUS_IGNORED = "ignored";
+    public static final String STATUS_EXONERATED = "exonerated";
+    public static final String STATUS_WARNING_ISSUED = "warning_issued";
+    public static final String STATUS_BANNED = "banned";
+    public static final String STATUS_FINED = "fined";
 
     public static final String SUBJECT_GUEST = "guest";
     public static final String SUBJECT_STUDENT = "student";
@@ -24,14 +28,20 @@ public class ViolationReport {
     private final String subjectType;
     private final String guestCnic;
     private final String guestName;
+    private final String guestPhone;
     private final String guestPassId;
+    private final String entryRequestId;
+    private final String previousGuestPassStatus;
+    private final String previousEntryRequestStatus;
     private final String sponsorUid;
     private final String sponsorName;
     private final String sponsorRole;
+    private final String sponsorStudentId;
     private final String subjectStudentUid;
     private final String subjectStudentName;
     private final String subjectStudentEmail;
     private final String subjectStudentId;
+    private final String source;
     private final String status;
     private final Timestamp createdAt;
     private final Timestamp updatedAt;
@@ -46,14 +56,20 @@ public class ViolationReport {
             @NonNull String subjectType,
             @NonNull String guestCnic,
             @NonNull String guestName,
+            @NonNull String guestPhone,
             @NonNull String guestPassId,
+            @NonNull String entryRequestId,
+            @NonNull String previousGuestPassStatus,
+            @NonNull String previousEntryRequestStatus,
             @NonNull String sponsorUid,
             @NonNull String sponsorName,
             @NonNull String sponsorRole,
+            @NonNull String sponsorStudentId,
             @NonNull String subjectStudentUid,
             @NonNull String subjectStudentName,
             @NonNull String subjectStudentEmail,
             @NonNull String subjectStudentId,
+            @NonNull String source,
             @NonNull String status,
             @Nullable Timestamp createdAt,
             @Nullable Timestamp updatedAt
@@ -67,14 +83,20 @@ public class ViolationReport {
         this.subjectType = subjectType;
         this.guestCnic = guestCnic;
         this.guestName = guestName;
+        this.guestPhone = guestPhone;
         this.guestPassId = guestPassId;
+        this.entryRequestId = entryRequestId;
+        this.previousGuestPassStatus = previousGuestPassStatus;
+        this.previousEntryRequestStatus = previousEntryRequestStatus;
         this.sponsorUid = sponsorUid;
         this.sponsorName = sponsorName;
         this.sponsorRole = sponsorRole;
+        this.sponsorStudentId = sponsorStudentId;
         this.subjectStudentUid = subjectStudentUid;
         this.subjectStudentName = subjectStudentName;
         this.subjectStudentEmail = subjectStudentEmail;
         this.subjectStudentId = subjectStudentId;
+        this.source = source;
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -83,7 +105,7 @@ public class ViolationReport {
     @NonNull
     public static ViolationReport fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
         if (map == null) {
-            return new ViolationReport(id, "", "", "", "", "", SUBJECT_GUEST, "", "", "", "", "", "", "", "", "", "", STATUS_PENDING, null, null);
+            return new ViolationReport(id, "", "", "", "", "", SUBJECT_GUEST, "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", STATUS_PENDING, null, null);
         }
         return new ViolationReport(
                 id,
@@ -95,14 +117,20 @@ public class ViolationReport {
                 asStringOr(map.get("subjectType"), SUBJECT_GUEST),
                 asString(map.get("guestCnic")),
                 asString(map.get("guestName")),
+                asString(map.get("guestPhone")),
                 asString(map.get("guestPassId")),
+                asString(map.get("entryRequestId")),
+                asString(map.get("previousGuestPassStatus")),
+                asString(map.get("previousEntryRequestStatus")),
                 asString(map.get("sponsorUid")),
                 asString(map.get("sponsorName")),
                 asString(map.get("sponsorRole")),
+                asString(map.get("sponsorStudentId")),
                 asString(map.get("subjectStudentUid")),
                 asString(map.get("subjectStudentName")),
                 asString(map.get("subjectStudentEmail")),
                 asString(map.get("subjectStudentId")),
+                asString(map.get("source")),
                 asStringOr(map.get("status"), STATUS_PENDING),
                 asTimestamp(map.get("createdAt")),
                 asTimestamp(map.get("updatedAt"))
@@ -126,14 +154,20 @@ public class ViolationReport {
     @NonNull public String getSubjectType() { return subjectType; }
     @NonNull public String getGuestCnic() { return guestCnic; }
     @NonNull public String getGuestName() { return guestName; }
+    @NonNull public String getGuestPhone() { return guestPhone; }
     @NonNull public String getGuestPassId() { return guestPassId; }
+    @NonNull public String getEntryRequestId() { return entryRequestId; }
+    @NonNull public String getPreviousGuestPassStatus() { return previousGuestPassStatus; }
+    @NonNull public String getPreviousEntryRequestStatus() { return previousEntryRequestStatus; }
     @NonNull public String getSponsorUid() { return sponsorUid; }
     @NonNull public String getSponsorName() { return sponsorName; }
     @NonNull public String getSponsorRole() { return sponsorRole; }
+    @NonNull public String getSponsorStudentId() { return sponsorStudentId; }
     @NonNull public String getSubjectStudentUid() { return subjectStudentUid; }
     @NonNull public String getSubjectStudentName() { return subjectStudentName; }
     @NonNull public String getSubjectStudentEmail() { return subjectStudentEmail; }
     @NonNull public String getSubjectStudentId() { return subjectStudentId; }
+    @NonNull public String getSource() { return source; }
     @NonNull public String getStatus() { return status; }
     @Nullable public Timestamp getCreatedAt() { return createdAt; }
     @Nullable public Timestamp getUpdatedAt() { return updatedAt; }

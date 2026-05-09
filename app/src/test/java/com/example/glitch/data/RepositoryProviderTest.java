@@ -79,6 +79,7 @@ public class RepositoryProviderTest {
                 @NonNull String requesterRole,
                 @NonNull String guestName,
                 @NonNull String guestIdNumber,
+                @NonNull String guestPhone,
                 @NonNull String hostName,
                 @Nullable Timestamp expiresAt,
                 @NonNull CompletionCallback callback

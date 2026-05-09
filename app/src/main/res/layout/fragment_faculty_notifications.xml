@@ -69,7 +69,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Guest Approved"
+                        android:text="Notifications"
                         android:textColor="@color/text_dark"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -78,7 +78,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Recent approval and status updates from guards."
+                        android:text="Guest passes, vehicles, violations, reviews, and fines."
                         android:textColor="@color/text_muted"
                         android:textSize="12sp" />
                 </LinearLayout>

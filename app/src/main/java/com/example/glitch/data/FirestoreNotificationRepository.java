@@ -8,10 +8,12 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Firestore notification repository for per-user inbox streams.
@@ -104,6 +106,22 @@ public class FirestoreNotificationRepository implements NotificationRepository {
                             .addOnFailureListener(error -> callback.onComplete(false, "Unable to mark notifications as read", error));
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, "Unable to load notifications", error));
+    }
+
+    @Override
+    public void writeNotification(
+            @NonNull String uid,
+            @NonNull String notificationId,
+            @NonNull Map<String, Object> payload,
+            @NonNull OperationCallback callback
+    ) {
+        firestore.collection(COLLECTION_NOTIFICATIONS)
+                .document(uid.trim())
+                .collection(SUBCOLLECTION_ITEMS)
+                .document(notificationId.trim())
+                .set(payload, SetOptions.merge())
+                .addOnSuccessListener(unused -> callback.onComplete(true, "Notification created", null))
+                .addOnFailureListener(error -> callback.onComplete(false, "Unable to create notification", error));
     }
 
     @Override

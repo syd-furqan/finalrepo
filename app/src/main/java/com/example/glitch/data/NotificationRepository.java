@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 
 import com.example.glitch.model.NotificationItem;
 
+import java.util.Map;
 import java.util.List;
 
 /**
@@ -24,6 +25,13 @@ public interface NotificationRepository {
 
 	void markAllNotificationsRead(
 			@NonNull String uid,
+			@NonNull OperationCallback callback
+	);
+
+	void writeNotification(
+			@NonNull String uid,
+			@NonNull String notificationId,
+			@NonNull Map<String, Object> payload,
 			@NonNull OperationCallback callback
 	);
 
