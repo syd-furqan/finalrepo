@@ -51,6 +51,8 @@ public interface GuestPassRepository {
 
 	void findPassByCode(@NonNull String passCode, @NonNull PassLookupListener listener);
 
+	void findPassById(@NonNull String passId, @NonNull PassLookupListener listener);
+
 	void markPassAdmitted(
 			@NonNull String passId,
 			@NonNull String admittedByUid,

@@ -23,13 +23,26 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.List;
 
 public class StudentChargesFragment extends Fragment {
+    private static final String ARG_TARGET_CHARGE_ID = "target_charge_id";
+
     private InterventionRepository interventionRepository;
     private StudentChargeAdapter adapter;
     private TextView textEmpty;
+    private RecyclerView recyclerView;
+    private String targetChargeId = "";
 
     @NonNull
     public static StudentChargesFragment newInstance() {
         return new StudentChargesFragment();
+    }
+
+    @NonNull
+    public static StudentChargesFragment newInstance(@NonNull String targetChargeId) {
+        StudentChargesFragment fragment = new StudentChargesFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_TARGET_CHARGE_ID, targetChargeId.trim());
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -42,9 +55,11 @@ public class StudentChargesFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         interventionRepository = RepositoryProvider.getInterventionRepository();
+        Bundle args = getArguments();
+        targetChargeId = args == null ? "" : safe(args.getString(ARG_TARGET_CHARGE_ID));
         textEmpty = view.findViewById(R.id.text_student_charges_empty);
 
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_student_charges);
+        recyclerView = view.findViewById(R.id.recycler_student_charges);
         adapter = new StudentChargeAdapter();
         adapter.setListener(this::requestRemoval);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -66,6 +81,7 @@ public class StudentChargesFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     adapter.submitList(fineCases);
                     textEmpty.setVisibility(fineCases.isEmpty() ? View.VISIBLE : View.GONE);
+                    scrollToTargetCharge();
                 });
             }
 
@@ -90,9 +106,29 @@ public class StudentChargesFragment extends Fragment {
         );
     }
 
+    private void scrollToTargetCharge() {
+        if (targetChargeId.isEmpty() || recyclerView == null) {
+            return;
+        }
+        int position = adapter.indexOfChargeId(targetChargeId);
+        if (position == RecyclerView.NO_POSITION) {
+            Snackbar.make(requireView(), "Linked charge was not found.", Snackbar.LENGTH_LONG).show();
+            targetChargeId = "";
+            return;
+        }
+        recyclerView.post(() -> recyclerView.smoothScrollToPosition(position));
+        Snackbar.make(requireView(), "Linked charge is in your charges list.", Snackbar.LENGTH_LONG).show();
+        targetChargeId = "";
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         if (interventionRepository != null) interventionRepository.removeListeners();
+    }
+
+    @NonNull
+    private String safe(@Nullable String value) {
+        return value == null ? "" : value.trim();
     }
 }

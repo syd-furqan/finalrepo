@@ -51,6 +51,8 @@ import java.util.Locale;
  * Shared vehicle-program screen for student and faculty sponsors.
  */
 public class SponsorVehicleRegistrationFragment extends Fragment implements RegisteredVehicleAdapter.ActionListener, VehicleApplicationAdapter.ActionListener {
+    private static final String ARG_TARGET_REQUEST_ID = "target_request_id";
+
     private enum PickTarget {
         APPLICANT_CNIC,
         REGISTRATION,
@@ -81,6 +83,7 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
     private TextView textRegistrationUploadProgress;
     private TextView textRegisteredEmpty;
     private TextView textHistoryEmpty;
+    private RecyclerView historyRecycler;
 
     private View layoutRemoval;
     private TextView textRemovalVehicle;
@@ -95,6 +98,7 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
     private final List<VehicleDocumentInput> removalEvidenceDocs = new ArrayList<>();
     private RegisteredVehicleRecord selectedVehicleForRemoval;
     private VehicleRequestRecord openRequest;
+    private String targetRequestId = "";
     private boolean registrationUploadInProgress = false;
 
     private PickTarget currentPickTarget;
@@ -103,6 +107,15 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
     @NonNull
     public static SponsorVehicleRegistrationFragment newInstance() {
         return new SponsorVehicleRegistrationFragment();
+    }
+
+    @NonNull
+    public static SponsorVehicleRegistrationFragment newInstance(@NonNull String targetRequestId) {
+        SponsorVehicleRegistrationFragment fragment = new SponsorVehicleRegistrationFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_TARGET_REQUEST_ID, targetRequestId.trim());
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -119,6 +132,8 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         repository = RepositoryProvider.getVehicleRequestRepository();
+        Bundle args = getArguments();
+        targetRequestId = args == null ? "" : safe(args.getString(ARG_TARGET_REQUEST_ID));
 
         textPolicySummary = view.findViewById(R.id.text_vehicle_policy_summary);
         textOpenApplication = view.findViewById(R.id.text_vehicle_open_application);
@@ -148,7 +163,7 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
         buttonSubmitRemoval = view.findViewById(R.id.button_submit_vehicle_removal);
 
         RecyclerView registeredRecycler = view.findViewById(R.id.recycler_registered_vehicles);
-        RecyclerView historyRecycler = view.findViewById(R.id.recycler_vehicle_history);
+        historyRecycler = view.findViewById(R.id.recycler_vehicle_history);
         registeredVehicleAdapter = new RegisteredVehicleAdapter(this);
         historyAdapter = new VehicleApplicationAdapter(this);
         registeredRecycler.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -248,6 +263,7 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
                     }
                     historyAdapter.submitList(history);
                     textHistoryEmpty.setVisibility(history.isEmpty() ? View.VISIBLE : View.GONE);
+                    scrollToTargetRequest();
                 });
             }
 
@@ -270,6 +286,10 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
         String kind = request.isRemovalRequest() ? "Removal" : "Registration";
         String canCancel = request.canCancelByApplicant() ? "Cancelable" : "Locked after admin received";
         textOpenApplication.setText(kind + " application • " + request.getStatus().toUpperCase(Locale.getDefault()) + "\n" + request.getPlateNumber() + "\n" + canCancel);
+        if (!targetRequestId.isEmpty() && targetRequestId.equals(request.getId())) {
+            Snackbar.make(requireView(), "Linked vehicle request is the open application.", Snackbar.LENGTH_LONG).show();
+            targetRequestId = "";
+        }
         buttonCancelOpenApplication.setVisibility(request.canCancelByApplicant() ? View.VISIBLE : View.GONE);
         setFormEnabled(false);
         layoutRemoval.setVisibility(View.GONE);
@@ -353,6 +373,24 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
             names.add(input.getDisplayName());
         }
         textEvidence.setText(TextUtils.join("\n", names));
+    }
+
+    private void scrollToTargetRequest() {
+        if (targetRequestId.isEmpty() || historyRecycler == null) {
+            return;
+        }
+        int position = historyAdapter.indexOfRequestId(targetRequestId);
+        if (position == RecyclerView.NO_POSITION) {
+            return;
+        }
+        historyRecycler.post(() -> historyRecycler.smoothScrollToPosition(position));
+        Snackbar.make(requireView(), "Linked vehicle request is in history.", Snackbar.LENGTH_LONG).show();
+        targetRequestId = "";
+    }
+
+    @NonNull
+    private String safe(@Nullable String value) {
+        return value == null ? "" : value.trim();
     }
 
     private void submitRegistrationApplication() {

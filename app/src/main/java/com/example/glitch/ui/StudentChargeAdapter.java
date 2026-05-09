@@ -89,6 +89,16 @@ public class StudentChargeAdapter extends RecyclerView.Adapter<StudentChargeAdap
         return charges.size();
     }
 
+    public int indexOfChargeId(@NonNull String chargeId) {
+        String normalizedId = chargeId.trim();
+        for (int i = 0; i < charges.size(); i++) {
+            if (charges.get(i).getId().equals(normalizedId)) {
+                return i;
+            }
+        }
+        return RecyclerView.NO_POSITION;
+    }
+
     @NonNull
     private String valueOr(@Nullable String value, @NonNull String fallback) {
         return (value == null || value.trim().isEmpty()) ? fallback : value.trim();

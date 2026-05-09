@@ -37,6 +37,8 @@ public interface ViolationReportRepository {
 
     void listenReportsByReporter(@NonNull String uid, @NonNull ReportListListener listener);
 
+    void getReportById(@NonNull String reportId, @NonNull SingleReportListener listener);
+
     void ignoreReport(@NonNull String reportId, @NonNull String adminUid, @NonNull OperationCallback callback);
 
     void markActioned(@NonNull String reportId, @NonNull String adminUid, @NonNull OperationCallback callback);
@@ -56,6 +58,11 @@ public interface ViolationReportRepository {
 
     interface ReportListListener {
         void onData(@NonNull List<ViolationReport> reports);
+        void onError(@NonNull Exception exception);
+    }
+
+    interface SingleReportListener {
+        void onData(@Nullable ViolationReport report);
         void onError(@NonNull Exception exception);
     }
 

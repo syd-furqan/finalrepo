@@ -79,6 +79,16 @@ public class VehicleApplicationAdapter extends RecyclerView.Adapter<VehicleAppli
         return items.size();
     }
 
+    public int indexOfRequestId(@NonNull String requestId) {
+        String normalizedId = requestId.trim();
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).getId().equals(normalizedId)) {
+                return i;
+            }
+        }
+        return RecyclerView.NO_POSITION;
+    }
+
     @NonNull
     private String buildMeta(@NonNull VehicleRequestRecord record) {
         String type = record.getStickerType().trim().isEmpty() ? "Sticker N/A" : "Sticker " + record.getStickerType();

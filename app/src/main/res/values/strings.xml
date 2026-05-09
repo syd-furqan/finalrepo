@@ -250,6 +250,7 @@
     <string name="vehicle_created_at_unknown">Unknown Date</string>
     <string name="vehicle_created_at_label">Created at: %s</string>
     <string name="mark_all_read_action">Mark all as read</string>
+    <string name="open_related_action">Open Related</string>
 
     <!-- Admin vehicle review (US-10) -->
     <string name="feature_admin_vehicle_review">Vehicle Review</string>
