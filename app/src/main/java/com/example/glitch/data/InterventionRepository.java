@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import com.example.glitch.model.FineCaseRecord;
 import com.example.glitch.model.GuestBanRecord;
 import com.example.glitch.model.StudentWarning;
+import com.google.firebase.Timestamp;
 
 import java.util.List;
 
@@ -18,6 +19,17 @@ public interface InterventionRepository {
             @NonNull String adminUid,
             @NonNull String reasonCode,
             @NonNull String sourceReportId,
+            @NonNull OperationCallback callback
+    );
+
+    void banGuestUntil(
+            @NonNull String cnic,
+            @NonNull String guestName,
+            @NonNull String guestPhone,
+            @NonNull String adminUid,
+            @NonNull String reasonCode,
+            @NonNull String sourceReportId,
+            @NonNull Timestamp endAt,
             @NonNull OperationCallback callback
     );
 
@@ -37,6 +49,18 @@ public interface InterventionRepository {
             @NonNull OperationCallback callback
     );
 
+    void createStudentFineForReport(
+            @NonNull String violationReportId,
+            @NonNull String studentUid,
+            @NonNull String studentId,
+            @NonNull String studentName,
+            @NonNull String violationLevel,
+            double amount,
+            @NonNull String reason,
+            @NonNull String adminUid,
+            @NonNull OperationCallback callback
+    );
+
     void issueWarning(
             @NonNull String targetUid,
             @NonNull String targetName,
@@ -45,6 +69,27 @@ public interface InterventionRepository {
             @NonNull String violationLevel,
             @NonNull String detail,
             @NonNull String adminUid,
+            @NonNull OperationCallback callback
+    );
+
+    void issueGuestWarningForCnic(
+            @NonNull String guestCnic,
+            @NonNull String guestName,
+            @NonNull String guestPhone,
+            @NonNull String violationReportId,
+            @NonNull String violationLevel,
+            @NonNull String detail,
+            @NonNull String adminUid,
+            @NonNull OperationCallback callback
+    );
+
+    void updateGuestPassStatusForViolation(
+            @NonNull String guestPassId,
+            @NonNull String entryRequestId,
+            @NonNull String targetStatus,
+            @NonNull String targetEntryRequestStatus,
+            @NonNull String adminUid,
+            @NonNull String reason,
             @NonNull OperationCallback callback
     );
 

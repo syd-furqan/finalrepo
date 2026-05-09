@@ -37,7 +37,9 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     private GuestPassAdapter adapter;
     private TextInputEditText inputGuestName;
     private TextInputEditText inputGuestId;
+    private TextInputEditText inputGuestPhone;
     private TextInputLayout layoutGuestCnic;
+    private TextInputLayout layoutGuestPhone;
     private TextInputLayout layoutVehiclePlate;
     private TextInputEditText inputVehiclePlate;
     private MaterialCheckBox checkHasVehicle;
@@ -66,7 +68,9 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
         repository = RepositoryProvider.getGuestPassRepository();
         inputGuestName = view.findViewById(R.id.input_pass_guest_name);
         inputGuestId = view.findViewById(R.id.input_pass_guest_id);
+        inputGuestPhone = view.findViewById(R.id.input_pass_guest_phone);
         layoutGuestCnic = view.findViewById(R.id.layout_pass_guest_cnic);
+        layoutGuestPhone = view.findViewById(R.id.layout_pass_guest_phone);
         layoutVehiclePlate = view.findViewById(R.id.layout_pass_vehicle_plate);
         inputVehiclePlate = view.findViewById(R.id.input_pass_vehicle_plate);
         checkHasVehicle = view.findViewById(R.id.check_pass_has_vehicle);
@@ -138,17 +142,23 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     private void createGuestPass() {
         String guestName = read(inputGuestName);
         String guestId = read(inputGuestId);
+        String guestPhone = read(inputGuestPhone);
         boolean hasVehicle = checkHasVehicle.isChecked();
         String vehiclePlateInput = read(inputVehiclePlate);
         UserProfile profile = AuthUiGuard.requireProfile(this);
 
         layoutGuestCnic.setError(null);
+        layoutGuestPhone.setError(null);
         layoutVehiclePlate.setError(null);
 
         String normalizedCnic = GuestIdentityPolicy.normalizeCnic(guestId);
-        if (guestName.isEmpty() || normalizedCnic == null || profile == null) {
+        String normalizedPhone = GuestIdentityPolicy.normalizePhone(guestPhone);
+        if (guestName.isEmpty() || normalizedCnic == null || normalizedPhone == null || profile == null) {
             if (normalizedCnic == null) {
                 layoutGuestCnic.setError(getString(R.string.error_invalid_cnic));
+            }
+            if (normalizedPhone == null) {
+                layoutGuestPhone.setError(getString(R.string.error_invalid_phone));
             }
             Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
             return;
@@ -173,6 +183,7 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
                 profile.getStudentId(),
                 guestName,
                 normalizedCnic,
+                normalizedPhone,
                 hasVehicle,
                 normalizedPlate,
                 (success, message, issuedPass, exception) -> {
@@ -182,9 +193,11 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
                         if (success) {
                             inputGuestName.setText("");
                             inputGuestId.setText("");
+                            inputGuestPhone.setText("");
                             checkHasVehicle.setChecked(false);
                             inputVehiclePlate.setText("");
                             layoutGuestCnic.setError(null);
+                            layoutGuestPhone.setError(null);
                             layoutVehiclePlate.setError(null);
                         } else {
                             buttonCreate.setEnabled(true);

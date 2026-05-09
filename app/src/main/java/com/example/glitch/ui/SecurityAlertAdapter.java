@@ -69,6 +69,7 @@ public class SecurityAlertAdapter extends RecyclerView.Adapter<SecurityAlertAdap
         }
         String guestName = alert.getGuestName().trim().isEmpty() ? "Unknown" : alert.getGuestName().trim();
         String guestId = alert.getGuestIdNumber().trim().isEmpty() ? "N/A" : alert.getGuestIdNumber().trim();
+        String guestPhone = alert.getGuestPhone().trim().isEmpty() ? "N/A" : alert.getGuestPhone().trim();
         String host = alert.getHostName().trim().isEmpty() ? "N/A" : alert.getHostName().trim();
         String requester = alert.getRequesterUid().trim().isEmpty() ? "N/A" : alert.getRequesterUid().trim();
         if (!alert.getRequesterRole().trim().isEmpty()) {
@@ -87,6 +88,7 @@ public class SecurityAlertAdapter extends RecyclerView.Adapter<SecurityAlertAdap
                         + "\nIntervention: " + intervention
                         + "\nGuard: " + reporter
                         + "\nVisitor: " + guestName + " [" + guestId + "]"
+                        + "\nPhone: " + guestPhone
                         + "\nSponsor: " + host + " / " + requester
                         + "\nGate: " + gate
         );

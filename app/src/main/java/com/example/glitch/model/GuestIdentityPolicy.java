@@ -63,6 +63,36 @@ public final class GuestIdentityPolicy {
         return VEHICLE_PLATE_PATTERN.matcher(value.trim().toUpperCase(Locale.getDefault())).matches();
     }
 
+    @Nullable
+    public static String normalizePhone(@Nullable String rawValue) {
+        if (rawValue == null) {
+            return null;
+        }
+        String trimmed = rawValue.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        StringBuilder out = new StringBuilder(trimmed.length());
+        for (int i = 0; i < trimmed.length(); i++) {
+            char c = trimmed.charAt(i);
+            if (Character.isDigit(c)) {
+                out.append(c);
+            } else if (c == '+' && out.length() == 0) {
+                out.append(c);
+            }
+        }
+        String normalized = out.toString();
+        int digitCount = normalized.startsWith("+") ? normalized.length() - 1 : normalized.length();
+        if (digitCount < 7 || digitCount > 15) {
+            return null;
+        }
+        return normalized;
+    }
+
+    public static boolean isValidPhone(@Nullable String value) {
+        return normalizePhone(value) != null;
+    }
+
     @NonNull
     public static String formatCnicForInput(@Nullable String rawValue) {
         String digits = extractDigits(rawValue);

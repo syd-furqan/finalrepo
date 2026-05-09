@@ -40,6 +40,7 @@ public final class AdminAlertPayloadFactory {
             @NonNull String subjectType,
             @NonNull String guestCnic,
             @NonNull String guestName,
+            @NonNull String guestPhone,
             @NonNull String sponsorUid,
             @NonNull String sponsorName,
             @NonNull String sponsorRole,
@@ -75,6 +76,7 @@ public final class AdminAlertPayloadFactory {
                 "Review in Violations",
                 subjectName,
                 subjectIdentifier,
+                studentViolation ? "" : guestPhone,
                 hostName,
                 requesterUid,
                 requesterRole,
@@ -110,6 +112,7 @@ public final class AdminAlertPayloadFactory {
                 "Review in Vehicle Review",
                 valueOr(plateNumber, "Vehicle request"),
                 requestKind,
+                "",
                 "Vehicle Review",
                 requesterUid,
                 requesterRole,
@@ -142,6 +145,7 @@ public final class AdminAlertPayloadFactory {
                 "Review in Charges",
                 chargeId,
                 "Charge",
+                "",
                 "Charge Review",
                 studentUid,
                 "student",
@@ -170,6 +174,7 @@ public final class AdminAlertPayloadFactory {
                 "Review banned guest scan",
                 pass.getGuestName(),
                 pass.getGuestIdNumber(),
+                pass.getGuestPhone(),
                 pass.getSponsorName(),
                 pass.getSponsorUid(),
                 pass.getSponsorRole(),
@@ -193,6 +198,7 @@ public final class AdminAlertPayloadFactory {
             @NonNull String interventionSummary,
             @NonNull String guestName,
             @NonNull String guestIdNumber,
+            @NonNull String guestPhone,
             @NonNull String hostName,
             @NonNull String requesterUid,
             @NonNull String requesterRole,
@@ -215,6 +221,7 @@ public final class AdminAlertPayloadFactory {
         alert.put("interventionSummary", interventionSummary.trim());
         alert.put("guestName", guestName.trim());
         alert.put("guestIdNumber", guestIdNumber.trim());
+        alert.put("guestPhone", guestPhone.trim());
         alert.put("hostName", hostName.trim());
         alert.put("requesterUid", requesterUid.trim());
         alert.put("requesterRole", requesterRole.trim());

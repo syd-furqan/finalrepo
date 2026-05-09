@@ -28,6 +28,7 @@ public class VerificationResultFragment extends Fragment {
     private static final String ARG_NAME = "arg_name";
     private static final String ARG_ROLE = "arg_role";
     private static final String ARG_HOST = "arg_host";
+    private static final String ARG_PHONE = "arg_phone";
     private static final String ARG_GATE = "arg_gate";
     private static final String ARG_ENTERED = "arg_entered";
 
@@ -39,6 +40,7 @@ public class VerificationResultFragment extends Fragment {
             @NonNull String name,
             @NonNull String role,
             @NonNull String host,
+            @NonNull String phone,
             @NonNull String gate,
             @NonNull String enteredTime
     ) {
@@ -48,6 +50,7 @@ public class VerificationResultFragment extends Fragment {
         args.putString(ARG_NAME, name);
         args.putString(ARG_ROLE, role);
         args.putString(ARG_HOST, host);
+        args.putString(ARG_PHONE, phone);
         args.putString(ARG_GATE, gate);
         args.putString(ARG_ENTERED, enteredTime);
         fragment.setArguments(args);
@@ -74,6 +77,7 @@ public class VerificationResultFragment extends Fragment {
         String name = safeArg(args, ARG_NAME);
         String role = safeArg(args, ARG_ROLE);
         String host = safeArg(args, ARG_HOST);
+        String phone = safeArg(args, ARG_PHONE);
         String gate = GatePolicy.toDisplayLabel(safeArg(args, ARG_GATE));
         String entered = safeArg(args, ARG_ENTERED);
 
@@ -87,7 +91,8 @@ public class VerificationResultFragment extends Fragment {
 
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.SEARCH);
         textName.setText(name);
-        textMeta.setText(getString(R.string.verification_meta, role, host));
+        String phoneText = phone.trim().isEmpty() ? "" : "\nPhone: " + phone;
+        textMeta.setText(getString(R.string.verification_meta, role, host) + phoneText);
         textGate.setText(gate);
         textEntered.setText(entered);
 

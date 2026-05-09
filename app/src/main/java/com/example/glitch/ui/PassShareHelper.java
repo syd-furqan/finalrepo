@@ -42,6 +42,7 @@ public final class PassShareHelper {
                 "Access Number (Pass Code): " + passCode + "\n"
                         + "Guest: " + pass.getGuestName() + "\n"
                         + "CNIC: " + pass.getGuestIdNumber() + "\n"
+                        + "Phone: " + pass.getGuestPhone() + "\n"
                         + "Guest Type: " + pass.getGuestType() + "\n"
                         + "Vehicle Plate: " + (pass.hasVehicle() ? pass.getVehiclePlate() : "N/A") + "\n"
                         + "Gate: " + GatePolicy.toDisplayLabel(pass.getGateLabel()) + "\n"

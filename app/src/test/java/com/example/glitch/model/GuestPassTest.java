@@ -28,6 +28,7 @@ public class GuestPassTest {
         map.put("studentId", "STU-123");
         map.put("guestName", "Hamza");
         map.put("guestIdNumber", "35201-1234567-1");
+        map.put("guestPhone", "+923001234567");
         map.put("hasVehicle", true);
         map.put("vehiclePlate", "abc-1234");
         map.put("guestType", "vehicle");
@@ -51,6 +52,7 @@ public class GuestPassTest {
         assertEquals("STU-123", pass.getSponsorStudentId());
         assertEquals("Hamza", pass.getGuestName());
         assertEquals("35201-1234567-1", pass.getGuestIdNumber());
+        assertEquals("+923001234567", pass.getGuestPhone());
         assertEquals(true, pass.hasVehicle());
         assertEquals("ABC-1234", pass.getVehiclePlate());
         assertEquals("vehicle", pass.getGuestType());

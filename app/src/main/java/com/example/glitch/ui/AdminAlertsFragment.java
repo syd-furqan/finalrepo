@@ -380,6 +380,9 @@ public class AdminAlertsFragment extends Fragment {
 
         String visitor = valueOr(alert.getGuestName(), "Unknown")
                 + " (" + valueOr(alert.getGuestIdNumber(), "N/A") + ")";
+        if (!alert.getGuestPhone().trim().isEmpty()) {
+            visitor += " / " + alert.getGuestPhone().trim();
+        }
         String sponsor = valueOr(alert.getHostName(), "N/A");
         if (!alert.getRequesterUid().trim().isEmpty()) {
             sponsor = sponsor + " / " + alert.getRequesterUid().trim();

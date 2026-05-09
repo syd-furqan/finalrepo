@@ -43,6 +43,7 @@ public class SecurityAlertTest {
         map.put("entryRequestId", "req-44");
         map.put("severity", "HIGH");
         map.put("message", "Guard reported violation");
+        map.put("guestPhone", "+923001234567");
         map.put("reportedByUid", "guard-1");
         map.put("reportedByRole", "guard");
         map.put("reportReasonCode", "guard_violation");
@@ -55,6 +56,7 @@ public class SecurityAlertTest {
         assertEquals("req-44", alert.getEntryRequestId());
         assertEquals("req-44", alert.getIdentifier());
         assertEquals("guard-1", alert.getReportedByUid());
+        assertEquals("+923001234567", alert.getGuestPhone());
         assertEquals("guard", alert.getReportedByRole());
         assertEquals("guard_violation", alert.getReasonCode());
         assertEquals("guard_manual", alert.getSource());

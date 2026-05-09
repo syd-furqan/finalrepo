@@ -18,6 +18,7 @@ public class FineCaseRecord {
 
     private final String id;
     private final String sponsorUid;
+    private final String studentId;
     private final String violationReportId;
     private final String guestName;
     private final String guestIdNumber;
@@ -30,6 +31,40 @@ public class FineCaseRecord {
     private final Timestamp createdAt;
     private final Timestamp updatedAt;
     private final Timestamp resolvedAt;
+
+    public FineCaseRecord(
+            @NonNull String id,
+            @NonNull String sponsorUid,
+            @NonNull String studentId,
+            @NonNull String violationReportId,
+            @NonNull String guestName,
+            @NonNull String guestIdNumber,
+            double amount,
+            @NonNull String currency,
+            @NonNull String reasonCode,
+            @NonNull String status,
+            @NonNull String issuedByUid,
+            @NonNull String paymentNote,
+            @Nullable Timestamp createdAt,
+            @Nullable Timestamp updatedAt,
+            @Nullable Timestamp resolvedAt
+    ) {
+        this.id = id;
+        this.sponsorUid = sponsorUid;
+        this.studentId = studentId;
+        this.violationReportId = violationReportId;
+        this.guestName = guestName;
+        this.guestIdNumber = guestIdNumber;
+        this.amount = amount;
+        this.currency = currency;
+        this.reasonCode = reasonCode;
+        this.status = status;
+        this.issuedByUid = issuedByUid;
+        this.paymentNote = paymentNote;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.resolvedAt = resolvedAt;
+    }
 
     public FineCaseRecord(
             @NonNull String id,
@@ -47,26 +82,14 @@ public class FineCaseRecord {
             @Nullable Timestamp updatedAt,
             @Nullable Timestamp resolvedAt
     ) {
-        this.id = id;
-        this.sponsorUid = sponsorUid;
-        this.violationReportId = violationReportId;
-        this.guestName = guestName;
-        this.guestIdNumber = guestIdNumber;
-        this.amount = amount;
-        this.currency = currency;
-        this.reasonCode = reasonCode;
-        this.status = status;
-        this.issuedByUid = issuedByUid;
-        this.paymentNote = paymentNote;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.resolvedAt = resolvedAt;
+        this(id, sponsorUid, "", violationReportId, guestName, guestIdNumber, amount, currency,
+                reasonCode, status, issuedByUid, paymentNote, createdAt, updatedAt, resolvedAt);
     }
 
     @NonNull
     public static FineCaseRecord fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
         if (map == null) {
-            return new FineCaseRecord(id, "", "", "", "", 0.0, "PKR", "", STATUS_ISSUED, "", "", null, null, null);
+            return new FineCaseRecord(id, "", "", "", "", "", 0.0, "PKR", "", STATUS_ISSUED, "", "", null, null, null);
         }
         String reportId = asString(map.get("violationReportId"));
         if (reportId.isEmpty()) {
@@ -75,6 +98,7 @@ public class FineCaseRecord {
         return new FineCaseRecord(
                 id,
                 asString(map.get("sponsorUid")),
+                asString(map.get("studentId")),
                 reportId,
                 asString(map.get("guestName")),
                 asString(map.get("guestIdNumber")),
@@ -106,6 +130,11 @@ public class FineCaseRecord {
     @NonNull
     public String getSponsorUid() {
         return sponsorUid;
+    }
+
+    @NonNull
+    public String getStudentId() {
+        return studentId;
     }
 
     @NonNull

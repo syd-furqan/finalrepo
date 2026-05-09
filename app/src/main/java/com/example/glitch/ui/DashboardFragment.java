@@ -317,6 +317,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
                 request.getRoleTag(),
                 request.getHostName(),
                 request.getGuestIdNumber(),
+                request.getGuestPhone(),
                 request.hasVehicle(),
                 request.getVehiclePlate(),
                 request.getGuestType(),

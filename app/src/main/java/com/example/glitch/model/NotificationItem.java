@@ -17,6 +17,8 @@ public class NotificationItem {
 	private final String title;
 	private final String message;
 	private final String type;
+	private final String sourceId;
+	private final String sourceCollection;
 	private final boolean isRead;
 	private final Timestamp createdAt;
 
@@ -28,6 +30,8 @@ public class NotificationItem {
 			@NonNull String title,
 			@NonNull String message,
 			@NonNull String type,
+			@NonNull String sourceId,
+			@NonNull String sourceCollection,
 			boolean isRead,
 			@Nullable Timestamp createdAt
 	) {
@@ -35,8 +39,21 @@ public class NotificationItem {
 		this.title = title;
 		this.message = message;
 		this.type = type;
+		this.sourceId = sourceId;
+		this.sourceCollection = sourceCollection;
 		this.isRead = isRead;
 		this.createdAt = createdAt;
+	}
+
+	public NotificationItem(
+			@NonNull String id,
+			@NonNull String title,
+			@NonNull String message,
+			@NonNull String type,
+			boolean isRead,
+			@Nullable Timestamp createdAt
+	) {
+		this(id, title, message, type, "", "", isRead, createdAt);
 	}
 
 	/**
@@ -49,13 +66,15 @@ public class NotificationItem {
 	@NonNull
 	public static NotificationItem fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
 		if (map == null) {
-			return new NotificationItem(id, "", "", "", false, null);
+			return new NotificationItem(id, "", "", "", "", "", false, null);
 		}
 		return new NotificationItem(
 				id,
 				asString(map.get("title")),
 				asString(map.get("message")),
 				asString(map.get("type")),
+				asString(map.get("sourceId")),
+				asString(map.get("sourceCollection")),
 				asBoolean(map.get("isRead")),
 				asTimestamp(map.get("createdAt"))
 		);
@@ -91,6 +110,16 @@ public class NotificationItem {
 	@NonNull
 	public String getType() {
 		return type;
+	}
+
+	@NonNull
+	public String getSourceId() {
+		return sourceId;
+	}
+
+	@NonNull
+	public String getSourceCollection() {
+		return sourceCollection;
 	}
 
 	/**

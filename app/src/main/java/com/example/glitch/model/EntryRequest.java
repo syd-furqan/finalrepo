@@ -20,6 +20,7 @@ public class EntryRequest {
 	private final String hostName;
 	private final String gateLabel;
 	private final String guestIDNumber;
+	private final String guestPhone;
 	private final boolean hasVehicle;
 	private final String vehiclePlate;
 	private final String guestType;
@@ -56,6 +57,32 @@ public class EntryRequest {
 			@Nullable Timestamp expiresAt,
 			@NonNull String iconType
 	) {
+		this(id, fullName, roleTag, hostName, gateLabel, guestIdNumber, "", hasVehicle, vehiclePlate,
+				guestType, requesterRole, requesterStudentId, admittedByUid, admittedByRole, admittedByName,
+				enteredAt, status, expiresAt, iconType);
+	}
+
+	public EntryRequest(
+			@NonNull String id,
+			@NonNull String fullName,
+			@NonNull String roleTag,
+			@NonNull String hostName,
+			@NonNull String gateLabel,
+			@NonNull String guestIdNumber,
+			@NonNull String guestPhone,
+			boolean hasVehicle,
+			@NonNull String vehiclePlate,
+			@NonNull String guestType,
+			@NonNull String requesterRole,
+			@NonNull String requesterStudentId,
+			@NonNull String admittedByUid,
+			@NonNull String admittedByRole,
+			@NonNull String admittedByName,
+			@Nullable Timestamp enteredAt,
+			@NonNull String status,
+			@Nullable Timestamp expiresAt,
+			@NonNull String iconType
+	) {
 		this.id = id;
 		this.fullName = fullName;
 		this.roleTag = roleTag;
@@ -63,6 +90,8 @@ public class EntryRequest {
 		this.gateLabel = GatePolicy.normalizeStoredValue(gateLabel);
 		String normalizedGuestId = GuestIdentityPolicy.normalizeCnic(guestIdNumber);
 		this.guestIDNumber = normalizedGuestId == null ? guestIdNumber : normalizedGuestId;
+		String normalizedPhone = GuestIdentityPolicy.normalizePhone(guestPhone);
+		this.guestPhone = normalizedPhone == null ? guestPhone.trim() : normalizedPhone;
 		this.hasVehicle = hasVehicle;
 		String normalizedPlate = GuestIdentityPolicy.normalizeVehiclePlate(vehiclePlate);
 		this.vehiclePlate = normalizedPlate == null ? vehiclePlate : normalizedPlate;
@@ -97,7 +126,7 @@ public class EntryRequest {
 			@Nullable Timestamp expiresAt,
 			@NonNull String iconType
 	) {
-		this(id, fullName, roleTag, hostName, gateLabel, guestIdNumber, hasVehicle, vehiclePlate,
+		this(id, fullName, roleTag, hostName, gateLabel, guestIdNumber, "", hasVehicle, vehiclePlate,
 				guestType, requesterRole, "", admittedByUid, admittedByRole, admittedByName,
 				enteredAt, status, expiresAt, iconType);
 	}
@@ -109,7 +138,7 @@ public class EntryRequest {
 	public static EntryRequest fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
 		if (map == null) {
 			return new EntryRequest(id, "", "", "", GatePolicy.STORED_VALUE, "",
-					false, "", "non_vehicle", "", "", "", "", "", null, "active", null, "");
+					"", false, "", "non_vehicle", "", "", "", "", "", null, "active", null, "");
 		}
 
 		return new EntryRequest(
@@ -119,6 +148,7 @@ public class EntryRequest {
 				asString(map.get("hostName")),
 				GatePolicy.normalizeStoredValue(asString(map.get("gateLabel"))),
 				asString(map.get("guestIdNumber")),
+				asString(map.get("guestPhone")),
 				asBoolean(map.get("hasVehicle")),
 				asString(map.get("vehiclePlate")),
 				asString(map.get("guestType")),
@@ -180,6 +210,11 @@ public class EntryRequest {
 	@NonNull
 	public String getGuestIdNumber() {
 		return guestIDNumber;
+	}
+
+	@NonNull
+	public String getGuestPhone() {
+		return guestPhone;
 	}
 
 	public boolean hasVehicle() {

@@ -59,6 +59,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
     static final String CREATED_AT_FIELD = "createdAt";
     static final String GUEST_NAME_FIELD = "fullName";
     static final String GUEST_ID_FIELD = "guestIdNumber";
+    static final String GUEST_PHONE_FIELD = "guestPhone";
     static final String HOST_NAME_FIELD = "hostName";
     static final String GATE_LABEL_FIELD = "gateLabel";
     static final String REQUESTER_UID_FIELD = "requesterUid";
@@ -102,6 +103,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
     private ListenerRegistration requesterRequestsRegistration;
     private final Set<String> overdueTransitionInFlight = new HashSet<>();
     private final Set<String> autoReportInFlight = new HashSet<>();
+    private final UserNotificationWriter notificationWriter;
 
     public FirestoreEntryRequestRepository() {
         this(FirebaseFirestore.getInstance());
@@ -113,6 +115,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
     FirestoreEntryRequestRepository(@NonNull FirebaseFirestore firestore) {
         this.firestore = firestore;
         this.entryRequestCollection = firestore.collection(COLLECTION_ENTRY_REQUESTS);
+        this.notificationWriter = new UserNotificationWriter(firestore);
     }
 
     @Override
@@ -409,6 +412,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
             @NonNull String requesterRole,
             @NonNull String guestName,
             @NonNull String guestIdNumber,
+            @NonNull String guestPhone,
             @NonNull String hostName,
             @Nullable Timestamp expiresAt,
             @NonNull CompletionCallback callback
@@ -419,6 +423,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         payload.put(GUEST_NAME_FIELD, guestName);
         payload.put("roleTag", "Guest");
         payload.put(GUEST_ID_FIELD, guestIdNumber);
+        payload.put(GUEST_PHONE_FIELD, guestPhone);
         payload.put(HOST_NAME_FIELD, hostName);
         payload.put(GATE_LABEL_FIELD, GatePolicy.STORED_VALUE);
         payload.put("iconType", "guest");
@@ -435,6 +440,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                     Map<String, Object> metadata = new HashMap<>();
                     metadata.put("guestName", guestName);
                     metadata.put("guestIdNumber", guestIdNumber);
+                    metadata.put("guestPhone", guestPhone);
                     appendAccessEvent(
                             AuditEventType.REQUEST_CREATED,
                             "entry_request",
@@ -771,6 +777,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                                 "admittedByUid", actorUid,
                                 "admissionMethod", "REPORTED".equals(targetStatus) ? "REPORTED" : targetStatus.toUpperCase(Locale.getDefault())
                         );
+                        addPassStatusNotification(batch, passDoc, targetStatus);
                     }
                     batch.commit();
 
@@ -797,6 +804,37 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
                         );
                     }
                 });
+    }
+
+    private void addPassStatusNotification(
+            @NonNull WriteBatch batch,
+            @NonNull DocumentSnapshot passDoc,
+            @NonNull String targetStatus
+    ) {
+        String sponsorUid = safeString(passDoc.get("sponsorUid"));
+        String sponsorRole = safeString(passDoc.get("sponsorRole"));
+        if (!UserNotificationWriter.supportsRole(sponsorRole)) {
+            return;
+        }
+        String guestName = safeString(passDoc.get("guestName"));
+        if (guestName.isEmpty()) {
+            guestName = "Guest";
+        }
+        String passCode = safeString(passDoc.get("passCode"));
+        String type = "guest_pass_" + targetStatus.trim().toLowerCase(Locale.US);
+        String title;
+        String message;
+        if (STATUS_OVERDUE.equals(targetStatus)) {
+            title = "Visitor Overdue";
+            message = guestName + " is overdue for pass " + passCode + ".";
+        } else if (STATUS_REPORTED.equals(targetStatus)) {
+            title = "Visitor Reported";
+            message = guestName + " was reported after the overdue grace period.";
+        } else {
+            title = "Guest Pass Updated";
+            message = guestName + " pass status changed to " + targetStatus + ".";
+        }
+        notificationWriter.addToBatch(batch, sponsorUid, type, passDoc.getId(), title, message, COLLECTION_GUEST_PASSES);
     }
 
     private void createEntryReportAlert(
@@ -834,6 +872,9 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
             if (requestMetadata.containsKey("guestIdNumber")) {
                 alert.put("guestIdNumber", requestMetadata.get("guestIdNumber"));
             }
+            if (requestMetadata.containsKey("guestPhone")) {
+                alert.put("guestPhone", requestMetadata.get("guestPhone"));
+            }
             if (requestMetadata.containsKey("hostName")) {
                 alert.put("hostName", requestMetadata.get("hostName"));
             }
@@ -867,7 +908,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         WriteBatch batch = firestore.batch();
         batch.set(firestore.collection(COLLECTION_ALERTS).document(alertDocId), alert);
         batch.set(firestore.collection(COLLECTION_VIOLATION_REPORTS).document(violationReportId), violationReport);
-        batch.commit();
+        batch.commit().addOnSuccessListener(unused -> fillLinkedPassContext(violationReportId, requestId, reasonCode));
     }
 
     @NonNull
@@ -890,8 +931,11 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         report.put("subjectType", "guest");
         report.put("guestCnic", metadataValue(requestMetadata, "guestIdNumber"));
         report.put("guestName", metadataValue(requestMetadata, "guestName"));
+        report.put("guestPhone", metadataValue(requestMetadata, "guestPhone"));
         report.put("guestPassId", "");
         report.put("entryRequestId", requestId.trim());
+        report.put("previousGuestPassStatus", REPORT_REASON_OVERDUE_GRACE.equals(reasonCode.trim()) ? "overdue" : "");
+        report.put("previousEntryRequestStatus", REPORT_REASON_OVERDUE_GRACE.equals(reasonCode.trim()) ? STATUS_OVERDUE : "");
         report.put("sponsorUid", metadataValue(requestMetadata, "requesterUid"));
         report.put("sponsorName", metadataValue(requestMetadata, "hostName"));
         report.put("sponsorRole", metadataValue(requestMetadata, "requesterRole"));
@@ -908,6 +952,35 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         return report;
     }
 
+    private void fillLinkedPassContext(
+            @NonNull String violationReportId,
+            @NonNull String requestId,
+            @NonNull String reasonCode
+    ) {
+        firestore.collection(COLLECTION_GUEST_PASSES)
+                .whereEqualTo(ENTRY_REQUEST_ID_FIELD, requestId.trim())
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) {
+                        return;
+                    }
+                    DocumentSnapshot passDoc = snapshot.getDocuments().get(0);
+                    String status = safeLower(passDoc.get(STATUS_FIELD));
+                    String previousStatus = status;
+                    if (STATUS_REPORTED.equals(previousStatus)) {
+                        previousStatus = REPORT_REASON_OVERDUE_GRACE.equals(reasonCode.trim()) ? GUEST_PASS_STATUS_OVERDUE : GUEST_PASS_STATUS_USED;
+                    }
+                    Map<String, Object> updates = new HashMap<>();
+                    updates.put("guestPassId", passDoc.getId());
+                    updates.put("guestPhone", safeString(passDoc.get("guestPhone")));
+                    updates.put("previousGuestPassStatus", previousStatus);
+                    firestore.collection(COLLECTION_VIOLATION_REPORTS)
+                            .document(violationReportId.trim())
+                            .set(updates, com.google.firebase.firestore.SetOptions.merge());
+                });
+    }
+
     @NonNull
     private String metadataValue(@Nullable Map<String, Object> metadata, @NonNull String key) {
         if (metadata == null || !metadata.containsKey(key)) {
@@ -921,6 +994,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         Map<String, Object> metadata = new HashMap<>();
         metadata.put("guestName", safeString(snapshot.get(GUEST_NAME_FIELD)));
         metadata.put("guestIdNumber", safeString(snapshot.get(GUEST_ID_FIELD)));
+        metadata.put("guestPhone", safeString(snapshot.get(GUEST_PHONE_FIELD)));
         metadata.put("hostName", safeString(snapshot.get(HOST_NAME_FIELD)));
         metadata.put("requesterUid", safeString(snapshot.get(REQUESTER_UID_FIELD)));
         metadata.put("requesterRole", safeString(snapshot.get(REQUESTER_ROLE_FIELD)));

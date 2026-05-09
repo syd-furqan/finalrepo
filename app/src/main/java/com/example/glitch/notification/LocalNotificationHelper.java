@@ -26,6 +26,9 @@ public class LocalNotificationHelper {
     private static final String CHANNEL_ID_VEHICLE_PROGRAM = "vehicle_program_updates";
     private static final String CHANNEL_NAME_VEHICLE_PROGRAM = "Vehicle Program Updates";
     private static final String CHANNEL_DESCRIPTION_VEHICLE_PROGRAM = "Alerts for vehicle registration/removal application updates.";
+    private static final String CHANNEL_ID_USER_NOTIFICATIONS = "user_notification_center";
+    private static final String CHANNEL_NAME_USER_NOTIFICATIONS = "Notifications";
+    private static final String CHANNEL_DESCRIPTION_USER_NOTIFICATIONS = "User notification center updates.";
 
     private final Context appContext;
 
@@ -55,6 +58,13 @@ public class LocalNotificationHelper {
         );
         vehicleChannel.setDescription(CHANNEL_DESCRIPTION_VEHICLE_PROGRAM);
         manager.createNotificationChannel(vehicleChannel);
+        NotificationChannel userChannel = new NotificationChannel(
+                CHANNEL_ID_USER_NOTIFICATIONS,
+                CHANNEL_NAME_USER_NOTIFICATIONS,
+                NotificationManager.IMPORTANCE_HIGH
+        );
+        userChannel.setDescription(CHANNEL_DESCRIPTION_USER_NOTIFICATIONS);
+        manager.createNotificationChannel(userChannel);
     }
 
     public boolean showGuestPassLifecycleNotification(
@@ -71,6 +81,14 @@ public class LocalNotificationHelper {
             int notificationId
     ) {
         return showOnChannel(CHANNEL_ID_VEHICLE_PROGRAM, title, message, notificationId);
+    }
+
+    public boolean showUserNotification(
+            @NonNull String title,
+            @NonNull String message,
+            int notificationId
+    ) {
+        return showOnChannel(CHANNEL_ID_USER_NOTIFICATIONS, title, message, notificationId);
     }
 
     private boolean showOnChannel(

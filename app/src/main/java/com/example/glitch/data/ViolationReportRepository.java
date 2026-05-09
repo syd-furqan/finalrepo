@@ -18,10 +18,14 @@ public interface ViolationReportRepository {
             @NonNull String subjectType,
             @NonNull String guestCnic,
             @NonNull String guestName,
+            @NonNull String guestPhone,
             @NonNull String guestPassId,
+            @NonNull String entryRequestId,
+            @NonNull String previousGuestPassStatus,
             @NonNull String sponsorUid,
             @NonNull String sponsorName,
             @NonNull String sponsorRole,
+            @NonNull String sponsorStudentId,
             @NonNull String subjectStudentUid,
             @NonNull String subjectStudentName,
             @NonNull String subjectStudentEmail,
@@ -36,6 +40,13 @@ public interface ViolationReportRepository {
     void ignoreReport(@NonNull String reportId, @NonNull String adminUid, @NonNull OperationCallback callback);
 
     void markActioned(@NonNull String reportId, @NonNull String adminUid, @NonNull OperationCallback callback);
+
+    void completeReview(
+            @NonNull String reportId,
+            @NonNull String status,
+            @NonNull java.util.Map<String, Object> reviewFields,
+            @NonNull OperationCallback callback
+    );
 
     void findActivePasForCnic(@NonNull String cnic, @NonNull PassInfoCallback callback);
 
@@ -53,7 +64,17 @@ public interface ViolationReportRepository {
     }
 
     interface PassInfoCallback {
-        void onFound(@NonNull String guestName, @NonNull String guestPassId, @NonNull String sponsorUid, @NonNull String sponsorName, @NonNull String sponsorRole);
+        void onFound(
+                @NonNull String guestName,
+                @NonNull String guestPhone,
+                @NonNull String guestPassId,
+                @NonNull String entryRequestId,
+                @NonNull String passStatus,
+                @NonNull String sponsorUid,
+                @NonNull String sponsorName,
+                @NonNull String sponsorRole,
+                @NonNull String sponsorStudentId
+        );
         void onNotFound(@NonNull String message);
         void onError(@NonNull Exception exception);
     }

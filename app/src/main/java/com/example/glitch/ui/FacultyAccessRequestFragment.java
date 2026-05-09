@@ -35,8 +35,10 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
     private TextView textEmpty;
     private TextInputEditText inputGuestName;
     private TextInputEditText inputGuestId;
+    private TextInputEditText inputGuestPhone;
     private TextInputEditText inputVehiclePlate;
     private TextInputLayout layoutGuestCnic;
+    private TextInputLayout layoutGuestPhone;
     private TextInputLayout layoutVehiclePlate;
     private MaterialCheckBox checkHasVehicle;
     private ListenerRegistration passListener;
@@ -63,8 +65,10 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
 
         inputGuestName = view.findViewById(R.id.input_guest_name);
         inputGuestId = view.findViewById(R.id.input_guest_id);
+        inputGuestPhone = view.findViewById(R.id.input_guest_phone);
         inputVehiclePlate = view.findViewById(R.id.input_guest_vehicle_plate);
         layoutGuestCnic = view.findViewById(R.id.layout_guest_cnic);
+        layoutGuestPhone = view.findViewById(R.id.layout_guest_phone);
         layoutVehiclePlate = view.findViewById(R.id.layout_guest_vehicle_plate);
         checkHasVehicle = view.findViewById(R.id.check_guest_has_vehicle);
         MaterialButton buttonSubmit = view.findViewById(R.id.button_submit_request);
@@ -114,17 +118,23 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
         buttonSubmit.setOnClickListener(v -> {
             String guestName = read(inputGuestName);
             String guestId = read(inputGuestId);
+            String guestPhone = read(inputGuestPhone);
             boolean hasVehicle = checkHasVehicle.isChecked();
             String vehiclePlateInput = read(inputVehiclePlate);
             UserProfile userProfile = AuthUiGuard.requireProfile(this);
 
             layoutGuestCnic.setError(null);
+            layoutGuestPhone.setError(null);
             layoutVehiclePlate.setError(null);
 
             String normalizedCnic = GuestIdentityPolicy.normalizeCnic(guestId);
-            if (guestName.isEmpty() || normalizedCnic == null || userProfile == null) {
+            String normalizedPhone = GuestIdentityPolicy.normalizePhone(guestPhone);
+            if (guestName.isEmpty() || normalizedCnic == null || normalizedPhone == null || userProfile == null) {
                 if (normalizedCnic == null) {
                     layoutGuestCnic.setError(getString(R.string.error_invalid_cnic));
+                }
+                if (normalizedPhone == null) {
+                    layoutGuestPhone.setError(getString(R.string.error_invalid_phone));
                 }
                 Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
                 return;
@@ -147,6 +157,7 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
                     userProfile.getStudentId(),
                     guestName,
                     normalizedCnic,
+                    normalizedPhone,
                     hasVehicle,
                     normalizedPlate,
                     (success, message, issuedPass, exception) -> {
@@ -158,9 +169,11 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
                             if (success) {
                                 inputGuestName.setText("");
                                 inputGuestId.setText("");
+                                inputGuestPhone.setText("");
                                 checkHasVehicle.setChecked(false);
                                 inputVehiclePlate.setText("");
                                 layoutGuestCnic.setError(null);
+                                layoutGuestPhone.setError(null);
                                 layoutVehiclePlate.setError(null);
                             }
                         });

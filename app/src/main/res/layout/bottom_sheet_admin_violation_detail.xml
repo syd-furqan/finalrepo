@@ -91,7 +91,6 @@
             android:layout_marginVertical="14dp"
             android:background="@color/surface_alt" />
 
-        <!-- Actions (visible only when report is pending) -->
         <LinearLayout
             android:id="@+id/container_report_actions"
             android:layout_width="match_parent"
@@ -101,81 +100,162 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Take Action"
+                android:text="Review Action"
                 android:textColor="@color/text_dark"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <!-- Warning detail input (shown when warn is tapped) -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layout_warning_detail"
+            <LinearLayout
+                android:id="@+id/container_guest_review"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:hint="Warning message (optional)"
-                android:visibility="gone">
+                android:layout_marginTop="12dp"
+                android:orientation="vertical">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/input_warning_detail"
+                <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textMultiLine|textCapSentences"
-                    android:minLines="2" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:text="Guest action"
+                    android:textColor="@color/text_dark"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
-            <!-- Charge amount input (shown when charge is tapped) -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layout_charge_amount"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:hint="Fine amount (PKR)"
-                android:visibility="gone">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/input_charge_amount"
+                <RadioGroup
+                    android:id="@+id/radio_guest_action"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberDecimal" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_marginTop="4dp"
+                    android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_action_warn"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                    <RadioButton
+                        android:id="@+id/radio_guest_exonerate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Exonerate" />
+
+                    <RadioButton
+                        android:id="@+id/radio_guest_warn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Warn CNIC" />
+
+                    <RadioButton
+                        android:id="@+id/radio_guest_ban"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Ban CNIC" />
+                </RadioGroup>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_guest_reason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="Guest action reason">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/input_guest_reason"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine|textCapSentences"
+                        android:minLines="2" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_guest_ban_date"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Choose ban end date"
+                    android:textAllCaps="false"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/text_guest_ban_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="@color/text_muted"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/container_student_review"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Issue Warning to Sponsor/Student"
-                android:textAllCaps="false" />
+                android:layout_marginTop="14dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_student_action_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Student action"
+                    android:textColor="@color/text_dark"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <RadioGroup
+                    android:id="@+id/radio_student_action"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/radio_student_exonerate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Exonerate" />
+
+                    <RadioButton
+                        android:id="@+id/radio_student_fine"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Fine" />
+                </RadioGroup>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_student_reason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="Student action reason">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/input_student_reason"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine|textCapSentences"
+                        android:minLines="2" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_student_fine_amount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="Fine amount (PKR)"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/input_student_fine_amount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_action_charge"
+                android:id="@+id/button_submit_review"
                 style="@style/Widget.Material3.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Issue Charge / Fine"
+                android:layout_marginTop="14dp"
+                android:text="Submit Review"
                 android:textAllCaps="false" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_action_ban"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_button_primary"
-                android:text="Add Guest to Banned List"
-                android:textAllCaps="false"
-                android:textColor="@color/white" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_action_ignore"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Ignore Report"
-                android:textAllCaps="false"
-                android:textColor="@color/text_muted" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
