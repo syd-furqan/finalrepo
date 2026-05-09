@@ -37,6 +37,7 @@ public class AdminUserManagementFragment extends Fragment implements UserManagem
     private TextInputEditText inputRole;
     private TextInputEditText inputName;
     private TextInputEditText inputStudentCategory;
+    private TextInputEditText inputStudentId;
 
     @NonNull
     public static AdminUserManagementFragment newInstance() {
@@ -62,6 +63,7 @@ public class AdminUserManagementFragment extends Fragment implements UserManagem
         inputRole = view.findViewById(R.id.input_user_role);
         inputName = view.findViewById(R.id.input_user_name);
         inputStudentCategory = view.findViewById(R.id.input_user_student_category);
+        inputStudentId = view.findViewById(R.id.input_user_student_id);
         MaterialButton buttonSave = view.findViewById(R.id.button_save_user);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_users);
         textEmpty = view.findViewById(R.id.text_users_empty);
@@ -102,6 +104,7 @@ public class AdminUserManagementFragment extends Fragment implements UserManagem
         String role = read(inputRole).toLowerCase(Locale.getDefault());
         String name = read(inputName);
         String studentCategory = read(inputStudentCategory).toLowerCase(Locale.getDefault());
+        String studentId = read(inputStudentId);
         if (uid.isEmpty() || email.isEmpty() || role.isEmpty() || name.isEmpty()) {
             Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
             return;
@@ -119,7 +122,11 @@ public class AdminUserManagementFragment extends Fragment implements UserManagem
             Snackbar.make(requireView(), "Student category must be day_scholar, hostelite, or redc.", Snackbar.LENGTH_SHORT).show();
             return;
         }
-        repository.upsertUser(uid, email, role, name, studentCategory, true, (success, message, exception) -> {
+        if ("student".equals(role) && studentId.isEmpty()) {
+            Snackbar.make(requireView(), "Student ID is required for student users.", Snackbar.LENGTH_SHORT).show();
+            return;
+        }
+        repository.upsertUser(uid, email, role, name, studentCategory, studentId, true, (success, message, exception) -> {
             if (!isAdded()) {
                 return;
             }

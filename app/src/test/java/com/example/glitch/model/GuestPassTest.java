@@ -25,6 +25,7 @@ public class GuestPassTest {
         map.put("sponsorRole", "student");
         map.put("sponsorName", "Ali");
         map.put("sponsorEmail", "ali@lums.edu.pk");
+        map.put("studentId", "STU-123");
         map.put("guestName", "Hamza");
         map.put("guestIdNumber", "35201-1234567-1");
         map.put("hasVehicle", true);
@@ -47,6 +48,7 @@ public class GuestPassTest {
         assertEquals("student", pass.getSponsorRole());
         assertEquals("Ali", pass.getSponsorName());
         assertEquals("ali@lums.edu.pk", pass.getSponsorEmail());
+        assertEquals("STU-123", pass.getSponsorStudentId());
         assertEquals("Hamza", pass.getGuestName());
         assertEquals("35201-1234567-1", pass.getGuestIdNumber());
         assertEquals(true, pass.hasVehicle());

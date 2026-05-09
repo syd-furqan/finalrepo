@@ -24,6 +24,7 @@ public class EntryRequest {
 	private final String vehiclePlate;
 	private final String guestType;
 	private final String requesterRole;
+	private final String requesterStudentId;
 	private final String admittedByUid;
 	private final String admittedByRole;
 	private final String admittedByName;
@@ -46,6 +47,7 @@ public class EntryRequest {
 			@NonNull String vehiclePlate,
 			@NonNull String guestType,
 			@NonNull String requesterRole,
+			@NonNull String requesterStudentId,
 			@NonNull String admittedByUid,
 			@NonNull String admittedByRole,
 			@NonNull String admittedByName,
@@ -66,6 +68,7 @@ public class EntryRequest {
 		this.vehiclePlate = normalizedPlate == null ? vehiclePlate : normalizedPlate;
 		this.guestType = guestType.trim().isEmpty() ? GuestIdentityPolicy.guestTypeFor(hasVehicle) : guestType;
 		this.requesterRole = requesterRole.trim().toLowerCase(Locale.getDefault());
+		this.requesterStudentId = requesterStudentId.trim();
 		this.admittedByUid = admittedByUid.trim();
 		this.admittedByRole = admittedByRole.trim().toLowerCase(Locale.getDefault());
 		this.admittedByName = admittedByName.trim();
@@ -75,6 +78,30 @@ public class EntryRequest {
 		this.iconType = iconType;
 	}
 
+	public EntryRequest(
+			@NonNull String id,
+			@NonNull String fullName,
+			@NonNull String roleTag,
+			@NonNull String hostName,
+			@NonNull String gateLabel,
+			@NonNull String guestIdNumber,
+			boolean hasVehicle,
+			@NonNull String vehiclePlate,
+			@NonNull String guestType,
+			@NonNull String requesterRole,
+			@NonNull String admittedByUid,
+			@NonNull String admittedByRole,
+			@NonNull String admittedByName,
+			@Nullable Timestamp enteredAt,
+			@NonNull String status,
+			@Nullable Timestamp expiresAt,
+			@NonNull String iconType
+	) {
+		this(id, fullName, roleTag, hostName, gateLabel, guestIdNumber, hasVehicle, vehiclePlate,
+				guestType, requesterRole, "", admittedByUid, admittedByRole, admittedByName,
+				enteredAt, status, expiresAt, iconType);
+	}
+
 	/**
 	 * Converts Firestore map data into a strongly typed entry request.
 	 */
@@ -82,7 +109,7 @@ public class EntryRequest {
 	public static EntryRequest fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
 		if (map == null) {
 			return new EntryRequest(id, "", "", "", GatePolicy.STORED_VALUE, "",
-					false, "", "non_vehicle", "", "", "", "", null, "active", null, "");
+					false, "", "non_vehicle", "", "", "", "", "", null, "active", null, "");
 		}
 
 		return new EntryRequest(
@@ -96,6 +123,7 @@ public class EntryRequest {
 				asString(map.get("vehiclePlate")),
 				asString(map.get("guestType")),
 				asString(map.get("requesterRole")),
+				asStringOrDefault(map.get("sponsorStudentId"), asString(map.get("studentId"))),
 				asString(map.get("admittedByUid")),
 				asString(map.get("admittedByRole")),
 				asString(map.get("admittedByName")),
@@ -171,6 +199,11 @@ public class EntryRequest {
 	@NonNull
 	public String getRequesterRole() {
 		return requesterRole;
+	}
+
+	@NonNull
+	public String getRequesterStudentId() {
+		return requesterStudentId;
 	}
 
 	@NonNull

@@ -33,6 +33,11 @@ public class SecurityAlert {
 	private final String source;
 	private final String incidentStatus;
 	private final String interventionSummary;
+	private final String violationReportId;
+	private final String vehicleRequestId;
+	private final String chargeId;
+	private final String guestPassId;
+	private final String subjectStudentId;
 	private final Timestamp createdAt;
 
 	/**
@@ -59,6 +64,11 @@ public class SecurityAlert {
 			@NonNull String source,
 			@NonNull String incidentStatus,
 			@NonNull String interventionSummary,
+			@NonNull String violationReportId,
+			@NonNull String vehicleRequestId,
+			@NonNull String chargeId,
+			@NonNull String guestPassId,
+			@NonNull String subjectStudentId,
 			@Nullable Timestamp createdAt
 	) {
 		this.id = id;
@@ -81,6 +91,11 @@ public class SecurityAlert {
 		this.source = source;
 		this.incidentStatus = incidentStatus;
 		this.interventionSummary = interventionSummary;
+		this.violationReportId = violationReportId;
+		this.vehicleRequestId = vehicleRequestId;
+		this.chargeId = chargeId;
+		this.guestPassId = guestPassId;
+		this.subjectStudentId = subjectStudentId;
 		this.createdAt = createdAt;
 	}
 
@@ -99,6 +114,11 @@ public class SecurityAlert {
 					"",
 					"",
 					0,
+					"",
+					"",
+					"",
+					"",
+					"",
 					"",
 					"",
 					"",
@@ -145,6 +165,11 @@ public class SecurityAlert {
 				asString(map.get("reportSource")),
 				asString(map.get("incidentStatus")),
 				asString(map.get("interventionSummary")),
+				asString(map.get("violationReportId")),
+				asString(map.get("vehicleRequestId")),
+				asString(map.get("chargeId")),
+				asString(map.get("guestPassId")),
+				asString(map.get("subjectStudentId")),
 				asTimestamp(map.get("createdAt"))
 		);
 	}
@@ -261,6 +286,31 @@ public class SecurityAlert {
 	@NonNull
 	public String getInterventionSummary() {
 		return interventionSummary;
+	}
+
+	@NonNull
+	public String getViolationReportId() {
+		return violationReportId;
+	}
+
+	@NonNull
+	public String getVehicleRequestId() {
+		return vehicleRequestId;
+	}
+
+	@NonNull
+	public String getChargeId() {
+		return chargeId;
+	}
+
+	@NonNull
+	public String getGuestPassId() {
+		return guestPassId;
+	}
+
+	@NonNull
+	public String getSubjectStudentId() {
+		return subjectStudentId;
 	}
 
 	public boolean isEntryReportAlert() {

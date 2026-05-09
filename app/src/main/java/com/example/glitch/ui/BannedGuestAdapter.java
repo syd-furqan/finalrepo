@@ -31,6 +31,20 @@ public class BannedGuestAdapter extends RecyclerView.Adapter<BannedGuestAdapter.
         notifyDataSetChanged();
     }
 
+    public int indexOfCnic(@NonNull String cnic) {
+        String target = cnic.trim();
+        if (target.isEmpty()) {
+            return RecyclerView.NO_POSITION;
+        }
+        for (int i = 0; i < bans.size(); i++) {
+            GuestBanRecord record = bans.get(i);
+            if (target.equals(record.getCnic()) || target.equals(record.getId())) {
+                return i;
+            }
+        }
+        return RecyclerView.NO_POSITION;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

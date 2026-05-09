@@ -49,7 +49,11 @@ public class UserManagementAdapter extends RecyclerView.Adapter<UserManagementAd
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         UserProfile user = users.get(position);
         holder.textDisplayName.setText(user.getDisplayName());
-        holder.textEmailRole.setText(user.getEmail() + " • " + user.getRole());
+        String identity = user.getEmail() + " • " + user.getRole();
+        if ("student".equalsIgnoreCase(user.getRole()) && !user.getStudentId().trim().isEmpty()) {
+            identity = identity + " • ID: " + user.getStudentId().trim();
+        }
+        holder.textEmailRole.setText(identity);
         holder.switchActive.setOnCheckedChangeListener(null);
         holder.switchActive.setChecked(user.isActive());
         holder.switchActive.setOnCheckedChangeListener((buttonView, isChecked) -> listener.onToggleActive(user, isChecked));

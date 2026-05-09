@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 
 import com.example.glitch.R;
 import com.example.glitch.auth.SessionManager;
+import com.example.glitch.data.AlertRepository;
 import com.example.glitch.data.InterventionRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.data.ViolationReportRepository;
@@ -41,15 +42,17 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
     private static final String ARG_STUDENT_UID = "student_uid";
     private static final String ARG_STUDENT_NAME = "student_name";
     private static final String ARG_STUDENT_EMAIL = "student_email";
+    private static final String ARG_STUDENT_ID = "student_id";
 
     // Unpacked fields
     private String reportId, reporterName, reporterRole, detail, level, status;
     private String subjectType, guestName, guestCnic, sponsorUid, sponsorName, sponsorRole;
-    private String studentUid, studentName, studentEmail;
+    private String studentUid, studentName, studentEmail, studentId;
     private boolean isGuestViolation, isPending;
 
     private InterventionRepository interventionRepo;
     private ViolationReportRepository violationRepo;
+    private AlertRepository alertRepo;
 
     private TextInputLayout layoutWarnMessage;
     private TextInputEditText inputWarnMessage;
@@ -80,6 +83,7 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
         args.putString(ARG_STUDENT_UID, r.getSubjectStudentUid());
         args.putString(ARG_STUDENT_NAME, r.getSubjectStudentName());
         args.putString(ARG_STUDENT_EMAIL, r.getSubjectStudentEmail());
+        args.putString(ARG_STUDENT_ID, r.getSubjectStudentId());
         f.setArguments(args);
         return f;
     }
@@ -95,6 +99,7 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
         super.onViewCreated(view, savedInstanceState);
         interventionRepo = RepositoryProvider.getInterventionRepository();
         violationRepo = RepositoryProvider.getViolationReportRepository();
+        alertRepo = RepositoryProvider.getAlertRepository();
 
         Bundle a = requireArguments();
         reportId = safe(a, ARG_REPORT_ID);
@@ -112,6 +117,7 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
         studentUid = safe(a, ARG_STUDENT_UID);
         studentName = safe(a, ARG_STUDENT_NAME);
         studentEmail = safe(a, ARG_STUDENT_EMAIL);
+        studentId = safe(a, ARG_STUDENT_ID);
         isGuestViolation = ViolationReport.SUBJECT_GUEST.equalsIgnoreCase(subjectType);
         isPending = ViolationReport.STATUS_PENDING.equalsIgnoreCase(status);
 
@@ -150,7 +156,7 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
             textSponsor.setText("Sponsor: " + orNa(sponsorName) + " (" + orNa(sponsorRole) + ")");
             textSponsor.setVisibility(View.VISIBLE);
         } else {
-            textSubject.setText("Student: " + orNa(studentName) + " | " + orNa(studentEmail));
+            textSubject.setText("Student: " + orNa(studentName) + " | ID: " + orNa(studentId));
             textSponsor.setVisibility(View.GONE);
         }
 
@@ -260,6 +266,9 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
             if (!isAdded()) return;
             requireActivity().runOnUiThread(() -> {
                 Snackbar.make(requireView(), success ? "Report ignored." : msg, Snackbar.LENGTH_SHORT).show();
+                if (success) {
+                    updateLinkedViolationAlert("closed", "Violation report ignored.", adminUid());
+                }
                 notifyParentAndDismiss();
             });
         });
@@ -269,10 +278,33 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
         violationRepo.markActioned(reportId, adminUid, (success, msg, ex) -> {
             if (!isAdded()) return;
             requireActivity().runOnUiThread(() -> {
-                Snackbar.make(requireView(), "Action recorded.", Snackbar.LENGTH_SHORT).show();
+                if (success) {
+                    updateLinkedViolationAlert("actioned", "Violation report action recorded.", adminUid);
+                }
+                Snackbar.make(requireView(), success ? "Action recorded." : msg, Snackbar.LENGTH_SHORT).show();
                 notifyParentAndDismiss();
             });
         });
+    }
+
+    private void updateLinkedViolationAlert(
+            @NonNull String status,
+            @NonNull String summary,
+            @NonNull String adminUid
+    ) {
+        if (alertRepo == null || reportId.trim().isEmpty()) {
+            return;
+        }
+        alertRepo.updateLinkedAlertStatus(
+                "violationReportId",
+                reportId,
+                status,
+                summary,
+                adminUid,
+                (success, message, exception) -> {
+                    // Violation reports remain the source of truth; alert status mirrors best effort.
+                }
+        );
     }
 
     private void notifyParentAndDismiss() {

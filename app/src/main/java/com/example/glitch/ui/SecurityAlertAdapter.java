@@ -55,7 +55,7 @@ public class SecurityAlertAdapter extends RecyclerView.Adapter<SecurityAlertAdap
         String requestId = alert.getEntryRequestId().trim().isEmpty()
                 ? alert.getIdentifier()
                 : alert.getEntryRequestId();
-        holder.textIdentifier.setText("Entry Report: " + requestId);
+        holder.textIdentifier.setText(labelForAlert(alert) + ": " + requestId);
         String reporter = alert.getReportedByName().trim();
         if (reporter.isEmpty()) {
             reporter = alert.getReportedByUid().trim();
@@ -95,6 +95,24 @@ public class SecurityAlertAdapter extends RecyclerView.Adapter<SecurityAlertAdap
                 actionListener.onAlertSelected(alert);
             }
         });
+    }
+
+    @NonNull
+    static String labelForAlert(@NonNull SecurityAlert alert) {
+        String type = alert.getAlertType().trim().toLowerCase(Locale.getDefault());
+        if ("manual_violation".equals(type)) {
+            return "Violation Report";
+        }
+        if ("vehicle_review".equals(type)) {
+            return "Vehicle Review";
+        }
+        if ("charge_review".equals(type)) {
+            return "Charge Review";
+        }
+        if ("scan_risk".equals(type)) {
+            return "Scan Risk";
+        }
+        return "Entry Report";
     }
 
     @Override

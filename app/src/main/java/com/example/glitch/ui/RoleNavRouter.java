@@ -122,7 +122,10 @@ public final class RoleNavRouter {
             return;
         }
         Fragment target = createFragmentForDestination(resolved, profile);
-        if (target == null || owner.getClass().equals(target.getClass())) {
+        if (target == null) {
+            return;
+        }
+        if (owner.getClass().equals(target.getClass()) && !(owner instanceof AdminCategoryFragment)) {
             return;
         }
         if (owner.requireActivity() instanceof NavigationHost) {
@@ -138,21 +141,21 @@ public final class RoleNavRouter {
         String role = normalize(rawRole);
         switch (destination) {
             case DASHBOARD:
-                if ("admin".equals(role)) return RoleDestination.AUDIT;
+                if ("admin".equals(role)) return RoleDestination.DIRECTORY;
                 if ("guard".equals(role)) return RoleDestination.DASHBOARD;
                 if ("faculty".equals(role)) return RoleDestination.FACULTY_REQUEST;
                 if ("monitor".equals(role)) return RoleDestination.MONITOR_REPORT;
                 if ("student".equals(role)) return RoleDestination.STUDENT_PASSES;
                 return RoleDestination.DIRECTORY;
             case PASSES:
-                if ("admin".equals(role)) return RoleDestination.ALERTS;
+                if ("admin".equals(role)) return RoleDestination.ADMIN_SECURITY;
                 if ("guard".equals(role)) return RoleDestination.SCAN;
                 if ("faculty".equals(role)) return RoleDestination.FACULTY_NOTIFICATIONS;
                 if ("monitor".equals(role)) return RoleDestination.MONITOR_MY_REPORTS;
                 if ("student".equals(role)) return RoleDestination.STUDENT_PASSES;
                 return RoleDestination.DIRECTORY;
             case VEHICLES:
-                if ("admin".equals(role)) return RoleDestination.VIOLATION_DIRECTORY;
+                if ("admin".equals(role)) return RoleDestination.ADMIN_ACCESS;
                 if ("guard".equals(role)) return RoleDestination.SCAN;
                 if ("faculty".equals(role)) return RoleDestination.SPONSOR_VEHICLES;
                 if ("student".equals(role)) return RoleDestination.SPONSOR_VEHICLES;
@@ -183,17 +186,37 @@ public final class RoleNavRouter {
         List<RoleDestination> destinations = new ArrayList<>();
         if ("admin".equals(role)) {
             destinations.add(RoleDestination.USERS);
-            destinations.add(RoleDestination.ADMIN_VEHICLES);
-            destinations.add(RoleDestination.BANNED_LIST);
-            destinations.add(RoleDestination.ADMIN_CHARGES);
-            destinations.add(RoleDestination.RULES);
+            destinations.addAll(getAdminCategoryDestinations(RoleDestination.ADMIN_SECURITY));
+            destinations.addAll(getAdminCategoryDestinations(RoleDestination.ADMIN_ACCESS));
+            destinations.add(RoleDestination.AUDIT);
             destinations.add(RoleDestination.ADMIN_ANALYTICS);
-            destinations.add(RoleDestination.DASHBOARD);
-            destinations.add(RoleDestination.SEARCH);
-            destinations.add(RoleDestination.SCAN);
-            destinations.add(RoleDestination.STUDENT_PASSES);
         } else {
             destinations.addAll(getPrimaryDestinationsForRole(role));
+        }
+        return Collections.unmodifiableList(destinations);
+    }
+
+    @NonNull
+    public static List<RoleDestination> getAdminCategoryDestinations(@NonNull RoleDestination category) {
+        List<RoleDestination> destinations = new ArrayList<>();
+        switch (category) {
+            case ADMIN_SECURITY:
+                destinations.add(RoleDestination.ALERTS);
+                destinations.add(RoleDestination.VIOLATION_DIRECTORY);
+                destinations.add(RoleDestination.BANNED_LIST);
+                destinations.add(RoleDestination.ADMIN_CHARGES);
+                break;
+            case ADMIN_ACCESS:
+                destinations.add(RoleDestination.DASHBOARD);
+                destinations.add(RoleDestination.SCAN);
+                destinations.add(RoleDestination.ADMIN_VEHICLES);
+                break;
+            case AUDIT:
+                destinations.add(RoleDestination.AUDIT);
+                destinations.add(RoleDestination.ADMIN_ANALYTICS);
+                break;
+            default:
+                break;
         }
         return Collections.unmodifiableList(destinations);
     }
@@ -214,7 +237,7 @@ public final class RoleNavRouter {
     ) {
         switch (destination) {
             case DASHBOARD:
-                return "Dashboard";
+                return "admin".equals(normalize(rawRole)) ? "Gate Dashboard" : "Dashboard";
             case SEARCH:
                 return "Search & Verify";
             case SCAN:
@@ -253,8 +276,12 @@ public final class RoleNavRouter {
                 return "Charges";
             case ADMIN_ANALYTICS:
                 return "Traffic Analytics";
+            case ADMIN_SECURITY:
+                return "Security";
+            case ADMIN_ACCESS:
+                return "Access";
             case DIRECTORY:
-                return "admin".equals(normalize(rawRole)) ? "More" : "Home";
+                return "admin".equals(normalize(rawRole)) ? "Dashboard" : "Home";
             case LOGOUT:
                 return "Logout";
             default:
@@ -315,6 +342,10 @@ public final class RoleNavRouter {
                 return AdminChargesFragment.newInstance();
             case ADMIN_ANALYTICS:
                 return AdminTrafficAnalyticsFragment.newInstance();
+            case ADMIN_SECURITY:
+                return AdminCategoryFragment.newInstance(RoleDestination.ADMIN_SECURITY);
+            case ADMIN_ACCESS:
+                return AdminCategoryFragment.newInstance(RoleDestination.ADMIN_ACCESS);
             case GUARD_DENY:
                 return GuardDenyFragment.newInstance();
             default:
@@ -340,10 +371,10 @@ public final class RoleNavRouter {
             items.add(new NavItem(RoleDestination.MONITOR_REPORT, "Report", android.R.drawable.ic_menu_upload));
             items.add(new NavItem(RoleDestination.MONITOR_MY_REPORTS, "My Reports", android.R.drawable.ic_menu_agenda));
         } else if ("admin".equals(role)) {
+            items.add(new NavItem(RoleDestination.DIRECTORY, "Dashboard", android.R.drawable.ic_menu_myplaces));
+            items.add(new NavItem(RoleDestination.ADMIN_SECURITY, "Security", android.R.drawable.ic_dialog_alert));
+            items.add(new NavItem(RoleDestination.ADMIN_ACCESS, "Access", android.R.drawable.ic_menu_manage));
             items.add(new NavItem(RoleDestination.AUDIT, "Audit", android.R.drawable.ic_menu_recent_history));
-            items.add(new NavItem(RoleDestination.ALERTS, "Alerts", android.R.drawable.ic_dialog_alert));
-            items.add(new NavItem(RoleDestination.VIOLATION_DIRECTORY, "Violations", android.R.drawable.ic_menu_report_image));
-            items.add(new NavItem(RoleDestination.DIRECTORY, "More", android.R.drawable.ic_menu_more));
         } else {
             items.add(new NavItem(RoleDestination.DIRECTORY, "Home", android.R.drawable.ic_menu_myplaces));
         }
@@ -357,20 +388,30 @@ public final class RoleNavRouter {
             @Nullable String rawRole
     ) {
         String role = normalize(rawRole);
-        RoleDestination resolved = resolveDestinationForRole(active, role);
-        if ("admin".equals(role)
-                && (resolved == RoleDestination.USERS
-                || resolved == RoleDestination.ADMIN_VEHICLES
-                || resolved == RoleDestination.BANNED_LIST
-                || resolved == RoleDestination.ADMIN_CHARGES
-                || resolved == RoleDestination.RULES
-                || resolved == RoleDestination.ADMIN_ANALYTICS
-                || resolved == RoleDestination.DASHBOARD
-                || resolved == RoleDestination.SEARCH
-                || resolved == RoleDestination.SCAN
-                || resolved == RoleDestination.STUDENT_PASSES)) {
-            return RoleDestination.DIRECTORY;
+        if ("admin".equals(role)) {
+            if (active == RoleDestination.ALERTS
+                    || active == RoleDestination.VIOLATION_DIRECTORY
+                    || active == RoleDestination.BANNED_LIST
+                    || active == RoleDestination.ADMIN_CHARGES
+                    || active == RoleDestination.ADMIN_SECURITY) {
+                return RoleDestination.ADMIN_SECURITY;
+            }
+            if (active == RoleDestination.ADMIN_VEHICLES
+                    || active == RoleDestination.RULES
+                    || active == RoleDestination.DASHBOARD
+                    || active == RoleDestination.SEARCH
+                    || active == RoleDestination.SCAN
+                    || active == RoleDestination.ADMIN_ACCESS) {
+                return RoleDestination.ADMIN_ACCESS;
+            }
+            if (active == RoleDestination.ADMIN_ANALYTICS || active == RoleDestination.AUDIT) {
+                return RoleDestination.AUDIT;
+            }
+            if (active == RoleDestination.USERS || active == RoleDestination.DIRECTORY) {
+                return RoleDestination.DIRECTORY;
+            }
         }
+        RoleDestination resolved = resolveDestinationForRole(active, role);
         return resolved;
     }
 

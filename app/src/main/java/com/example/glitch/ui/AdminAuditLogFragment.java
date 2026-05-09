@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,10 +35,13 @@ import com.example.glitch.model.AuditExportFile;
 import com.example.glitch.model.AuditLogFilter;
 import com.example.glitch.model.GuestPassTimePolicy;
 import com.example.glitch.model.UserProfile;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -55,56 +59,35 @@ public class AdminAuditLogFragment extends Fragment {
     private static final int PAGE_SIZE = 50;
 
     private static final List<String> EVENT_TYPE_OPTIONS = Arrays.asList(
-            AuditEventType.REQUEST_CREATED,
             AuditEventType.ENTRY_ALLOWED,
             AuditEventType.ENTRY_DENIED,
             AuditEventType.EXIT_LOGGED,
             AuditEventType.REQUEST_OVERDUE,
             AuditEventType.ENTRY_REPORTED_MANUAL,
             AuditEventType.ENTRY_REPORTED_OVERDUE,
-            AuditEventType.PASS_ISSUED,
-            AuditEventType.PASS_CANCELLED,
-            AuditEventType.PASS_EXPIRED,
             AuditEventType.PASS_USED,
             AuditEventType.PASS_DENIED,
             AuditEventType.PASS_REPORTED,
             AuditEventType.PASS_EXITED,
-            AuditEventType.PENDING_DECISION_CREATED,
-            AuditEventType.PENDING_DECISION_RESOLVED_ALLOW,
-            AuditEventType.PENDING_DECISION_RESOLVED_DENY,
-            AuditEventType.PENDING_DECISION_INVALIDATED,
-            AuditEventType.GUEST_BANNED,
-            AuditEventType.GUEST_UNBANNED,
-            AuditEventType.FINE_ISSUED,
-            AuditEventType.FINE_WAIVED,
-            AuditEventType.FINE_SETTLED,
-            AuditEventType.INCIDENT_CLOSED,
-            AuditEventType.ENTRY_INVALIDATED_BAN,
-            AuditEventType.CHARGE_CREATED,
-            AuditEventType.CHARGE_PAID,
-            AuditEventType.CHARGE_REMOVED,
-            "VEHICLE_REQUEST_CREATED",
-            "VEHICLE_REQUEST_UPDATED",
-            "VEHICLE_REQUEST_APPROVED",
-            "VEHICLE_REQUEST_DENIED",
-            "VEHICLE_APPLICATION_SUBMITTED",
-            "VEHICLE_APPLICATION_RECEIVED",
-            "VEHICLE_APPLICATION_APPROVED",
-            "VEHICLE_APPLICATION_DENIED",
-            "VEHICLE_APPLICATION_CANCELLED",
-            "VEHICLE_REMOVAL_SUBMITTED",
-            "VEHICLE_REMOVAL_APPROVED"
+            AuditEventType.ENTRY_INVALIDATED_BAN
     );
+
+    @NonNull
+    static List<String> getGateAuditEventTypes() {
+        return EVENT_TYPE_OPTIONS;
+    }
 
     private AuditLogRepository repository;
     private AccessEventAdapter adapter;
     private TextView textEmpty;
     private TextView textFilterSummary;
     private AutoCompleteTextView inputActorRole;
-    private com.google.android.material.textfield.TextInputEditText inputSearch;
+    private TextInputEditText inputSearch;
     private MaterialButton buttonFilterEventTypes;
     private MaterialButton buttonExportCsv;
     private MaterialButton buttonExportPdf;
+    private MaterialButton buttonOpenTrafficAnalytics;
+    private MaterialButton buttonOpenFilters;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
@@ -144,6 +127,8 @@ public class AdminAuditLogFragment extends Fragment {
         buttonFilterEventTypes = view.findViewById(R.id.button_filter_event_types);
         buttonExportCsv = view.findViewById(R.id.button_export_csv);
         buttonExportPdf = view.findViewById(R.id.button_export_pdf);
+        buttonOpenTrafficAnalytics = view.findViewById(R.id.button_open_traffic_analytics);
+        buttonOpenFilters = view.findViewById(R.id.button_open_audit_filters);
         Chip chip24h = view.findViewById(R.id.chip_range_24h);
         Chip chip7d = view.findViewById(R.id.chip_range_7d);
         Chip chip30d = view.findViewById(R.id.chip_range_30d);
@@ -221,10 +206,14 @@ public class AdminAuditLogFragment extends Fragment {
 
         inputActorRole.setOnItemClickListener((parent, itemView, position, id) -> refreshFirstPage());
 
+        buttonOpenFilters.setOnClickListener(v -> openFilterSheet());
         buttonExportCsv.setOnClickListener(v -> exportCsv());
         buttonExportPdf.setOnClickListener(v -> exportPdf());
+        buttonOpenTrafficAnalytics.setOnClickListener(
+                v -> RoleNavRouter.route(this, RoleDestination.ADMIN_ANALYTICS)
+        );
 
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.DASHBOARD);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.AUDIT);
         refreshFirstPage();
     }
 
@@ -232,6 +221,8 @@ public class AdminAuditLogFragment extends Fragment {
         currentFilter = AuditLogFilter.last7Days();
         rangeFromMillis = currentFilter.getFromInclusiveMillis();
         rangeToMillis = currentFilter.getToInclusiveMillis();
+        selectedEventTypes.clear();
+        selectedEventTypes.addAll(EVENT_TYPE_OPTIONS);
     }
 
     private void setupRoleDropdown() {
@@ -269,6 +260,178 @@ public class AdminAuditLogFragment extends Fragment {
                 .setNegativeButton(R.string.cancel_action, null)
                 .setPositiveButton(R.string.confirm_action, (dialog, which) -> refreshFirstPage())
                 .show();
+    }
+
+    private void openFilterSheet() {
+        BottomSheetDialog dialog = new BottomSheetDialog(requireContext());
+        LinearLayout content = createSheetContent("Audit Filters");
+        TextInputEditText search = addTextInput(
+                content,
+                "Search actor/request/pass/description",
+                read(inputSearch)
+        );
+        AutoCompleteTextView role = addDropdown(
+                content,
+                "Actor Role",
+                Arrays.asList("", "guard", "student", "faculty", "admin", "system"),
+                read(inputActorRole)
+        );
+
+        LinearLayout rangeRow = new LinearLayout(requireContext());
+        rangeRow.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams rangeParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        rangeParams.topMargin = dp(12);
+        rangeRow.setLayoutParams(rangeParams);
+        addRangeButton(rangeRow, "24h", () -> applyRelativeRange(1, dialog));
+        addRangeButton(rangeRow, "7d", () -> applyRelativeRange(7, dialog));
+        addRangeButton(rangeRow, "30d", () -> applyRelativeRange(30, dialog));
+        addRangeButton(rangeRow, "Custom", () -> {
+            dialog.dismiss();
+            openCustomRangePicker();
+        });
+        content.addView(rangeRow);
+
+        MaterialButton eventTypes = new MaterialButton(requireContext());
+        eventTypes.setText("Event Types (" + selectedEventTypes.size() + ")");
+        eventTypes.setAllCaps(false);
+        LinearLayout.LayoutParams eventParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        eventParams.topMargin = dp(12);
+        eventTypes.setLayoutParams(eventParams);
+        eventTypes.setOnClickListener(v -> openEventTypeSelector());
+        content.addView(eventTypes);
+
+        addSheetActions(
+                content,
+                () -> {
+                    inputSearch.setText(read(search));
+                    inputActorRole.setText(read(role), false);
+                    refreshFirstPage();
+                    dialog.dismiss();
+                },
+                () -> {
+                    setupDefaultRange();
+                    inputSearch.setText("");
+                    inputActorRole.setText("", false);
+                    refreshFirstPage();
+                    dialog.dismiss();
+                }
+        );
+        dialog.setContentView(content);
+        dialog.show();
+    }
+
+    private void applyRelativeRange(int days, @NonNull BottomSheetDialog dialog) {
+        long now = System.currentTimeMillis();
+        rangeToMillis = now;
+        rangeFromMillis = now - (days * 24L * 60L * 60L * 1000L);
+        refreshFirstPage();
+        dialog.dismiss();
+    }
+
+    @NonNull
+    private LinearLayout createSheetContent(@NonNull String title) {
+        LinearLayout content = new LinearLayout(requireContext());
+        content.setOrientation(LinearLayout.VERTICAL);
+        int padding = dp(20);
+        content.setPadding(padding, padding, padding, padding);
+        TextView titleView = new TextView(requireContext());
+        titleView.setText(title);
+        titleView.setTextColor(requireContext().getColor(R.color.text_dark));
+        titleView.setTextSize(20);
+        titleView.setTypeface(titleView.getTypeface(), android.graphics.Typeface.BOLD);
+        content.addView(titleView);
+        return content;
+    }
+
+    @NonNull
+    private TextInputEditText addTextInput(
+            @NonNull LinearLayout content,
+            @NonNull String hint,
+            @NonNull String value
+    ) {
+        TextInputLayout layout = new TextInputLayout(requireContext());
+        layout.setHint(hint);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.topMargin = dp(12);
+        layout.setLayoutParams(params);
+        TextInputEditText input = new TextInputEditText(requireContext());
+        input.setSingleLine(true);
+        input.setText(value);
+        layout.addView(input);
+        content.addView(layout);
+        return input;
+    }
+
+    @NonNull
+    private AutoCompleteTextView addDropdown(
+            @NonNull LinearLayout content,
+            @NonNull String hint,
+            @NonNull List<String> options,
+            @NonNull String selected
+    ) {
+        TextInputLayout layout = new TextInputLayout(requireContext());
+        layout.setHint(hint);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        params.topMargin = dp(12);
+        layout.setLayoutParams(params);
+        AutoCompleteTextView input = new AutoCompleteTextView(requireContext());
+        input.setInputType(0);
+        input.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, options));
+        input.setText(selected, false);
+        layout.addView(input);
+        content.addView(layout);
+        return input;
+    }
+
+    private void addRangeButton(@NonNull LinearLayout row, @NonNull String label, @NonNull Runnable action) {
+        MaterialButton button = new MaterialButton(requireContext());
+        button.setText(label);
+        button.setAllCaps(false);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                1f
+        );
+        params.setMarginEnd(dp(6));
+        button.setLayoutParams(params);
+        button.setOnClickListener(v -> action.run());
+        row.addView(button);
+    }
+
+    private void addSheetActions(@NonNull LinearLayout content, @NonNull Runnable apply, @NonNull Runnable clear) {
+        MaterialButton applyButton = new MaterialButton(requireContext());
+        applyButton.setText("Apply Filters");
+        applyButton.setAllCaps(false);
+        LinearLayout.LayoutParams applyParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        applyParams.topMargin = dp(16);
+        applyButton.setLayoutParams(applyParams);
+        applyButton.setOnClickListener(v -> apply.run());
+        content.addView(applyButton);
+
+        MaterialButton clearButton = new MaterialButton(requireContext());
+        clearButton.setText("Clear");
+        clearButton.setAllCaps(false);
+        clearButton.setOnClickListener(v -> clear.run());
+        content.addView(clearButton);
+    }
+
+    private int dp(int value) {
+        return (int) (value * getResources().getDisplayMetrics().density);
     }
 
     private void openCustomRangePicker() {

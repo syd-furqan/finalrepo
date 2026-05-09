@@ -25,6 +25,7 @@ public class UserProfileTest {
         map.put("role", "GuArD");
         map.put("isActive", true);
         map.put("displayName", "Gate Guard");
+        map.put("studentId", "STU-001");
         map.put("createdAt", createdAt);
         map.put("updatedAt", updatedAt);
 
@@ -34,6 +35,7 @@ public class UserProfileTest {
         assertEquals("guard@example.com", profile.getEmail());
         assertEquals("guard", profile.getRole());
         assertEquals("Gate Guard", profile.getDisplayName());
+        assertEquals("STU-001", profile.getStudentId());
         assertTrue(profile.isActive());
         assertTrue(profile.hasSupportedRole());
     }

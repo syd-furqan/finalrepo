@@ -31,6 +31,7 @@ public class ViolationReport {
     private final String subjectStudentUid;
     private final String subjectStudentName;
     private final String subjectStudentEmail;
+    private final String subjectStudentId;
     private final String status;
     private final Timestamp createdAt;
     private final Timestamp updatedAt;
@@ -52,6 +53,7 @@ public class ViolationReport {
             @NonNull String subjectStudentUid,
             @NonNull String subjectStudentName,
             @NonNull String subjectStudentEmail,
+            @NonNull String subjectStudentId,
             @NonNull String status,
             @Nullable Timestamp createdAt,
             @Nullable Timestamp updatedAt
@@ -72,6 +74,7 @@ public class ViolationReport {
         this.subjectStudentUid = subjectStudentUid;
         this.subjectStudentName = subjectStudentName;
         this.subjectStudentEmail = subjectStudentEmail;
+        this.subjectStudentId = subjectStudentId;
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -80,7 +83,7 @@ public class ViolationReport {
     @NonNull
     public static ViolationReport fromMap(@NonNull String id, @Nullable Map<String, Object> map) {
         if (map == null) {
-            return new ViolationReport(id, "", "", "", "", "", SUBJECT_GUEST, "", "", "", "", "", "", "", "", "", STATUS_PENDING, null, null);
+            return new ViolationReport(id, "", "", "", "", "", SUBJECT_GUEST, "", "", "", "", "", "", "", "", "", "", STATUS_PENDING, null, null);
         }
         return new ViolationReport(
                 id,
@@ -99,6 +102,7 @@ public class ViolationReport {
                 asString(map.get("subjectStudentUid")),
                 asString(map.get("subjectStudentName")),
                 asString(map.get("subjectStudentEmail")),
+                asString(map.get("subjectStudentId")),
                 asStringOr(map.get("status"), STATUS_PENDING),
                 asTimestamp(map.get("createdAt")),
                 asTimestamp(map.get("updatedAt"))
@@ -129,6 +133,7 @@ public class ViolationReport {
     @NonNull public String getSubjectStudentUid() { return subjectStudentUid; }
     @NonNull public String getSubjectStudentName() { return subjectStudentName; }
     @NonNull public String getSubjectStudentEmail() { return subjectStudentEmail; }
+    @NonNull public String getSubjectStudentId() { return subjectStudentId; }
     @NonNull public String getStatus() { return status; }
     @Nullable public Timestamp getCreatedAt() { return createdAt; }
     @Nullable public Timestamp getUpdatedAt() { return updatedAt; }

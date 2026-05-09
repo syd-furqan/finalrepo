@@ -41,6 +41,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
     static final String COLLECTION_CREDENTIALS = "credentials";
     static final String COLLECTION_ACCESS_EVENTS = "access_events";
     static final String COLLECTION_ALERTS = "alerts";
+    static final String COLLECTION_VIOLATION_REPORTS = "violation_reports";
     static final String DASHBOARD_STATE_DOC = "dashboard_state";
     static final String TYPE_FIELD = "type";
     static final String TYPE_REQUEST = "request";
@@ -810,9 +811,11 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
             @NonNull String alertDocId,
             @Nullable Map<String, Object> requestMetadata
     ) {
+        String violationReportId = alertDocId;
         Map<String, Object> alert = new HashMap<>();
         alert.put(ALERT_TYPE_FIELD, ALERT_TYPE_ENTRY_REPORT);
         alert.put(ENTRY_REQUEST_ID_FIELD, requestId);
+        alert.put("violationReportId", violationReportId);
         alert.put(IDENTIFIER_FIELD, requestId);
         alert.put(FAIL_COUNT_FIELD, 1);
         alert.put(SEVERITY_FIELD, severity);
@@ -840,15 +843,77 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
             if (requestMetadata.containsKey("requesterRole")) {
                 alert.put("requesterRole", requestMetadata.get("requesterRole"));
             }
+            if (requestMetadata.containsKey("studentId")) {
+                alert.put("studentId", requestMetadata.get("studentId"));
+                alert.put("sponsorStudentId", requestMetadata.get("studentId"));
+            }
             if (requestMetadata.containsKey("gateLabel")) {
                 alert.put("gateLabel", requestMetadata.get("gateLabel"));
             }
         }
         alert.put(CREATED_AT_FIELD, FieldValue.serverTimestamp());
         alert.put(LAST_FAILED_AT_FIELD, FieldValue.serverTimestamp());
-        firestore.collection(COLLECTION_ALERTS)
-                .document(alertDocId)
-                .set(alert);
+
+        Map<String, Object> violationReport = buildEntryViolationReport(
+                violationReportId,
+                requestId,
+                message,
+                reportedByUid,
+                reportedByRole,
+                reportedByName,
+                reasonCode,
+                requestMetadata
+        );
+        WriteBatch batch = firestore.batch();
+        batch.set(firestore.collection(COLLECTION_ALERTS).document(alertDocId), alert);
+        batch.set(firestore.collection(COLLECTION_VIOLATION_REPORTS).document(violationReportId), violationReport);
+        batch.commit();
+    }
+
+    @NonNull
+    private Map<String, Object> buildEntryViolationReport(
+            @NonNull String violationReportId,
+            @NonNull String requestId,
+            @NonNull String message,
+            @NonNull String reporterUid,
+            @NonNull String reporterRole,
+            @NonNull String reporterName,
+            @NonNull String reasonCode,
+            @Nullable Map<String, Object> requestMetadata
+    ) {
+        Map<String, Object> report = new HashMap<>();
+        report.put("reporterUid", reporterUid.trim());
+        report.put("reporterRole", reporterRole.trim());
+        report.put("reporterName", reporterName.trim());
+        report.put("detail", message.trim());
+        report.put("violationLevel", "v3");
+        report.put("subjectType", "guest");
+        report.put("guestCnic", metadataValue(requestMetadata, "guestIdNumber"));
+        report.put("guestName", metadataValue(requestMetadata, "guestName"));
+        report.put("guestPassId", "");
+        report.put("entryRequestId", requestId.trim());
+        report.put("sponsorUid", metadataValue(requestMetadata, "requesterUid"));
+        report.put("sponsorName", metadataValue(requestMetadata, "hostName"));
+        report.put("sponsorRole", metadataValue(requestMetadata, "requesterRole"));
+        report.put("subjectStudentUid", "");
+        report.put("subjectStudentName", "");
+        report.put("subjectStudentEmail", "");
+        report.put("subjectStudentId", "");
+        report.put("sourceAlertId", violationReportId.trim());
+        report.put("source", ALERT_TYPE_ENTRY_REPORT);
+        report.put("reasonCode", reasonCode.trim());
+        report.put("status", "pending");
+        report.put(CREATED_AT_FIELD, FieldValue.serverTimestamp());
+        report.put(UPDATED_AT_FIELD, FieldValue.serverTimestamp());
+        return report;
+    }
+
+    @NonNull
+    private String metadataValue(@Nullable Map<String, Object> metadata, @NonNull String key) {
+        if (metadata == null || !metadata.containsKey(key)) {
+            return "";
+        }
+        return safeString(metadata.get(key));
     }
 
     @NonNull
@@ -859,6 +924,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         metadata.put("hostName", safeString(snapshot.get(HOST_NAME_FIELD)));
         metadata.put("requesterUid", safeString(snapshot.get(REQUESTER_UID_FIELD)));
         metadata.put("requesterRole", safeString(snapshot.get(REQUESTER_ROLE_FIELD)));
+        metadata.put("studentId", safeString(snapshot.get("studentId")));
         metadata.put("gateLabel", GatePolicy.normalizeStoredValue(safeString(snapshot.get(GATE_LABEL_FIELD))));
         return metadata;
     }
