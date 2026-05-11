@@ -27,6 +27,7 @@ public final class RepositoryProvider {
     private static InterventionRepository interventionRepository;
     private static ViolationReportRepository violationReportRepository;
     private static AnnouncementRepository announcementRepository;
+    private static AuditAnalyticsRepository auditAnalyticsRepository;
 
     private RepositoryProvider() {
     }
@@ -170,6 +171,17 @@ public final class RepositoryProvider {
     }
 
     /**
+     * Returns analytics repository instance.
+     */
+    @NonNull
+    public static AuditAnalyticsRepository getAuditAnalyticsRepository() {
+        if (auditAnalyticsRepository == null) {
+            auditAnalyticsRepository = new FirestoreAuditAnalyticsRepository();
+        }
+        return auditAnalyticsRepository;
+    }
+
+    /**
      * Injects test repository override.
      */
     public static void setOverrideRepository(@Nullable EntryRequestRepository repository) {
@@ -201,5 +213,6 @@ public final class RepositoryProvider {
         interventionRepository = null;
         violationReportRepository = null;
         announcementRepository = null;
+        auditAnalyticsRepository = null;
     }
 }
