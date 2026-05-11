@@ -35,7 +35,9 @@ public class GuardPendingDecisionStore {
         if (json == null || json.trim().isEmpty()) {
             return;
         }
-        prefs.edit().putString(keyForGuard(guardUid), json).apply();
+        // Persist synchronously because navigation to the decision screen happens immediately
+        // after save; async apply() can race and make the next fragment read "missing" data.
+        prefs.edit().putString(keyForGuard(guardUid), json).commit();
     }
 
     @Nullable

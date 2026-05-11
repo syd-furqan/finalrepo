@@ -13,6 +13,7 @@ import com.example.glitch.model.InGateServiceControl;
 import com.example.glitch.model.GuestPassTimePolicy;
 import com.example.glitch.model.PhoneValidationResult;
 import com.example.glitch.model.UserProfile;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -22,6 +23,8 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Source;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
@@ -36,6 +39,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Firestore-backed guest pass repository.
@@ -572,24 +577,69 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
 
     @Override
     public void findPassByCode(@NonNull String passCode, @NonNull PassLookupListener listener) {
-        collection.whereEqualTo("passCode", passCode.trim().toUpperCase())
+        String normalizedPassCode = passCode.trim().toUpperCase(Locale.US);
+        if (normalizedPassCode.isEmpty()) {
+            listener.onData(null);
+            return;
+        }
+
+        final AtomicBoolean delivered = new AtomicBoolean(false);
+
+        // Fast path from local cache when available.
+        collection.whereEqualTo("passCode", normalizedPassCode)
                 .limit(1)
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    if (snapshot.isEmpty()) {
-                        listener.onData(null);
+                .get(Source.CACHE)
+                .addOnSuccessListener(cacheSnapshot -> {
+                    if (cacheSnapshot == null || cacheSnapshot.isEmpty()) {
                         return;
                     }
-                    DocumentSnapshot document = snapshot.getDocuments().get(0);
-                    GuestPass rawPass = GuestPass.fromMap(document.getId(), document.getData());
-                    // boolean shouldExpire = GuestPassStatusRules.isTimeExpiredActive(rawPass)
-                    //         || GuestPassTimePolicy.isActivePassOutOfPolicy(rawPass);
-                    // if (shouldExpire) {
-                    //     persistExpiredStatus(rawPass);
-                    // }
-                    listener.onData(rawPass);
+                    if (!delivered.compareAndSet(false, true)) {
+                        return;
+                    }
+                    DocumentSnapshot cacheDocument = cacheSnapshot.getDocuments().get(0);
+                    listener.onData(GuestPass.fromMap(cacheDocument.getId(), cacheDocument.getData()));
+                });
+
+        // Deterministic server lookup with timeout to avoid hanging forever on weak networks.
+        Tasks.withTimeout(
+                        collection.whereEqualTo("passCode", normalizedPassCode)
+                                .limit(1)
+                                .get(Source.SERVER),
+                        8,
+                        TimeUnit.SECONDS
+                )
+                .addOnSuccessListener(serverSnapshot -> {
+                    if (!delivered.compareAndSet(false, true)) {
+                        return;
+                    }
+                    listener.onData(firstPassOrNull(serverSnapshot));
                 })
-                .addOnFailureListener(listener::onError);
+                .addOnFailureListener(error -> {
+                    if (!delivered.compareAndSet(false, true)) {
+                        return;
+                    }
+                    // Final fallback to cache snapshot before surfacing error.
+                    collection.whereEqualTo("passCode", normalizedPassCode)
+                            .limit(1)
+                            .get(Source.CACHE)
+                            .addOnSuccessListener(cacheSnapshot -> {
+                                if (cacheSnapshot != null && !cacheSnapshot.isEmpty()) {
+                                    listener.onData(firstPassOrNull(cacheSnapshot));
+                                } else {
+                                    listener.onError(error);
+                                }
+                            })
+                            .addOnFailureListener(cacheError -> listener.onError(error));
+                });
+    }
+
+    @Nullable
+    private GuestPass firstPassOrNull(@Nullable QuerySnapshot snapshot) {
+        if (snapshot == null || snapshot.isEmpty()) {
+            return null;
+        }
+        DocumentSnapshot document = snapshot.getDocuments().get(0);
+        return GuestPass.fromMap(document.getId(), document.getData());
     }
 
     @Override

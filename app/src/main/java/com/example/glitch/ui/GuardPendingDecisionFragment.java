@@ -3,6 +3,7 @@ package com.example.glitch.ui;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +45,8 @@ import java.util.Map;
  * Full-screen, non-cancelable guard decision screen for unresolved scanned passes.
  */
 public class GuardPendingDecisionFragment extends Fragment {
+    private static final String ARG_PENDING_DECISION_JSON = "arg_pending_decision_json";
+    private static final String TAG = "GuardPendingFlow";
     private EntryRequestRepository entryRequestRepository;
     private GuestPassRepository guestPassRepository;
     private GuardPendingDecisionStore pendingDecisionStore;
@@ -64,6 +67,15 @@ public class GuardPendingDecisionFragment extends Fragment {
     @NonNull
     public static GuardPendingDecisionFragment newInstance() {
         return new GuardPendingDecisionFragment();
+    }
+
+    @NonNull
+    public static GuardPendingDecisionFragment newInstance(@NonNull GuardPendingDecision decision) {
+        GuardPendingDecisionFragment fragment = new GuardPendingDecisionFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PENDING_DECISION_JSON, decision.toJson());
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -136,8 +148,15 @@ public class GuardPendingDecisionFragment extends Fragment {
         GuardLanguageUiBinder.bind(view, this);
 
         String guardUid = currentGuardUid();
-        pendingDecision = pendingDecisionStore.getForGuard(guardUid);
+        pendingDecision = readPendingDecisionFromArgs(guardUid);
         if (pendingDecision == null) {
+            pendingDecision = pendingDecisionStore.getForGuard(guardUid);
+            Log.d(TAG, "onViewCreated: loaded pending from store=" + (pendingDecision != null));
+        } else {
+            Log.d(TAG, "onViewCreated: loaded pending from args pass=" + pendingDecision.getPassCode());
+        }
+        if (pendingDecision == null) {
+            Log.d(TAG, "onViewCreated: pending decision missing, routing back to scan");
             routeToScanAndShowMessage(getString(R.string.guard_pending_missing));
             return;
         }
@@ -145,6 +164,29 @@ public class GuardPendingDecisionFragment extends Fragment {
         bindDecision(view, pendingDecision);
         setDecisionActionable(false);
         revalidatePendingDecision();
+    }
+
+    @Nullable
+    private GuardPendingDecision readPendingDecisionFromArgs(@NonNull String guardUid) {
+        Bundle args = getArguments();
+        if (args == null) {
+            return null;
+        }
+        String raw = args.getString(ARG_PENDING_DECISION_JSON, "");
+        GuardPendingDecision fromArgs = GuardPendingDecision.fromJson(raw);
+        if (fromArgs == null || !fromArgs.isValid()) {
+            return null;
+        }
+        String expectedUid = guardUid.trim();
+        String decisionUid = fromArgs.getGuardUid().trim();
+        if (!expectedUid.isEmpty() && !expectedUid.equals(decisionUid)) {
+            return null;
+        }
+        if (!expectedUid.isEmpty()) {
+            pendingDecisionStore.save(fromArgs);
+        }
+        Log.d(TAG, "readPendingDecisionFromArgs: accepted args decision for pass=" + fromArgs.getPassCode());
+        return fromArgs;
     }
 
     private void bindDecision(@NonNull View view, @NonNull GuardPendingDecision decision) {
@@ -207,15 +249,21 @@ public class GuardPendingDecisionFragment extends Fragment {
                 }
                 requireActivity().runOnUiThread(() -> {
                     if (!isPendingPassActionable(pass, pendingDecision)) {
+                        Log.d(TAG, "revalidatePendingDecision: not actionable; status="
+                                + (pass == null ? "<null>" : pass.getStatus())
+                                + " entryRequestId="
+                                + (pass == null ? "<null>" : pass.getEntryRequestId()));
                         recordPendingInvalidated(pass);
                         clearAndReturnToScan(getString(R.string.guard_pending_not_actionable));
                         return;
                     }
                     if (pendingDecision.hasVehicle() && pendingDecision.getVehiclePlate().trim().isEmpty()) {
+                        Log.d(TAG, "revalidatePendingDecision: invalid vehicle plate state");
                         recordPendingInvalidated(pass);
                         clearAndReturnToScan(getString(R.string.guard_pending_not_actionable));
                         return;
                     }
+                    Log.d(TAG, "revalidatePendingDecision: actionable, enabling decision controls");
                     buttonAllow.setOnClickListener(v -> allowDecision());
                     buttonDeny.setOnClickListener(v -> denyDecision());
                     bindCheckpoints();
@@ -228,6 +276,7 @@ public class GuardPendingDecisionFragment extends Fragment {
                 if (!isAdded()) {
                     return;
                 }
+                Log.e(TAG, "revalidatePendingDecision onError", exception);
                 requireActivity().runOnUiThread(() ->
                         Snackbar.make(requireView(), R.string.error_verify_credential, Snackbar.LENGTH_LONG).show());
             }
