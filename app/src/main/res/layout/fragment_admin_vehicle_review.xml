@@ -3,9 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gf_bg_surface">
+    android:background="@drawable/bg_screen_base">
 
     <androidx.core.widget.NestedScrollView
+        android:background="@android:color/transparent"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
@@ -15,6 +16,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/anim_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -27,28 +29,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/feature_admin_vehicle_review"
-                android:textColor="@color/gf_text_primary"
-                android:textSize="36sp"
+                android:textColor="#FFFFFF"
+                android:textSize="26sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_sm"
+                android:layout_marginTop="4dp"
                 android:text="@string/admin_vehicle_review_subtitle"
-                android:textColor="@color/gf_text_hint"
-                android:textSize="16sp" />
+                android:textColor="#BFFFFFFF"
+                android:textSize="13sp" />
 
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/gf_grid_gap"
-                android:hint="Status Filter">
+                android:hint="Status Filter"
+                app:boxStrokeColor="#FFFFFF"
+                app:boxStrokeWidth="1dp"
+                app:hintTextColor="#BFFFFFFF"
+                app:boxBackgroundColor="#22FFFFFF">
 
                 <AutoCompleteTextView
                     android:id="@+id/input_vehicle_review_status_filter"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="#FFFFFF"
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -57,7 +65,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/gf_space_md"
-                android:textColor="@color/gf_text_hint"
+                android:textColor="#BFFFFFFF"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:visibility="gone" />
@@ -68,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/gf_space_md"
                 android:text="@string/admin_vehicle_review_empty"
-                android:textColor="@color/gf_text_hint"
+                android:textColor="#BFFFFFFF"
                 android:textStyle="bold"
                 android:visibility="gone" />
 

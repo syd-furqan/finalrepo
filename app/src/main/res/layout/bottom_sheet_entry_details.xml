@@ -131,14 +131,6 @@
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/text_request_id"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_md"
-                android:fontFamily="monospace"
-                android:textColor="@color/gf_text_hint"
-                android:textSize="10sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

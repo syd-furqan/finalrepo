@@ -28,11 +28,13 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import com.example.glitch.ui.UiAnimations;
 
 /**
  * Admin workflow for high-priority announcements and in-gate controls.
  */
 public class AdminTakeActionFragment extends Fragment {
+    private android.view.ViewGroup animContent;
     private AnnouncementRepository repository;
 
     private MaterialCheckBox checkAllCampus;
@@ -77,6 +79,7 @@ public class AdminTakeActionFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         if (AuthUiGuard.requireProfile(this) == null) {
             return;
         }
@@ -356,5 +359,10 @@ public class AdminTakeActionFragment extends Fragment {
     private String read(@NonNull TextInputEditText input) {
         CharSequence value = input.getText();
         return value == null ? "" : value.toString().trim();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

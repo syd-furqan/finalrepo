@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class NotificationCenterFragment extends Fragment implements NotificationAdapter.NotificationActionListener {
+    private ViewGroup animContent;
     private static final String ARG_ANNOUNCEMENTS_ONLY = "arg_announcements_only";
     private static final String ARG_START_WITH_ANNOUNCEMENTS = "arg_start_with_announcements";
 
@@ -99,10 +100,6 @@ public class NotificationCenterFragment extends Fragment implements Notification
         buttonMarkAllRead = view.findViewById(R.id.button_mark_all_read);
         buttonFilterAll = view.findViewById(R.id.button_filter_all_notifications);
         buttonFilterAnnouncements = view.findViewById(R.id.button_filter_announcements);
-        textBannerChannel = view.findViewById(R.id.text_notification_banner_channel);
-        textBannerTitle = view.findViewById(R.id.text_notification_banner_title);
-        textBannerSubtitle = view.findViewById(R.id.text_notification_banner_subtitle);
-
         RecyclerView recyclerView = view.findViewById(R.id.recycler_notifications);
         adapter = new NotificationAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -131,6 +128,8 @@ public class NotificationCenterFragment extends Fragment implements Notification
         currentUserUid = profile.getUid();
         currentRole = profile.getRole().trim().toLowerCase(Locale.US);
         startNotificationFeed();
+
+        animContent = view.findViewById(R.id.anim_content);
     }
 
     public boolean isShowingAnnouncementsOnly() {
@@ -222,13 +221,8 @@ public class NotificationCenterFragment extends Fragment implements Notification
         if (buttonFilterAll == null || buttonFilterAnnouncements == null || !isAdded()) {
             return;
         }
-        int activeColor = ContextCompat.getColor(requireContext(), R.color.primary_navy);
-        int inactiveColor = ContextCompat.getColor(requireContext(), R.color.text_muted);
-
-        buttonFilterAll.setTextColor(announcementsFilterSelected ? inactiveColor : activeColor);
-        buttonFilterAnnouncements.setTextColor(announcementsFilterSelected ? activeColor : inactiveColor);
-        buttonFilterAll.setAlpha(announcementsFilterSelected ? 0.7f : 1f);
-        buttonFilterAnnouncements.setAlpha(announcementsFilterSelected ? 1f : 0.7f);
+        buttonFilterAll.setAlpha(announcementsFilterSelected ? 0.45f : 1f);
+        buttonFilterAnnouncements.setAlpha(announcementsFilterSelected ? 1f : 0.45f);
     }
 
     private void startNotificationFeed() {
@@ -382,5 +376,11 @@ public class NotificationCenterFragment extends Fragment implements Notification
     @NonNull
     private String safe(@Nullable String value) {
         return value == null ? "" : value.trim();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

@@ -76,28 +76,28 @@ public class AccessEventAdapter extends RecyclerView.Adapter<AccessEventAdapter.
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
         AccessEvent event = items.get(position);
-        holder.textEventType.setText(event.getEventType().trim().isEmpty() ? "EVENT" : event.getEventType());
-        holder.textEventOutcome.setText(event.getOutcome().trim().isEmpty() ? "N/A" : event.getOutcome());
-        holder.textDescription.setText(event.getDescription().trim().isEmpty() ? "No description" : event.getDescription());
+
+        holder.textDescription.setText(
+                event.getDescription().trim().isEmpty() ? "No description" : cleanDescription(event.getDescription())
+        );
+        holder.textActor.setText("By: " + capitalize(valueOrFallback(event.getActorRole())));
+        holder.textEventType.setText(friendlyEventType(event.getEventType()));
         bindBadgeStyles(holder, event);
 
-        String actor = "Actor: " + valueOrFallback(event.getActorUid()) + " (" + valueOrFallback(event.getActorRole()) + ")";
-        holder.textActor.setText(actor);
-
-        String correlation = event.getCorrelationId().trim().isEmpty() ? valueOrFallback(event.getRequestId()) : event.getCorrelationId();
-        holder.textRequestId.setText(holder.itemView.getContext().getString(R.string.request_id_label) + ": " + correlation);
-
-        String gate = event.getGateLabel().trim().isEmpty() ? "N/A" : event.getGateLabel().trim();
-        String source = event.getSource().trim().isEmpty() ? "N/A" : event.getSource().trim();
-        String reason = event.getReasonCode().trim().isEmpty() ? "N/A" : event.getReasonCode().trim();
-        holder.textSummary.setText(
-                holder.itemView.getContext().getString(
-                        R.string.audit_event_summary_template,
-                        gate,
-                        source,
-                        reason
-                )
-        );
+        String gate = event.getGateLabel().trim().isEmpty() ? null : event.getGateLabel().trim();
+        String reason = event.getReasonCode().trim().isEmpty() ? null : friendlyReason(event.getReasonCode().trim());
+        StringBuilder summary = new StringBuilder();
+        if (gate != null) summary.append(gate);
+        if (reason != null) {
+            if (summary.length() > 0) summary.append("  ·  ");
+            summary.append(reason);
+        }
+        if (summary.length() > 0) {
+            holder.textSummary.setText(summary.toString());
+            holder.textSummary.setVisibility(View.VISIBLE);
+        } else {
+            holder.textSummary.setVisibility(View.GONE);
+        }
 
         if (event.getCreatedAt() != null) {
             holder.textTime.setText(format.format(event.getCreatedAt().toDate()));
@@ -113,38 +113,138 @@ public class AccessEventAdapter extends RecyclerView.Adapter<AccessEventAdapter.
     }
 
     @NonNull
+    private String friendlyEventType(@NonNull String raw) {
+        switch (raw.trim().toLowerCase(Locale.getDefault())) {
+            case "entry_allowed":         return "Entry Allowed";
+            case "entry_denied":          return "Entry Denied";
+            case "exit_logged":           return "Exit Logged";
+            case "request_overdue":       return "Overdue";
+            case "entry_reported_manual": return "Reported";
+            case "entry_reported_overdue":return "Auto-Reported";
+            case "pass_used":             return "Pass Used";
+            case "pass_denied":           return "Pass Denied";
+            case "pass_reported":         return "Pass Reported";
+            case "pass_exited":           return "Pass Exited";
+            case "entry_invalidated_ban":         return "Banned";
+            case "violation_report_submitted":    return "Violation Reported";
+            case "alert_created":                 return "Alert Created";
+            case "alert_resolved":                return "Alert Resolved";
+            default:
+                if (raw.trim().isEmpty()) return "Event";
+                return toTitleCase(raw.trim().replace('_', ' '));
+        }
+    }
+
+    @NonNull
+    private String friendlyReason(@NonNull String raw) {
+        switch (raw.toLowerCase(Locale.getDefault())) {
+            case "pass_admitted":            return "Pass admitted";
+            case "pass_reported":            return "Pass reported";
+            case "entry_allowed":            return "Entry allowed";
+            case "entry_denied":             return "Entry denied";
+            case "request_overdue":          return "Request overdue";
+            case "overdue_grace_elapsed":    return "Grace period elapsed";
+            case "system_overdue":           return "System: overdue";
+            case "ban_active":               return "Active ban";
+            case "cnic_mismatch":            return "CNIC mismatch";
+            case "manual_override":          return "Manual override";
+            default:
+                return toTitleCase(raw.replace('_', ' '));
+        }
+    }
+
+    @NonNull
+    private String toTitleCase(@NonNull String s) {
+        if (s.isEmpty()) return s;
+        String[] words = s.split(" ");
+        StringBuilder sb = new StringBuilder();
+        for (String w : words) {
+            if (w.isEmpty()) continue;
+            if (sb.length() > 0) sb.append(" ");
+            sb.append(Character.toUpperCase(w.charAt(0)));
+            if (w.length() > 1) sb.append(w.substring(1).toLowerCase(Locale.getDefault()));
+        }
+        return sb.toString();
+    }
+
+    @NonNull
+    private String capitalize(@NonNull String value) {
+        if (value.isEmpty()) return value;
+        return Character.toUpperCase(value.charAt(0)) + value.substring(1).toLowerCase(Locale.getDefault());
+    }
+
+    @NonNull
     private String valueOrFallback(@NonNull String value) {
         String trimmed = value.trim();
         return trimmed.isEmpty() ? "N/A" : trimmed;
     }
 
     private void bindBadgeStyles(@NonNull EventViewHolder holder, @NonNull AccessEvent event) {
+        // Outcome chip — hide if empty
         String outcome = event.getOutcome().trim().toLowerCase(Locale.getDefault());
-        int outcomeText = R.color.text_dark;
-        int outcomeBg = R.drawable.bg_chip_role;
-        if ("denied".equals(outcome) || "failure".equals(outcome) || "blocked".equals(outcome)) {
-            outcomeText = R.color.danger_red;
-            outcomeBg = R.drawable.bg_chip_role_danger;
-        } else if ("success".equals(outcome) || "allowed".equals(outcome)) {
-            outcomeText = R.color.success_green;
-            outcomeBg = R.drawable.bg_chip_success;
-        } else if ("reported".equals(outcome)) {
-            outcomeText = R.color.semantic_warning;
-            outcomeBg = R.drawable.bg_chip_alert_warning;
-        }
-        holder.textEventOutcome.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), outcomeText));
-        holder.textEventOutcome.setBackgroundResource(outcomeBg);
-
-        String eventType = event.getEventType().trim().toLowerCase(Locale.getDefault());
-        if (eventType.contains("denied") || eventType.contains("invalidated")) {
-            holder.textEventType.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.danger_red));
-            holder.textEventType.setBackgroundResource(R.drawable.bg_chip_role_danger);
-        } else if (eventType.contains("reported") || eventType.contains("overdue")) {
-            holder.textEventType.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.semantic_warning));
-            holder.textEventType.setBackgroundResource(R.drawable.bg_chip_alert_warning);
+        if (outcome.isEmpty()) {
+            holder.textEventOutcome.setVisibility(View.GONE);
         } else {
-            holder.textEventType.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary_navy));
+            holder.textEventOutcome.setVisibility(View.VISIBLE);
+            holder.textEventOutcome.setText(friendlyOutcome(outcome));
+            if ("denied".equals(outcome) || "failure".equals(outcome) || "blocked".equals(outcome)) {
+                // dark red bg → white text
+                holder.textEventOutcome.setBackgroundResource(R.drawable.bg_chip_role_danger);
+                holder.textEventOutcome.setTextColor(0xFFFFFFFF);
+            } else if ("success".equals(outcome) || "allowed".equals(outcome)) {
+                // light green bg → dark green text
+                holder.textEventOutcome.setBackgroundResource(R.drawable.bg_chip_success);
+                holder.textEventOutcome.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.success_green));
+            } else if ("reported".equals(outcome) || "overdue".equals(outcome)) {
+                // light amber bg → dark orange text
+                holder.textEventOutcome.setBackgroundResource(R.drawable.bg_chip_alert_warning);
+                holder.textEventOutcome.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.semantic_warning));
+            } else {
+                holder.textEventOutcome.setBackgroundResource(R.drawable.bg_chip_role);
+                holder.textEventOutcome.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary_navy));
+            }
+        }
+
+        // Event type chip
+        String eventType = event.getEventType().trim().toLowerCase(Locale.getDefault());
+        if (eventType.contains("denied") || eventType.contains("invalidated") || eventType.contains("ban")) {
+            // dark red bg → white text
+            holder.textEventType.setBackgroundResource(R.drawable.bg_chip_role_danger);
+            holder.textEventType.setTextColor(0xFFFFFFFF);
+        } else if (eventType.contains("reported") || eventType.contains("overdue")) {
+            // light amber bg → dark orange text
+            holder.textEventType.setBackgroundResource(R.drawable.bg_chip_alert_warning);
+            holder.textEventType.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.semantic_warning));
+        } else {
+            // light blue bg → navy text
             holder.textEventType.setBackgroundResource(R.drawable.bg_chip_role);
+            holder.textEventType.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.primary_navy));
+        }
+    }
+
+    @NonNull
+    private String cleanDescription(@NonNull String raw) {
+        return raw
+                .replace("QR_SCAN", "QR scan")
+                .replace("PASS_CODE", "pass code")
+                .replace("MANUAL", "manual")
+                .replace("CNIC_SCAN", "CNIC scan")
+                .replace("GUARD_DECISION", "guard decision")
+                .replace("SYSTEM", "system")
+                .trim();
+    }
+
+    @NonNull
+    private String friendlyOutcome(@NonNull String raw) {
+        switch (raw) {
+            case "success":  return "Success";
+            case "allowed":  return "Allowed";
+            case "denied":   return "Denied";
+            case "failure":  return "Failed";
+            case "blocked":  return "Blocked";
+            case "reported": return "Reported";
+            case "overdue":  return "Overdue";
+            default:         return toTitleCase(raw.replace('_', ' '));
         }
     }
 

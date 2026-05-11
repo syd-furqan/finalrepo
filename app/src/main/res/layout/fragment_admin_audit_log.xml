@@ -3,9 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gf_bg_surface">
+    android:background="@drawable/bg_screen_base">
 
     <androidx.core.widget.NestedScrollView
+        android:background="@android:color/transparent"
         android:id="@+id/scroll_audit_logs"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -16,6 +17,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/anim_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -37,7 +39,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/gf_grid_gap"
                     android:text="@string/audit_logs_title"
-                    android:textColor="@color/gf_text_primary"
+                    android:textColor="#FFFFFF"
                     android:textSize="26sp"
                     android:textStyle="bold" />
 
@@ -46,7 +48,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/gf_space_xs"
-                    android:textColor="@color/gf_text_hint"
+                    android:textColor="#BFFFFFFF"
                     android:textSize="12sp" />
 
                 <LinearLayout
@@ -57,7 +59,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_export_csv"
-                        style="@style/Widget.Glitch.Button.Outlined"
+                        style="@style/Widget.GateFlow.Button.White"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -66,7 +68,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_export_pdf"
-                        style="@style/Widget.Glitch.Button.Outlined"
+                        style="@style/Widget.GateFlow.Button.White"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/gf_space_sm"
@@ -83,7 +85,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_open_audit_filters"
-                        style="@style/Widget.Glitch.Button.Outlined"
+                        style="@style/Widget.GateFlow.Button.White"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -92,7 +94,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_open_traffic_analytics"
-                        style="@style/Widget.Glitch.Button.Outlined"
+                        style="@style/Widget.GateFlow.Button.White"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/gf_space_sm"
@@ -101,106 +103,16 @@
                         android:textAllCaps="false" />
                 </LinearLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layout_audit_search_filter"
-                    style="@style/Widget.Glitch.TextInputLayout.Outlined"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gf_space_sm"
-                    android:hint="@string/audit_search_hint">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/input_audit_search"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="text"
-                        android:maxLines="1" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <LinearLayout
-                    android:id="@+id/layout_audit_inline_filters"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gf_space_sm"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/button_filter_event_types"
-                        style="@style/Widget.Glitch.Button.Outlined"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/audit_event_types"
-                        android:textAllCaps="false" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Glitch.TextInputLayout.Outlined"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/gf_space_sm"
-                        android:layout_weight="1"
-                        android:hint="@string/audit_actor_role_hint">
-
-                        <AutoCompleteTextView
-                            android:id="@+id/input_actor_role"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-
-                <HorizontalScrollView
-                    android:id="@+id/layout_audit_range_filters"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gf_space_sm"
-                    android:scrollbars="none">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chip_range_24h"
-                            style="@style/Widget.Material3.Chip.Assist"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/analytics_period_daily" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chip_range_7d"
-                            style="@style/Widget.Material3.Chip.Assist"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/gf_space_sm"
-                            android:text="@string/analytics_period_weekly" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chip_range_30d"
-                            style="@style/Widget.Material3.Chip.Assist"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/gf_space_sm"
-                            android:text="@string/analytics_period_monthly" />
-
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chip_range_custom"
-                            style="@style/Widget.Material3.Chip.Assist"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/gf_space_sm"
-                            android:text="@string/audit_custom_range"
-                            android:visibility="gone" />
-                    </LinearLayout>
-                </HorizontalScrollView>
 
                 <com.google.android.material.card.MaterialCardView
                     style="@style/Widget.Material3.CardView.Filled"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_10"
-                    app:cardBackgroundColor="@color/surface_alt">
+                    app:cardBackgroundColor="#33FFFFFF"
+                    app:strokeColor="#44FFFFFF"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -212,7 +124,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/audit_insights_title"
-                            android:textColor="@color/gf_text_primary"
+                            android:textColor="#FFFFFF"
                             android:textSize="14sp"
                             android:textStyle="bold" />
 
@@ -228,7 +140,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/audit_insight_total_events_default"
-                                android:textColor="@color/gf_text_hint"
+                                android:textColor="#BFFFFFFF"
                                 android:textSize="12sp" />
 
                             <TextView
@@ -238,7 +150,7 @@
                                 android:layout_weight="1"
                                 android:gravity="center"
                                 android:text="@string/audit_insight_deny_rate_default"
-                                android:textColor="@color/gf_text_hint"
+                                android:textColor="#BFFFFFFF"
                                 android:textSize="12sp" />
 
                             <TextView
@@ -248,7 +160,7 @@
                                 android:layout_weight="1"
                                 android:gravity="end"
                                 android:text="@string/audit_insight_alerts_default"
-                                android:textColor="@color/gf_text_hint"
+                                android:textColor="#BFFFFFFF"
                                 android:textSize="12sp" />
                         </LinearLayout>
 
@@ -258,7 +170,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/gf_space_xs"
                             android:text="@string/audit_insight_top_guard_default"
-                            android:textColor="@color/gf_text_hint"
+                            android:textColor="#BFFFFFFF"
                             android:textSize="12sp" />
 
                         <TextView
@@ -267,7 +179,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/space_2"
                             android:text="@string/audit_insight_top_reason_default"
-                            android:textColor="@color/gf_text_hint"
+                            android:textColor="#BFFFFFFF"
                             android:textSize="12sp" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -283,7 +195,7 @@
                 android:gravity="center"
                 android:padding="@dimen/gf_grid_gap"
                 android:text="@string/no_audit_logs"
-                android:textColor="@color/gf_text_hint"
+                android:textColor="#BFFFFFFF"
                 android:visibility="gone" />
 
             <!-- Log list — nested scrolling disabled so NestedScrollView drives all scrolling -->

@@ -3,9 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gf_bg_surface">
+    android:background="@drawable/bg_screen_base">
 
     <LinearLayout
+        android:id="@+id/anim_content"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="vertical"
@@ -19,8 +20,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Banned Guests"
-            android:textColor="@color/gf_text_primary"
-            android:textSize="22sp"
+            android:textColor="#FFFFFF"
+            android:textSize="26sp"
             android:textStyle="bold" />
 
         <TextView
@@ -28,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="Guests on the banned list cannot have a pass created for them."
-            android:textColor="@color/gf_text_hint"
+            android:textColor="#BFFFFFFF"
             android:textSize="13sp" />
 
         <TextView
@@ -37,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="No guests currently banned."
-            android:textColor="@color/gf_text_hint"
+            android:textColor="#BFFFFFFF"
             android:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView

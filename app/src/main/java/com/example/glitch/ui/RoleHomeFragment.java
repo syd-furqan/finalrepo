@@ -28,6 +28,7 @@ import java.util.Locale;
  * Role hub used as a compact overflow page for role-specific primary and secondary actions.
  */
 public class RoleHomeFragment extends Fragment {
+    private android.widget.LinearLayout featureContainerRef;
     private static final String ARG_UID = "arg_uid";
     private static final String ARG_DISPLAY_NAME = "arg_display_name";
     private static final String ARG_EMAIL = "arg_email";
@@ -85,6 +86,7 @@ public class RoleHomeFragment extends Fragment {
             avatarView.setText(initials(name));
         }
 
+        featureContainerRef = featureContainer;
         featureContainer.removeAllViews();
         bindRoleActions(featureContainer, role);
         animateCards(featureContainer);
@@ -394,5 +396,11 @@ public class RoleHomeFragment extends Fragment {
     private String safeArg(@NonNull Bundle args, @NonNull String key) {
         String value = args.getString(key);
         return value == null ? "" : value;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (featureContainerRef != null) animateCards(featureContainerRef);
     }
 }

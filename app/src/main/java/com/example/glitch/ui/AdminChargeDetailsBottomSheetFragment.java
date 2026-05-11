@@ -24,25 +24,31 @@ public class AdminChargeDetailsBottomSheetFragment extends BottomSheetDialogFrag
 
     private static final String ARG_CHARGE_ID = "arg_charge_id";
     private static final String ARG_STATUS = "arg_status";
-    private static final String ARG_REPORT_ID = "arg_report_id";
+    private static final String ARG_REASON = "arg_reason";
+    private static final String ARG_AMOUNT = "arg_amount";
     private static final String ARG_GUEST = "arg_guest";
-    private static final String ARG_SPONSOR_UID = "arg_sponsor_uid";
+    private static final String ARG_SPONSOR = "arg_sponsor";
+    private static final String ARG_NOTE = "arg_note";
 
     @NonNull
     public static AdminChargeDetailsBottomSheetFragment newInstance(
             @NonNull String chargeId,
             @NonNull String status,
-            @NonNull String reportId,
+            @NonNull String reason,
+            @NonNull String amount,
             @NonNull String guest,
-            @NonNull String sponsorUid
+            @NonNull String sponsor,
+            @NonNull String note
     ) {
         AdminChargeDetailsBottomSheetFragment fragment = new AdminChargeDetailsBottomSheetFragment();
         Bundle args = new Bundle();
         args.putString(ARG_CHARGE_ID, chargeId);
         args.putString(ARG_STATUS, status);
-        args.putString(ARG_REPORT_ID, reportId);
+        args.putString(ARG_REASON, reason);
+        args.putString(ARG_AMOUNT, amount);
         args.putString(ARG_GUEST, guest);
-        args.putString(ARG_SPONSOR_UID, sponsorUid);
+        args.putString(ARG_SPONSOR, sponsor);
+        args.putString(ARG_NOTE, note);
         fragment.setArguments(args);
         return fragment;
     }
@@ -60,25 +66,29 @@ public class AdminChargeDetailsBottomSheetFragment extends BottomSheetDialogFrag
 
         String chargeId = safe(args, ARG_CHARGE_ID);
         String status = safe(args, ARG_STATUS);
-        String reportId = safe(args, ARG_REPORT_ID);
+        String reason = safe(args, ARG_REASON);
+        String amount = safe(args, ARG_AMOUNT);
         String guest = safe(args, ARG_GUEST);
-        String sponsorUid = safe(args, ARG_SPONSOR_UID);
+        String sponsor = safe(args, ARG_SPONSOR);
+        String note = safe(args, ARG_NOTE);
 
         TextView textStatus = view.findViewById(R.id.text_charge_detail_status);
-        TextView textChargeId = view.findViewById(R.id.text_charge_detail_id);
-        TextView textReportId = view.findViewById(R.id.text_charge_detail_request_id);
+        TextView textReason = view.findViewById(R.id.text_charge_detail_reason);
+        TextView textAmount = view.findViewById(R.id.text_charge_detail_amount);
         TextView textGuest = view.findViewById(R.id.text_charge_detail_guest);
-        TextView textSponsorUid = view.findViewById(R.id.text_charge_detail_sponsor_uid);
+        TextView textSponsor = view.findViewById(R.id.text_charge_detail_sponsor);
+        TextView textNote = view.findViewById(R.id.text_charge_detail_note);
         View containerActions = view.findViewById(R.id.container_charge_actions);
         MaterialButton buttonApprove = view.findViewById(R.id.button_charge_mark_paid);
         MaterialButton buttonReject = view.findViewById(R.id.button_charge_remove);
         MaterialButton buttonClose = view.findViewById(R.id.button_charge_close);
 
         textStatus.setText("Status: " + status);
-        textChargeId.setText("Charge ID: " + chargeId);
-        textReportId.setText("Report ID: " + reportId);
+        textReason.setText("Reason: " + reason);
+        textAmount.setText("Amount: " + amount);
         textGuest.setText("Visitor: " + guest);
-        textSponsorUid.setText("Sponsor UID: " + sponsorUid);
+        textSponsor.setText(sponsor.isEmpty() ? "" : "Sponsor: " + sponsor);
+        textNote.setText(note.isEmpty() ? "" : "Note: " + note);
 
         boolean removalRequested = "removal requested".equalsIgnoreCase(status.trim());
         containerActions.setVisibility(removalRequested ? View.VISIBLE : View.GONE);

@@ -113,8 +113,6 @@ public class GuardExitDecisionFragment extends Fragment {
 
         TextView textGuestName = view.findViewById(R.id.text_pending_guest_name);
         TextView textPassCode = view.findViewById(R.id.text_pending_pass_code);
-        TextView textRequestId = view.findViewById(R.id.text_pending_request_id);
-        TextView textGuestId = view.findViewById(R.id.text_pending_guest_id);
         TextView textGuestPhone = view.findViewById(R.id.text_pending_guest_phone);
         TextView textStatus = view.findViewById(R.id.text_pending_status);
         textResult = view.findViewById(R.id.text_exit_result);
@@ -123,8 +121,6 @@ public class GuardExitDecisionFragment extends Fragment {
 
         textGuestName.setText(guestName);
         textPassCode.setText(getString(R.string.pass_code_label, passCode));
-        textRequestId.setText(getString(R.string.guard_pending_request_label, entryRequestId));
-        textGuestId.setText(getString(R.string.guard_pending_guest_id_label, guestIdNumber));
         textGuestPhone.setText(getString(
                 R.string.guard_exit_guest_phone_label,
                 guestPhone.trim().isEmpty() ? getString(R.string.not_available) : guestPhone

@@ -1,131 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/gf_space_sm"
-    android:orientation="vertical"
-    android:padding="@dimen/gf_space_md">
+    app:cardBackgroundColor="@color/gf_bg_surface"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/gf_border"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:padding="@dimen/gf_space_md">
 
-        <TextView
-            android:id="@+id/text_admin_vehicle_plate"
-            android:layout_width="0dp"
+        <!-- Plate + status chip -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:fontFamily="sans-serif-black"
-            android:textColor="@color/gf_text_primary"
-            android:textSize="18sp" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
+            <TextView
+                android:id="@+id/text_admin_vehicle_plate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-black"
+                android:textColor="@color/gf_text_primary"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/text_admin_vehicle_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_chip_role"
+                android:paddingHorizontal="@dimen/gf_space_sm"
+                android:paddingVertical="3dp"
+                android:textColor="@color/gf_text_primary"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Vehicle type + description -->
         <TextView
-            android:id="@+id/text_admin_vehicle_status"
-            android:layout_width="wrap_content"
+            android:id="@+id/text_admin_vehicle_details"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_chip_role"
-            android:paddingHorizontal="@dimen/gf_space_sm"
-            android:paddingVertical="3dp"
+            android:layout_marginTop="@dimen/space_6"
             android:textColor="@color/gf_text_primary"
-            android:textSize="10sp"
-            android:textStyle="bold" />
+            android:textSize="13sp" />
+
+        <!-- Requester role -->
+        <TextView
+            android:id="@+id/text_admin_vehicle_requester"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/gf_space_xs"
+            android:textColor="@color/gf_text_hint"
+            android:textSize="11sp" />
+
+        <!-- Submitted timestamp -->
+        <TextView
+            android:id="@+id/text_admin_vehicle_submitted"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/gf_text_hint"
+            android:textSize="11sp" />
+
+        <!-- Review note (shown for reviewed/completed records) -->
+        <TextView
+            android:id="@+id/text_admin_vehicle_reviewed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/gf_space_xs"
+            android:textColor="@color/gf_text_hint"
+            android:textSize="11sp"
+            android:visibility="gone" />
+
+        <!-- Action buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/gf_grid_gap"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_view_vehicle_details"
+                style="@style/Widget.GateFlow.Button.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="@dimen/gf_space_sm"
+                android:text="@string/details_action"
+                android:textAllCaps="false"
+                android:textSize="12sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_mark_vehicle_received"
+                style="@style/Widget.GateFlow.Button.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="@dimen/gf_space_sm"
+                android:text="Mark Received"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_deny_vehicle"
+                style="@style/Widget.GateFlow.Button.Danger"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginEnd="@dimen/gf_space_sm"
+                android:text="@string/vehicle_deny_action"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_approve_vehicle"
+                style="@style/Widget.GateFlow.Button.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="@string/vehicle_approve_action"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:visibility="gone" />
+        </LinearLayout>
+
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/text_admin_vehicle_details"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_6"
-        android:textColor="@color/gf_text_primary"
-        android:textSize="13sp" />
-
-    <TextView
-        android:id="@+id/text_admin_vehicle_requester"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/gf_space_xs"
-        android:textColor="@color/gf_text_hint"
-        android:textSize="11sp" />
-
-    <TextView
-        android:id="@+id/text_admin_vehicle_submitted"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:textColor="@color/gf_text_hint"
-        android:textSize="11sp" />
-
-    <TextView
-        android:id="@+id/text_admin_vehicle_reviewed"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/gf_space_xs"
-        android:textColor="@color/gf_text_hint"
-        android:textSize="11sp"
-        android:visibility="gone" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/gf_grid_gap"
-        android:gravity="end"
-        android:orientation="horizontal">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_view_vehicle_details"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginEnd="@dimen/gf_space_sm"
-            android:background="@drawable/bg_chip_role"
-            android:paddingHorizontal="@dimen/gf_space_md"
-            android:text="@string/details_action"
-            android:textAllCaps="false"
-            android:textColor="@color/gf_text_primary"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_mark_vehicle_received"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginEnd="@dimen/gf_space_sm"
-            android:background="@drawable/bg_chip_role"
-            android:paddingHorizontal="@dimen/gf_space_md"
-            android:text="Mark Received"
-            android:textAllCaps="false"
-            android:textColor="@color/gf_text_primary"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_deny_vehicle"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_marginEnd="@dimen/gf_space_sm"
-            android:background="@drawable/bg_chip_alert_critical"
-            android:paddingHorizontal="@dimen/gf_space_md"
-            android:text="@string/vehicle_deny_action"
-            android:textAllCaps="false"
-            android:textColor="@color/gf_danger"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_approve_vehicle"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:background="@drawable/bg_chip_success"
-            android:paddingHorizontal="@dimen/gf_space_md"
-            android:text="@string/vehicle_approve_action"
-            android:textAllCaps="false"
-            android:textColor="@color/gf_success"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
-    </LinearLayout>
-
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

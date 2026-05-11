@@ -24,6 +24,7 @@ import java.util.List;
  */
 public class AdminCategoryFragment extends Fragment {
     private static final String ARG_CATEGORY = "arg_category";
+    private LinearLayout featureContainerRef;
 
     @NonNull
     public static AdminCategoryFragment newInstance(@NonNull RoleDestination category) {
@@ -65,6 +66,7 @@ public class AdminCategoryFragment extends Fragment {
             avatarView.setText("A");
         }
 
+        featureContainerRef = featureContainer;
         featureContainer.removeAllViews();
         pendingCards.clear();
         for (RoleDestination destination : RoleNavRouter.getAdminCategoryDestinations(category)) {
@@ -263,5 +265,31 @@ public class AdminCategoryFragment extends Fragment {
             return;
         }
         ((NavigationHost) requireActivity()).showFragment(fragment, true);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (featureContainerRef == null) return;
+        int delay = 0;
+        for (int i = 0; i < featureContainerRef.getChildCount(); i++) {
+            View row = featureContainerRef.getChildAt(i);
+            if (!(row instanceof LinearLayout)) continue;
+            LinearLayout rowLayout = (LinearLayout) row;
+            for (int j = 0; j < rowLayout.getChildCount(); j++) {
+                View card = rowLayout.getChildAt(j);
+                if (!(card instanceof MaterialCardView)) continue;
+                card.setAlpha(0f);
+                card.setTranslationY(24f);
+                card.animate()
+                        .alpha(1f)
+                        .translationY(0f)
+                        .setDuration(280)
+                        .setStartDelay(delay)
+                        .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                        .start();
+                delay += 60;
+            }
+        }
     }
 }

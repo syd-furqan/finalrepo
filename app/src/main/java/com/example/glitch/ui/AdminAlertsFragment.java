@@ -33,11 +33,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import com.example.glitch.ui.UiAnimations;
 
 /**
  * Admin incident queue for reported entry alerts.
  */
 public class AdminAlertsFragment extends Fragment {
+    private android.view.ViewGroup animContent;
     private AlertRepository repository;
     private EntryRequestRepository entryRequestRepository;
     private GuestPassRepository guestPassRepository;
@@ -72,6 +74,7 @@ public class AdminAlertsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         repository = RepositoryProvider.getAlertRepository();
         entryRequestRepository = RepositoryProvider.getRepository();
         guestPassRepository = RepositoryProvider.getGuestPassRepository();
@@ -598,5 +601,10 @@ public class AdminAlertsFragment extends Fragment {
         }
         String trimmed = value.trim();
         return trimmed.isEmpty() ? fallback : trimmed;
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

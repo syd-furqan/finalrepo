@@ -219,6 +219,12 @@
         <item name="android:paddingEnd">24dp</item>
     </style>
 
+    <style name="Widget.GateFlow.Button.White" parent="Widget.GateFlow.Button.Primary">
+        <item name="backgroundTint">#FFFFFF</item>
+        <item name="android:textColor">@color/brand_blue_900</item>
+        <item name="rippleColor">@color/brand_blue_900</item>
+    </style>
+
     <style name="Widget.GateFlow.Button.Danger" parent="Widget.GateFlow.Button.Primary">
         <item name="backgroundTint">@color/gf_danger</item>
         <item name="rippleColor">@color/overlay_tint_error_soft</item>

@@ -3,9 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gf_bg_surface">
+    android:background="@drawable/bg_screen_base">
 
     <androidx.core.widget.NestedScrollView
+        android:background="@android:color/transparent"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
@@ -15,372 +16,428 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/anim_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
-
+            android:paddingStart="@dimen/gf_screen_margin"
+            android:paddingTop="@dimen/gf_grid_gap"
+            android:paddingEnd="@dimen/gf_screen_margin"
+            android:paddingBottom="@dimen/gf_space_xl">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
                 android:text="Submit Violation Report"
-                android:textColor="@color/gf_text_primary"
-                android:textSize="24sp"
+                android:textColor="#FFFFFF"
+                android:textSize="26sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="4dp"
                 android:text="Describe the incident and verify the visitor or student before submitting."
-                android:textColor="@color/gf_text_hint"
+                android:textColor="#BFFFFFFF"
                 android:textSize="13sp" />
 
-            <LinearLayout
+            <!-- Violation Details card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@color/gf_bg_surface_dim"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_marginTop="@dimen/gf_space_md"
+                app:cardBackgroundColor="@color/gf_bg_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/gf_border"
+                app:strokeWidth="1dp">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Violation Details"
-                    android:textColor="@color/gf_text_primary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="@dimen/gf_space_md">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:hint="Where it happened and what happened">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/input_violation_detail"
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="top"
-                        android:inputType="textMultiLine|textCapSentences"
-                        android:minLines="4" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+                        android:text="Violation Details"
+                        android:textColor="@color/gf_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
-            <LinearLayout
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.GateFlow.TextInputLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:hint="Where it happened and what happened">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_violation_detail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="top"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:minLines="4" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Violation Level card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@color/gf_bg_surface_dim"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_marginTop="@dimen/gf_space_sm"
+                app:cardBackgroundColor="@color/gf_bg_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/gf_border"
+                app:strokeWidth="1dp">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Violation Level"
-                    android:textColor="@color/gf_text_primary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="@dimen/gf_space_md">
 
-                <RadioGroup
-                    android:id="@+id/radio_violation_level"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/radio_v1"
-                        android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="V1 — Minor"
-                        android:textColor="@color/gf_text_primary" />
+                        android:text="Violation Level"
+                        android:textColor="@color/gf_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
-                    <RadioButton
-                        android:id="@+id/radio_v2"
-                        android:layout_width="0dp"
+                    <RadioGroup
+                        android:id="@+id/radio_violation_level"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="V2 — Moderate"
-                        android:textColor="@color/gf_text_primary" />
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:orientation="horizontal">
 
-                    <RadioButton
-                        android:id="@+id/radio_v3"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="V3 — Severe"
-                        android:textColor="@color/gf_text_primary" />
-                </RadioGroup>
-            </LinearLayout>
+                        <RadioButton
+                            android:id="@+id/radio_v1"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="V1 — Minor"
+                            android:textColor="@color/gf_text_primary" />
 
-            <!-- Subject type toggle -->
-            <LinearLayout
+                        <RadioButton
+                            android:id="@+id/radio_v2"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="V2 — Moderate"
+                            android:textColor="@color/gf_text_primary" />
+
+                        <RadioButton
+                            android:id="@+id/radio_v3"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="V3 — Severe"
+                            android:textColor="@color/gf_text_primary" />
+                    </RadioGroup>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Violation Subject card -->
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/container_subject_toggle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@color/gf_bg_surface_dim"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:layout_marginTop="@dimen/gf_space_sm"
+                app:cardBackgroundColor="@color/gf_bg_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/gf_border"
+                app:strokeWidth="1dp">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Violation Subject"
-                    android:textColor="@color/gf_text_primary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="@dimen/gf_space_md">
 
-                <RadioGroup
-                    android:id="@+id/radio_subject_type"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/radio_subject_guest"
-                        android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="true"
-                        android:text="Visitor"
-                        android:textColor="@color/gf_text_primary" />
+                        android:text="Violation Subject"
+                        android:textColor="@color/gf_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
-                    <RadioButton
-                        android:id="@+id/radio_subject_student"
-                        android:layout_width="0dp"
+                    <RadioGroup
+                        android:id="@+id/radio_subject_type"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Student"
-                        android:textColor="@color/gf_text_primary" />
-                </RadioGroup>
-            </LinearLayout>
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:orientation="horizontal">
 
-            <!-- Visitor verification panel -->
-            <LinearLayout
+                        <RadioButton
+                            android:id="@+id/radio_subject_guest"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="Visitor"
+                            android:textColor="@color/gf_text_primary" />
+
+                        <RadioButton
+                            android:id="@+id/radio_subject_student"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Student"
+                            android:textColor="@color/gf_text_primary" />
+                    </RadioGroup>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Visitor Credentials card -->
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/container_guest_verify"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@color/gf_bg_surface_dim"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Visitor Credentials"
-                    android:textColor="@color/gf_text_primary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/radio_visitor_lookup_method"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/radio_lookup_qr"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="QR"
-                        android:textColor="@color/gf_text_primary" />
-
-                    <RadioButton
-                        android:id="@+id/radio_lookup_passcode"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="true"
-                        android:text="Passcode"
-                        android:textColor="@color/gf_text_primary" />
-
-                    <RadioButton
-                        android:id="@+id/radio_lookup_cnic"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="CNIC"
-                        android:textColor="@color/gf_text_primary" />
-                </RadioGroup>
+                android:layout_marginTop="@dimen/gf_space_sm"
+                app:cardBackgroundColor="@color/gf_bg_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/gf_border"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
-                    android:id="@+id/container_guest_cnic_lookup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:layout_weight="1"
-                        android:hint="@string/guest_cnic">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/input_guest_cnic"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:digits="0123456789"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/button_verify_guest"
-                        style="@style/Widget.Glitch.Button.Outlined"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Verify"
-                        android:textAllCaps="false" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/container_guest_passcode_lookup"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:layout_weight="1"
-                        android:hint="Passcode or QR text">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/input_guest_pass_code"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="textCapCharacters" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/button_verify_guest_passcode"
-                        style="@style/Widget.Glitch.Button.Outlined"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:text="Verify"
-                        android:textAllCaps="false" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/button_scan_guest_qr"
-                        style="@style/Widget.Glitch.Button.Outlined"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Scan"
-                        android:textAllCaps="false" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/container_verified_guest"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:background="@color/gf_bg_surface_dim"
                     android:orientation="vertical"
-                    android:padding="10dp"
-                    android:visibility="gone">
+                    android:padding="@dimen/gf_space_md">
 
                     <TextView
-                        android:id="@+id/text_verified_guest_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:text="Visitor Credentials"
                         android:textColor="@color/gf_text_primary"
-                        android:textSize="13sp"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/text_verified_sponsor"
+                    <RadioGroup
+                        android:id="@+id/radio_visitor_lookup_method"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="@color/gf_text_hint"
-                        android:textSize="12sp" />
-                </LinearLayout>
-            </LinearLayout>
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:orientation="horizontal">
 
-            <!-- Student ID verification panel -->
-            <LinearLayout
+                        <RadioButton
+                            android:id="@+id/radio_lookup_qr"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="QR"
+                            android:textColor="@color/gf_text_primary" />
+
+                        <RadioButton
+                            android:id="@+id/radio_lookup_passcode"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:checked="true"
+                            android:text="Passcode"
+                            android:textColor="@color/gf_text_primary" />
+
+                        <RadioButton
+                            android:id="@+id/radio_lookup_cnic"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="CNIC"
+                            android:textColor="@color/gf_text_primary" />
+                    </RadioGroup>
+
+                    <!-- CNIC lookup row -->
+                    <LinearLayout
+                        android:id="@+id/container_guest_cnic_lookup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.GateFlow.TextInputLayout"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/gf_space_sm"
+                            android:layout_weight="1"
+                            android:hint="@string/guest_cnic">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/input_guest_cnic"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:digits="0123456789"
+                                android:inputType="number" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_verify_guest"
+                            style="@style/Widget.GateFlow.Button.Outlined"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Verify"
+                            android:textAllCaps="false" />
+                    </LinearLayout>
+
+                    <!-- Passcode / QR text row -->
+                    <LinearLayout
+                        android:id="@+id/container_guest_passcode_lookup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.GateFlow.TextInputLayout"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/gf_space_sm"
+                            android:layout_weight="1"
+                            android:hint="Passcode or QR text">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/input_guest_pass_code"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textCapCharacters" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_verify_guest_passcode"
+                            style="@style/Widget.GateFlow.Button.Outlined"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/gf_space_sm"
+                            android:text="Verify"
+                            android:textAllCaps="false" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_scan_guest_qr"
+                            style="@style/Widget.GateFlow.Button.Outlined"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Scan"
+                            android:textAllCaps="false" />
+                    </LinearLayout>
+
+                    <!-- Verified guest info -->
+                    <LinearLayout
+                        android:id="@+id/container_verified_guest"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:background="@color/gf_bg_surface_dim"
+                        android:orientation="vertical"
+                        android:padding="@dimen/gf_space_sm"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/text_verified_guest_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/gf_text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/text_verified_sponsor"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/gf_text_hint"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Student ID card -->
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/container_student_verify"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@color/gf_bg_surface_dim"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:visibility="gone">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Student ID"
-                    android:textColor="@color/gf_text_primary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                android:layout_marginTop="@dimen/gf_space_sm"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/gf_bg_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/gf_border"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="vertical"
+                    android:padding="@dimen/gf_space_md">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_width="0dp"
+                    <TextView
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:layout_weight="1"
-                        android:hint="Student ID">
+                        android:text="Student ID"
+                        android:textColor="@color/gf_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/input_student_email"
-                            android:layout_width="match_parent"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.GateFlow.TextInputLayout"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:inputType="textCapCharacters" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                            android:layout_marginEnd="@dimen/gf_space_sm"
+                            android:layout_weight="1"
+                            android:hint="Student ID">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/button_verify_student"
-                        style="@style/Widget.Glitch.Button.Outlined"
-                        android:layout_width="wrap_content"
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/input_student_email"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textCapCharacters" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_verify_student"
+                            style="@style/Widget.GateFlow.Button.Outlined"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Verify"
+                            android:textAllCaps="false" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/text_verified_student_name"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Verify"
-                        android:textAllCaps="false" />
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:textColor="@color/gf_text_primary"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </LinearLayout>
-
-                <TextView
-                    android:id="@+id/text_verified_student_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textColor="@color/gf_text_primary"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_submit_report"
-                style="@style/Widget.Glitch.Button"
+                style="@style/Widget.GateFlow.Button.White"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="@dimen/gf_space_md"
                 android:enabled="false"
                 android:text="Submit Report"
                 android:textAllCaps="false" />

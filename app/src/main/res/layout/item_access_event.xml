@@ -4,10 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/gf_grid_gap"
+    android:layout_marginTop="10dp"
     app:cardBackgroundColor="@color/gf_bg_surface"
-    app:cardCornerRadius="@dimen/gf_card_radius"
-    app:cardElevation="0dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
     app:strokeColor="@color/gf_border"
     app:strokeWidth="1dp">
 
@@ -15,25 +15,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="@dimen/gf_card_padding">
+        android:padding="16dp">
 
-        <!-- Event type dot -->
+        <!-- Status dot -->
         <View
             android:id="@+id/view_event_dot"
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginEnd="@dimen/gf_space_md"
+            android:layout_gravity="top"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="14dp"
             android:background="@drawable/bg_status_dot" />
 
-        <!-- Content -->
+        <!-- Content column -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <!-- Guest name + timestamp row -->
+            <!-- Description + time -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -47,33 +48,33 @@
                     android:layout_weight="1"
                     android:textColor="@color/gf_text_primary"
                     android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:lineSpacingMultiplier="1.2" />
 
                 <TextView
                     android:id="@+id/text_event_time"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/gf_space_sm"
+                    android:layout_marginStart="10dp"
                     android:fontFamily="monospace"
                     android:textColor="@color/gf_text_hint"
                     android:textSize="11sp" />
             </LinearLayout>
 
-            <!-- CNIC masked -->
+            <!-- Actor -->
             <TextView
                 android:id="@+id/text_event_actor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_xs"
-                android:fontFamily="monospace"
+                android:layout_marginTop="4dp"
                 android:textColor="@color/gf_text_secondary"
                 android:textSize="12sp" />
 
-            <!-- Gate + guard info -->
+            <!-- Chips row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_xs"
+                android:layout_marginTop="8dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -82,42 +83,41 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_chip_role"
-                    android:paddingHorizontal="@dimen/gf_space_sm"
-                    android:paddingVertical="3dp"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
                     android:textColor="@color/gf_accent"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/text_event_outcome"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/gf_space_xs"
+                    android:layout_marginStart="6dp"
                     android:background="@drawable/bg_chip_role"
-                    android:paddingHorizontal="@dimen/gf_space_sm"
-                    android:paddingVertical="3dp"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
                     android:textColor="@color/gf_text_secondary"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/text_event_summary"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/gf_space_sm"
-                    android:layout_weight="1"
-                    android:textColor="@color/gf_text_hint"
-                    android:textSize="11sp" />
             </LinearLayout>
 
+            <!-- Summary line — full width below chips -->
+            <TextView
+                android:id="@+id/text_event_summary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:textColor="@color/gf_text_hint"
+                android:textSize="12sp" />
+
+            <!-- Hidden — kept for adapter compatibility -->
             <TextView
                 android:id="@+id/text_event_request_id"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_xs"
-                android:fontFamily="monospace"
-                android:textColor="@color/gf_text_hint"
-                android:textSize="10sp" />
+                android:visibility="gone" />
+
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

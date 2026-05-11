@@ -30,11 +30,13 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.example.glitch.ui.UiAnimations;
 
 /**
  * Faculty access-request form for sponsoring guest entry.
  */
 public class FacultyAccessRequestFragment extends Fragment implements GuestPassAdapter.GuestPassActionListener {
+    private android.view.ViewGroup animContent;
     private GuestPassRepository repository;
     private GuestPassAdapter adapter;
     private TextView textEmpty;
@@ -102,6 +104,7 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         repository = RepositoryProvider.getGuestPassRepository();
 
         inputGuestName = view.findViewById(R.id.input_guest_name);
@@ -310,5 +313,10 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
             passListener.remove();
             passListener = null;
         }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

@@ -45,10 +45,10 @@ public class MonitorViolationReportFragment extends Fragment {
     private TextView textVerifiedSponsor;
     private TextInputEditText inputStudentId;
     private TextView textVerifiedStudentName;
-    private LinearLayout containerGuestVerify;
+    private View containerGuestVerify;
     private LinearLayout containerGuestCnicLookup;
     private LinearLayout containerGuestPasscodeLookup;
-    private LinearLayout containerStudentVerify;
+    private View containerStudentVerify;
     private MaterialButton buttonSubmit;
     private ActivityResultLauncher<ScanOptions> barcodeLauncher;
 

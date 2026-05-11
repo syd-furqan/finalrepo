@@ -48,31 +48,21 @@
                 android:background="@color/gf_border" />
 
             <TextView
-                android:id="@+id/text_charge_detail_id"
+                android:id="@+id/text_charge_detail_reason"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/gf_space_sm"
-                android:fontFamily="monospace"
                 android:textColor="@color/gf_text_secondary"
-                android:textSize="12sp" />
+                android:textSize="13sp" />
 
             <TextView
-                android:id="@+id/text_charge_detail_request_id"
+                android:id="@+id/text_charge_detail_amount"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:fontFamily="monospace"
-                android:textColor="@color/gf_text_hint"
-                android:textSize="12sp" />
-
-            <TextView
-                android:id="@+id/text_charge_detail_alert_id"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:fontFamily="monospace"
-                android:textColor="@color/gf_text_hint"
-                android:textSize="12sp" />
+                android:textColor="@color/gf_text_secondary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
 
             <View
                 android:layout_width="match_parent"
@@ -89,7 +79,15 @@
                 android:textSize="13sp" />
 
             <TextView
-                android:id="@+id/text_charge_detail_sponsor_uid"
+                android:id="@+id/text_charge_detail_sponsor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/gf_text_hint"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/text_charge_detail_note"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"

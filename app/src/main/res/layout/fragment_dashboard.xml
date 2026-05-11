@@ -5,9 +5,10 @@
     android:id="@+id/dashboard_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gf_bg_surface">
+    android:background="@drawable/bg_screen_base">
 
     <androidx.core.widget.NestedScrollView
+        android:background="@android:color/transparent"
         android:id="@+id/content_scroll"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -20,6 +21,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/dashboard_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -202,6 +204,7 @@
 
             <!-- ── Search bar ─────────────────────────────────────── -->
             <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.GateFlow.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/gf_space_lg"
@@ -231,7 +234,7 @@
                     android:layout_weight="1"
                     android:fontFamily="sans-serif"
                     android:text="@string/active_entry_requests"
-                    android:textColor="@color/gf_text_primary"
+                    android:textColor="#FFFFFF"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:letterSpacing="-0.01" />
@@ -241,7 +244,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
                     android:text="@string/label_view_all"
-                    android:textColor="@color/brand_blue_700"
+                    android:textColor="#BFFFFFFF"
                     android:textSize="13sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -267,7 +270,7 @@
                     android:layout_marginTop="@dimen/gf_space_sm"
                     android:fontFamily="sans-serif"
                     android:text="@string/loading_label"
-                    android:textColor="@color/gf_text_hint"
+                    android:textColor="#BFFFFFFF"
                     android:textSize="13sp" />
             </LinearLayout>
 

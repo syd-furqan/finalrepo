@@ -3,9 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gf_bg_surface">
+    android:background="@drawable/bg_screen_base">
 
     <androidx.core.widget.NestedScrollView
+        android:background="@android:color/transparent"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
@@ -65,21 +66,6 @@
                     android:textColor="@color/gf_text_hint"
                     android:textSize="13sp" />
 
-                <TextView
-                    android:id="@+id/text_pending_request_id"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gf_space_sm"
-                    android:textColor="@color/gf_text_primary"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/text_pending_guest_id"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gf_space_xs"
-                    android:textColor="@color/gf_text_primary"
-                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/text_pending_guest_phone"

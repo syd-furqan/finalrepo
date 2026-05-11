@@ -47,51 +47,30 @@ public class SecurityAlertAdapter extends RecyclerView.Adapter<SecurityAlertAdap
     @Override
     public void onBindViewHolder(@NonNull AlertViewHolder holder, int position) {
         SecurityAlert alert = items.get(position);
+
         String severity = alert.getSeverity() == null ? "" : alert.getSeverity();
         holder.textSeverity.setText(severity.toUpperCase(Locale.getDefault()));
         ChipStyle chipStyle = resolveSeverityStyle(severity);
         holder.textSeverity.setBackgroundResource(chipStyle.backgroundRes);
         holder.textSeverity.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), chipStyle.textColorRes));
-        String requestId = alert.getEntryRequestId().trim().isEmpty()
-                ? alert.getIdentifier()
-                : alert.getEntryRequestId();
-        holder.textIdentifier.setText(labelForAlert(alert) + ": " + requestId);
-        String reporter = alert.getReportedByName().trim();
-        if (reporter.isEmpty()) {
-            reporter = alert.getReportedByUid().trim();
+
+        holder.textIdentifier.setText(labelForAlert(alert));
+
+        // One-line message preview
+        String message = alert.getMessage().trim();
+        holder.textMessage.setText(message.isEmpty() ? "No details" : message);
+
+        // Second line: visitor name + status
+        String guestName = alert.getGuestName().trim();
+        String status = alert.getIncidentStatus().trim();
+        String sub = "";
+        if (!guestName.isEmpty()) sub = guestName;
+        if (!status.isEmpty()) sub = sub.isEmpty() ? status : sub + "  ·  " + status;
+        if (holder.textSub != null) {
+            holder.textSub.setText(sub);
+            holder.textSub.setVisibility(sub.isEmpty() ? View.GONE : View.VISIBLE);
         }
-        String reporterRole = alert.getReportedByRole().trim();
-        if (!reporterRole.isEmpty()) {
-            reporter = reporter.isEmpty() ? reporterRole : reporter + " (" + reporterRole + ")";
-        }
-        if (reporter.trim().isEmpty()) {
-            reporter = "Unknown guard";
-        }
-        String guestName = alert.getGuestName().trim().isEmpty() ? "Unknown" : alert.getGuestName().trim();
-        String guestId = alert.getGuestIdNumber().trim().isEmpty() ? "N/A" : alert.getGuestIdNumber().trim();
-        String guestPhone = alert.getGuestPhone().trim().isEmpty() ? "N/A" : alert.getGuestPhone().trim();
-        String host = alert.getHostName().trim().isEmpty() ? "N/A" : alert.getHostName().trim();
-        String requester = alert.getRequesterUid().trim().isEmpty() ? "N/A" : alert.getRequesterUid().trim();
-        if (!alert.getRequesterRole().trim().isEmpty()) {
-            requester = requester + " (" + alert.getRequesterRole().trim() + ")";
-        }
-        String gate = alert.getGateLabel().trim().isEmpty() ? "In-Gate" : alert.getGateLabel().trim();
-        String incidentStatus = alert.getIncidentStatus().trim().isEmpty()
-                ? "new"
-                : alert.getIncidentStatus().trim();
-        String intervention = alert.getInterventionSummary().trim().isEmpty()
-                ? "N/A"
-                : alert.getInterventionSummary().trim();
-        holder.textMessage.setText(
-                alert.getMessage()
-                        + "\nIncident: " + incidentStatus
-                        + "\nIntervention: " + intervention
-                        + "\nGuard: " + reporter
-                        + "\nVisitor: " + guestName + " [" + guestId + "]"
-                        + "\nPhone: " + guestPhone
-                        + "\nSponsor: " + host + " / " + requester
-                        + "\nGate: " + gate
-        );
+
         holder.itemView.setOnClickListener(v -> {
             if (actionListener != null) {
                 actionListener.onAlertSelected(alert);
@@ -126,12 +105,14 @@ public class SecurityAlertAdapter extends RecyclerView.Adapter<SecurityAlertAdap
         final TextView textIdentifier;
         final TextView textSeverity;
         final TextView textMessage;
+        @Nullable final TextView textSub;
 
         AlertViewHolder(@NonNull View itemView) {
             super(itemView);
             textIdentifier = itemView.findViewById(R.id.text_alert_identifier);
             textSeverity = itemView.findViewById(R.id.text_alert_severity);
             textMessage = itemView.findViewById(R.id.text_alert_message);
+            textSub = itemView.findViewById(R.id.text_alert_sub);
         }
     }
 

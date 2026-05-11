@@ -3,9 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gf_bg_surface">
+    android:background="@drawable/bg_screen_base">
 
     <androidx.core.widget.NestedScrollView
+        android:background="@android:color/transparent"
         android:id="@+id/notifications_scroll"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -16,6 +17,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/anim_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -25,102 +27,60 @@
             android:paddingBottom="@dimen/gf_space_md">
 
 
-            <LinearLayout
-                android:id="@+id/notification_banner"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_md"
-                android:background="@color/gf_bg_surface_dim"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="@dimen/gf_space_md">
+                android:text="Notifications"
+                android:textColor="#FFFFFF"
+                android:textSize="26sp"
+                android:textStyle="bold" />
 
-                <FrameLayout
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/bg_button_primary">
-
-                    <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:layout_gravity="center"
-                        android:src="@android:drawable/ic_lock_lock"
-                        android:tint="@color/white" />
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/gf_grid_gap"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/text_notification_banner_channel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Security Gateway"
-                        android:textAllCaps="true"
-                        android:textColor="@color/md_primary"
-                        android:textSize="10sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/text_notification_banner_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Notifications"
-                        android:textColor="@color/gf_text_primary"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/text_notification_banner_subtitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Guest passes, vehicles, violations, reviews, and fines."
-                        android:textColor="@color/gf_text_hint"
-                        android:textSize="12sp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_mark_all_read"
-                style="@style/Widget.Glitch.Button.Outlined"
-                android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginTop="@dimen/gf_grid_gap"
-                android:text="@string/mark_all_read_action"
-                android:textAllCaps="false"
-                android:visibility="gone" />
+                android:layout_marginTop="4dp"
+                android:text="Guest passes, vehicles, violations, reviews, and fines."
+                android:textColor="#BFFFFFFF"
+                android:textSize="13sp" />
 
             <LinearLayout
                 android:id="@+id/container_notification_filters"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_sm"
-                android:gravity="end"
+                android:layout_marginTop="@dimen/gf_space_md"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_filter_all_notifications"
-                    style="@style/Widget.Glitch.Button.Text"
+                    style="@style/Widget.GateFlow.Button.Ghost"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="36dp"
+                    android:layout_marginEnd="@dimen/gf_space_xs"
                     android:text="@string/notifications_filter_all"
-                    android:textAllCaps="false" />
+                    android:textAllCaps="false"
+                    android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_filter_announcements"
-                    style="@style/Widget.Glitch.Button.Text"
+                    style="@style/Widget.GateFlow.Button.Ghost"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="36dp"
                     android:text="@string/nav_announcements"
-                    android:textAllCaps="false" />
+                    android:textAllCaps="false"
+                    android:textSize="12sp" />
             </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_mark_all_read"
+                style="@style/Widget.GateFlow.Button.Ghost"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_gravity="end"
+                android:layout_marginTop="@dimen/gf_space_xs"
+                android:text="@string/mark_all_read_action"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/text_notifications_empty"
@@ -128,7 +88,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/gf_space_md"
                 android:text="@string/no_notifications"
-                android:textColor="@color/gf_text_hint"
+                android:textColor="#BFFFFFFF"
                 android:textStyle="bold"
                 android:visibility="gone" />
 

@@ -125,22 +125,30 @@ public class AdminAlertDetailsBottomSheetFragment extends BottomSheetDialogFragm
         TextView textSponsor = view.findViewById(R.id.text_alert_sponsor);
         TextView textGate = view.findViewById(R.id.text_alert_gate);
         TextView textReason = view.findViewById(R.id.text_alert_reason);
-        TextView textSource = view.findViewById(R.id.text_alert_source);
         TextView textMessage = view.findViewById(R.id.text_alert_message);
+        TextView textSubjectLabel = view.findViewById(R.id.text_alert_subject_label);
+        TextView textOwnerLabel = view.findViewById(R.id.text_alert_owner_label);
+        View rowIntervention = view.findViewById(R.id.row_intervention);
         View actionsContainer = view.findViewById(R.id.container_alert_actions);
         MaterialButton buttonLogExit = view.findViewById(R.id.button_alert_log_exit);
         MaterialButton buttonCharge = view.findViewById(R.id.button_alert_charge);
         MaterialButton buttonClose = view.findViewById(R.id.button_alert_close);
 
-        textIncidentStatus.setText(labelValue("Incident", valueOr(incidentStatus, "new")));
-        textInterventionSummary.setText(labelValue("Intervention", valueOr(interventionSummary, "N/A")));
-        textGuard.setText(labelValue(actorLabel(alertType), valueOr(guard, "Unknown")));
-        textVisitor.setText(labelValue(subjectLabel(alertType), valueOr(visitor, "N/A")));
-        textSponsor.setText(labelValue(ownerLabel(alertType), valueOr(sponsor, "N/A")));
-        textGate.setText(labelValue("Gate", valueOr(gate, "In-Gate")));
-        textReason.setText(labelValue("Reason", valueOr(reason, "N/A")));
-        textSource.setText(labelValue("Source", valueOr(source, "N/A")));
-        textMessage.setText(labelValue("Message", valueOr(message, "N/A")));
+        textIncidentStatus.setText(valueOr(incidentStatus, "new").toUpperCase(Locale.getDefault()));
+        textMessage.setText(valueOr(message, "No details"));
+        textGuard.setText(valueOr(guard, "Unknown"));
+        textVisitor.setText(valueOr(visitor, "N/A"));
+        textSponsor.setText(valueOr(sponsor, "N/A"));
+        textGate.setText(valueOr(gate, "In-Gate"));
+        textReason.setText(valueOr(reason, "N/A"));
+        if (textSubjectLabel != null) textSubjectLabel.setText(subjectLabel(alertType));
+        if (textOwnerLabel != null) textOwnerLabel.setText(ownerLabel(alertType));
+
+        String resolvedIntervention = interventionSummary.trim();
+        if (!resolvedIntervention.isEmpty() && !"N/A".equalsIgnoreCase(resolvedIntervention) && rowIntervention != null) {
+            rowIntervention.setVisibility(View.VISIBLE);
+            textInterventionSummary.setText(resolvedIntervention);
+        }
 
         boolean actionable = isEntryReport(alertType)
                 && "new".equalsIgnoreCase(incidentStatus.trim())

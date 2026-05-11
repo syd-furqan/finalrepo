@@ -76,7 +76,8 @@ public class AdminVehicleReviewAdapter extends RecyclerView.Adapter<AdminVehicle
         String details = (record.isRemovalRequest() ? "REMOVE • " : "REGISTER • ")
                 + record.getVehicleDescription();
         holder.textDetails.setText(details);
-        holder.textRequester.setText(record.getRequesterUid() + " • " + record.getRequesterRole());
+        String role = record.getRequesterRole().trim();
+        holder.textRequester.setText(role.isEmpty() ? "Unknown requester" : role);
         holder.textSubmitted.setText(formatTimestamp(record.getCreatedAt(), "Submitted: "));
 
         String status = record.getStatus();

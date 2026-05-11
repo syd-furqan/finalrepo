@@ -23,8 +23,10 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import com.example.glitch.ui.UiAnimations;
 
 public class AdminChargesFragment extends Fragment {
+    private android.view.ViewGroup animContent;
     private static final String ARG_TARGET_CHARGE_ID = "target_charge_id";
 
     private InterventionRepository interventionRepository;
@@ -58,6 +60,7 @@ public class AdminChargesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         interventionRepository = RepositoryProvider.getInterventionRepository();
         alertRepository = RepositoryProvider.getAlertRepository();
         textEmpty = view.findViewById(R.id.text_charges_empty);
@@ -111,13 +114,20 @@ public class AdminChargesFragment extends Fragment {
     private void openChargeDetails(@NonNull FineCaseRecord record) {
         if (!isAdded()) return;
         String guest = valueOr(record.getGuestName(), "Unknown")
-                + " (" + valueOr(record.getGuestIdNumber(), "N/A") + ")";
+                + " · ID: " + valueOr(record.getGuestIdNumber(), "N/A");
+        String amountStr = record.getAmount() > 0
+                ? String.format(java.util.Locale.getDefault(), "%s %.0f", valueOr(record.getCurrency(), "PKR"), record.getAmount())
+                : "N/A";
+        String sponsor = valueOr(record.getStudentId(), "");
+        sponsor = sponsor.isEmpty() ? "" : "Student ID: " + sponsor;
         AdminChargeDetailsBottomSheetFragment.newInstance(
                         record.getId(),
                         capitalize(record.getChargeDisplayStatus()),
-                        valueOr(record.getViolationReportId(), "N/A"),
+                        valueOr(record.getReasonCode(), "N/A"),
+                        amountStr,
                         guest,
-                        valueOr(record.getSponsorUid(), "N/A")
+                        sponsor,
+                        valueOr(record.getPaymentNote(), "")
                 )
                 .show(getParentFragmentManager(), AdminChargeDetailsBottomSheetFragment.TAG);
     }
@@ -199,5 +209,10 @@ public class AdminChargesFragment extends Fragment {
     private String capitalize(@NonNull String text) {
         if (text.isEmpty()) return text;
         return Character.toUpperCase(text.charAt(0)) + text.substring(1);
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

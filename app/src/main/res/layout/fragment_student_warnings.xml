@@ -3,18 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/gf_bg_surface">
-
-    <include
-        android:id="@+id/top_bar"
-        layout="@layout/include_top_app_bar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    android:background="@drawable/bg_screen_base">
 
     <androidx.core.widget.NestedScrollView
+        android:background="@android:color/transparent"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
@@ -22,9 +14,10 @@
         app:layout_constraintBottom_toTopOf="@id/bottom_nav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_bar">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/anim_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -37,17 +30,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="My Warnings"
-                android:textColor="@color/gf_text_primary"
-                android:textSize="24sp"
+                android:textColor="#FFFFFF"
+                android:textSize="26sp"
                 android:textStyle="bold"
                 android:letterSpacing="-0.01" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_xs"
+                android:layout_marginTop="4dp"
                 android:text="Formal warnings issued for violations linked to your guest passes."
-                android:textColor="@color/gf_text_hint"
+                android:textColor="#BFFFFFFF"
                 android:textSize="13sp" />
 
             <TextView

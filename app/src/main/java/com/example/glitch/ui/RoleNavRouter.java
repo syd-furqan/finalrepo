@@ -289,7 +289,7 @@ public final class RoleNavRouter {
             case ADMIN_ACCESS:
                 return "Access";
             case ADMIN_TAKE_ACTION:
-                return "Take Action";
+                return "Announcements";
             case ANNOUNCEMENTS:
                 return "Announcements";
             case DIRECTORY:

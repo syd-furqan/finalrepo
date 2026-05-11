@@ -33,6 +33,7 @@ import java.util.Locale;
  * Updated to support overdue guest status.
  */
 public class DashboardFragment extends Fragment implements EntryRequestAdapter.EntryActionListener {
+    private ViewGroup animContent;
 
     private EntryRequestRepository repository;
     private EntryRequestAdapter adapter;
@@ -79,6 +80,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         bindViews(view);
         setupRecycler(view);
         setupActions(view, currentRole);
+        animContent = view.findViewById(R.id.dashboard_content);
         setupExitDecisionResult();
         setupSearch(view);
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.DASHBOARD);
@@ -327,5 +329,11 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         super.onDestroyView();
         repository.removeListeners();
         adapter = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

@@ -211,7 +211,6 @@ public class GuardPendingDecisionFragment extends Fragment {
         TextView textGuestName = view.findViewById(R.id.text_pending_guest_name);
         TextView textPassCode = view.findViewById(R.id.text_pending_pass_code);
         TextView textMethod = view.findViewById(R.id.text_pending_method);
-        TextView textRequestId = view.findViewById(R.id.text_pending_request_id);
         TextView textGuestId = view.findViewById(R.id.text_pending_guest_id);
         TextView textGuestType = view.findViewById(R.id.text_pending_guest_type);
         TextView textVehiclePlate = view.findViewById(R.id.text_pending_vehicle_plate);
@@ -224,7 +223,6 @@ public class GuardPendingDecisionFragment extends Fragment {
         textGuestName.setText(decision.getGuestName());
         textPassCode.setText(getString(R.string.pass_code_label, decision.getPassCode()));
         textMethod.setText(getString(R.string.guard_pending_method_label, decision.getVerificationMethod()));
-        textRequestId.setText(getString(R.string.guard_pending_request_label, decision.getEntryRequestId()));
         textGuestId.setText(getString(R.string.guard_pending_guest_id_label, valueOrUnavailable(decision.getGuestIdNumber())));
         textGuestType.setText(getString(
                 R.string.guard_pending_guest_type_label,

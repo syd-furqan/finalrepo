@@ -21,8 +21,10 @@ import com.example.glitch.model.UserProfile;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
+import com.example.glitch.ui.UiAnimations;
 
 public class StudentChargesFragment extends Fragment {
+    private android.view.ViewGroup animContent;
     private static final String ARG_TARGET_CHARGE_ID = "target_charge_id";
 
     private InterventionRepository interventionRepository;
@@ -54,6 +56,7 @@ public class StudentChargesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         interventionRepository = RepositoryProvider.getInterventionRepository();
         Bundle args = getArguments();
         targetChargeId = args == null ? "" : safe(args.getString(ARG_TARGET_CHARGE_ID));
@@ -130,5 +133,10 @@ public class StudentChargesFragment extends Fragment {
     @NonNull
     private String safe(@Nullable String value) {
         return value == null ? "" : value.trim();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

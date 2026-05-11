@@ -34,11 +34,13 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import com.example.glitch.ui.UiAnimations;
 
 /**
  * Admin screen for reviewing sponsor vehicle applications.
  */
 public class AdminVehicleReviewFragment extends Fragment implements AdminVehicleReviewAdapter.ActionListener {
+    private android.view.ViewGroup animContent;
     private static final String ARG_TARGET_REQUEST_ID = "target_request_id";
 
     private VehicleRequestRepository repository;
@@ -78,6 +80,7 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
 
         UserProfile profile = AuthUiGuard.requireProfile(this);
         if (profile == null) {
@@ -127,7 +130,7 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
         List<String> statuses = Arrays.asList("all", "submitted", "received", "approved", "denied", "cancelled");
         ArrayAdapter<String> filterAdapter = new ArrayAdapter<>(
                 requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
+                R.layout.item_dropdown_option,
                 statuses
         );
         inputStatusFilter.setAdapter(filterAdapter);
@@ -466,5 +469,10 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
     public void onDestroyView() {
         super.onDestroyView();
         repository.removeListeners();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }
