@@ -1,14 +1,11 @@
 package com.example.glitch.ui;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,9 +14,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.widget.ImageView;
+
 import com.example.glitch.R;
 import com.example.glitch.data.RepositoryProvider;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.ArrayList;
@@ -76,7 +74,6 @@ public class RoleHomeFragment extends Fragment {
         TextView textGreeting = view.findViewById(R.id.text_greeting);
         TextView textRole = view.findViewById(R.id.text_role_badge);
         LinearLayout featureContainer = view.findViewById(R.id.feature_container);
-        MaterialButton buttonLogout = view.findViewById(R.id.button_logout);
 
         textGreeting.setText(getString(R.string.role_home_greeting, displayName.isEmpty() ? email : displayName));
         textRole.setText(buildRoleSubtitle(role, email));
@@ -92,14 +89,6 @@ public class RoleHomeFragment extends Fragment {
         bindRoleActions(featureContainer, role);
         animateCards(featureContainer);
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.DIRECTORY);
-
-        buttonLogout.setOnClickListener(v -> {
-            RepositoryProvider.getAuthRepository().logout();
-            NavigationHost host = host();
-            if (host != null) {
-                host.showLogin(true);
-            }
-        });
     }
 
     private void bindRoleActions(@NonNull LinearLayout container, @NonNull String role) {
@@ -117,6 +106,7 @@ public class RoleHomeFragment extends Fragment {
             }
             addAction(
                     container,
+                    destination,
                     RoleNavRouter.getLabelForDestination(destination, role),
                     () -> openDestination(destination)
             );
@@ -158,6 +148,7 @@ public class RoleHomeFragment extends Fragment {
         }
         addAction(
                 container,
+            destination,
                 RoleNavRouter.getLabelForDestination(destination, role),
                 () -> openDestination(destination)
         );
@@ -183,8 +174,13 @@ public class RoleHomeFragment extends Fragment {
         container.addView(header);
     }
 
-    private void addAction(@NonNull LinearLayout container, @NonNull String label, @NonNull Runnable action) {
-        pendingCards.add(buildFeatureCard(label, action));
+    private void addAction(
+            @NonNull LinearLayout container,
+            @NonNull RoleDestination destination,
+            @NonNull String label,
+            @NonNull Runnable action
+    ) {
+        pendingCards.add(buildFeatureCard(destination, label, action));
         if (pendingCards.size() == 2) {
             flushPendingCards(container);
         }
@@ -195,15 +191,16 @@ public class RoleHomeFragment extends Fragment {
         int dp = (int) getResources().getDisplayMetrics().density;
         LinearLayout row = new LinearLayout(requireContext());
         row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_HORIZONTAL);
         LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        rowParams.topMargin = dp * 12;
+        rowParams.topMargin = dp * 10;
         row.setLayoutParams(rowParams);
 
         for (int i = 0; i < pendingCards.size(); i++) {
             View card = pendingCards.get(i);
             LinearLayout.LayoutParams cp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-            if (i > 0) cp.leftMargin = dp * 12;
+            if (i > 0) cp.leftMargin = dp * 10;
             card.setLayoutParams(cp);
             row.addView(card);
         }
@@ -211,7 +208,7 @@ public class RoleHomeFragment extends Fragment {
         if (pendingCards.size() == 1) {
             View spacer = new View(requireContext());
             LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(0, 1, 1f);
-            sp.leftMargin = dp * 12;
+            sp.leftMargin = dp * 10;
             spacer.setLayoutParams(sp);
             row.addView(spacer);
         }
@@ -220,36 +217,38 @@ public class RoleHomeFragment extends Fragment {
     }
 
     @NonNull
-    private View buildFeatureCard(@NonNull String label, @NonNull Runnable action) {
+    private View buildFeatureCard(@NonNull RoleDestination destination, @NonNull String label, @NonNull Runnable action) {
         int dp = (int) getResources().getDisplayMetrics().density;
 
         MaterialCardView card = new MaterialCardView(requireContext());
-        card.setCardBackgroundColor(requireContext().getColor(R.color.gf_bg_surface));
-        card.setRadius(dp * 20);
-        card.setCardElevation(0);
-        card.setStrokeColor(requireContext().getColor(R.color.gf_border));
+        card.setCardBackgroundColor(requireContext().getColor(R.color.md_surface));
+        card.setRadius(dp * 18);
+        card.setCardElevation(0f);
+        card.setMaxCardElevation(0f);
+        card.setStrokeColor(requireContext().getColor(R.color.md_outline_variant));
         card.setStrokeWidth(dp);
         card.setClickable(true);
         card.setFocusable(true);
         card.setOnClickListener(v -> action.run());
 
         LinearLayout inner = new LinearLayout(requireContext());
-        inner.setOrientation(LinearLayout.VERTICAL);
-        inner.setGravity(Gravity.CENTER);
-        inner.setPadding(dp * 20, dp * 24, dp * 20, dp * 24);
+        inner.setOrientation(LinearLayout.HORIZONTAL);
+        inner.setGravity(Gravity.CENTER_VERTICAL);
+        inner.setPadding(dp * 14, dp * 12, dp * 14, dp * 12);
 
         // Icon container
         LinearLayout iconBox = new LinearLayout(requireContext());
         iconBox.setGravity(Gravity.CENTER);
         iconBox.setBackgroundResource(R.drawable.bg_icon_container);
-        LinearLayout.LayoutParams ibParams = new LinearLayout.LayoutParams(dp * 56, dp * 56);
+        LinearLayout.LayoutParams ibParams = new LinearLayout.LayoutParams(dp * 36, dp * 36);
         iconBox.setLayoutParams(ibParams);
 
         ImageView icon = new ImageView(requireContext());
-        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(dp * 28, dp * 28);
+        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(dp * 18, dp * 18);
         icon.setLayoutParams(iconParams);
-        icon.setImageResource(iconForLabel(label));
-        icon.setColorFilter(requireContext().getColor(R.color.gf_accent));
+        icon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        icon.setImageResource(iconForDestination(destination));
+        icon.setColorFilter(requireContext().getColor(R.color.md_primary));
         iconBox.addView(icon);
         inner.addView(iconBox);
 
@@ -257,12 +256,12 @@ public class RoleHomeFragment extends Fragment {
         TextView text = new TextView(requireContext());
         text.setText(label);
         text.setTextColor(requireContext().getColor(R.color.gf_text_primary));
-        text.setTextSize(13);
+        text.setTextSize(15);
         text.setTypeface(text.getTypeface(), android.graphics.Typeface.BOLD);
-        text.setGravity(Gravity.CENTER);
+        text.setMaxLines(2);
         LinearLayout.LayoutParams tp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        tp.topMargin = dp * 12;
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        tp.leftMargin = dp * 12;
         text.setLayoutParams(tp);
         inner.addView(text);
 
@@ -271,19 +270,61 @@ public class RoleHomeFragment extends Fragment {
     }
 
     @DrawableRes
-    private int iconForLabel(@NonNull String label) {
-        String l = label.toLowerCase(Locale.getDefault());
-        if (l.contains("scan") || l.contains("qr")) return android.R.drawable.ic_menu_camera;
-        if (l.contains("pass") || l.contains("guest")) return android.R.drawable.ic_menu_agenda;
-        if (l.contains("log") || l.contains("audit")) return android.R.drawable.ic_menu_edit;
-        if (l.contains("user") || l.contains("manage")) return android.R.drawable.ic_menu_manage;
-        if (l.contains("ban") || l.contains("block")) return android.R.drawable.ic_delete;
-        if (l.contains("alert") || l.contains("notif")) return android.R.drawable.stat_notify_more;
-        if (l.contains("analytic") || l.contains("traffic")) return android.R.drawable.ic_menu_sort_by_size;
-        if (l.contains("vehicle") || l.contains("car")) return android.R.drawable.ic_menu_directions;
-        if (l.contains("rule") || l.contains("verif")) return android.R.drawable.ic_menu_view;
-        if (l.contains("search")) return android.R.drawable.ic_menu_search;
-        return android.R.drawable.ic_menu_compass;
+    private int iconForDestination(@NonNull RoleDestination destination) {
+        switch (destination) {
+            case DASHBOARD:
+                return android.R.drawable.ic_menu_view;
+            case SEARCH:
+                return android.R.drawable.ic_menu_search;
+            case SCAN:
+                return android.R.drawable.ic_menu_camera;
+            case AUDIT:
+                return android.R.drawable.ic_menu_recent_history;
+            case USERS:
+                return android.R.drawable.ic_menu_manage;
+            case RULES:
+                return android.R.drawable.ic_menu_view;
+            case ALERTS:
+                return android.R.drawable.ic_dialog_alert;
+            case FACULTY_REQUEST:
+                return android.R.drawable.ic_menu_agenda;
+            case FACULTY_NOTIFICATIONS:
+            case NOTIFICATIONS:
+                return android.R.drawable.ic_dialog_email;
+            case STUDENT_PASSES:
+                return android.R.drawable.ic_menu_agenda;
+            case SPONSOR_VEHICLES:
+            case ADMIN_VEHICLES:
+                return android.R.drawable.ic_menu_directions;
+            case MONITOR_REPORT:
+                return android.R.drawable.ic_menu_delete;
+            case MONITOR_MY_REPORTS:
+                return android.R.drawable.ic_menu_info_details;
+            case VIOLATION_DIRECTORY:
+                return android.R.drawable.ic_delete;
+            case BANNED_LIST:
+                return android.R.drawable.ic_delete;
+            case STUDENT_CHARGES:
+            case ADMIN_CHARGES:
+                return android.R.drawable.ic_menu_agenda;
+            case STUDENT_WARNINGS:
+                return android.R.drawable.ic_dialog_alert;
+            case ADMIN_ANALYTICS:
+                return android.R.drawable.ic_menu_sort_by_size;
+            case ADMIN_SECURITY:
+                return android.R.drawable.ic_secure;
+            case ADMIN_ACCESS:
+                return android.R.drawable.ic_menu_directions;
+            case ADMIN_TAKE_ACTION:
+                return android.R.drawable.ic_menu_edit;
+            case ANNOUNCEMENTS:
+                return android.R.drawable.ic_dialog_info;
+            case LOGOUT:
+                return android.R.drawable.ic_lock_power_off;
+            case DIRECTORY:
+            default:
+                return android.R.drawable.ic_menu_compass;
+        }
     }
 
     private void animateCards(@NonNull LinearLayout container) {

@@ -23,7 +23,6 @@
             android:paddingEnd="@dimen/gf_screen_margin"
             android:paddingBottom="@dimen/gf_space_xl">
 
-            <include layout="@layout/include_status_ribbon" />
 
             <!-- Denial header card -->
             <com.google.android.material.card.MaterialCardView

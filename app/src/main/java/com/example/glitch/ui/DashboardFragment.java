@@ -38,8 +38,6 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
     private EntryRequestAdapter adapter;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a", Locale.getDefault());
 
-    private TextView textSystemStatusTitle;
-    private TextView textSystemStatusMessage;
     private TextView textProtocolLevel;
     private TextView textProtocolDescription;
     private View loadingContainer;
@@ -132,8 +130,6 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
     }
 
     private void bindViews(@NonNull View root) {
-        textSystemStatusTitle = root.findViewById(R.id.text_system_status_title);
-        textSystemStatusMessage = root.findViewById(R.id.text_system_status_message);
         textProtocolLevel = root.findViewById(R.id.text_protocol_level);
         textProtocolDescription = root.findViewById(R.id.text_protocol_description);
         loadingContainer = root.findViewById(R.id.loading_container);
@@ -243,8 +239,6 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
     }
 
     private void bindDashboardState(@NonNull DashboardState state) {
-        textSystemStatusTitle.setText(state.getSystemStatusTitle());
-        textSystemStatusMessage.setText(state.getSystemStatusMessage());
         textProtocolLevel.setText(state.getProtocolLevel());
         textProtocolDescription.setText(state.getProtocolDescription());
     }

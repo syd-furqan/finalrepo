@@ -25,7 +25,6 @@
             android:paddingTop="@dimen/gf_space_md"
             android:paddingEnd="@dimen/gf_screen_margin">
 
-            <include layout="@layout/include_status_ribbon" />
 
             <!-- Page heading -->
             <TextView

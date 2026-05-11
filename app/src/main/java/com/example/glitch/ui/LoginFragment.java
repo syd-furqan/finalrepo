@@ -9,6 +9,10 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.os.Build;
+import android.graphics.RenderEffect;
+import android.graphics.Shader;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -61,6 +65,18 @@ public class LoginFragment extends Fragment {
         buttonLogin = view.findViewById(R.id.button_login);
         progressBar = view.findViewById(R.id.progress_login);
         textHelp = view.findViewById(R.id.text_login_help);
+
+        // Background blur: use RenderEffect on API 31+, otherwise rely on scrim overlay.
+        ImageView bg = view.findViewById(R.id.image_login_bg);
+        View scrim = view.findViewById(R.id.view_login_scrim);
+        if (bg != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                float radius = getResources().getDisplayMetrics().density * 18f; // ~18dp blur
+                bg.setRenderEffect(RenderEffect.createBlurEffect(radius, radius, Shader.TileMode.CLAMP));
+            } else if (scrim != null) {
+                scrim.setAlpha(0.6f);
+            }
+        }
 
         textHelp.setText(getString(R.string.login_help_text));
         buttonLogin.setOnClickListener(v -> attemptLogin());
