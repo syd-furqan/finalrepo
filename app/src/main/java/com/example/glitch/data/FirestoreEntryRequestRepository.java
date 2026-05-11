@@ -352,6 +352,7 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
         final String normalizedQuery = query.trim().toLowerCase(Locale.getDefault());
         entryRequestCollection
                 .whereEqualTo(TYPE_FIELD, TYPE_REQUEST)
+                .whereIn(STATUS_FIELD, Arrays.asList(STATUS_ACTIVE, STATUS_OVERDUE))
                 .limit(50)
                 .get()
                 .addOnSuccessListener(snapshot -> {
@@ -688,13 +689,23 @@ public class FirestoreEntryRequestRepository implements EntryRequestRepository {
             @Nullable Map<String, Object> rawData,
             @NonNull String normalizedQuery
     ) {
+        String queryDigits = digitsOnly(normalizedQuery);
+        String guestId = safeLower(rawData == null ? null : rawData.get(GUEST_ID_FIELD));
+        String guestPhone = safeLower(rawData == null ? null : rawData.get(GUEST_PHONE_FIELD));
+        String sponsorStudentId = safeLower(rawData == null ? null : rawData.get("sponsorStudentId"));
+        String studentId = safeLower(rawData == null ? null : rawData.get("studentId"));
         return request.getFullName().toLowerCase(Locale.getDefault()).contains(normalizedQuery)
-                || request.getHostName().toLowerCase(Locale.getDefault()).contains(normalizedQuery)
-                || request.getGateLabel().toLowerCase(Locale.getDefault()).contains(normalizedQuery)
-                || safeLower(rawData == null ? null : rawData.get(GUEST_ID_FIELD)).contains(normalizedQuery)
-                || safeLower(rawData == null ? null : rawData.get("vehicleNumber")).contains(normalizedQuery)
-                || safeLower(rawData == null ? null : rawData.get("plateNumber")).contains(normalizedQuery)
-                || request.getId().toLowerCase(Locale.getDefault()).contains(normalizedQuery);
+                || guestId.contains(normalizedQuery)
+                || guestPhone.contains(normalizedQuery)
+                || sponsorStudentId.contains(normalizedQuery)
+                || studentId.contains(normalizedQuery)
+                || (!queryDigits.isEmpty() && digitsOnly(guestId).contains(queryDigits))
+                || (!queryDigits.isEmpty() && digitsOnly(guestPhone).contains(queryDigits));
+    }
+
+    @NonNull
+    private String digitsOnly(@NonNull String value) {
+        return value.replaceAll("\\D", "");
     }
 
     private boolean isStudentRequest(@NonNull EntryRequest request) {

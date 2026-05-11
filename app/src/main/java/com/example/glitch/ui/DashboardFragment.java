@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glitch.R;
 import com.example.glitch.data.EntryRequestRepository;
-import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.DashboardState;
 import com.example.glitch.model.EntryRequest;
@@ -37,7 +36,6 @@ import java.util.Locale;
 public class DashboardFragment extends Fragment implements EntryRequestAdapter.EntryActionListener {
 
     private EntryRequestRepository repository;
-    private GuestPassRepository guestPassRepository;
     private EntryRequestAdapter adapter;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a", Locale.getDefault());
 
@@ -81,13 +79,13 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         currentRole = profile.getRole();
         currentUid = profile.getUid();
         repository = RepositoryProvider.getRepository();
-        guestPassRepository = RepositoryProvider.getGuestPassRepository();
         bindViews(view);
         setupRecycler(view);
         setupActions(view, currentRole);
-        setupBottomSheetResult();
+        setupExitDecisionResult();
         setupSearch(view);
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.DASHBOARD);
+        GuardLanguageUiBinder.bind(view, this);
         startRealtimeListeners();
 
     }
@@ -97,11 +95,6 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         if (editSearch == null) {
             return;
         }
-        View searchContainer = (View) editSearch.getParent();
-        if (searchContainer != null) {
-            searchContainer.setVisibility(View.GONE);
-        }
-
         editSearch.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -128,7 +121,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
                         @Override
                         public void onError(@NonNull Exception exception) {
                             if (!isAdded()) return;
-                            Snackbar.make(requireView(), "Search failed", Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(requireView(), R.string.search_failed, Snackbar.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -178,46 +171,18 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
             if ("guard".equalsIgnoreCase(role)) {
                 RoleNavRouter.route(this, RoleDestination.SCAN);
             } else {
-                Snackbar.make(requireView(), "Access Restricted to Guards", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(requireView(), R.string.access_restricted_guards, Snackbar.LENGTH_SHORT).show();
             }
         });
     }
-    private void setupBottomSheetResult() {
+    private void setupExitDecisionResult() {
         getParentFragmentManager().setFragmentResultListener(
-                EntryDetailsBottomSheetDialogFragment.RESULT_KEY,
+                GuardExitDecisionFragment.RESULT_KEY,
                 getViewLifecycleOwner(),
                 (requestKey, bundle) -> {
-                    String requestId = bundle.getString(EntryDetailsBottomSheetDialogFragment.RESULT_REQUEST_ID);
-                    if (requestId != null && isAdded()) {
-                        repository.logExit(requestId, (success, message, error) -> {
-                            if (!isAdded()) {
-                                return;
-                            }
-                            if (!success) {
-                                requireActivity().runOnUiThread(() ->
-                                        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show());
-                                return;
-                            }
-                            guestPassRepository.markPassExitedByEntryRequestId(
-                                    requestId,
-                                    (passSuccess, passMessage, passError) -> {
-                                        if (!isAdded()) {
-                                            return;
-                                        }
-                                        requireActivity().runOnUiThread(() -> {
-                                            if (passSuccess) {
-                                                Snackbar.make(requireView(), "Guest exit logged.", Snackbar.LENGTH_SHORT).show();
-                                            } else {
-                                                Snackbar.make(
-                                                        requireView(),
-                                                        "Exit logged, but guest pass update failed: " + passMessage,
-                                                        Snackbar.LENGTH_LONG
-                                                ).show();
-                                            }
-                                        });
-                                    }
-                            );
-                        });
+                    String message = bundle.getString(GuardExitDecisionFragment.RESULT_MESSAGE, "").trim();
+                    if (!message.isEmpty() && isAdded()) {
+                        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show();
                     }
                 }
         );
@@ -307,28 +272,20 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
 
     @Override
     public void onDetailsClicked(@NonNull EntryRequest request) {
-        openEntryDetails(request, false);
-    }
-
-    private void openEntryDetails(@NonNull EntryRequest request, boolean promptExit) {
-        EntryDetailsBottomSheetDialogFragment sheet = EntryDetailsBottomSheetDialogFragment.newInstance(
-                request.getId(),
-                request.getFullName(),
-                request.getRoleTag(),
-                request.getHostName(),
-                request.getGuestIdNumber(),
-                request.getGuestPhone(),
-                request.hasVehicle(),
-                request.getVehiclePlate(),
-                request.getGuestType(),
-                request.getGateLabel(),
-                formatTimestamp(request.getEnteredAt()),
-                formatAdmittedBy(request),
-                formatTimestamp(request.getExpiresAt()),
-                request.getStatus(),
-                promptExit
+        if (!isAdded() || !(requireActivity() instanceof NavigationHost)) {
+            return;
+        }
+        ((NavigationHost) requireActivity()).showFragment(
+                GuardExitDecisionFragment.newInstanceForDashboard(
+                        request.getId(),
+                        request.getFullName(),
+                        request.getGuestIdNumber(),
+                        request.getGuestPhone(),
+                        request.getStatus(),
+                        getString(R.string.not_available)
+                ),
+                true
         );
-        sheet.show(getParentFragmentManager(), EntryDetailsBottomSheetDialogFragment.TAG);
     }
 
     private String formatTimestamp(@Nullable Timestamp timestamp) {
@@ -344,7 +301,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         String name = request.getAdmittedByName().trim();
         String role = request.getAdmittedByRole().trim();
         if (uid.isEmpty() && name.isEmpty()) {
-            return "Not available";
+            return getString(R.string.not_available);
         }
         StringBuilder builder = new StringBuilder();
         if (!name.isEmpty()) {

@@ -27,6 +27,12 @@ public class GuardExitDecisionFragment extends Fragment {
     private static final String ARG_GUEST_PHONE = "arg_guest_phone";
     private static final String ARG_STATUS = "arg_status";
     private static final String ARG_PASS_CODE = "arg_pass_code";
+    private static final String ARG_SOURCE = "arg_source";
+    private static final String SOURCE_SCAN = "scan";
+    private static final String SOURCE_DASHBOARD = "dashboard";
+
+    public static final String RESULT_KEY = "guard_exit_decision_result";
+    public static final String RESULT_MESSAGE = "guard_exit_decision_message";
 
     private EntryRequestRepository entryRequestRepository;
     private GuestPassRepository guestPassRepository;
@@ -43,6 +49,31 @@ public class GuardExitDecisionFragment extends Fragment {
             @NonNull String status,
             @NonNull String passCode
     ) {
+        return newInstance(entryRequestId, guestName, guestIdNumber, guestPhone, status, passCode, SOURCE_SCAN);
+    }
+
+    @NonNull
+    public static GuardExitDecisionFragment newInstanceForDashboard(
+            @NonNull String entryRequestId,
+            @NonNull String guestName,
+            @NonNull String guestIdNumber,
+            @NonNull String guestPhone,
+            @NonNull String status,
+            @NonNull String passCode
+    ) {
+        return newInstance(entryRequestId, guestName, guestIdNumber, guestPhone, status, passCode, SOURCE_DASHBOARD);
+    }
+
+    @NonNull
+    private static GuardExitDecisionFragment newInstance(
+            @NonNull String entryRequestId,
+            @NonNull String guestName,
+            @NonNull String guestIdNumber,
+            @NonNull String guestPhone,
+            @NonNull String status,
+            @NonNull String passCode,
+            @NonNull String source
+    ) {
         GuardExitDecisionFragment fragment = new GuardExitDecisionFragment();
         Bundle args = new Bundle();
         args.putString(ARG_ENTRY_REQUEST_ID, entryRequestId);
@@ -51,6 +82,7 @@ public class GuardExitDecisionFragment extends Fragment {
         args.putString(ARG_GUEST_PHONE, guestPhone);
         args.putString(ARG_STATUS, status);
         args.putString(ARG_PASS_CODE, passCode);
+        args.putString(ARG_SOURCE, source);
         fragment.setArguments(args);
         return fragment;
     }
@@ -79,12 +111,12 @@ public class GuardExitDecisionFragment extends Fragment {
         String status = safeArg(args, ARG_STATUS);
         String passCode = safeArg(args, ARG_PASS_CODE);
 
-        TextView textGuestName = view.findViewById(R.id.text_exit_guest_name);
-        TextView textPassCode = view.findViewById(R.id.text_exit_pass_code);
-        TextView textRequestId = view.findViewById(R.id.text_exit_request_id);
-        TextView textGuestId = view.findViewById(R.id.text_exit_guest_id);
-        TextView textGuestPhone = view.findViewById(R.id.text_exit_guest_phone);
-        TextView textStatus = view.findViewById(R.id.text_exit_status);
+        TextView textGuestName = view.findViewById(R.id.text_pending_guest_name);
+        TextView textPassCode = view.findViewById(R.id.text_pending_pass_code);
+        TextView textRequestId = view.findViewById(R.id.text_pending_request_id);
+        TextView textGuestId = view.findViewById(R.id.text_pending_guest_id);
+        TextView textGuestPhone = view.findViewById(R.id.text_pending_guest_phone);
+        TextView textStatus = view.findViewById(R.id.text_pending_status);
         textResult = view.findViewById(R.id.text_exit_result);
         buttonClose = view.findViewById(R.id.button_exit_close);
         buttonLogExit = view.findViewById(R.id.button_exit_log);
@@ -93,13 +125,17 @@ public class GuardExitDecisionFragment extends Fragment {
         textPassCode.setText(getString(R.string.pass_code_label, passCode));
         textRequestId.setText(getString(R.string.guard_pending_request_label, entryRequestId));
         textGuestId.setText(getString(R.string.guard_pending_guest_id_label, guestIdNumber));
-        textGuestPhone.setText(getString(R.string.guard_exit_guest_phone_label, guestPhone.trim().isEmpty() ? "Not available" : guestPhone));
+        textGuestPhone.setText(getString(
+                R.string.guard_exit_guest_phone_label,
+                guestPhone.trim().isEmpty() ? getString(R.string.not_available) : guestPhone
+        ));
         textStatus.setText(getString(R.string.guard_exit_status_label, status.toUpperCase()));
 
         buttonClose.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
         buttonLogExit.setOnClickListener(v -> logExit(entryRequestId, guestName));
 
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.SCAN);
+        GuardLanguageUiBinder.bind(view, this);
     }
 
     private void logExit(@NonNull String entryRequestId, @NonNull String guestName) {
@@ -125,10 +161,10 @@ public class GuardExitDecisionFragment extends Fragment {
                 }
                 requireActivity().runOnUiThread(() -> {
                     if (passSuccess) {
-                        routeToScanWithMessage("Guest exit logged for " + guestName + ".");
+                        routeToScanWithMessage(getString(R.string.guard_exit_logged_for_guest, guestName));
                     } else {
                         setButtonsEnabled(true);
-                        textResult.setText("Exit logged, but pass update had an issue: " + passMessage);
+                        textResult.setText(getString(R.string.guard_exit_partial_issue, passMessage));
                         Snackbar.make(requireView(), textResult.getText(), Snackbar.LENGTH_LONG).show();
                     }
                 });
@@ -137,7 +173,18 @@ public class GuardExitDecisionFragment extends Fragment {
     }
 
     private void routeToScanWithMessage(@NonNull String message) {
-        if (!isAdded() || !(requireActivity() instanceof NavigationHost)) {
+        if (!isAdded()) {
+            return;
+        }
+        String source = safeArg(requireArguments(), ARG_SOURCE);
+        if (SOURCE_DASHBOARD.equals(source)) {
+            Bundle result = new Bundle();
+            result.putString(RESULT_MESSAGE, message);
+            getParentFragmentManager().setFragmentResult(RESULT_KEY, result);
+            getParentFragmentManager().popBackStack();
+            return;
+        }
+        if (!(requireActivity() instanceof NavigationHost)) {
             return;
         }
         ((NavigationHost) requireActivity()).showFragment(GuardQrScanFragment.newInstance(message), false);

@@ -31,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_24"
-                android:text="Visitor Verification"
+                android:text="@string/guard_visitor_verification"
                 android:textColor="@color/text_dark"
                 android:textSize="36sp"
                 android:textStyle="bold" />
@@ -40,7 +40,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_8"
-                android:text="Search for approved entries by identifying credentials or scan a visitor pass for immediate clearance."
+                android:text="@string/guard_search_subtitle"
                 android:textColor="@color/text_muted"
                 android:textSize="16sp" />
 
@@ -48,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_24"
-                android:text="SEARCH CREDENTIALS"
+                android:text="@string/guard_search_credentials"
                 android:textColor="@color/primary_navy"
                 android:textStyle="bold" />
 
@@ -139,7 +139,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_16"
-                android:text="Quick Access Directory"
+                android:text="@string/guard_quick_access_directory"
                 android:textColor="@color/text_dark"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -171,14 +171,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Faculty Entry"
+                        android:text="@string/guard_faculty_entry"
                         android:textColor="@color/text_dark"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Verified Staff Portal"
+                        android:text="@string/guard_verified_staff_portal"
                         android:textColor="@color/text_muted"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -211,14 +211,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Vendor Logistics"
+                        android:text="@string/guard_vendor_logistics"
                         android:textColor="@color/text_dark"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Scheduled Deliveries"
+                        android:text="@string/guard_scheduled_deliveries"
                         android:textColor="@color/text_muted"
                         android:textSize="12sp" />
                 </LinearLayout>

@@ -48,7 +48,22 @@
         android:id="@+id/text_status_clock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="14:45 PM"
+        android:text="@string/status_clock_placeholder"
         android:textColor="#BFC6FF"
         android:textSize="10sp" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/button_guard_language_toggle"
+        android:layout_width="88dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="@dimen/space_8"
+        android:background="@drawable/bg_button_outline"
+        android:minWidth="0dp"
+        android:paddingStart="@dimen/space_6"
+        android:paddingEnd="@dimen/space_6"
+        android:text="EN | ار"
+        android:textAllCaps="false"
+        android:textSize="12sp"
+        android:textColor="@color/white"
+        android:visibility="gone" />
 </LinearLayout>

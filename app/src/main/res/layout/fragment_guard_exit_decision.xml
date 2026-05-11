@@ -21,9 +21,26 @@
             android:paddingStart="@dimen/space_24"
             android:paddingTop="@dimen/space_12"
             android:paddingEnd="@dimen/space_24"
-            android:paddingBottom="@dimen/space_16">
+            android:paddingBottom="@dimen/space_24">
 
             <include layout="@layout/include_status_ribbon" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_24"
+                android:text="@string/guard_exit_decision_title"
+                android:textColor="@color/text_dark"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_8"
+                android:text="@string/guard_exit_subtitle"
+                android:textColor="@color/text_muted"
+                android:textSize="14sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -31,80 +48,79 @@
                 android:layout_marginTop="@dimen/space_16"
                 android:background="@drawable/bg_card_white"
                 android:orientation="vertical"
-                android:padding="@dimen/space_24">
+                android:padding="@dimen/space_16">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/text_pending_guest_name"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/guard_exit_decision_title"
                     android:textColor="@color/text_dark"
-                    android:textSize="24sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/text_exit_guest_name"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/text_pending_pass_code"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_16"
-                    android:textColor="@color/text_dark"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="@dimen/space_4"
+                    android:textColor="@color/text_muted"
+                    android:textSize="13sp" />
 
                 <TextView
-                    android:id="@+id/text_exit_pass_code"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/text_pending_request_id"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_8"
-                    android:textColor="@color/text_muted"
-                    android:textSize="14sp" />
+                    android:textColor="@color/text_dark"
+                    android:textSize="13sp" />
 
                 <TextView
-                    android:id="@+id/text_exit_request_id"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/text_pending_guest_id"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_6"
-                    android:textColor="@color/text_muted"
-                    android:textSize="14sp" />
+                    android:layout_marginTop="@dimen/space_4"
+                    android:textColor="@color/text_dark"
+                    android:textSize="13sp" />
 
                 <TextView
-                    android:id="@+id/text_exit_guest_id"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/text_pending_guest_phone"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_6"
-                    android:textColor="@color/text_muted"
-                    android:textSize="14sp" />
+                    android:layout_marginTop="@dimen/space_4"
+                    android:textColor="@color/text_dark"
+                    android:textSize="13sp" />
 
                 <TextView
-                    android:id="@+id/text_exit_guest_phone"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/text_pending_status"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_6"
-                    android:textColor="@color/text_muted"
-                    android:textSize="14sp" />
+                    android:layout_marginTop="@dimen/space_4"
+                    android:textColor="@color/text_dark"
+                    android:textSize="13sp" />
+            </LinearLayout>
 
-                <TextView
-                    android:id="@+id/text_exit_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_6"
-                    android:textColor="@color/text_muted"
-                    android:textSize="14sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_16"
+                android:background="@color/surface_alt"
+                android:orientation="vertical"
+                android:padding="@dimen/space_16">
 
                 <TextView
                     android:id="@+id/text_exit_result"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_16"
-                    android:textColor="@color/text_muted"
-                    android:textSize="14sp"
+                    android:textColor="@color/text_dark"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_exit_log"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="@dimen/space_16"
-                    android:background="@drawable/bg_button_primary"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:backgroundTint="#059669"
                     android:text="@string/log_exit_action"
                     android:textAllCaps="false"
                     android:textColor="@color/white" />
@@ -112,12 +128,12 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_exit_close"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="52dp"
                     android:layout_marginTop="@dimen/space_8"
-                    android:background="@drawable/bg_button_outline"
+                    android:backgroundTint="@color/danger_red"
                     android:text="@string/close_action"
                     android:textAllCaps="false"
-                    android:textColor="@color/primary_navy" />
+                    android:textColor="@color/white" />
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

@@ -99,6 +99,7 @@ public class GuardQrScanFragment extends Fragment {
                 new InputFilter.LengthFilter(8)
         });
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.SCAN);
+        GuardLanguageUiBinder.bind(view, this);
 
         buttonValidate.setOnClickListener(v -> {
             String passCode = read(inputPassCode);
@@ -130,7 +131,7 @@ public class GuardQrScanFragment extends Fragment {
             ScanOptions options = new ScanOptions();
             options.setBeepEnabled(true);
             options.setOrientationLocked(false);
-            options.setPrompt("Point camera at QR code");
+            options.setPrompt(getString(R.string.guard_qr_prompt_camera));
             barcodeLauncher.launch(options);
         });
 
@@ -237,7 +238,7 @@ public class GuardQrScanFragment extends Fragment {
 
         String status = pass.getStatus().trim().toLowerCase();
         if ("reported".equals(status)) {
-            textResult.setText("This pass has been reported. Contact the security office.");
+            textResult.setText(R.string.guard_pass_reported_contact_office);
             return;
         }
         if ("used".equals(status) || "overdue".equals(status)) {
@@ -245,7 +246,7 @@ public class GuardQrScanFragment extends Fragment {
             return;
         }
         if ("exited".equals(status)) {
-            textResult.setText("This guest pass is already marked exited.");
+            textResult.setText(R.string.guard_pass_already_exited);
             return;
         }
         if (!"active".equals(status)) {

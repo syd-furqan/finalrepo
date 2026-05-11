@@ -90,8 +90,9 @@ public class VerificationResultFragment extends Fragment {
         MaterialButton buttonDeny = view.findViewById(R.id.button_deny);
 
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.SEARCH);
+        GuardLanguageUiBinder.bind(view, this);
         textName.setText(name);
-        String phoneText = phone.trim().isEmpty() ? "" : "\nPhone: " + phone;
+        String phoneText = phone.trim().isEmpty() ? "" : "\n" + getString(R.string.guard_phone_label_value, phone);
         textMeta.setText(getString(R.string.verification_meta, role, host) + phoneText);
         textGate.setText(gate);
         textEntered.setText(entered);
