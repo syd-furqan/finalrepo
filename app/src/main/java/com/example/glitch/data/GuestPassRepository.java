@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.glitch.model.GuestPass;
+import com.example.glitch.model.PhoneValidationResult;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;
@@ -38,6 +39,7 @@ public interface GuestPassRepository {
 			@NonNull String guestPhone,
 			boolean hasVehicle,
 			@NonNull String vehiclePlate,
+			@NonNull PhoneValidationResult phoneValidation,
 			@NonNull IssueCallback callback
 	);
 

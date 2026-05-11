@@ -102,7 +102,7 @@
 
     <string name="guest_full_name">Guest Full Name</string>
     <string name="guest_id_number">Guest ID Number</string>
-    <string name="guest_phone">Guest Phone Number</string>
+    <string name="guest_phone">Guest Phone (e.g. 0300-1234567)</string>
     <string name="guest_cnic">CNIC (xxxxx-xxxxxxx-x)</string>
     <string name="guest_has_vehicle">Guest arriving with a vehicle</string>
     <string name="vehicle_plate_label">Vehicle Plate (AAA-123 / AAA-1234)</string>
@@ -110,7 +110,7 @@
     <string name="submit_request_action">Submit Request</string>
     <string name="error_fill_required_fields">Please complete all required fields.</string>
     <string name="error_invalid_cnic">Enter CNIC as xxxxx-xxxxxxx-x.</string>
-    <string name="error_invalid_phone">Enter a valid phone number.</string>
+    <string name="error_invalid_phone">Enter an 11-digit phone number (e.g. 0300-1234567).</string>
     <string name="error_invalid_vehicle_plate">Enter plate as AAA-123 or AAA-1234.</string>
 
     <string name="no_notifications">No notifications yet.</string>

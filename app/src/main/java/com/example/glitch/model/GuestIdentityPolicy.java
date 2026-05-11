@@ -68,29 +68,27 @@ public final class GuestIdentityPolicy {
         if (rawValue == null) {
             return null;
         }
-        String trimmed = rawValue.trim();
-        if (trimmed.isEmpty()) {
+        String digits = extractDigits(rawValue);
+        if (digits.length() != 11) {
             return null;
         }
-        StringBuilder out = new StringBuilder(trimmed.length());
-        for (int i = 0; i < trimmed.length(); i++) {
-            char c = trimmed.charAt(i);
-            if (Character.isDigit(c)) {
-                out.append(c);
-            } else if (c == '+' && out.length() == 0) {
-                out.append(c);
-            }
-        }
-        String normalized = out.toString();
-        int digitCount = normalized.startsWith("+") ? normalized.length() - 1 : normalized.length();
-        if (digitCount < 7 || digitCount > 15) {
-            return null;
-        }
-        return normalized;
+        return digits.substring(0, 4) + "-" + digits.substring(4);
     }
 
     public static boolean isValidPhone(@Nullable String value) {
         return normalizePhone(value) != null;
+    }
+
+    @NonNull
+    public static String formatPhoneForInput(@Nullable String rawValue) {
+        String digits = extractDigits(rawValue);
+        if (digits.length() > 11) {
+            digits = digits.substring(0, 11);
+        }
+        if (digits.length() <= 4) {
+            return digits;
+        }
+        return digits.substring(0, 4) + "-" + digits.substring(4);
     }
 
     @NonNull
@@ -135,6 +133,18 @@ public final class GuestIdentityPolicy {
             out.append(digits);
         }
         return out.toString();
+    }
+
+    public static boolean isValidGuestName(@Nullable String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < value.length(); i++) {
+            if (Character.isDigit(value.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @NonNull

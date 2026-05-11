@@ -22,8 +22,8 @@ public class GuestPassTimePolicyTest {
     public void issueWindow_enforcesInclusiveOpenAndExclusiveCloseBoundaries() {
         assertFalse(GuestPassTimePolicy.isIssueWindowOpenAt(millisAt(8, 29, 59)));
         assertTrue(GuestPassTimePolicy.isIssueWindowOpenAt(millisAt(8, 30, 0)));
-        assertTrue(GuestPassTimePolicy.isIssueWindowOpenAt(millisAt(22, 29, 59)));
-        assertFalse(GuestPassTimePolicy.isIssueWindowOpenAt(millisAt(22, 30, 0)));
+        assertTrue(GuestPassTimePolicy.isIssueWindowOpenAt(millisAt(21, 59, 59)));
+        assertFalse(GuestPassTimePolicy.isIssueWindowOpenAt(millisAt(22, 0, 0)));
     }
 
     @Test

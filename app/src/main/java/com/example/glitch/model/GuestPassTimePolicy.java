@@ -11,7 +11,7 @@ import java.util.TimeZone;
 
 /**
  * Shared daytime-window policy for guest-pass issuance and entry validation.
- * Window: 08:30 (inclusive) to 22:30 (exclusive), campus timezone.
+ * Issuance window: 08:30–22:00 (exclusive). Entry/expiry window: 08:30–22:30 (exclusive). Campus timezone.
  */
 public final class GuestPassTimePolicy {
     public static final String CAMPUS_TIME_ZONE_ID = "Asia/Karachi";
@@ -19,6 +19,8 @@ public final class GuestPassTimePolicy {
 
     private static final int OPEN_HOUR = 8;
     private static final int OPEN_MINUTE = 30;
+    private static final int ISSUE_CLOSE_HOUR = 22;
+    private static final int ISSUE_CLOSE_MINUTE = 0;
     private static final int CLOSE_HOUR = 22;
     private static final int CLOSE_MINUTE = 30;
 
@@ -36,6 +38,14 @@ public final class GuestPassTimePolicy {
         return testingBypassEnabled || isIssueWindowOpenAt(System.currentTimeMillis());
     }
 
+    public static boolean isIssueWindowOpenAt(long epochMillis) {
+        Calendar calendar = campusCalendar(epochMillis);
+        int minuteOfDay = calendar.get(Calendar.HOUR_OF_DAY) * 60 + calendar.get(Calendar.MINUTE);
+        int openMinuteOfDay = OPEN_HOUR * 60 + OPEN_MINUTE;
+        int issueCloseMinuteOfDay = ISSUE_CLOSE_HOUR * 60 + ISSUE_CLOSE_MINUTE;
+        return minuteOfDay >= openMinuteOfDay && minuteOfDay < issueCloseMinuteOfDay;
+    }
+
     public static boolean isEntryWindowOpenNow() {
         return testingBypassEnabled || isEntryWindowOpenAt(System.currentTimeMillis());
     }
@@ -47,10 +57,6 @@ public final class GuestPassTimePolicy {
 
     public static boolean isActivePassOutOfPolicy(@NonNull GuestPass pass) {
         return isActivePassOutOfPolicy(pass, System.currentTimeMillis());
-    }
-
-    static boolean isIssueWindowOpenAt(long epochMillis) {
-        return isWindowOpen(epochMillis);
     }
 
     static boolean isEntryWindowOpenAt(long epochMillis) {
