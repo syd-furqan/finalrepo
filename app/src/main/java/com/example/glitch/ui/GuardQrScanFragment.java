@@ -263,10 +263,10 @@ public class GuardQrScanFragment extends Fragment {
             return;
         }
 
-        if (!GuestPassTimePolicy.isEntryWindowOpenNow()) {
-            textResult.setText(R.string.pass_not_valid_time_window);
-            return;
-        }
+        // if (!GuestPassTimePolicy.isEntryWindowOpenNow()) {
+        //     textResult.setText(R.string.pass_not_valid_time_window);
+        //     return;
+        // }
 
         if (GuestPassStatusRules.isTimeExpiredActive(pass)) {
             textResult.setText(R.string.pass_expired);

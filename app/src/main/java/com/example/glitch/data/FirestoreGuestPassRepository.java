@@ -10,6 +10,7 @@ import com.example.glitch.model.GuestPassStatusRules;
 import com.example.glitch.model.GuestIdentityPolicy;
 import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.GuestPassTimePolicy;
+import com.example.glitch.model.PhoneValidationResult;
 import com.example.glitch.model.UserProfile;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
@@ -53,7 +54,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
     private static final String REQUEST_STATUS_FIELD = "status";
     private static final String REQUEST_ENTERED_AT_FIELD = "enteredAt";
     private static final String ISSUE_WINDOW_CLOSED_MESSAGE =
-            "Guest passes can only be created between 8:30 AM and 10:30 PM.";
+            "Guest passes can only be created between 8:30 AM and 10:00 PM.";
     private static final String INVALID_CNIC_MESSAGE = "Enter a valid CNIC in xxxxx-xxxxxxx-x format.";
     private static final String INVALID_PLATE_MESSAGE = "Enter vehicle plate as AAA-xxx(x).";
     private final FirebaseFirestore firestore;
@@ -90,17 +91,12 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String vehiclePlate,
             @NonNull OperationCallback callback
     ) {
+        PhoneValidationResult fallbackValidation = PhoneValidationResult.failure(
+                guestPhone, "", "", "Legacy call path — no libphonenumber validation.");
         issueGuestPassWithEntryRequest(
-                sponsorUid,
-                sponsorRole,
-                sponsorName,
-                sponsorEmail,
-                "",
-                guestName,
-                guestIdNumber,
-                guestPhone,
-                hasVehicle,
-                vehiclePlate,
+                sponsorUid, sponsorRole, sponsorName, sponsorEmail, "",
+                guestName, guestIdNumber, guestPhone, hasVehicle, vehiclePlate,
+                fallbackValidation,
                 (success, message, issuedPass, exception) -> callback.onComplete(success, message, exception)
         );
     }
@@ -117,17 +113,20 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String guestPhone,
             boolean hasVehicle,
             @NonNull String vehiclePlate,
+            @NonNull PhoneValidationResult phoneValidation,
             @NonNull IssueCallback callback
     ) {
-        if (!GuestPassTimePolicy.canIssueNow()) {
-            callback.onComplete(false, ISSUE_WINDOW_CLOSED_MESSAGE, null, null);
+        // if (!GuestPassTimePolicy.canIssueNow()) {
+        //     callback.onComplete(false, ISSUE_WINDOW_CLOSED_MESSAGE, null, null);
+        //     return;
+        // }
+
+        // Phone already validated by UI via libphonenumber; reject if somehow invalid
+        if (!phoneValidation.isValid()) {
+            callback.onComplete(false, "Invalid phone number: " + phoneValidation.getFailureReason(), null, null);
             return;
         }
-        String normalizedPhone = GuestIdentityPolicy.normalizePhone(guestPhone);
-        if (normalizedPhone == null || !GuestIdentityPolicy.isValidPhone(normalizedPhone)) {
-            callback.onComplete(false, "Enter a valid guest phone number.", null, null);
-            return;
-        }
+
         String normalizedCnic = GuestIdentityPolicy.normalizeCnic(guestIdNumber);
         if (normalizedCnic == null || !GuestIdentityPolicy.isValidCnic(normalizedCnic)) {
             callback.onComplete(false, INVALID_CNIC_MESSAGE, null, null);
@@ -166,9 +165,10 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     sponsorStudentId,
                     trimmedGuestName,
                     normalizedCnic,
-                    normalizedPhone,
+                    guestPhone,
                     hasVehicle,
                     normalizedVehiclePlate,
+                    phoneValidation,
                     callback
             );
         });
@@ -185,6 +185,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String guestPhone,
             boolean hasVehicle,
             @NonNull String normalizedVehiclePlate,
+            @NonNull PhoneValidationResult phoneValidation,
             @NonNull IssueCallback callback
     ) {
 
@@ -219,6 +220,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                                     guestPhone,
                                     hasVehicle,
                                     normalizedVehiclePlate,
+                                    phoneValidation,
                                     (success, message, issuedPass, exception) -> {
                                 pendingIssuances.remove(sponsorUid);
                                 callback.onComplete(success, message, issuedPass, exception);
@@ -241,6 +243,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     guestPhone,
                     hasVehicle,
                     normalizedVehiclePlate,
+                    phoneValidation,
                     callback
             );
         }
@@ -257,6 +260,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String guestPhone,
             boolean hasVehicle,
             @NonNull String vehiclePlate,
+            @NonNull PhoneValidationResult phoneValidation,
             @NonNull IssueCallback callback
     ) {
         Timestamp expiresAt = GuestPassTimePolicy.expiryAtToday2230();
@@ -284,6 +288,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
         requestData.put("requesterRole", sponsorRole);
         requestData.put("studentId", sponsorStudentId.trim());
         requestData.put("sponsorStudentId", sponsorStudentId.trim());
+        requestData.put("phoneValidation", phoneValidation.toFirestoreMap());
         requestData.put("createdAt", FieldValue.serverTimestamp());
         requestData.put("updatedAt", FieldValue.serverTimestamp());
 
@@ -308,6 +313,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
         data.put("admittedAt", null);
         data.put("admittedByUid", "");
         data.put("admissionMethod", "");
+        data.put("phoneValidation", phoneValidation.toFirestoreMap());
         data.put("createdAt", FieldValue.serverTimestamp());
         data.put("updatedAt", FieldValue.serverTimestamp());
 
@@ -424,16 +430,16 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     if (snapshot != null) {
                         for (DocumentSnapshot doc : snapshot.getDocuments()) {
                             GuestPass rawPass = GuestPass.fromMap(doc.getId(), doc.getData());
-                            if (GuestPassStatusRules.isTimeExpiredActive(rawPass)
-                                    || GuestPassTimePolicy.isActivePassOutOfPolicy(rawPass)) {
-                                passesToExpire.add(rawPass);
-                            }
+                            // if (GuestPassStatusRules.isTimeExpiredActive(rawPass)
+                            //         || GuestPassTimePolicy.isActivePassOutOfPolicy(rawPass)) {
+                            //     passesToExpire.add(rawPass);
+                            // }
                             String status = rawPass.getStatus().trim().toLowerCase();
                             if ((STATUS_CANCELLED.equals(status) || STATUS_EXPIRED.equals(status))
                                     && !rawPass.getEntryRequestId().trim().isEmpty()) {
                                 requestIdsToCleanup.add(rawPass.getEntryRequestId().trim());
                             }
-                            passes.add(normalizeExpiryForRead(rawPass));
+                            passes.add(rawPass);
                         }
                     }
                     persistExpiredStatuses(passesToExpire);
@@ -525,13 +531,12 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     }
                     DocumentSnapshot document = snapshot.getDocuments().get(0);
                     GuestPass rawPass = GuestPass.fromMap(document.getId(), document.getData());
-                    boolean shouldExpire = GuestPassStatusRules.isTimeExpiredActive(rawPass)
-                            || GuestPassTimePolicy.isActivePassOutOfPolicy(rawPass);
-                    GuestPass pass = normalizeExpiryForRead(rawPass);
-                    if (shouldExpire) {
-                        persistExpiredStatus(pass);
-                    }
-                    listener.onData(pass);
+                    // boolean shouldExpire = GuestPassStatusRules.isTimeExpiredActive(rawPass)
+                    //         || GuestPassTimePolicy.isActivePassOutOfPolicy(rawPass);
+                    // if (shouldExpire) {
+                    //     persistExpiredStatus(rawPass);
+                    // }
+                    listener.onData(rawPass);
                 })
                 .addOnFailureListener(listener::onError);
     }
@@ -573,21 +578,21 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     if (!STATUS_ACTIVE.equalsIgnoreCase(pass.getStatus())) {
                         throw new IllegalStateException("Pass is not active.");
                     }
-                    if (GuestPassStatusRules.isTimeExpiredActive(pass)
-                            || GuestPassTimePolicy.isActivePassOutOfPolicy(pass)) {
-                        DocumentReference requestToDelete = findLinkedUnaccessedEntryRequestForDelete(
-                                transaction,
-                                pass.getEntryRequestId()
-                        );
-                        Map<String, Object> expiredUpdates = new HashMap<>();
-                        expiredUpdates.put("status", STATUS_EXPIRED);
-                        expiredUpdates.put("updatedAt", FieldValue.serverTimestamp());
-                        transaction.update(passRef, expiredUpdates);
-                        if (requestToDelete != null) {
-                            transaction.delete(requestToDelete);
-                        }
-                        return new PassMutationResult(STATUS_EXPIRED, pass);
-                    }
+                    // if (GuestPassStatusRules.isTimeExpiredActive(pass)
+                    //         || GuestPassTimePolicy.isActivePassOutOfPolicy(pass)) {
+                    //     DocumentReference requestToDelete = findLinkedUnaccessedEntryRequestForDelete(
+                    //             transaction,
+                    //             pass.getEntryRequestId()
+                    //     );
+                    //     Map<String, Object> expiredUpdates = new HashMap<>();
+                    //     expiredUpdates.put("status", STATUS_EXPIRED);
+                    //     expiredUpdates.put("updatedAt", FieldValue.serverTimestamp());
+                    //     transaction.update(passRef, expiredUpdates);
+                    //     if (requestToDelete != null) {
+                    //         transaction.delete(requestToDelete);
+                    //     }
+                    //     return new PassMutationResult(STATUS_EXPIRED, pass);
+                    // }
                     if (pass.getEntryRequestId().trim().isEmpty()) {
                         throw new IllegalStateException("Pass is missing entry request linkage.");
                     }

@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
     public static final String DESTINATION_NOTIFICATIONS = "NOTIFICATIONS";
 
     private static final int REQUEST_POST_NOTIFICATIONS = 1201;
-    private static final boolean TEMP_ENABLE_TIME_POLICY_TEST_BYPASS = true;
+    private static final boolean TEMP_ENABLE_TIME_POLICY_TEST_BYPASS = false;
 
     private AuthRepository authRepository;
     private NotificationLocalAlertCoordinator notificationLocalAlertCoordinator;

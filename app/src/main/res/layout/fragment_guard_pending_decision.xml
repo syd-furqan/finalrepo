@@ -90,6 +90,82 @@
                     android:textColor="@color/text_dark"
                     android:textSize="13sp" />
 
+                <!-- CNIC scan row — camera only for guards -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_verify_cnic_camera"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:text="📷 Scan Physical CNIC"
+                    android:textAllCaps="false"
+                    android:textSize="13sp" />
+
+                <!-- Result banner: match / mismatch / error -->
+                <TextView
+                    android:id="@+id/text_cnic_verify_result"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_6"
+                    android:paddingHorizontal="@dimen/space_12"
+                    android:paddingVertical="@dimen/space_8"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <!-- Manual override — only shown on mismatch -->
+                <LinearLayout
+                    android:id="@+id/layout_cnic_manual_override"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="CNIC didn't match. Enter the CNIC manually to override:"
+                        android:textColor="#856404"
+                        android:textSize="12sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_6"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/layout_cnic_manual_input"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="@string/guest_cnic">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/input_cnic_manual"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:maxLength="15"
+                                android:textSize="14sp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_cnic_manual_verify"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/space_8"
+                            android:text="Verify"
+                            android:textAllCaps="false" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
                 <TextView
                     android:id="@+id/text_pending_guest_type"
                     android:layout_width="match_parent"
@@ -154,12 +230,6 @@
                 android:background="@color/surface_alt"
                 android:orientation="vertical"
                 android:padding="@dimen/space_16">
-
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/check_pending_guest_verified"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/guard_checkpoint_guest_verified" />
 
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/check_pending_vehicle_verified"

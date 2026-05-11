@@ -41,7 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_8"
-                android:text="Issue a digital authorization for campus access. Passes can be created only between 8:30 AM and 10:30 PM and expire at 10:30 PM."
+                android:text="Issue a digital authorization for campus access. Passes can be created only between 8:30 AM and 10:00 PM and expire at 10:30 PM."
                 android:textColor="@color/text_muted"
                 android:textSize="14sp" />
 
@@ -63,6 +63,7 @@
                     android:textStyle="bold" />
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_guest_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_6"
@@ -71,7 +72,8 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/input_guest_name"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <TextView
@@ -84,19 +86,37 @@
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layout_guest_phone"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_6"
-                    android:hint="@string/guest_phone">
+                    android:orientation="horizontal">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/input_guest_phone"
-                        android:layout_width="match_parent"
+                    <Spinner
+                        android:id="@+id/spinner_guest_country_code"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_weight="0.42"
+                        android:background="@drawable/bg_card_white"
+                        android:paddingStart="@dimen/space_8"
+                        android:paddingEnd="@dimen/space_8" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_guest_phone"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:inputType="phone" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_marginStart="@dimen/space_8"
+                        android:layout_weight="0.58"
+                        android:hint="@string/guest_phone">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_guest_phone"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:maxLength="12" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
@@ -108,20 +128,49 @@
                     android:textSize="12sp"
                     android:textStyle="bold" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layout_guest_cnic"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_6"
-                    android:hint="@string/guest_cnic">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/input_guest_id"
-                        android:layout_width="match_parent"
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_guest_cnic"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:digits="0123456789"
-                        android:inputType="number" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_weight="1"
+                        android:hint="@string/guest_cnic">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_guest_id"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ImageButton
+                        android:id="@+id/button_guest_cnic_camera"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="@dimen/space_8"
+                        android:background="@drawable/bg_card_white"
+                        android:contentDescription="Scan CNIC with camera"
+                        android:padding="10dp"
+                        android:src="@android:drawable/ic_menu_camera"
+                        android:tint="@color/primary_navy" />
+
+                    <ImageButton
+                        android:id="@+id/button_guest_cnic_gallery"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="@dimen/space_6"
+                        android:background="@drawable/bg_card_white"
+                        android:contentDescription="Pick CNIC from gallery"
+                        android:padding="10dp"
+                        android:src="@android:drawable/ic_menu_gallery"
+                        android:tint="@color/primary_navy" />
+                </LinearLayout>
 
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/check_guest_has_vehicle"

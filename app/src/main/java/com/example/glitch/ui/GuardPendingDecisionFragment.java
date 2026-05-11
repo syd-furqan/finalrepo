@@ -1,6 +1,9 @@
 package com.example.glitch.ui;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +21,9 @@ import com.example.glitch.data.EntryRequestRepository;
 import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.AuditEventType;
+import com.example.glitch.model.CnicScanResult;
 import com.example.glitch.model.GatePolicy;
+import com.example.glitch.model.GuestIdentityPolicy;
 import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.GuestPassStatusRules;
 import com.example.glitch.model.GuestPassTimePolicy;
@@ -26,6 +31,8 @@ import com.example.glitch.model.GuardPendingDecision;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -44,14 +51,39 @@ public class GuardPendingDecisionFragment extends Fragment {
     private GuardPendingDecision pendingDecision;
     private MaterialButton buttonAllow;
     private MaterialButton buttonDeny;
-    private MaterialCheckBox checkGuestVerified;
     private MaterialCheckBox checkVehicleVerified;
+    private TextView textCnicResult;
+    private View layoutManualOverride;
+    private TextInputEditText inputCnicManual;
+    private TextInputLayout layoutCnicManualInput;
     private boolean decisionActionable;
+    private boolean cnicVerified = false;
+    private CnicOcrHelper cnicOcrHelper;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
     @NonNull
     public static GuardPendingDecisionFragment newInstance() {
         return new GuardPendingDecisionFragment();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        cnicOcrHelper = new CnicOcrHelper(this, new CnicOcrHelper.Callback() {
+            @Override
+            public void onScanStarted() {
+                if (isAdded()) {
+                    Snackbar.make(requireView(), "Scanning CNIC…", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onResult(@NonNull CnicScanResult result) {
+                if (!isAdded()) return;
+                handleCnicScanResult(result);
+            }
+        });
+        cnicOcrHelper.register();
     }
 
     @Nullable
@@ -87,8 +119,19 @@ public class GuardPendingDecisionFragment extends Fragment {
 
         buttonAllow = view.findViewById(R.id.button_pending_allow);
         buttonDeny = view.findViewById(R.id.button_pending_deny);
-        checkGuestVerified = view.findViewById(R.id.check_pending_guest_verified);
         checkVehicleVerified = view.findViewById(R.id.check_pending_vehicle_verified);
+        textCnicResult = view.findViewById(R.id.text_cnic_verify_result);
+        layoutManualOverride = view.findViewById(R.id.layout_cnic_manual_override);
+        inputCnicManual = view.findViewById(R.id.input_cnic_manual);
+        layoutCnicManualInput = view.findViewById(R.id.layout_cnic_manual_input);
+
+        MaterialButton buttonVerifyCamera = view.findViewById(R.id.button_verify_cnic_camera);
+        buttonVerifyCamera.setOnClickListener(v -> cnicOcrHelper.launchCameraOrRequestPermission());
+
+        // Manual override: attach formatter and verify button
+        GuestIdentityInputSupport.attachCnicFormatter(inputCnicManual);
+        view.findViewById(R.id.button_cnic_manual_verify).setOnClickListener(v -> verifyManualCnic());
+
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.SCAN);
 
         String guardUid = currentGuardUid();
@@ -151,10 +194,10 @@ public class GuardPendingDecisionFragment extends Fragment {
     }
 
     private void revalidatePendingDecision() {
-        if (!GuestPassTimePolicy.isEntryWindowOpenNow()) {
-            clearAndReturnToScan(getString(R.string.pass_not_valid_time_window));
-            return;
-        }
+        // if (!GuestPassTimePolicy.isEntryWindowOpenNow()) {
+        //     clearAndReturnToScan(getString(R.string.pass_not_valid_time_window));
+        //     return;
+        // }
         guestPassRepository.findPassByCode(pendingDecision.getPassCode(), new GuestPassRepository.PassLookupListener() {
             @Override
             public void onData(@Nullable GuestPass pass) {
@@ -303,8 +346,9 @@ public class GuardPendingDecisionFragment extends Fragment {
     }
 
     private void bindCheckpoints() {
-        checkGuestVerified.setChecked(false);
-        checkGuestVerified.setOnCheckedChangeListener((buttonView, isChecked) -> updateAllowButtonState());
+        cnicVerified = false;
+        textCnicResult.setVisibility(View.GONE);
+        layoutManualOverride.setVisibility(View.GONE);
         if (pendingDecision.hasVehicle()) {
             checkVehicleVerified.setVisibility(View.VISIBLE);
             String label = getString(
@@ -340,13 +384,77 @@ public class GuardPendingDecisionFragment extends Fragment {
     }
 
     private boolean isAllowEligible() {
-        if (!checkGuestVerified.isChecked()) {
-            return false;
-        }
-        if (pendingDecision.hasVehicle()) {
+        if (!cnicVerified) return false;
+        if (pendingDecision != null && pendingDecision.hasVehicle()) {
             return checkVehicleVerified.isChecked();
         }
         return true;
+    }
+
+    private void handleCnicScanResult(@NonNull CnicScanResult result) {
+        textCnicResult.setVisibility(View.VISIBLE);
+        layoutManualOverride.setVisibility(View.GONE);
+        layoutCnicManualInput.setError(null);
+
+        if (!result.isSuccess()) {
+            setCnicVerified(false);
+            textCnicResult.setText("⚠ " + result.getFailureReason());
+            textCnicResult.setBackgroundColor(0xFFFFF3CD);
+            textCnicResult.setTextColor(Color.parseColor("#856404"));
+            layoutManualOverride.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        String scanned = result.getNormalizedCnic();
+        String expected = pendingDecision != null ? pendingDecision.getGuestIdNumber() : "";
+        boolean matches = scanned.equalsIgnoreCase(expected.trim());
+
+        if (matches) {
+            setCnicVerified(true);
+            textCnicResult.setText("✓ CNIC MATCH — " + scanned);
+            textCnicResult.setBackgroundColor(0xFFD1FAE5);
+            textCnicResult.setTextColor(Color.parseColor("#065F46"));
+        } else {
+            setCnicVerified(false);
+            textCnicResult.setText("✗ CNIC MISMATCH\nScanned: " + scanned + "\nExpected: " + expected);
+            textCnicResult.setBackgroundColor(0xFFFFE4E6);
+            textCnicResult.setTextColor(Color.parseColor("#991B1B"));
+            layoutManualOverride.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void verifyManualCnic() {
+        CharSequence raw = inputCnicManual.getText();
+        String input = raw == null ? "" : raw.toString().trim();
+        String expected = pendingDecision != null ? pendingDecision.getGuestIdNumber() : "";
+        String normalized = GuestIdentityPolicy.normalizeCnic(input);
+
+        if (normalized == null) {
+            layoutCnicManualInput.setError(getString(R.string.error_invalid_cnic));
+            return;
+        }
+        layoutCnicManualInput.setError(null);
+
+        if (normalized.equalsIgnoreCase(expected.trim())) {
+            setCnicVerified(true);
+            textCnicResult.setVisibility(View.VISIBLE);
+            textCnicResult.setText("✓ CNIC MATCH (manual) — " + normalized);
+            textCnicResult.setBackgroundColor(0xFFD1FAE5);
+            textCnicResult.setTextColor(Color.parseColor("#065F46"));
+            layoutManualOverride.setVisibility(View.GONE);
+        } else {
+            setCnicVerified(false);
+            textCnicResult.setVisibility(View.VISIBLE);
+            textCnicResult.setText("✗ CNIC MISMATCH\nEntered: " + normalized + "\nExpected: " + expected);
+            textCnicResult.setBackgroundColor(0xFFFFE4E6);
+            textCnicResult.setTextColor(Color.parseColor("#991B1B"));
+            layoutCnicManualInput.setError("CNIC does not match records.");
+        }
+    }
+
+    private void setCnicVerified(boolean verified) {
+        cnicVerified = verified;
+        updateAllowButtonState();
     }
 
     private void routeToDashboard() {
