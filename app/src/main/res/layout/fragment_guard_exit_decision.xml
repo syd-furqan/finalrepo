@@ -28,96 +28,96 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_24"
+                android:layout_marginTop="@dimen/space_16"
                 android:background="@drawable/bg_card_white"
-                android:gravity="center_horizontal"
                 android:orientation="vertical"
                 android:padding="@dimen/space_24">
-
-                <FrameLayout
-                    android:layout_width="256dp"
-                    android:layout_height="256dp"
-                    android:background="@drawable/bg_card_white"
-                    android:padding="@dimen/space_16">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@color/surface_alt"
-                        android:padding="@dimen/space_24"
-                        android:src="@android:drawable/ic_menu_share"
-                        android:tint="@color/primary_navy" />
-                </FrameLayout>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_16"
-                    android:text="Guest Pass Verification"
+                    android:text="@string/guard_exit_decision_title"
                     android:textColor="@color/text_dark"
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/text_exit_guest_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_16"
+                    android:textColor="@color/text_dark"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_exit_pass_code"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:textColor="@color/text_muted"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/text_exit_request_id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_6"
-                    android:text="@string/qr_hint"
                     android:textColor="@color/text_muted"
                     android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
-                android:background="@color/surface_alt"
-                android:orientation="vertical"
-                android:padding="@dimen/space_16">
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/pass_code_hint">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/input_pass_code"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="textCapCharacters|textNoSuggestions|textVisiblePassword"
-                        android:imeOptions="actionDone"
-                        android:maxLength="8"
-                        android:singleLine="true" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/button_validate_pass"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="@dimen/space_12"
-                    android:background="@drawable/bg_button_primary"
-                    android:text="@string/verify_action"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/button_scan_qr"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="@dimen/space_8"
-                    android:background="@drawable/bg_button_primary"
-                    android:text="Scan QR"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white" />
 
                 <TextView
-                    android:id="@+id/text_pass_result"
+                    android:id="@+id/text_exit_guest_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_6"
+                    android:textColor="@color/text_muted"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/text_exit_guest_phone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_6"
+                    android:textColor="@color/text_muted"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/text_exit_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_6"
+                    android:textColor="@color/text_muted"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/text_exit_result"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_12"
+                    android:layout_marginTop="@dimen/space_16"
                     android:textColor="@color/text_muted"
                     android:textSize="14sp"
                     android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_exit_log"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="@dimen/space_16"
+                    android:background="@drawable/bg_button_primary"
+                    android:text="@string/log_exit_action"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/button_exit_close"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:background="@drawable/bg_button_outline"
+                    android:text="@string/close_action"
+                    android:textAllCaps="false"
+                    android:textColor="@color/primary_navy" />
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

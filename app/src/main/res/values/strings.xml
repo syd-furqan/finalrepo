@@ -180,6 +180,9 @@
     <string name="guard_scan_deny_success">Visitor denied. Request and pass were updated.</string>
     <string name="guard_scan_deny_with_pass_update_warning">Visitor denied, but guest-pass update had an issue: %1$s</string>
     <string name="guard_scan_default_deny_reason">Denied at gate via %1$s verification.</string>
+    <string name="guard_exit_decision_title">Exit Decision</string>
+    <string name="guard_exit_guest_phone_label">Phone: %1$s</string>
+    <string name="guard_exit_status_label">Status: %1$s</string>
     <string name="guard_pending_title">Pending Guard Decision</string>
     <string name="guard_pending_subtitle">A scanned visitor request must be resolved before continuing.</string>
     <string name="guard_pending_method_label">Verification Method: %1$s</string>
