@@ -27,7 +27,6 @@
             android:paddingTop="@dimen/gf_space_sm"
             android:paddingEnd="@dimen/gf_screen_margin">
 
-            <include layout="@layout/include_status_ribbon" />
 
             <!-- ── Quick action card ──────────────────────────────── -->
             <com.google.android.material.card.MaterialCardView

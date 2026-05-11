@@ -32,6 +32,11 @@
 
     <style name="ShapeAppearance.GateFlow.Corner.Card" parent="ShapeAppearance.GateFlow.Card" />
 
+    <style name="ShapeAppearance.Logo.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
     <!-- ══════════════════════════════════════════════════════════════════
          FULL MD3 TYPE SCALE — Inter font
     ══════════════════════════════════════════════════════════════════════ -->

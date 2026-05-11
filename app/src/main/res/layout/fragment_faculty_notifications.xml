@@ -24,7 +24,6 @@
             android:paddingEnd="@dimen/gf_space_lg"
             android:paddingBottom="@dimen/gf_space_md">
 
-            <include layout="@layout/include_status_ribbon" />
 
             <LinearLayout
                 android:id="@+id/notification_banner"

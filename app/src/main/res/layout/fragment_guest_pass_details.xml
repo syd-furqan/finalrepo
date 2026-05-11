@@ -23,7 +23,6 @@
             android:paddingEnd="@dimen/gf_space_lg"
             android:paddingBottom="@dimen/gf_space_lg">
 
-            <include layout="@layout/include_status_ribbon" />
 
             <TextView
                 android:layout_width="match_parent"
