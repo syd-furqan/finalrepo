@@ -1,12 +1,14 @@
 package com.example.glitch;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.activity.EdgeToEdge;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -35,6 +37,10 @@ import com.example.glitch.ui.RoleNavRouter;
  * Host activity that owns the fragment container for the app's primary navigation surface.
  */
 public class MainActivity extends AppCompatActivity implements NavigationHost {
+    public static final String ACTION_OPEN_NOTIFICATIONS = "com.example.glitch.action.OPEN_NOTIFICATIONS";
+    public static final String EXTRA_LAUNCH_DESTINATION = "extra_launch_destination";
+    public static final String DESTINATION_NOTIFICATIONS = "NOTIFICATIONS";
+
     private static final int REQUEST_POST_NOTIFICATIONS = 1201;
     private static final boolean TEMP_ENABLE_TIME_POLICY_TEST_BYPASS = true;
 
@@ -61,11 +67,23 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
             return insets;
         });
 
-        if (MainActivityStartupPolicy.shouldForceFreshLogin(savedInstanceState != null)) {
-            forceFreshLogin();
+        if (savedInstanceState == null) {
+            bootstrapSessionFromLaunchIntent(getIntent());
             return;
         }
         enforceRestoredStateGuard();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        UserProfile profile = SessionManager.getCurrentProfile();
+        if (profile == null) {
+            bootstrapSessionFromLaunchIntent(intent);
+            return;
+        }
+        showRoleHome(profile, true, resolveLaunchDestination(intent));
     }
 
     @Override
@@ -74,10 +92,37 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
         enforceRestoredStateGuard();
     }
 
-    private void forceFreshLogin() {
-        authRepository.logout();
-        SessionManager.clear();
-        showLogin(true);
+    private void bootstrapSessionFromLaunchIntent(@NonNull Intent launchIntent) {
+        authRepository.validateCurrentSession((success, profile, message) -> runOnUiThread(() -> {
+            if (isFinishing() || isDestroyed()) {
+                return;
+            }
+            if (success && profile != null) {
+                showRoleHome(profile, true, resolveLaunchDestination(launchIntent));
+                return;
+            }
+            showLogin(true);
+        }));
+    }
+
+    @Nullable
+    private RoleDestination resolveLaunchDestination(@Nullable Intent launchIntent) {
+        if (launchIntent == null) {
+            return null;
+        }
+        String destinationName = launchIntent.getStringExtra(EXTRA_LAUNCH_DESTINATION);
+        if (destinationName == null || destinationName.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            RoleDestination parsed = RoleDestination.valueOf(destinationName.trim());
+            if (parsed == RoleDestination.LOGOUT) {
+                return null;
+            }
+            return parsed;
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
     }
 
     private void enforceRestoredStateGuard() {
@@ -107,6 +152,14 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
 
     @Override
     public void showRoleHome(@NonNull UserProfile profile, boolean clearBackStack) {
+        showRoleHome(profile, clearBackStack, null);
+    }
+
+    private void showRoleHome(
+            @NonNull UserProfile profile,
+            boolean clearBackStack,
+            @Nullable RoleDestination preferredDestination
+    ) {
         SessionManager.setCurrentProfile(profile);
         ensurePostNotificationPermission(profile);
         if (notificationLocalAlertCoordinator != null) {
@@ -118,7 +171,9 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
         if (clearBackStack) {
             clearBackStack();
         }
-        RoleDestination landingDestination = RoleNavRouter.getDefaultDestinationForRole(profile.getRole());
+        RoleDestination landingDestination = preferredDestination == null
+                ? RoleNavRouter.getDefaultDestinationForRole(profile.getRole())
+                : RoleNavRouter.resolveDestinationForRole(preferredDestination, profile.getRole());
         Fragment landingFragment = RoleNavRouter.createFragmentForDestination(landingDestination, profile);
         if (landingFragment == null) {
             landingFragment = RoleHomeFragment.newInstance(
