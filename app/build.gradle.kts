@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation("com.google.firebase:firebase-storage")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.github.PhilJay:MPAndroidChart:3.1.0")
     implementation("com.googlecode.libphonenumber:libphonenumber:8.13.50")
     implementation("com.github.adaptech-cz:Tesseract4Android:4.8.0") {
         exclude(group = "com.github.adaptech-cz.Tesseract4Android", module = "tesseract4android-openmp")

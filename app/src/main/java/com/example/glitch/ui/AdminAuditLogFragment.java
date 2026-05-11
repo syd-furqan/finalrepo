@@ -26,11 +26,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glitch.R;
 import com.example.glitch.auth.SessionManager;
+import com.example.glitch.data.AuditAnalyticsRepository;
 import com.example.glitch.data.AuditLogRepository;
 import com.example.glitch.data.AuditPageCursor;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.AccessEvent;
+import com.example.glitch.model.AnalyticsPeriod;
 import com.example.glitch.model.AuditEventType;
+import com.example.glitch.model.AuditAnalyticsSnapshot;
 import com.example.glitch.model.AuditExportFile;
 import com.example.glitch.model.AuditLogFilter;
 import com.example.glitch.model.GuestPassTimePolicy;
@@ -78,6 +81,7 @@ public class AdminAuditLogFragment extends Fragment {
     }
 
     private AuditLogRepository repository;
+    private AuditAnalyticsRepository analyticsRepository;
     private AccessEventAdapter adapter;
     private TextView textEmpty;
     private TextView textFilterSummary;
@@ -88,6 +92,11 @@ public class AdminAuditLogFragment extends Fragment {
     private MaterialButton buttonExportPdf;
     private MaterialButton buttonOpenTrafficAnalytics;
     private MaterialButton buttonOpenFilters;
+    private TextView textInsightTotalEvents;
+    private TextView textInsightDenyRate;
+    private TextView textInsightAlerts;
+    private TextView textInsightTopGuard;
+    private TextView textInsightTopReason;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
@@ -97,6 +106,7 @@ public class AdminAuditLogFragment extends Fragment {
     private long rangeToMillis;
     private AuditLogFilter currentFilter = AuditLogFilter.last7Days();
     private AuditPageCursor currentCursor = AuditPageCursor.initial();
+    private AnalyticsPeriod analyticsPeriod = AnalyticsPeriod.WEEKLY;
     private boolean hasMore = false;
     private boolean loadMoreInProgress = false;
     private int listToken = 0;
@@ -120,6 +130,7 @@ public class AdminAuditLogFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         repository = RepositoryProvider.getAuditLogRepository();
+        analyticsRepository = RepositoryProvider.getAuditAnalyticsRepository();
         textEmpty = view.findViewById(R.id.text_audit_empty);
         textFilterSummary = view.findViewById(R.id.text_filter_summary);
         inputActorRole = view.findViewById(R.id.input_actor_role);
@@ -129,6 +140,11 @@ public class AdminAuditLogFragment extends Fragment {
         buttonExportPdf = view.findViewById(R.id.button_export_pdf);
         buttonOpenTrafficAnalytics = view.findViewById(R.id.button_open_traffic_analytics);
         buttonOpenFilters = view.findViewById(R.id.button_open_audit_filters);
+        textInsightTotalEvents = view.findViewById(R.id.text_insight_total_events);
+        textInsightDenyRate = view.findViewById(R.id.text_insight_deny_rate);
+        textInsightAlerts = view.findViewById(R.id.text_insight_alerts);
+        textInsightTopGuard = view.findViewById(R.id.text_insight_top_guard);
+        textInsightTopReason = view.findViewById(R.id.text_insight_top_reason);
         Chip chip24h = view.findViewById(R.id.chip_range_24h);
         Chip chip7d = view.findViewById(R.id.chip_range_7d);
         Chip chip30d = view.findViewById(R.id.chip_range_30d);
@@ -163,25 +179,10 @@ public class AdminAuditLogFragment extends Fragment {
             }
         });
 
-        chip24h.setOnClickListener(v -> {
-            long now = System.currentTimeMillis();
-            rangeToMillis = now;
-            rangeFromMillis = now - (24L * 60L * 60L * 1000L);
-            refreshFirstPage();
-        });
-        chip7d.setOnClickListener(v -> {
-            long now = System.currentTimeMillis();
-            rangeToMillis = now;
-            rangeFromMillis = now - (7L * 24L * 60L * 60L * 1000L);
-            refreshFirstPage();
-        });
-        chip30d.setOnClickListener(v -> {
-            long now = System.currentTimeMillis();
-            rangeToMillis = now;
-            rangeFromMillis = now - (30L * 24L * 60L * 60L * 1000L);
-            refreshFirstPage();
-        });
-        chipCustom.setOnClickListener(v -> openCustomRangePicker());
+        chip24h.setOnClickListener(v -> applyPeriod(AnalyticsPeriod.DAILY));
+        chip7d.setOnClickListener(v -> applyPeriod(AnalyticsPeriod.WEEKLY));
+        chip30d.setOnClickListener(v -> applyPeriod(AnalyticsPeriod.MONTHLY));
+        chipCustom.setVisibility(View.GONE);
 
         buttonFilterEventTypes.setOnClickListener(v -> openEventTypeSelector());
 
@@ -214,15 +215,25 @@ public class AdminAuditLogFragment extends Fragment {
         );
 
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.AUDIT);
-        refreshFirstPage();
+        applyPeriod(analyticsPeriod);
     }
 
     private void setupDefaultRange() {
-        currentFilter = AuditLogFilter.last7Days();
-        rangeFromMillis = currentFilter.getFromInclusiveMillis();
-        rangeToMillis = currentFilter.getToInclusiveMillis();
+        applyRangeForPeriod(analyticsPeriod);
         selectedEventTypes.clear();
         selectedEventTypes.addAll(EVENT_TYPE_OPTIONS);
+    }
+
+    private void applyPeriod(@NonNull AnalyticsPeriod period) {
+        analyticsPeriod = period;
+        applyRangeForPeriod(period);
+        refreshFirstPage();
+    }
+
+    private void applyRangeForPeriod(@NonNull AnalyticsPeriod period) {
+        long now = System.currentTimeMillis();
+        rangeToMillis = now;
+        rangeFromMillis = period.getFromMillis(now);
     }
 
     private void setupRoleDropdown() {
@@ -285,12 +296,17 @@ public class AdminAuditLogFragment extends Fragment {
         );
         rangeParams.topMargin = dp(12);
         rangeRow.setLayoutParams(rangeParams);
-        addRangeButton(rangeRow, "24h", () -> applyRelativeRange(1, dialog));
-        addRangeButton(rangeRow, "7d", () -> applyRelativeRange(7, dialog));
-        addRangeButton(rangeRow, "30d", () -> applyRelativeRange(30, dialog));
-        addRangeButton(rangeRow, "Custom", () -> {
-            dialog.dismiss();
-            openCustomRangePicker();
+        addRangeButton(rangeRow, getString(R.string.analytics_period_daily), () -> {
+            analyticsPeriod = AnalyticsPeriod.DAILY;
+            applyRelativeRange(1, dialog);
+        });
+        addRangeButton(rangeRow, getString(R.string.analytics_period_weekly), () -> {
+            analyticsPeriod = AnalyticsPeriod.WEEKLY;
+            applyRelativeRange(7, dialog);
+        });
+        addRangeButton(rangeRow, getString(R.string.analytics_period_monthly), () -> {
+            analyticsPeriod = AnalyticsPeriod.MONTHLY;
+            applyRelativeRange(30, dialog);
         });
         content.addView(rangeRow);
 
@@ -480,6 +496,7 @@ public class AdminAuditLogFragment extends Fragment {
         currentFilter = buildCurrentFilter();
         textFilterSummary.setText(buildFilterSummary(currentFilter));
         loadMoreInProgress = false;
+        loadInsights();
 
         repository.listenFirstPage(currentFilter, PAGE_SIZE, new AuditLogRepository.AuditPageListener() {
             @Override
@@ -635,13 +652,65 @@ public class AdminAuditLogFragment extends Fragment {
         );
     }
 
+    private void loadInsights() {
+        analyticsRepository.loadSnapshot(analyticsPeriod, new AuditAnalyticsRepository.SnapshotListener() {
+            @Override
+            public void onData(@NonNull AuditAnalyticsSnapshot snapshot) {
+                if (!isAdded()) {
+                    return;
+                }
+                requireActivity().runOnUiThread(() -> {
+                    textInsightTotalEvents.setText(getString(
+                            R.string.audit_insight_total_events_template,
+                            snapshot.getTotalEvents()
+                    ));
+                    textInsightDenyRate.setText(getString(
+                            R.string.audit_insight_deny_rate_template,
+                            formatPercent(snapshot.getDenyRate())
+                    ));
+                    textInsightAlerts.setText(getString(
+                            R.string.audit_insight_alerts_template,
+                            snapshot.getAlerts()
+                    ));
+                    String topGuard = snapshot.getTopGuards().isEmpty()
+                            ? getString(R.string.analytics_no_data)
+                            : snapshot.getTopGuards().get(0).getName();
+                    String topReason = snapshot.getTopReasonCodes().isEmpty()
+                            ? getString(R.string.analytics_no_data)
+                            : snapshot.getTopReasonCodes().get(0).getName();
+                    textInsightTopGuard.setText(getString(R.string.audit_insight_top_guard_template, topGuard));
+                    textInsightTopReason.setText(getString(R.string.audit_insight_top_reason_template, topReason));
+                });
+            }
+
+            @Override
+            public void onError(@NonNull Exception exception) {
+                if (!isAdded()) {
+                    return;
+                }
+                requireActivity().runOnUiThread(() -> {
+                    textInsightTotalEvents.setText(R.string.audit_insight_total_events_default);
+                    textInsightDenyRate.setText(R.string.audit_insight_deny_rate_default);
+                    textInsightAlerts.setText(R.string.audit_insight_alerts_default);
+                    textInsightTopGuard.setText(R.string.audit_insight_top_guard_default);
+                    textInsightTopReason.setText(R.string.audit_insight_top_reason_default);
+                });
+            }
+        });
+    }
+
     @NonNull
     private String buildFilterSummary(@NonNull AuditLogFilter filter) {
         int typesCount = filter.getEventTypes().size();
         String types = typesCount == 0 ? "all events" : (typesCount + " event type(s)");
         String roles = filter.getActorRoles().isEmpty() ? "all roles" : filter.getActorRoles().toString();
         String search = filter.getSearchText().trim().isEmpty() ? "no text filter" : ("search: " + filter.getSearchText().trim());
-        return "Range active • " + types + " • " + roles + " • " + search;
+        return analyticsPeriod.getLabel() + " • " + types + " • " + roles + " • " + search;
+    }
+
+    @NonNull
+    private String formatPercent(double value) {
+        return String.format(Locale.getDefault(), "%.1f%%", value);
     }
 
     @NonNull

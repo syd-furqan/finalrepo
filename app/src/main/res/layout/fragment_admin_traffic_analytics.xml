@@ -18,172 +18,345 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="@dimen/space_20">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Traffic &amp; Security Analytics"
+                android:text="@string/analytics_title"
                 android:textColor="@color/text_dark"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_4"
+                android:text="@string/analytics_subtitle"
+                android:textColor="@color/text_muted"
+                android:textSize="13sp" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="@dimen/space_12"
                 android:orientation="horizontal">
 
                 <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_analytics_7d"
+                    android:id="@+id/chip_analytics_daily"
+                    style="@style/Widget.Material3.Chip.Assist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="7D" />
+                    android:text="@string/analytics_period_daily" />
 
                 <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_analytics_30d"
+                    android:id="@+id/chip_analytics_weekly"
+                    style="@style/Widget.Material3.Chip.Assist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="30D" />
+                    android:layout_marginStart="@dimen/space_8"
+                    android:text="@string/analytics_period_weekly" />
 
                 <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_analytics_90d"
+                    android:id="@+id/chip_analytics_monthly"
+                    style="@style/Widget.Material3.Chip.Assist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="90D" />
+                    android:layout_marginStart="@dimen/space_8"
+                    android:text="@string/analytics_period_monthly" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="vertical">
+                android:layout_marginTop="@dimen/space_12"
+                android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="match_parent"
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Incoming"
-                    android:textColor="@color/text_muted" />
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/surface_alt">
 
-                <TextView
-                    android:id="@+id/text_kpi_incoming"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textColor="@color/text_dark"
-                    android:textSize="22sp"
-                    android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Admitted / Denied / Exited"
-                    android:textColor="@color/text_muted" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/analytics_incoming"
+                            android:textColor="@color/text_muted"
+                            android:textSize="12sp" />
 
-                <TextView
-                    android:id="@+id/text_kpi_admitted"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textColor="@color/text_dark" />
+                        <TextView
+                            android:id="@+id/text_kpi_incoming"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="0"
+                            android:textColor="@color/text_dark"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                <TextView
-                    android:id="@+id/text_kpi_denied"
-                    android:layout_width="wrap_content"
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textColor="@color/text_dark" />
+                    android:layout_marginStart="@dimen/space_8"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/surface_alt">
 
-                <TextView
-                    android:id="@+id/text_kpi_exited"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textColor="@color/text_dark" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
 
-                <TextView
-                    android:layout_width="match_parent"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/analytics_alerts"
+                            android:textColor="@color/text_muted"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/text_kpi_alerts"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="0"
+                            android:textColor="@color/text_dark"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_8"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Overdue / Reported / Alerts"
-                    android:textColor="@color/text_muted" />
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/surface_alt">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/analytics_admitted"
+                            android:textColor="@color/text_muted"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/text_kpi_admitted"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="0"
+                            android:textColor="@color/text_dark"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_8"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/surface_alt">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/analytics_denied"
+                            android:textColor="@color/text_muted"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/text_kpi_denied"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="0"
+                            android:textColor="@color/danger_red"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Widget.Material3.CardView.Filled"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_8"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/surface_alt">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/analytics_exited"
+                            android:textColor="@color/text_muted"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/text_kpi_exited"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="0"
+                            android:textColor="@color/text_dark"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_8"
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/text_kpi_overdue"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textColor="@color/text_dark" />
+                    android:layout_weight="1"
+                    android:text="Overdue: 0"
+                    android:textColor="@color/text_muted"
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/text_kpi_reported"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textColor="@color/text_dark" />
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Reported: 0"
+                    android:textColor="@color/text_muted"
+                    android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/text_kpi_alerts"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/text_kpi_rates"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textColor="@color/text_dark" />
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="Deny 0% • Report 0%"
+                    android:textColor="@color/text_muted"
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Trends"
+                android:layout_marginTop="@dimen/space_16"
+                android:text="@string/analytics_trend_title"
                 android:textColor="@color/text_dark"
                 android:textStyle="bold" />
 
-            <LinearLayout
-                android:id="@+id/container_trends"
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chart_trend"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical" />
+                android:layout_height="220dp"
+                android:layout_marginTop="@dimen/space_8" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Breakdown by Guard"
+                android:layout_marginTop="@dimen/space_12"
+                android:text="@string/analytics_outcome_mix_title"
                 android:textColor="@color/text_dark"
                 android:textStyle="bold" />
 
-            <LinearLayout
-                android:id="@+id/container_guard_breakdown"
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/chart_outcomes"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="vertical" />
+                android:layout_height="220dp"
+                android:layout_marginTop="@dimen/space_8" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Breakdown by Sponsor Role"
+                android:layout_marginTop="@dimen/space_12"
+                android:text="@string/analytics_sponsor_mix_title"
+                android:textColor="@color/text_dark"
+                android:textStyle="bold" />
+
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/chart_role_mix"
+                android:layout_width="match_parent"
+                android:layout_height="260dp"
+                android:layout_marginTop="@dimen/space_8" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_12"
+                android:text="@string/analytics_top_guards_title"
+                android:textColor="@color/text_dark"
+                android:textStyle="bold" />
+
+            <com.github.mikephil.charting.charts.HorizontalBarChart
+                android:id="@+id/chart_top_guards"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:layout_marginTop="@dimen/space_8" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/space_12"
+                android:text="@string/analytics_top_reason_codes_title"
                 android:textColor="@color/text_dark"
                 android:textStyle="bold" />
 
             <LinearLayout
-                android:id="@+id/container_role_breakdown"
+                android:id="@+id/container_top_reason_codes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/space_8"
                 android:orientation="vertical" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_open_audit_drilldown"
+                style="@style/Widget.Glitch.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Open Audit Drill-Down"
+                android:layout_marginTop="@dimen/space_16"
+                android:text="@string/analytics_open_audit_drilldown"
                 android:textAllCaps="false" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
