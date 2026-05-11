@@ -105,10 +105,12 @@ public class LocalNotificationHelper {
         }
 
         Intent launchIntent = new Intent(appContext, MainActivity.class);
+        launchIntent.setAction(MainActivity.ACTION_OPEN_NOTIFICATIONS);
+        launchIntent.putExtra(MainActivity.EXTRA_LAUNCH_DESTINATION, MainActivity.DESTINATION_NOTIFICATIONS);
         launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 appContext,
-                0,
+                notificationId,
                 launchIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
