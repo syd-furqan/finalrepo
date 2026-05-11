@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -147,21 +148,18 @@ public class AdminAuditLogFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (dy <= 0 || loadMoreInProgress || !hasMore) {
-                    return;
-                }
-                int visible = layoutManager.getChildCount();
-                int total = layoutManager.getItemCount();
-                int firstVisible = layoutManager.findFirstVisibleItemPosition();
-                if ((visible + firstVisible) >= (total - 6)) {
-                    loadMore();
-                }
-            }
-        });
+
+        // NestedScrollView drives all scrolling; trigger load-more when near the bottom
+        NestedScrollView scrollView = view.findViewById(R.id.scroll_audit_logs);
+        scrollView.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener)
+                (sv, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+                    if (scrollY <= oldScrollY || loadMoreInProgress || !hasMore) return;
+                    int totalHeight = sv.getChildAt(0).getMeasuredHeight();
+                    int scrollViewHeight = sv.getMeasuredHeight();
+                    if (scrollY >= totalHeight - scrollViewHeight - 300) {
+                        loadMore();
+                    }
+                });
 
         chip24h.setOnClickListener(v -> {
             long now = System.currentTimeMillis();
