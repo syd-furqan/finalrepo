@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class NotificationLocalAlertCoordinator {
     private static final String COLLECTION_NOTIFICATIONS = "notifications";
     private static final String SUBCOLLECTION_ITEMS = "items";
+    private static final String TYPE_ANNOUNCEMENT = "announcement";
 
     private final FirebaseFirestore firestore;
     private final LocalNotificationHelper notificationHelper;
@@ -26,6 +27,7 @@ public class NotificationLocalAlertCoordinator {
     private ListenerRegistration registration;
     private boolean bootstrapComplete;
     private String activeUid = "";
+    private String activeRole = "";
 
     public NotificationLocalAlertCoordinator(@NonNull Context context) {
         this(context, FirebaseFirestore.getInstance());
@@ -47,6 +49,7 @@ public class NotificationLocalAlertCoordinator {
         }
         stop();
         activeUid = uid;
+        activeRole = profile.getRole();
         bootstrapComplete = false;
         registration = firestore.collection(COLLECTION_NOTIFICATIONS)
                 .document(uid)
@@ -65,12 +68,16 @@ public class NotificationLocalAlertCoordinator {
             registration = null;
         }
         activeUid = "";
+        activeRole = "";
         bootstrapComplete = false;
     }
 
     public static boolean isSupportedRole(@Nullable String role) {
         String normalized = role == null ? "" : role.trim().toLowerCase(Locale.US);
-        return "student".equals(normalized) || "faculty".equals(normalized);
+        return "student".equals(normalized)
+                || "faculty".equals(normalized)
+                || "guard".equals(normalized)
+                || "monitor".equals(normalized);
     }
 
     private void handleSnapshot(@NonNull QuerySnapshot snapshot) {
@@ -86,10 +93,14 @@ public class NotificationLocalAlertCoordinator {
             if (item.isRead()) {
                 continue;
             }
-            notificationHelper.showUserNotification(
-                    fallback(item.getTitle(), "Notification"),
-                    fallback(item.getMessage(), "You have a new update."),
-                    nextNotificationId.incrementAndGet()
+            if (!TYPE_ANNOUNCEMENT.equalsIgnoreCase(item.getType())) {
+                continue;
+            }
+            notificationHelper.showAnnouncementNotification(
+                    fallback(item.getTitle(), "Announcement"),
+                    fallback(item.getMessage(), "You have a new announcement."),
+                    nextNotificationId.incrementAndGet(),
+                    activeRole
             );
         }
     }

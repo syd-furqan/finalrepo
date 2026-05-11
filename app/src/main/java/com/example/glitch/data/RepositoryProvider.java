@@ -26,6 +26,7 @@ public final class RepositoryProvider {
     private static AlertRepository alertRepository;
     private static InterventionRepository interventionRepository;
     private static ViolationReportRepository violationReportRepository;
+    private static AnnouncementRepository announcementRepository;
 
     private RepositoryProvider() {
     }
@@ -158,6 +159,17 @@ public final class RepositoryProvider {
     }
 
     /**
+     * Returns announcement repository instance.
+     */
+    @NonNull
+    public static AnnouncementRepository getAnnouncementRepository() {
+        if (announcementRepository == null) {
+            announcementRepository = new FirestoreAnnouncementRepository();
+        }
+        return announcementRepository;
+    }
+
+    /**
      * Injects test repository override.
      */
     public static void setOverrideRepository(@Nullable EntryRequestRepository repository) {
@@ -188,5 +200,6 @@ public final class RepositoryProvider {
         alertRepository = null;
         interventionRepository = null;
         violationReportRepository = null;
+        announcementRepository = null;
     }
 }
