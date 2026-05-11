@@ -53,7 +53,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_16"
-                    android:text="Guest Pass Verification"
+                    android:text="@string/guard_guest_pass_verification"
                     android:textColor="@color/text_dark"
                     android:textSize="24sp"
                     android:textStyle="bold" />
@@ -106,20 +106,9 @@
                     android:layout_height="56dp"
                     android:layout_marginTop="@dimen/space_8"
                     android:background="@drawable/bg_button_primary"
-                    android:text="Scan QR"
+                    android:text="@string/scan_qr_code"
                     android:textAllCaps="false"
                     android:textColor="@color/white" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/button_log_exit_from_scan"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginTop="@dimen/space_8"
-                    android:background="@drawable/bg_button_primary"
-                    android:text="@string/log_exit_action"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
-                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/text_pass_result"

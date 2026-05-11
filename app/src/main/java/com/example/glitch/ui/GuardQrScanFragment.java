@@ -19,14 +19,12 @@ import com.example.glitch.auth.SessionManager;
 import com.example.glitch.data.AdminAlertPayloadFactory;
 import com.example.glitch.data.AlertRepository;
 import com.example.glitch.data.AuditEventLogger;
-import com.example.glitch.data.EntryRequestRepository;
 import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.AuditEventType;
 import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.GuestPassStatusRules;
-import com.example.glitch.model.GuestPassTimePolicy;
 import com.example.glitch.model.GuardPendingDecision;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -44,14 +42,11 @@ public class GuardQrScanFragment extends Fragment {
     private static final String ARG_STATUS_MESSAGE = "arg_status_message";
 
     private GuestPassRepository guestPassRepository;
-    private EntryRequestRepository entryRequestRepository;
     private com.example.glitch.data.InterventionRepository interventionRepository;
     private AlertRepository alertRepository;
     private GuardPendingDecisionStore pendingDecisionStore;
     private AuditEventLogger auditEventLogger;
     private ActivityResultLauncher<ScanOptions> barcodeLauncher;
-    private MaterialButton buttonLogExitFromScan;
-    private GuestPass passReadyForExit;
 
     @NonNull
     public static GuardQrScanFragment newInstance() {
@@ -77,7 +72,6 @@ public class GuardQrScanFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         guestPassRepository = RepositoryProvider.getGuestPassRepository();
-        entryRequestRepository = RepositoryProvider.getRepository();
         interventionRepository = RepositoryProvider.getInterventionRepository();
         alertRepository = RepositoryProvider.getAlertRepository();
         pendingDecisionStore = new GuardPendingDecisionStore(requireContext());
@@ -100,14 +94,12 @@ public class GuardQrScanFragment extends Fragment {
         // 2. Setup Manual Validation
         TextInputEditText inputPassCode = view.findViewById(R.id.input_pass_code);
         MaterialButton buttonValidate = view.findViewById(R.id.button_validate_pass);
-        buttonLogExitFromScan = view.findViewById(R.id.button_log_exit_from_scan);
-        buttonLogExitFromScan.setVisibility(View.GONE);
-        buttonLogExitFromScan.setOnClickListener(v -> logExitForScannedPass(textResult));
         inputPassCode.setFilters(new InputFilter[]{
                 new InputFilter.AllCaps(),
                 new InputFilter.LengthFilter(8)
         });
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.SCAN);
+        GuardLanguageUiBinder.bind(view, this);
 
         buttonValidate.setOnClickListener(v -> {
             String passCode = read(inputPassCode);
@@ -139,7 +131,7 @@ public class GuardQrScanFragment extends Fragment {
             ScanOptions options = new ScanOptions();
             options.setBeepEnabled(true);
             options.setOrientationLocked(false);
-            options.setPrompt("Point camera at QR code");
+            options.setPrompt(getString(R.string.guard_qr_prompt_camera));
             barcodeLauncher.launch(options);
         });
 
@@ -197,7 +189,6 @@ public class GuardQrScanFragment extends Fragment {
             @NonNull String verificationMethod,
             @NonNull TextView textResult
     ) {
-        clearExitAction();
         if (reopenPendingDecisionIfAny(textResult)) {
             return;
         }
@@ -247,15 +238,15 @@ public class GuardQrScanFragment extends Fragment {
 
         String status = pass.getStatus().trim().toLowerCase();
         if ("reported".equals(status)) {
-            textResult.setText("This pass has been reported. Contact the security office.");
+            textResult.setText(R.string.guard_pass_reported_contact_office);
             return;
         }
         if ("used".equals(status) || "overdue".equals(status)) {
-            showExitAction(pass, textResult);
+            openExitDecision(pass);
             return;
         }
         if ("exited".equals(status)) {
-            textResult.setText("This guest pass is already marked exited.");
+            textResult.setText(R.string.guard_pass_already_exited);
             return;
         }
         if (!"active".equals(status)) {
@@ -292,77 +283,21 @@ public class GuardQrScanFragment extends Fragment {
         });
     }
 
-    private void showExitAction(@NonNull GuestPass pass, @NonNull TextView textResult) {
-        passReadyForExit = pass;
-        if (buttonLogExitFromScan != null) {
-            buttonLogExitFromScan.setVisibility(View.VISIBLE);
-            buttonLogExitFromScan.setEnabled(true);
-            buttonLogExitFromScan.setAlpha(1.0f);
+    private void openExitDecision(@NonNull GuestPass pass) {
+        if (!isAdded() || !(requireActivity() instanceof NavigationHost)) {
+            return;
         }
-        String phoneText = pass.getGuestPhone().trim().isEmpty() ? "" : "\nPhone: " + pass.getGuestPhone();
-        textResult.setText(
-                "Ready to log exit for "
-                        + pass.getGuestName()
-                        + "\nCNIC: "
-                        + pass.getGuestIdNumber()
-                        + phoneText
-                        + "\nStatus: "
-                        + pass.getStatus().toUpperCase()
+        ((NavigationHost) requireActivity()).showFragment(
+                GuardExitDecisionFragment.newInstance(
+                        pass.getEntryRequestId(),
+                        pass.getGuestName(),
+                        pass.getGuestIdNumber(),
+                        pass.getGuestPhone(),
+                        pass.getStatus(),
+                        pass.getPassCode()
+                ),
+                true
         );
-    }
-
-    private void clearExitAction() {
-        passReadyForExit = null;
-        if (buttonLogExitFromScan != null) {
-            buttonLogExitFromScan.setVisibility(View.GONE);
-            buttonLogExitFromScan.setEnabled(true);
-            buttonLogExitFromScan.setAlpha(1.0f);
-        }
-    }
-
-    private void logExitForScannedPass(@NonNull TextView textResult) {
-        GuestPass pass = passReadyForExit;
-        if (pass == null) {
-            textResult.setText(R.string.error_verify_credential);
-            clearExitAction();
-            return;
-        }
-        String entryRequestId = pass.getEntryRequestId().trim();
-        if (entryRequestId.isEmpty()) {
-            textResult.setText(R.string.pass_orphan_invalid);
-            clearExitAction();
-            return;
-        }
-        buttonLogExitFromScan.setEnabled(false);
-        buttonLogExitFromScan.setAlpha(0.5f);
-        entryRequestRepository.logExit(entryRequestId, (entrySuccess, entryMessage, entryError) -> {
-            if (!isAdded()) {
-                return;
-            }
-            if (!entrySuccess) {
-                requireActivity().runOnUiThread(() -> {
-                    buttonLogExitFromScan.setEnabled(true);
-                    buttonLogExitFromScan.setAlpha(1.0f);
-                    textResult.setText(entryMessage);
-                });
-                return;
-            }
-            guestPassRepository.markPassExitedByEntryRequestId(entryRequestId, (passSuccess, passMessage, passError) -> {
-                if (!isAdded()) {
-                    return;
-                }
-                requireActivity().runOnUiThread(() -> {
-                    if (passSuccess) {
-                        textResult.setText("Guest exit logged for " + pass.getGuestName() + ".");
-                        clearExitAction();
-                    } else {
-                        buttonLogExitFromScan.setEnabled(true);
-                        buttonLogExitFromScan.setAlpha(1.0f);
-                        textResult.setText("Exit logged, but pass update had an issue: " + passMessage);
-                    }
-                });
-            });
-        });
     }
 
     private void persistPendingDecision(

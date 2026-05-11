@@ -73,7 +73,7 @@ public class GuardPendingDecisionFragment extends Fragment {
             @Override
             public void onScanStarted() {
                 if (isAdded()) {
-                    Snackbar.make(requireView(), "Scanning CNIC…", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(requireView(), R.string.guard_scanning_cnic, Snackbar.LENGTH_SHORT).show();
                 }
             }
 
@@ -133,6 +133,7 @@ public class GuardPendingDecisionFragment extends Fragment {
         view.findViewById(R.id.button_cnic_manual_verify).setOnClickListener(v -> verifyManualCnic());
 
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.SCAN);
+        GuardLanguageUiBinder.bind(view, this);
 
         String guardUid = currentGuardUid();
         pendingDecision = pendingDecisionStore.getForGuard(guardUid);
@@ -171,7 +172,7 @@ public class GuardPendingDecisionFragment extends Fragment {
         ));
         textVehiclePlate.setText(getString(
                 R.string.guard_pending_vehicle_plate_label,
-                decision.hasVehicle() ? valueOrUnavailable(decision.getVehiclePlate()) : "N/A"
+                decision.hasVehicle() ? valueOrUnavailable(decision.getVehiclePlate()) : getString(R.string.not_available)
         ));
         textGate.setText(getString(R.string.gate_label) + ": " + GatePolicy.toDisplayLabel(decision.getGateLabel()));
         textSponsor.setText(getString(
@@ -398,7 +399,7 @@ public class GuardPendingDecisionFragment extends Fragment {
 
         if (!result.isSuccess()) {
             setCnicVerified(false);
-            textCnicResult.setText("⚠ " + result.getFailureReason());
+            textCnicResult.setText(getString(R.string.guard_cnic_scan_warning, result.getFailureReason()));
             textCnicResult.setBackgroundColor(0xFFFFF3CD);
             textCnicResult.setTextColor(Color.parseColor("#856404"));
             layoutManualOverride.setVisibility(View.VISIBLE);
@@ -411,12 +412,12 @@ public class GuardPendingDecisionFragment extends Fragment {
 
         if (matches) {
             setCnicVerified(true);
-            textCnicResult.setText("✓ CNIC MATCH — " + scanned);
+            textCnicResult.setText(getString(R.string.guard_cnic_match, scanned));
             textCnicResult.setBackgroundColor(0xFFD1FAE5);
             textCnicResult.setTextColor(Color.parseColor("#065F46"));
         } else {
             setCnicVerified(false);
-            textCnicResult.setText("✗ CNIC MISMATCH\nScanned: " + scanned + "\nExpected: " + expected);
+            textCnicResult.setText(getString(R.string.guard_cnic_mismatch, scanned, expected));
             textCnicResult.setBackgroundColor(0xFFFFE4E6);
             textCnicResult.setTextColor(Color.parseColor("#991B1B"));
             layoutManualOverride.setVisibility(View.VISIBLE);
@@ -438,17 +439,17 @@ public class GuardPendingDecisionFragment extends Fragment {
         if (normalized.equalsIgnoreCase(expected.trim())) {
             setCnicVerified(true);
             textCnicResult.setVisibility(View.VISIBLE);
-            textCnicResult.setText("✓ CNIC MATCH (manual) — " + normalized);
+            textCnicResult.setText(getString(R.string.guard_cnic_match_manual, normalized));
             textCnicResult.setBackgroundColor(0xFFD1FAE5);
             textCnicResult.setTextColor(Color.parseColor("#065F46"));
             layoutManualOverride.setVisibility(View.GONE);
         } else {
             setCnicVerified(false);
             textCnicResult.setVisibility(View.VISIBLE);
-            textCnicResult.setText("✗ CNIC MISMATCH\nEntered: " + normalized + "\nExpected: " + expected);
+            textCnicResult.setText(getString(R.string.guard_cnic_mismatch_entered, normalized, expected));
             textCnicResult.setBackgroundColor(0xFFFFE4E6);
             textCnicResult.setTextColor(Color.parseColor("#991B1B"));
-            layoutCnicManualInput.setError("CNIC does not match records.");
+            layoutCnicManualInput.setError(getString(R.string.guard_cnic_not_match_records));
         }
     }
 
@@ -482,7 +483,7 @@ public class GuardPendingDecisionFragment extends Fragment {
     @NonNull
     private String formatMillis(long millis) {
         if (millis <= 0L) {
-            return "Not available";
+            return getString(R.string.not_available);
         }
         return timeFormat.format(new Date(millis));
     }
@@ -490,20 +491,20 @@ public class GuardPendingDecisionFragment extends Fragment {
     @NonNull
     private String valueOrUnavailable(@NonNull String value) {
         String trimmed = value.trim();
-        return trimmed.isEmpty() ? "Not available" : trimmed;
+        return trimmed.isEmpty() ? getString(R.string.not_available) : trimmed;
     }
 
     @NonNull
     private String formatGuestType(@NonNull String value) {
         String normalized = value.trim().toLowerCase(Locale.getDefault());
         if (normalized.isEmpty()) {
-            return "Not available";
+            return getString(R.string.not_available);
         }
         if ("vehicle".equals(normalized)) {
-            return "Vehicle";
+            return getString(R.string.guest_type_vehicle);
         }
         if ("non_vehicle".equals(normalized)) {
-            return "Non Vehicle";
+            return getString(R.string.guest_type_non_vehicle);
         }
         return value;
     }

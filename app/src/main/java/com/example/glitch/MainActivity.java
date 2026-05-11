@@ -29,6 +29,7 @@ import com.example.glitch.model.UserProfile;
 import com.example.glitch.notification.NotificationLocalAlertCoordinator;
 import com.example.glitch.ui.LoginFragment;
 import com.example.glitch.ui.NavigationHost;
+import com.example.glitch.ui.GuardLanguageHelper;
 import com.example.glitch.ui.RoleDestination;
 import com.example.glitch.ui.RoleHomeFragment;
 import com.example.glitch.ui.RoleNavRouter;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        GuardLanguageHelper.syncApplicationLocalesForCurrentGuard(this);
         super.onCreate(savedInstanceState);
         boolean debugBuild = (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
         GuestPassTimePolicy.setTestingBypassEnabled(
@@ -141,13 +143,11 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
         if (notificationLocalAlertCoordinator != null) {
             notificationLocalAlertCoordinator.stop();
         }
+        GuardLanguageHelper.resetApplicationLocaleToDefault();
         if (clearBackStack) {
             clearBackStack();
         }
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, LoginFragment.newInstance())
-                .commit();
+        replaceRootFragment(LoginFragment.newInstance(), false);
     }
 
     @Override
@@ -161,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
             @Nullable RoleDestination preferredDestination
     ) {
         SessionManager.setCurrentProfile(profile);
+        GuardLanguageHelper.syncApplicationLocalesForCurrentGuard(this);
         ensurePostNotificationPermission(profile);
         if (notificationLocalAlertCoordinator != null) {
             notificationLocalAlertCoordinator.start(profile);
@@ -183,24 +184,34 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
                     profile.getRole()
             );
         }
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, landingFragment)
-                .commit();
+        replaceRootFragment(landingFragment, false);
     }
 
     @Override
     public void showFragment(@NonNull Fragment fragment, boolean addToBackStack) {
+        FragmentManager manager = getSupportFragmentManager();
+        boolean stateSaved = manager.isStateSaved();
         if (addToBackStack) {
-            getSupportFragmentManager()
+            manager
                     .beginTransaction()
                     .replace(R.id.fragment_container, fragment)
                     .addToBackStack(fragment.getClass().getSimpleName())
-                    .commit();
+                    .commitAllowingStateLoss();
             return;
         }
-        getSupportFragmentManager()
-                .beginTransaction()
+        replaceRootFragment(fragment, stateSaved);
+    }
+
+    private void replaceRootFragment(@NonNull Fragment fragment, boolean alreadyStateSaved) {
+        FragmentManager manager = getSupportFragmentManager();
+        boolean stateSaved = alreadyStateSaved || manager.isStateSaved();
+        if (stateSaved) {
+            manager.beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .commitAllowingStateLoss();
+            return;
+        }
+        manager.beginTransaction()
                 .replace(R.id.fragment_container, fragment)
                 .commit();
     }
