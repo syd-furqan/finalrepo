@@ -1,165 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="8dp"
-    android:background="@drawable/bg_card_white"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_marginTop="@dimen/gf_space_sm"
+    app:cardBackgroundColor="@color/gf_bg_surface"
+    app:cardCornerRadius="@dimen/gf_card_radius"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/gf_border"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:padding="@dimen/gf_space_md">
 
-        <FrameLayout
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_avatar_box"
-            android:padding="12dp">
-
-            <ImageView
-                android:id="@+id/image_request_icon"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:tint="@color/primary_navy" />
-        </FrameLayout>
-
+        <!-- Header row: avatar + name + overflow -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/text_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/text_dark"
-                android:textSize="20sp" />
-
+            <!-- Avatar box with initial letter icon -->
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/text_role_chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_chip_role"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    android:textAllCaps="true"
-                    android:textColor="@color/primary_navy"
-                    android:textSize="10sp" />
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="@drawable/bg_icon_container"
+                android:gravity="center">
 
                 <ImageView
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
-                    android:layout_marginStart="8dp"
-                    android:src="@android:drawable/ic_menu_myplaces"
-                    app:tint="@color/text_muted" />
+                    android:id="@+id/image_request_icon"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@android:drawable/ic_menu_agenda"
+                    android:tint="@color/gf_accent"
+                    android:contentDescription="@null" />
+            </LinearLayout>
+
+            <!-- Name + role chip row -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/gf_space_md"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/text_host"
+                    android:id="@+id/text_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:textColor="@color/text_muted"
-                    android:textSize="14sp" />
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/gf_text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/text_role_chip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_chip_role"
+                        android:fontFamily="sans-serif"
+                        android:paddingHorizontal="@dimen/gf_space_sm"
+                        android:paddingVertical="2dp"
+                        android:textAllCaps="true"
+                        android:textColor="@color/brand_blue_900"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_host"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/gf_space_sm"
+                        android:fontFamily="sans-serif"
+                        android:textColor="@color/gf_text_hint"
+                        android:textSize="12sp" />
                 </LinearLayout>
+            </LinearLayout>
+
+            <!-- Overflow menu -->
+            <ImageButton
+                android:id="@+id/button_overflow"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/entry_actions"
+                android:padding="6dp"
+                android:src="@android:drawable/ic_menu_more"
+                android:tint="@color/gf_text_hint" />
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/button_overflow"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/entry_actions"
-            android:padding="8dp"
-            android:src="@android:drawable/ic_menu_more"
-            android:tint="@color/text_muted" />
-    </LinearLayout>
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/gf_space_md"
+            android:background="@color/gf_border" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal">
-
+        <!-- Meta row: gate + entered -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:layout_marginTop="@dimen/gf_space_md"
+            android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/gate_label"
-                android:textAllCaps="true"
-                android:textColor="@color/text_muted"
-                android:textSize="10sp" />
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/text_gate"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/gate_label"
+                    android:textAllCaps="true"
+                    android:textColor="@color/gf_text_hint"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.06" />
+
+                <TextView
+                    android:id="@+id/text_gate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/gf_text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/text_dark"
-                android:textSize="18sp" />
+                android:layout_weight="1"
+                android:gravity="end"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/entered_label"
+                    android:textAllCaps="true"
+                    android:textColor="@color/gf_text_hint"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.06" />
+
+                <TextView
+                    android:id="@+id/text_entered"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/gf_text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="end"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/entered_label"
-                android:textAllCaps="true"
-                android:textColor="@color/text_muted"
-                android:textSize="10sp" />
-
-            <TextView
-                android:id="@+id/text_entered"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/text_dark"
-                android:textSize="18sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal">
-
+        <!-- Details button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_details"
-            style="@style/Widget.Glitch.Button.Outlined"
+            style="@style/Widget.GateFlow.Button.Outlined"
             android:layout_width="match_parent"
             android:layout_height="40dp"
+            android:layout_marginTop="@dimen/gf_space_md"
+            android:fontFamily="sans-serif"
             android:text="@string/details_action"
             android:textAllCaps="false"
-            android:textColor="@color/text_dark"
-            app:strokeColor="@color/md_outline"
-            app:strokeWidth="1dp" />
+            android:textSize="14sp" />
+
     </LinearLayout>
 
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

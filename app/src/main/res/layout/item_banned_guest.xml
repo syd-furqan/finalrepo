@@ -1,61 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="8dp"
-    android:background="@drawable/bg_card_white"
-    android:orientation="vertical"
-    android:padding="14dp">
+    android:layout_marginTop="@dimen/gf_grid_gap"
+    app:cardBackgroundColor="@color/gf_bg_surface"
+    app:cardCornerRadius="@dimen/gf_card_radius"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/gf_danger"
+    app:strokeWidth="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="@dimen/gf_card_padding">
 
-        <TextView
-            android:id="@+id/text_ban_cnic"
+        <!-- Block icon — red bg circle -->
+        <LinearLayout
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="@dimen/gf_space_md"
+            android:background="@drawable/bg_icon_container_red"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@android:drawable/ic_delete"
+                android:tint="@color/gf_danger" />
+        </LinearLayout>
+
+        <!-- Content -->
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@color/text_dark"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/text_ban_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_chip_role"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="3dp"
-            android:textColor="@color/primary_navy"
-            android:textSize="11sp" />
+            <!-- CNIC + BANNED chip row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/text_ban_cnic"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="monospace"
+                    android:textColor="@color/gf_text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_ban_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/gf_space_sm"
+                    android:background="@drawable/bg_chip_role"
+                    android:paddingHorizontal="@dimen/gf_space_sm"
+                    android:paddingVertical="3dp"
+                    android:textColor="@color/gf_danger"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Reason -->
+            <TextView
+                android:id="@+id/text_ban_reason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gf_space_xs"
+                android:textColor="@color/gf_text_secondary"
+                android:textSize="13sp" />
+
+            <!-- Date -->
+            <TextView
+                android:id="@+id/text_ban_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gf_space_xs"
+                android:textColor="@color/gf_text_hint"
+                android:textSize="12sp" />
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="@dimen/gf_space_sm"
+                android:background="@color/gf_border" />
+
+            <!-- Unban button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_unban"
+                style="@style/Widget.GateFlow.Button.Outlined"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="@dimen/gf_space_sm"
+                android:text="Remove Ban"
+                android:textAllCaps="false"
+                android:textColor="@color/gf_danger"
+                android:textSize="12sp"
+                app:strokeColor="@color/gf_danger" />
+        </LinearLayout>
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/text_ban_reason"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:textColor="@color/text_dark"
-        android:textSize="13sp" />
-
-    <TextView
-        android:id="@+id/text_ban_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:textColor="@color/text_muted"
-        android:textSize="12sp" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_unban"
-        style="@style/Widget.Glitch.Button.Outlined"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Remove Ban"
-        android:textAllCaps="false" />
-
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

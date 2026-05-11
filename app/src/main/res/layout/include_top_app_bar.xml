@@ -1,49 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/top_app_bar"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/md_surface"
+    android:layout_height="72dp"
+    android:background="@color/gf_bg_surface"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingStart="@dimen/space_24"
-    android:paddingTop="@dimen/space_20"
-    android:paddingEnd="@dimen/space_24"
-    android:paddingBottom="@dimen/space_16">
+    android:paddingStart="@dimen/gf_screen_margin"
+    android:paddingEnd="@dimen/gf_space_sm">
 
+    <!-- Logo mark -->
+    <LinearLayout
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:background="@drawable/bg_avatar_box"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@android:drawable/ic_lock_lock"
+            android:tint="@color/gf_text_on_dark"
+            android:contentDescription="@null" />
+    </LinearLayout>
+
+    <!-- Wordmark -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/gf_space_sm"
         android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/image_top_logo"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/bg_avatar_box"
-            android:padding="@dimen/space_8"
-            android:src="@mipmap/ic_launcher_round" />
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/text_top_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/space_12"
-            android:fontFamily="sans-serif-black"
             android:text="@string/top_title_lums_security"
-            android:textColor="@color/md_primary"
-            android:textSize="22sp" />
+            android:textColor="@color/gf_text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.01" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GateFlow"
+            android:textColor="@color/gf_text_hint"
+            android:textSize="10sp"
+            android:letterSpacing="0.04" />
     </LinearLayout>
 
-    <ImageButton
+    <!-- Notification bell -->
+    <LinearLayout
         android:id="@+id/button_notifications"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/app_name"
-        android:padding="@dimen/space_8"
-        android:src="@android:drawable/ic_dialog_info"
-        android:tint="@color/md_primary" />
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@android:drawable/ic_popup_reminder"
+            android:tint="@color/gf_text_primary"
+            android:contentDescription="@null" />
+    </LinearLayout>
+
 </LinearLayout>

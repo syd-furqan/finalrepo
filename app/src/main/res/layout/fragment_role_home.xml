@@ -3,82 +3,106 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dashboard_bg">
+    android:background="@drawable/bg_screen_base">
 
     <androidx.core.widget.NestedScrollView
+        android:background="@android:color/transparent"
         android:id="@+id/role_home_scroll"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
+        android:paddingBottom="@dimen/gf_space_md"
         app:layout_constraintBottom_toTopOf="@id/bottom_nav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
+            android:id="@+id/anim_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="@dimen/space_24"
-            android:paddingTop="@dimen/space_12"
-            android:paddingEnd="@dimen/space_24"
-            android:paddingBottom="@dimen/space_24">
+            android:paddingStart="@dimen/gf_screen_margin"
+            android:paddingTop="@dimen/gf_space_sm"
+            android:paddingEnd="@dimen/gf_screen_margin"
+            android:paddingBottom="@dimen/gf_space_2xl">
 
-            <include layout="@layout/include_status_ribbon" />
-
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_24"
-                android:background="@drawable/bg_card_white"
-                android:orientation="vertical"
-                android:padding="@dimen/space_24">
+                android:layout_marginTop="@dimen/gf_space_lg"
+                app:cardBackgroundColor="@color/md_primary_container"
+                app:cardCornerRadius="@dimen/gf_card_radius"
+                app:cardElevation="6dp"
+                app:strokeColor="@color/md_outline_variant"
+                app:strokeWidth="1dp">
 
-                <TextView
-                    android:id="@+id/text_role_badge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_chip_role"
-                    android:paddingHorizontal="@dimen/space_12"
-                    android:paddingVertical="@dimen/space_4"
-                    android:textColor="@color/md_primary"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/text_greeting"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
-                    android:fontFamily="sans-serif-black"
-                    android:textColor="@color/text_dark"
-                    android:textSize="32sp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/gf_space_xl">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
-                    android:text="@string/role_home_description"
-                    android:textColor="@color/text_muted"
-                    android:textSize="14sp" />
-            </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
 
+                        <TextView
+                            android:id="@+id/text_greeting"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="-0.02"
+                            android:textColor="@color/gf_text_primary"
+                            android:textSize="30sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/text_role_badge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:textColor="@color/gf_text_secondary"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Choose a workflow to continue."
+                            android:textColor="@color/gf_text_hint"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <!-- Avatar circle -->
+                    <LinearLayout
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:background="@drawable/bg_avatar_box"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/text_avatar_initials"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/gf_text_on_dark"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- 2-column feature card grid -->
             <LinearLayout
                 android:id="@+id/feature_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
-                android:background="@drawable/bg_card_white"
-                android:orientation="vertical"
-                android:padding="@dimen/space_16" />
+                android:layout_marginTop="@dimen/gf_space_lg"
+                android:orientation="vertical" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_logout"
-                style="@style/Widget.Glitch.Button.Outlined"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/min_touch_target"
-                android:layout_marginTop="@dimen/space_16"
-                android:text="@string/logout_action"
-                android:textAllCaps="false" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

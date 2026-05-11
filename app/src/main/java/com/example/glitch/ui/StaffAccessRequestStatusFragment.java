@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import com.example.glitch.ui.UiAnimations;
 
 /**
  * Staff screen for viewing their own access request submissions and statuses (US-09).
@@ -34,6 +35,7 @@ import java.util.Locale;
  * Known issue: staff cannot edit or cancel requests in this v1 view.
  */
 public class StaffAccessRequestStatusFragment extends Fragment {
+    private android.view.ViewGroup animContent;
 
     private EntryRequestRepository repository;
     private AccessRequestStatusAdapter adapter;
@@ -58,6 +60,7 @@ public class StaffAccessRequestStatusFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         repository = RepositoryProvider.getRepository();
 
         RecyclerView recyclerView = view.findViewById(R.id.recycler_access_requests);
@@ -221,5 +224,10 @@ public class StaffAccessRequestStatusFragment extends Fragment {
                 textSubmittedAt = itemView.findViewById(R.id.text_access_submitted_at);
             }
         }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

@@ -289,7 +289,7 @@ public final class RoleNavRouter {
             case ADMIN_ACCESS:
                 return "Access";
             case ADMIN_TAKE_ACTION:
-                return "Take Action";
+                return "Announcements";
             case ANNOUNCEMENTS:
                 return "Announcements";
             case DIRECTORY:
@@ -461,10 +461,22 @@ public final class RoleNavRouter {
     ) {
         ImageView icon = container.findViewById(iconId);
         TextView label = container.findViewById(labelId);
-        container.setBackgroundResource(selected ? R.drawable.bg_bottom_nav_selected : android.R.color.transparent);
+
+        // Apply the MD3 active-indicator pill to the inner indicator container,
+        // not the full-width slot — keeps the pill narrow and centered.
+        android.view.View indicator = findIndicatorForIcon(container, iconId);
+        if (indicator != null) {
+            indicator.setBackgroundResource(
+                    selected ? R.drawable.bg_bottom_nav_selected : android.R.color.transparent);
+        } else {
+            // fallback: old behaviour
+            container.setBackgroundResource(
+                    selected ? R.drawable.bg_bottom_nav_selected : android.R.color.transparent);
+        }
+
         int tint = ContextCompat.getColor(
                 owner.requireContext(),
-                selected ? R.color.md_primary : R.color.nav_unselected
+                selected ? R.color.brand_blue_900 : R.color.nav_unselected
         );
         if (icon != null) {
             icon.setColorFilter(tint);
@@ -472,5 +484,16 @@ public final class RoleNavRouter {
         if (label != null) {
             label.setTextColor(tint);
         }
+    }
+
+    private static android.view.View findIndicatorForIcon(@NonNull LinearLayout container, int iconId) {
+        int indicatorId = android.R.id.background; // safe fallback default
+        if (iconId == R.id.nav_icon_dashboard)  indicatorId = R.id.nav_indicator_dashboard;
+        else if (iconId == R.id.nav_icon_passes)    indicatorId = R.id.nav_indicator_passes;
+        else if (iconId == R.id.nav_icon_vehicles)  indicatorId = R.id.nav_indicator_vehicles;
+        else if (iconId == R.id.nav_icon_directory) indicatorId = R.id.nav_indicator_directory;
+        else if (iconId == R.id.nav_icon_logout)    indicatorId = R.id.nav_indicator_logout;
+        else return null;
+        return container.findViewById(indicatorId);
     }
 }

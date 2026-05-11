@@ -21,8 +21,10 @@ import com.example.glitch.model.UserProfile;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
+import com.example.glitch.ui.UiAnimations;
 
 public class AdminBannedListFragment extends Fragment {
+    private android.view.ViewGroup animContent;
     private static final String ARG_TARGET_CNIC = "target_cnic";
 
     private InterventionRepository interventionRepository;
@@ -54,6 +56,7 @@ public class AdminBannedListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         interventionRepository = RepositoryProvider.getInterventionRepository();
         textEmpty = view.findViewById(R.id.text_banned_empty);
         Bundle args = getArguments();
@@ -120,5 +123,10 @@ public class AdminBannedListFragment extends Fragment {
     @NonNull
     private String safe(@Nullable String value) {
         return value == null ? "" : value.trim();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

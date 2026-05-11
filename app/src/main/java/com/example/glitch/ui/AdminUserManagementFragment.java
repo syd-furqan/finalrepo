@@ -22,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Locale;
+import com.example.glitch.ui.UiAnimations;
 
 /**
  * Admin user management screen for add/edit/deactivate flows (US-14).
@@ -29,6 +30,7 @@ import java.util.Locale;
  * Known issue: creating a profile here does not create FirebaseAuth credentials automatically.
  */
 public class AdminUserManagementFragment extends Fragment implements UserManagementAdapter.UserActionListener {
+    private android.view.ViewGroup animContent;
     private UserManagementRepository repository;
     private UserManagementAdapter adapter;
     private TextView textEmpty;
@@ -57,6 +59,7 @@ public class AdminUserManagementFragment extends Fragment implements UserManagem
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         repository = RepositoryProvider.getUserManagementRepository();
         inputUid = view.findViewById(R.id.input_user_uid);
         inputEmail = view.findViewById(R.id.input_user_email);
@@ -156,5 +159,10 @@ public class AdminUserManagementFragment extends Fragment implements UserManagem
     private String read(@NonNull TextInputEditText input) {
         CharSequence value = input.getText();
         return value == null ? "" : value.toString().trim();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

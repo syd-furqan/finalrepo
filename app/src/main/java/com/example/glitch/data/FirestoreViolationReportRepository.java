@@ -3,7 +3,9 @@ package com.example.glitch.data;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.glitch.model.AuditEventType;
 import com.example.glitch.model.GuestIdentityPolicy;
+import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.ViolationReport;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -28,6 +30,7 @@ public class FirestoreViolationReportRepository implements ViolationReportReposi
     private static final String STATUS_REPORTED = "reported";
 
     private final FirebaseFirestore firestore;
+    private final AuditEventLogger auditEventLogger;
     private final UserNotificationWriter notificationWriter;
     private ListenerRegistration allReportsRegistration;
     private ListenerRegistration reporterRegistration;
@@ -38,6 +41,7 @@ public class FirestoreViolationReportRepository implements ViolationReportReposi
 
     FirestoreViolationReportRepository(@NonNull FirebaseFirestore firestore) {
         this.firestore = firestore;
+        this.auditEventLogger = new AuditEventLogger(firestore);
         this.notificationWriter = new UserNotificationWriter(firestore);
     }
 
@@ -404,7 +408,28 @@ public class FirestoreViolationReportRepository implements ViolationReportReposi
                 subjectStudentId
         ));
         batch.commit()
-                .addOnSuccessListener(unused -> callback.onComplete(true, "Violation report submitted.", null))
+                .addOnSuccessListener(unused -> {
+                    Map<String, Object> auditMeta = new HashMap<>();
+                    auditMeta.put("violationLevel", violationLevel.trim());
+                    auditMeta.put("subjectType", subjectType.trim());
+                    auditMeta.put("guestPassId", guestPassId.trim());
+                    auditMeta.put("entryRequestId", entryRequestId.trim());
+                    auditEventLogger.log(
+                            AuditEventType.VIOLATION_REPORT_SUBMITTED,
+                            "violation_report",
+                            reportRef.getId(),
+                            entryRequestId.trim().isEmpty() ? reportRef.getId() : entryRequestId.trim(),
+                            reporterUid.trim(),
+                            reporterRole.trim(),
+                            "Violation report submitted: " + violationLevel.trim(),
+                            "monitor_report",
+                            "success",
+                            violationLevel.trim().isEmpty() ? "manual_violation" : violationLevel.trim(),
+                            GatePolicy.STORED_VALUE,
+                            auditMeta
+                    );
+                    callback.onComplete(true, "Violation report submitted.", null);
+                })
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to submit report.", error));
     }
 

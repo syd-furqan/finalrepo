@@ -42,11 +42,13 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import com.example.glitch.ui.UiAnimations;
 
 /**
  * Admin data-driven analytics dashboard for traffic and security signals.
  */
 public class AdminTrafficAnalyticsFragment extends Fragment {
+    private android.view.ViewGroup animContent;
     private AuditAnalyticsRepository analyticsRepository;
 
     private TextView textIncoming;
@@ -88,6 +90,7 @@ public class AdminTrafficAnalyticsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         if (AuthUiGuard.requireProfile(this) == null) {
             return;
         }
@@ -365,5 +368,10 @@ public class AdminTrafficAnalyticsFragment extends Fragment {
 
     private int dp(int value) {
         return (int) (value * requireContext().getResources().getDisplayMetrics().density);
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

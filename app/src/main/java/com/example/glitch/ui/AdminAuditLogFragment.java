@@ -55,11 +55,13 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import com.example.glitch.ui.UiAnimations;
 
 /**
  * Admin audit log screen with server-side filtering, infinite scroll and export.
  */
 public class AdminAuditLogFragment extends Fragment {
+    private android.view.ViewGroup animContent;
     private static final int PAGE_SIZE = 50;
 
     private static final List<String> EVENT_TYPE_OPTIONS = Arrays.asList(
@@ -86,9 +88,8 @@ public class AdminAuditLogFragment extends Fragment {
     private AccessEventAdapter adapter;
     private TextView textEmpty;
     private TextView textFilterSummary;
-    private AutoCompleteTextView inputActorRole;
-    private TextInputEditText inputSearch;
-    private MaterialButton buttonFilterEventTypes;
+    private String filterActorRole = "";
+    private String filterSearchText = "";
     private MaterialButton buttonExportCsv;
     private MaterialButton buttonExportPdf;
     private MaterialButton buttonOpenTrafficAnalytics;
@@ -98,9 +99,6 @@ public class AdminAuditLogFragment extends Fragment {
     private TextView textInsightAlerts;
     private TextView textInsightTopGuard;
     private TextView textInsightTopReason;
-
-    private final Handler handler = new Handler(Looper.getMainLooper());
-    private Runnable searchRunnable;
 
     private final List<String> selectedEventTypes = new ArrayList<>();
     private long rangeFromMillis;
@@ -130,13 +128,11 @@ public class AdminAuditLogFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         repository = RepositoryProvider.getAuditLogRepository();
         analyticsRepository = RepositoryProvider.getAuditAnalyticsRepository();
         textEmpty = view.findViewById(R.id.text_audit_empty);
         textFilterSummary = view.findViewById(R.id.text_filter_summary);
-        inputActorRole = view.findViewById(R.id.input_actor_role);
-        inputSearch = view.findViewById(R.id.input_audit_search);
-        buttonFilterEventTypes = view.findViewById(R.id.button_filter_event_types);
         buttonExportCsv = view.findViewById(R.id.button_export_csv);
         buttonExportPdf = view.findViewById(R.id.button_export_pdf);
         buttonOpenTrafficAnalytics = view.findViewById(R.id.button_open_traffic_analytics);
@@ -146,14 +142,9 @@ public class AdminAuditLogFragment extends Fragment {
         textInsightAlerts = view.findViewById(R.id.text_insight_alerts);
         textInsightTopGuard = view.findViewById(R.id.text_insight_top_guard);
         textInsightTopReason = view.findViewById(R.id.text_insight_top_reason);
-        Chip chip24h = view.findViewById(R.id.chip_range_24h);
-        Chip chip7d = view.findViewById(R.id.chip_range_7d);
-        Chip chip30d = view.findViewById(R.id.chip_range_30d);
-        Chip chipCustom = view.findViewById(R.id.chip_range_custom);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_audit_logs);
 
         setupDefaultRange();
-        setupRoleDropdown();
 
         adapter = new AccessEventAdapter();
         adapter.setActionListener(event ->
@@ -165,7 +156,6 @@ public class AdminAuditLogFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
-        // NestedScrollView drives all scrolling; trigger load-more when near the bottom
         NestedScrollView scrollView = view.findViewById(R.id.scroll_audit_logs);
         scrollView.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener)
                 (sv, scrollX, scrollY, oldScrollX, oldScrollY) -> {
@@ -176,34 +166,6 @@ public class AdminAuditLogFragment extends Fragment {
                         loadMore();
                     }
                 });
-
-        chip24h.setOnClickListener(v -> applyPeriod(AnalyticsPeriod.DAILY));
-        chip7d.setOnClickListener(v -> applyPeriod(AnalyticsPeriod.WEEKLY));
-        chip30d.setOnClickListener(v -> applyPeriod(AnalyticsPeriod.MONTHLY));
-        chipCustom.setVisibility(View.GONE);
-
-        buttonFilterEventTypes.setOnClickListener(v -> openEventTypeSelector());
-
-        inputSearch.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (searchRunnable != null) {
-                    handler.removeCallbacks(searchRunnable);
-                }
-                searchRunnable = AdminAuditLogFragment.this::refreshFirstPage;
-                handler.postDelayed(searchRunnable, 350);
-            }
-        });
-
-        inputActorRole.setOnItemClickListener((parent, itemView, position, id) -> refreshFirstPage());
 
         buttonOpenFilters.setOnClickListener(v -> openFilterSheet());
         buttonExportCsv.setOnClickListener(v -> exportCsv());
@@ -232,17 +194,6 @@ public class AdminAuditLogFragment extends Fragment {
         long now = System.currentTimeMillis();
         rangeToMillis = now;
         rangeFromMillis = period.getFromMillis(now);
-    }
-
-    private void setupRoleDropdown() {
-        List<String> roles = Arrays.asList("", "guard", "student", "faculty", "admin", "system");
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_dropdown_item_1line,
-                roles
-        );
-        inputActorRole.setAdapter(adapter);
-        inputActorRole.setText("", false);
     }
 
     private void openEventTypeSelector() {
@@ -277,13 +228,13 @@ public class AdminAuditLogFragment extends Fragment {
         TextInputEditText search = addTextInput(
                 content,
                 "Search actor/request/pass/description",
-                read(inputSearch)
+                filterSearchText
         );
         AutoCompleteTextView role = addDropdown(
                 content,
                 "Actor Role",
                 Arrays.asList("", "guard", "student", "faculty", "admin", "system"),
-                read(inputActorRole)
+                filterActorRole
         );
 
         LinearLayout rangeRow = new LinearLayout(requireContext());
@@ -323,15 +274,15 @@ public class AdminAuditLogFragment extends Fragment {
         addSheetActions(
                 content,
                 () -> {
-                    inputSearch.setText(read(search));
-                    inputActorRole.setText(read(role), false);
+                    filterSearchText = search.getText() == null ? "" : search.getText().toString().trim();
+                    filterActorRole = role.getText() == null ? "" : role.getText().toString().trim();
                     refreshFirstPage();
                     dialog.dismiss();
                 },
                 () -> {
                     setupDefaultRange();
-                    inputSearch.setText("");
-                    inputActorRole.setText("", false);
+                    filterSearchText = "";
+                    filterActorRole = "";
                     refreshFirstPage();
                     dialog.dismiss();
                 }
@@ -635,18 +586,16 @@ public class AdminAuditLogFragment extends Fragment {
 
     @NonNull
     private AuditLogFilter buildCurrentFilter() {
-        String role = read(inputActorRole);
-        String search = read(inputSearch);
         List<String> roles = new ArrayList<>();
-        if (!role.isEmpty()) {
-            roles.add(role.toLowerCase(Locale.getDefault()));
+        if (!filterActorRole.isEmpty()) {
+            roles.add(filterActorRole.toLowerCase(Locale.getDefault()));
         }
         return new AuditLogFilter(
                 rangeFromMillis,
                 rangeToMillis,
                 new ArrayList<>(selectedEventTypes),
                 roles,
-                search
+                filterSearchText
         );
     }
 
@@ -711,21 +660,14 @@ public class AdminAuditLogFragment extends Fragment {
         return String.format(Locale.getDefault(), "%.1f%%", value);
     }
 
-    @NonNull
-    private String read(@Nullable TextView view) {
-        if (view == null || view.getText() == null) {
-            return "";
-        }
-        return view.getText().toString().trim();
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         repository.removeListeners();
-        if (searchRunnable != null) {
-            handler.removeCallbacks(searchRunnable);
-            searchRunnable = null;
-        }
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

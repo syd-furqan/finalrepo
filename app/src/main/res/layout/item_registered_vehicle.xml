@@ -1,56 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="8dp"
-    android:background="@drawable/bg_card_white"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_marginTop="@dimen/gf_space_sm"
+    app:cardBackgroundColor="@color/gf_bg_surface"
+    app:cardCornerRadius="@dimen/gf_card_radius"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/gf_border"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:orientation="vertical"
+        android:padding="@dimen/gf_space_md">
 
-        <TextView
-            android:id="@+id/text_registered_vehicle_plate"
-            android:layout_width="0dp"
+        <!-- Plate + sticker badge -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@color/text_dark"
-            android:textStyle="bold"
-            android:textSize="18sp" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/text_registered_vehicle_plate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="monospace"
+                android:textColor="@color/gf_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_registered_vehicle_sticker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_chip_success"
+                android:paddingHorizontal="@dimen/gf_space_sm"
+                android:paddingVertical="3dp"
+                android:textColor="@color/gf_success"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textAllCaps="true" />
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/text_registered_vehicle_sticker"
+            android:id="@+id/text_registered_vehicle_model"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/gf_text_hint"
+            android:textSize="13sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_request_vehicle_removal"
+            style="@style/Widget.GateFlow.Button.Outlined"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_chip_success"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="4dp"
-            android:textColor="@color/success_green"
-            android:textStyle="bold"
-            android:textSize="10sp" />
+            android:layout_height="36dp"
+            android:layout_marginTop="@dimen/gf_space_md"
+            android:text="Request Removal"
+            android:textAllCaps="false"
+            android:textColor="@color/gf_danger"
+            android:textSize="12sp"
+            app:strokeColor="@color/gf_danger" />
+
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/text_registered_vehicle_model"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:textColor="@color/text_muted"
-        android:textSize="13sp" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_request_vehicle_removal"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/bg_chip_alert_critical"
-        android:text="Request Removal"
-        android:textAllCaps="false"
-        android:textColor="@color/danger_red"
-        android:textStyle="bold"
-        android:textSize="12sp" />
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

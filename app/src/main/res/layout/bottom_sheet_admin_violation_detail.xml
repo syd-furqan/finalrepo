@@ -13,7 +13,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Violation Report"
-            android:textColor="@color/text_dark"
+            android:textColor="@color/gf_text_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -25,7 +25,7 @@
             android:background="@drawable/bg_chip_role"
             android:paddingHorizontal="10dp"
             android:paddingVertical="3dp"
-            android:textColor="@color/primary_navy"
+            android:textColor="@color/gf_text_primary"
             android:textSize="12sp"
             android:textStyle="bold" />
 
@@ -34,7 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:textColor="@color/text_dark"
+            android:textColor="@color/gf_text_primary"
             android:textSize="13sp" />
 
         <TextView
@@ -42,7 +42,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="@color/text_dark"
+            android:textColor="@color/gf_text_primary"
             android:textSize="13sp" />
 
         <TextView
@@ -50,22 +50,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:background="@color/surface_alt"
+            android:background="@color/gf_bg_surface_dim"
             android:padding="10dp"
-            android:textColor="@color/text_dark"
+            android:textColor="@color/gf_text_primary"
             android:textSize="13sp" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginVertical="14dp"
-            android:background="@color/surface_alt" />
+            android:background="@color/gf_bg_surface_dim" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Subject"
-            android:textColor="@color/text_dark"
+            android:textColor="@color/gf_text_primary"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -74,7 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:textColor="@color/text_dark"
+            android:textColor="@color/gf_text_primary"
             android:textSize="13sp" />
 
         <TextView
@@ -82,14 +82,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textColor="@color/text_muted"
+            android:textColor="@color/gf_text_hint"
             android:textSize="12sp" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginVertical="14dp"
-            android:background="@color/surface_alt" />
+            android:background="@color/gf_bg_surface_dim" />
 
         <LinearLayout
             android:id="@+id/container_report_actions"
@@ -101,7 +101,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Review Action"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -116,7 +116,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Guest action"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -176,7 +176,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:textColor="@color/text_muted"
+                    android:textColor="@color/gf_text_hint"
                     android:textSize="12sp"
                     android:visibility="gone" />
             </LinearLayout>
@@ -193,7 +193,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Student action"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 

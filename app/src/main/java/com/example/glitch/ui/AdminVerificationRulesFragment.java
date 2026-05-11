@@ -17,11 +17,13 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.example.glitch.ui.UiAnimations;
 
 /**
  * Admin policy screen for credential verification rule configuration.
  */
 public class AdminVerificationRulesFragment extends Fragment {
+    private android.view.ViewGroup animContent;
     private VerificationRulesRepository repository;
     private MaterialCheckBox checkEnforceExpiry;
     private TextInputEditText inputBannedCsv;
@@ -44,6 +46,7 @@ public class AdminVerificationRulesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         repository = RepositoryProvider.getVerificationRulesRepository();
         checkEnforceExpiry = view.findViewById(R.id.checkbox_enforce_expiry);
         inputBannedCsv = view.findViewById(R.id.input_banned_csv);
@@ -117,5 +120,10 @@ public class AdminVerificationRulesFragment extends Fragment {
     private String read(@NonNull TextInputEditText input) {
         CharSequence value = input.getText();
         return value == null ? "" : value.toString().trim();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

@@ -23,6 +23,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import com.example.glitch.ui.UiAnimations;
 
 /**
  * Guard search and credential verification screen (US-02 and US-03).
@@ -30,6 +31,7 @@ import java.util.Locale;
  * Known issue: search currently queries latest 50 requests then filters client-side.
  */
 public class GuardSearchFragment extends Fragment implements EntryRequestAdapter.EntryActionListener {
+    private android.view.ViewGroup animContent;
     private EntryRequestRepository repository;
     private EntryRequestAdapter adapter;
     private TextInputEditText inputSearch;
@@ -55,6 +57,7 @@ public class GuardSearchFragment extends Fragment implements EntryRequestAdapter
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         repository = RepositoryProvider.getRepository();
         inputSearch = view.findViewById(R.id.input_search_query);
         inputCredential = view.findViewById(R.id.input_credential_identifier);
@@ -159,5 +162,10 @@ public class GuardSearchFragment extends Fragment implements EntryRequestAdapter
     private String read(@NonNull TextInputEditText input) {
         CharSequence value = input.getText();
         return value == null ? "" : value.toString().trim();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

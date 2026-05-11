@@ -36,6 +36,10 @@ public final class AuditEventType {
     public static final String CHARGE_PAID = "CHARGE_PAID";
     public static final String CHARGE_REMOVED = "CHARGE_REMOVED";
 
+    public static final String VIOLATION_REPORT_SUBMITTED = "VIOLATION_REPORT_SUBMITTED";
+    public static final String ALERT_CREATED = "ALERT_CREATED";
+    public static final String ALERT_RESOLVED = "ALERT_RESOLVED";
+
     private AuditEventType() {
     }
 }

@@ -1,65 +1,383 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Typography roles tuned for existing XML text-heavy screens -->
-    <style name="TextAppearance.Glitch.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
-        <item name="android:textColor">@color/md_on_surface</item>
+    <!-- ══════════════════════════════════════════════════════════════════
+         SHAPE SYSTEM
+    ══════════════════════════════════════════════════════════════════════ -->
+    <style name="ShapeAppearance.GateFlow.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+    <!-- Legacy alias -->
+    <style name="ShapeAppearance.Glitch.Corner.Small" parent="ShapeAppearance.GateFlow.Small" />
+
+    <style name="ShapeAppearance.GateFlow.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">12dp</item>
+    </style>
+    <!-- Legacy alias -->
+    <style name="ShapeAppearance.Glitch.Corner.Medium" parent="ShapeAppearance.GateFlow.Medium" />
+
+    <style name="ShapeAppearance.GateFlow.Large" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <style name="ShapeAppearance.GateFlow.Card" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/gf_card_radius</item>
+    </style>
+    <!-- Legacy alias -->
+    <style name="ShapeAppearance.Glitch.Corner.Medium.Card" parent="ShapeAppearance.GateFlow.Card" />
+
+    <style name="ShapeAppearance.GateFlow.Corner.Card" parent="ShapeAppearance.GateFlow.Card" />
+
+    <style name="ShapeAppearance.Logo.Circle" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         FULL MD3 TYPE SCALE — Inter font
+    ══════════════════════════════════════════════════════════════════════ -->
+
+    <style name="TextAppearance.GateFlow.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">57sp</item>
+        <item name="android:letterSpacing">-0.02</item>
+        <item name="android:textColor">@color/gf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.DisplayMedium" parent="TextAppearance.Material3.DisplayMedium">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">45sp</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textColor">@color/gf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.DisplaySmall" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">36sp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textColor">@color/gf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textColor">@color/gf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textColor">@color/gf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/gf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/gf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:textColor">@color/gf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:textColor">@color/gf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/gf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/gf_text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/gf_text_hint</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="TextAppearance.GateFlow.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:letterSpacing">0.04</item>
+    </style>
+
+    <!-- Legacy aliases used in existing layouts -->
+    <style name="TextAppearance.Glitch.TitleLarge" parent="TextAppearance.GateFlow.TitleLarge" />
+    <style name="TextAppearance.Glitch.TitleMedium" parent="TextAppearance.GateFlow.TitleMedium" />
+    <style name="TextAppearance.Glitch.BodyMedium" parent="TextAppearance.GateFlow.BodyMedium" />
+
+    <style name="TextAppearance.GateFlow.SectionLabel" parent="TextAppearance.GateFlow.LabelSmall">
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.1</item>
+        <item name="android:textColor">@color/gf_text_hint</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="TextAppearance.Glitch.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
-        <item name="android:textColor">@color/md_on_surface</item>
+    <!-- ══════════════════════════════════════════════════════════════════
+         CARDS
+    ══════════════════════════════════════════════════════════════════════ -->
+
+    <style name="Widget.GateFlow.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardBackgroundColor">@color/gf_bg_surface</item>
+        <item name="cardCornerRadius">@dimen/gf_card_radius</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">@color/gf_border</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+    <style name="Widget.Glitch.Card" parent="Widget.GateFlow.Card" />
+
+    <!-- Elevated card — subtle shadow, no border -->
+    <style name="Widget.GateFlow.Card.Elevated" parent="Widget.GateFlow.Card">
+        <item name="cardElevation">2dp</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- Tonal surface card — dim surface bg -->
+    <style name="Widget.GateFlow.Card.Tonal" parent="Widget.GateFlow.Card">
+        <item name="cardBackgroundColor">@color/gf_bg_surface_dim</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         BUTTONS
+    ══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Primary: deep navy fill, white text, Inter bold -->
+    <style name="Widget.GateFlow.Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/brand_blue_900</item>
+        <item name="android:textColor">@color/gf_text_on_dark</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:minHeight">@dimen/gf_button_height</item>
+        <item name="cornerRadius">@dimen/radius_12</item>
+        <item name="rippleColor">@color/gf_accent_glow</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.GateFlow.Medium</item>
+        <item name="elevation">2dp</item>
+        <item name="android:paddingStart">24dp</item>
+        <item name="android:paddingEnd">24dp</item>
     </style>
 
-    <style name="TextAppearance.Glitch.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
-        <item name="android:textColor">@color/md_on_surface_variant</item>
+    <style name="Widget.GateFlow.Button.White" parent="Widget.GateFlow.Button.Primary">
+        <item name="backgroundTint">#FFFFFF</item>
+        <item name="android:textColor">@color/brand_blue_900</item>
+        <item name="rippleColor">@color/brand_blue_900</item>
     </style>
 
-    <!-- Component shape defaults -->
-    <style name="ShapeAppearance.Glitch.Corner.Medium" parent="ShapeAppearance.Material3.MediumComponent">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">@dimen/radius_12</item>
+    <style name="Widget.GateFlow.Button.Danger" parent="Widget.GateFlow.Button.Primary">
+        <item name="backgroundTint">@color/gf_danger</item>
+        <item name="rippleColor">@color/overlay_tint_error_soft</item>
     </style>
 
-    <style name="ShapeAppearance.Glitch.Corner.Small" parent="ShapeAppearance.Material3.SmallComponent">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">@dimen/radius_8</item>
+    <style name="Widget.GateFlow.Button.Success" parent="Widget.GateFlow.Button.Primary">
+        <item name="backgroundTint">@color/gf_success</item>
     </style>
 
-    <!-- Buttons -->
-    <style name="Widget.Glitch.Button" parent="Widget.Material3.Button">
-        <item name="shapeAppearance">@style/ShapeAppearance.Glitch.Corner.Medium</item>
-        <item name="android:minHeight">@dimen/min_touch_target</item>
-        <item name="backgroundTint">@color/md_primary</item>
-        <item name="android:textColor">@color/md_on_primary</item>
-        <item name="rippleColor">@color/md_primary_container</item>
+    <!-- Outlined: brand blue border + text, transparent fill -->
+    <style name="Widget.GateFlow.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">@color/gf_accent</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:textColor">@color/gf_accent</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:minHeight">@dimen/gf_button_height</item>
+        <item name="cornerRadius">@dimen/radius_12</item>
+        <item name="rippleColor">@color/gf_accent_glow</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.GateFlow.Medium</item>
     </style>
 
-    <style name="Widget.Glitch.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="shapeAppearance">@style/ShapeAppearance.Glitch.Corner.Medium</item>
-        <item name="android:minHeight">@dimen/min_touch_target</item>
-        <item name="strokeColor">@color/md_outline</item>
-        <item name="android:textColor">@color/md_on_surface</item>
+    <!-- Ghost: white border + text, for use on dark headers/ribbons -->
+    <style name="Widget.GateFlow.Button.Ghost" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">#66FFFFFF</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:textColor">@color/gf_text_on_dark</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:minHeight">@dimen/gf_button_height</item>
+        <item name="cornerRadius">@dimen/radius_12</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="rippleColor">#33FFFFFF</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.GateFlow.Medium</item>
     </style>
 
+    <!-- Legacy aliases -->
+    <style name="Widget.Glitch.Button" parent="Widget.GateFlow.Button.Primary" />
+    <style name="Widget.Glitch.Button.Outlined" parent="Widget.GateFlow.Button.Outlined" />
     <style name="Widget.Glitch.Button.Text" parent="Widget.Material3.Button.TextButton">
-        <item name="shapeAppearance">@style/ShapeAppearance.Glitch.Corner.Small</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.GateFlow.Small</item>
         <item name="android:minHeight">@dimen/min_touch_target</item>
-        <item name="android:textColor">@color/md_primary</item>
+        <item name="android:textColor">@color/gf_accent</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
-    <!-- Inputs -->
-    <style name="Widget.Glitch.TextInputLayout.Outlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
-        <item name="shapeAppearance">@style/ShapeAppearance.Glitch.Corner.Medium</item>
-        <item name="hintTextColor">@color/md_on_surface_variant</item>
-        <item name="boxStrokeColor">@color/md_outline</item>
-        <item name="boxStrokeErrorColor">@color/md_error</item>
+    <!-- ══════════════════════════════════════════════════════════════════
+         TEXT INPUTS
+    ══════════════════════════════════════════════════════════════════════ -->
+    <style name="Widget.GateFlow.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">@dimen/radius_12</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/radius_12</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/radius_12</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/radius_12</item>
+        <item name="boxStrokeColor">@color/gf_border_focus</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
+        <item name="hintTextColor">@color/gf_accent</item>
+        <item name="android:minHeight">@dimen/gf_input_height</item>
+        <item name="boxBackgroundColor">@color/gf_bg_surface</item>
+        <item name="boxStrokeErrorColor">@color/gf_danger</item>
+        <item name="errorTextColor">@color/gf_danger</item>
     </style>
+    <style name="Widget.Glitch.TextInputLayout.Outlined" parent="Widget.GateFlow.TextInputLayout" />
 
     <style name="Widget.Glitch.TextInputEditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
-        <item name="android:textColor">@color/md_on_surface</item>
-        <item name="android:textColorHint">@color/md_on_surface_variant</item>
+        <item name="android:textColor">@color/gf_text_primary</item>
+        <item name="android:textColorHint">@color/gf_text_hint</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         STATUS CHIPS / BADGES
+    ══════════════════════════════════════════════════════════════════════ -->
+    <style name="Widget.GateFlow.Chip.Success" parent="Widget.Material3.Chip.Assist">
+        <item name="chipBackgroundColor">@color/gf_success_bg</item>
+        <item name="android:textColor">@color/gf_success</item>
+        <item name="chipCornerRadius">@dimen/radius_full</item>
+        <item name="chipMinHeight">28dp</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="Widget.GateFlow.Chip.Warning" parent="Widget.Material3.Chip.Assist">
+        <item name="chipBackgroundColor">@color/gf_warning_bg</item>
+        <item name="android:textColor">@color/gf_warning</item>
+        <item name="chipCornerRadius">@dimen/radius_full</item>
+        <item name="chipMinHeight">28dp</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="Widget.GateFlow.Chip.Danger" parent="Widget.Material3.Chip.Assist">
+        <item name="chipBackgroundColor">@color/gf_danger_bg</item>
+        <item name="android:textColor">@color/gf_danger</item>
+        <item name="chipCornerRadius">@dimen/radius_full</item>
+        <item name="chipMinHeight">28dp</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="Widget.GateFlow.Chip.Neutral" parent="Widget.Material3.Chip.Assist">
+        <item name="chipBackgroundColor">@color/gf_bg_surface_dim</item>
+        <item name="android:textColor">@color/gf_text_secondary</item>
+        <item name="chipCornerRadius">@dimen/radius_full</item>
+        <item name="chipMinHeight">28dp</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="Widget.GateFlow.Chip.Accent" parent="Widget.Material3.Chip.Assist">
+        <item name="chipBackgroundColor">@color/gf_accent_cyan_bg</item>
+        <item name="android:textColor">@color/brand_blue_500</item>
+        <item name="chipCornerRadius">@dimen/radius_full</item>
+        <item name="chipMinHeight">28dp</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         BOTTOM SHEET
+    ══════════════════════════════════════════════════════════════════════ -->
+    <style name="Widget.GateFlow.BottomSheet" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="shapeAppearance">@style/ShapeAppearance.GateFlow.BottomSheet</item>
+        <item name="backgroundTint">@color/gf_bg_surface</item>
+    </style>
+
+    <style name="ShapeAppearance.GateFlow.BottomSheet" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">24dp</item>
+        <item name="cornerSizeTopRight">24dp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         FAB
+    ══════════════════════════════════════════════════════════════════════ -->
+    <style name="Widget.GateFlow.FAB" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="backgroundTint">@color/brand_blue_900</item>
+        <item name="tint">@color/gf_text_on_dark</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.GateFlow.Medium</item>
+        <item name="elevation">4dp</item>
+    </style>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         TOP APP BAR
+    ══════════════════════════════════════════════════════════════════════ -->
+    <style name="Widget.GateFlow.TopAppBar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/gf_bg_surface</item>
+        <item name="titleTextColor">@color/gf_text_primary</item>
+        <item name="navigationIconTint">@color/gf_text_primary</item>
+        <item name="android:elevation">0dp</item>
     </style>
 
 </resources>

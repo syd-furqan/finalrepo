@@ -3,6 +3,8 @@ package com.example.glitch.data;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.glitch.model.AuditEventType;
+import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.SecurityAlert;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -35,6 +37,7 @@ public class FirestoreAlertRepository implements AlertRepository {
     );
 
     private final FirebaseFirestore firestore;
+    private final AuditEventLogger auditEventLogger;
     private ListenerRegistration registration;
 
     public FirestoreAlertRepository() {
@@ -43,6 +46,7 @@ public class FirestoreAlertRepository implements AlertRepository {
 
     FirestoreAlertRepository(@NonNull FirebaseFirestore firestore) {
         this.firestore = firestore;
+        this.auditEventLogger = new AuditEventLogger(firestore);
     }
 
     @Override
@@ -78,7 +82,26 @@ public class FirestoreAlertRepository implements AlertRepository {
                 ? firestore.collection("alerts").document()
                 : firestore.collection("alerts").document(alertId.trim());
         ref.set(payload)
-                .addOnSuccessListener(unused -> callback.onComplete(true, "Alert created.", null))
+                .addOnSuccessListener(unused -> {
+                    String alertType = payload.containsKey("alertType") ? String.valueOf(payload.get("alertType")) : "";
+                    Map<String, Object> meta = new HashMap<>();
+                    meta.put("alertType", alertType);
+                    auditEventLogger.log(
+                            AuditEventType.ALERT_CREATED,
+                            "alert",
+                            ref.getId(),
+                            ref.getId(),
+                            "",
+                            "system",
+                            "Security alert created: " + alertType,
+                            "system",
+                            "success",
+                            alertType.isEmpty() ? "alert_created" : alertType,
+                            GatePolicy.STORED_VALUE,
+                            meta
+                    );
+                    callback.onComplete(true, "Alert created.", null);
+                })
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to create alert.", error));
     }
 
@@ -99,10 +122,32 @@ public class FirestoreAlertRepository implements AlertRepository {
         updates.put("interventionSummary", interventionSummary.trim());
         updates.put("reviewedByUid", reviewedByUid.trim());
         updates.put("reviewedAt", FieldValue.serverTimestamp());
+        String normalizedAlertId = alertId.trim();
+        String normalizedReviewerUid = reviewedByUid.trim();
+        String normalizedStatus = status.trim();
         firestore.collection("alerts")
-                .document(alertId.trim())
+                .document(normalizedAlertId)
                 .set(updates, SetOptions.merge())
-                .addOnSuccessListener(unused -> callback.onComplete(true, "Alert updated.", null))
+                .addOnSuccessListener(unused -> {
+                    Map<String, Object> meta = new HashMap<>();
+                    meta.put("incidentStatus", normalizedStatus);
+                    meta.put("interventionSummary", interventionSummary.trim());
+                    auditEventLogger.log(
+                            AuditEventType.ALERT_RESOLVED,
+                            "alert",
+                            normalizedAlertId,
+                            normalizedAlertId,
+                            normalizedReviewerUid,
+                            "admin",
+                            "Alert marked as " + normalizedStatus,
+                            "admin_intervention",
+                            "success",
+                            "incident_closed",
+                            GatePolicy.STORED_VALUE,
+                            meta
+                    );
+                    callback.onComplete(true, "Alert updated.", null);
+                })
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to update alert.", error));
     }
 
@@ -136,8 +181,31 @@ public class FirestoreAlertRepository implements AlertRepository {
                     for (DocumentSnapshot doc : snapshot.getDocuments()) {
                         batch.set(doc.getReference(), updates, SetOptions.merge());
                     }
+                    String finalLinkedId = linkedId.trim();
+                    String finalReviewerUid = reviewedByUid.trim();
+                    String finalStatus = status.trim();
                     batch.commit()
-                            .addOnSuccessListener(unused -> callback.onComplete(true, "Alert updated.", null))
+                            .addOnSuccessListener(unused -> {
+                                Map<String, Object> meta = new HashMap<>();
+                                meta.put("incidentStatus", finalStatus);
+                                meta.put("linkedField", linkedField.trim());
+                                meta.put("linkedId", finalLinkedId);
+                                auditEventLogger.log(
+                                        AuditEventType.ALERT_RESOLVED,
+                                        "alert",
+                                        finalLinkedId,
+                                        finalLinkedId,
+                                        finalReviewerUid,
+                                        "admin",
+                                        "Linked alert marked as " + finalStatus,
+                                        "admin_intervention",
+                                        "success",
+                                        "incident_closed",
+                                        GatePolicy.STORED_VALUE,
+                                        meta
+                                );
+                                callback.onComplete(true, "Alert updated.", null);
+                            })
                             .addOnFailureListener(error -> callback.onComplete(false, "Failed to update alert.", error));
                 })
                 .addOnFailureListener(error -> callback.onComplete(false, "Failed to find linked alert.", error));

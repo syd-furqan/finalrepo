@@ -42,11 +42,13 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.example.glitch.ui.UiAnimations;
 
 /**
  * Guard QR verification screen for single-use guest pass checks.
  */
 public class GuardQrScanFragment extends Fragment {
+    private android.view.ViewGroup animContent;
     private static final String ARG_STATUS_MESSAGE = "arg_status_message";
     private static final Pattern PASS_CODE_PATTERN = Pattern.compile("\\b([A-Z0-9]{8})\\b");
     private static final String TAG = "GuardScanFlow";
@@ -103,6 +105,7 @@ public class GuardQrScanFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         guestPassRepository = RepositoryProvider.getGuestPassRepository();
         interventionRepository = RepositoryProvider.getInterventionRepository();
         alertRepository = RepositoryProvider.getAlertRepository();

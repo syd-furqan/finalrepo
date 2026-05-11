@@ -33,11 +33,13 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.List;
+import com.example.glitch.ui.UiAnimations;
 
 /**
  * Student guest pass generation screen.
  */
 public class StudentGuestPassFragment extends Fragment implements GuestPassAdapter.GuestPassActionListener {
+    private android.view.ViewGroup animContent;
     private GuestPassRepository repository;
     private GuestPassAdapter adapter;
     private TextInputEditText inputGuestName;
@@ -106,6 +108,7 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         repository = RepositoryProvider.getGuestPassRepository();
         inputGuestName = view.findViewById(R.id.input_pass_guest_name);
         inputGuestId = view.findViewById(R.id.input_pass_guest_id);
@@ -338,5 +341,10 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     private String read(@NonNull TextInputEditText input) {
         CharSequence value = input.getText();
         return value == null ? "" : value.toString().trim();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

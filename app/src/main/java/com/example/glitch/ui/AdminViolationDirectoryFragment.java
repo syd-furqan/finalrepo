@@ -20,8 +20,10 @@ import com.example.glitch.model.ViolationReport;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
+import com.example.glitch.ui.UiAnimations;
 
 public class AdminViolationDirectoryFragment extends Fragment {
+    private android.view.ViewGroup animContent;
     private static final String ARG_TARGET_REPORT_ID = "target_report_id";
 
     private ViolationReportRepository repository;
@@ -53,6 +55,7 @@ public class AdminViolationDirectoryFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         repository = RepositoryProvider.getViolationReportRepository();
         textEmpty = view.findViewById(R.id.text_reports_empty);
         Bundle args = getArguments();
@@ -131,5 +134,10 @@ public class AdminViolationDirectoryFragment extends Fragment {
     @NonNull
     private String safe(@Nullable String value) {
         return value == null ? "" : value.trim();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

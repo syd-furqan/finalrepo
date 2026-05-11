@@ -266,7 +266,7 @@
     <string name="announcement_interrupt_timestamp_template">Received: %1$s</string>
     <string name="announcement_interrupt_timestamp_unknown">Just now</string>
 
-    <string name="admin_take_action_title">Take Action - Announcements</string>
+    <string name="admin_take_action_title">Announcements</string>
     <string name="admin_take_action_subtitle">Broadcast high-priority updates and manage in-gate service inhibition.</string>
     <string name="announce_audience_title">Audience</string>
     <string name="announce_all_campus">All Campus (student, faculty, guard, monitor)</string>

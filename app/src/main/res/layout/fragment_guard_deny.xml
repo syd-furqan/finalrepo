@@ -3,9 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dashboard_bg">
+    android:background="@drawable/bg_screen_base">
 
     <androidx.core.widget.NestedScrollView
+        android:background="@android:color/transparent"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
@@ -18,115 +19,137 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="@dimen/space_24"
-            android:paddingTop="@dimen/space_12"
-            android:paddingEnd="@dimen/space_24"
-            android:paddingBottom="@dimen/space_24">
+            android:paddingStart="@dimen/gf_screen_margin"
+            android:paddingTop="@dimen/gf_space_sm"
+            android:paddingEnd="@dimen/gf_screen_margin"
+            android:paddingBottom="@dimen/gf_space_xl">
 
-            <include layout="@layout/include_status_ribbon" />
 
-            <LinearLayout
+            <!-- Denial header card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
-                android:background="@color/surface_soft_red"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
-                android:padding="@dimen/space_24">
+                android:layout_marginTop="@dimen/gf_space_lg"
+                app:cardBackgroundColor="@color/gf_danger_bg"
+                app:cardCornerRadius="@dimen/gf_card_radius"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/gf_danger"
+                app:strokeWidth="1dp">
 
-                <FrameLayout
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:background="@color/danger_red"
-                    android:foreground="?attr/selectableItemBackgroundBorderless">
-
-                    <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
-                        android:layout_gravity="center"
-                        android:src="@android:drawable/ic_dialog_alert"
-                        android:tint="@color/white" />
-                </FrameLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_16"
-                    android:text="@string/guard_unauthorized"
-                    android:textColor="@color/danger_red"
-                    android:textSize="36sp"
-                    android:textStyle="bold" />
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="@dimen/gf_space_xl">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
-                    android:text="@string/guard_access_denied_sector"
-                    android:textColor="@color/danger_text"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:background="@drawable/bg_icon_container_red"
+                        android:gravity="center">
 
-            <LinearLayout
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@android:drawable/ic_dialog_alert"
+                            android:tint="@color/gf_danger"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_md"
+                        android:text="@string/guard_unauthorized"
+                        android:textColor="@color/gf_danger"
+                        android:textSize="30sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="-0.01" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_xs"
+                        android:text="@string/guard_access_denied_sector"
+                        android:textColor="@color/danger_text"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Denial form card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_24"
-                android:background="@drawable/bg_card_protocol"
-                android:orientation="vertical"
-                android:padding="@dimen/space_16">
+                android:layout_marginTop="@dimen/gf_space_md"
+                app:cardBackgroundColor="@color/gf_bg_primary"
+                app:cardCornerRadius="@dimen/gf_card_radius"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
-                <TextView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/guard_reason_for_denial"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="@dimen/gf_space_md">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_12"
-                    android:hint="@string/request_id_label">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/input_request_id"
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/white" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:text="@string/guard_reason_for_denial"
+                        android:textColor="@color/gf_text_on_dark"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
-                    android:hint="@string/deny_reason_hint">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/input_denial_reason"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.GateFlow.TextInputLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:minLines="4"
-                        android:textColor="@color/white" />
-                </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+                        android:layout_marginTop="@dimen/gf_space_md"
+                        android:hint="@string/request_id_label">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_request_id"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/gf_text_primary" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.GateFlow.TextInputLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:hint="@string/deny_reason_hint">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_denial_reason"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minLines="4"
+                            android:textColor="@color/gf_text_primary" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_submit_denial"
-                style="@style/Widget.Glitch.Button"
+                style="@style/Widget.GateFlow.Button.Danger"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="@dimen/space_16"
+                android:layout_height="@dimen/gf_button_height"
+                android:layout_marginTop="@dimen/gf_space_md"
                 android:text="@string/deny_entry"
                 android:textAllCaps="false" />
 
             <com.google.android.material.button.MaterialButton
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="@dimen/space_12"
-                style="@style/Widget.Glitch.Button.Outlined"
+                android:layout_height="@dimen/gf_button_height"
+                android:layout_marginTop="@dimen/gf_space_sm"
+                style="@style/Widget.GateFlow.Button.Outlined"
                 android:text="@string/guard_file_incident_report"
                 android:textAllCaps="false" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

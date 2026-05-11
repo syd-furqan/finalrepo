@@ -57,12 +57,17 @@ public class AdminChargeAdapter extends RecyclerView.Adapter<AdminChargeAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         FineCaseRecord charge = charges.get(position);
         String status = charge.getChargeDisplayStatus();
-        holder.textChargeId.setText("Charge: " + charge.getId());
+        String reason = valueOr(charge.getReasonCode(), "Unknown reason");
+        holder.textChargeId.setText(reason);
         holder.textStatus.setText(status.toUpperCase(Locale.getDefault()));
-        holder.textRequest.setText("Report: " + valueOr(charge.getViolationReportId(), "N/A"));
+        String amount = charge.getAmount() > 0
+                ? String.format(Locale.getDefault(), "%.0f", charge.getAmount())
+                : "N/A";
+        holder.textRequest.setText("Amount: " + valueOr(charge.getCurrency(), "PKR") + " " + amount);
         holder.textGuest.setText("Visitor: " + valueOr(charge.getGuestName(), "Unknown")
-                + " (" + valueOr(charge.getGuestIdNumber(), "N/A") + ")");
-        holder.textSponsor.setText("Sponsor UID: " + valueOr(charge.getSponsorUid(), "N/A"));
+                + " · ID: " + valueOr(charge.getGuestIdNumber(), "N/A"));
+        String studentId = valueOr(charge.getStudentId(), "");
+        holder.textSponsor.setText(studentId.isEmpty() ? "Sponsor: N/A" : "Sponsor Student ID: " + studentId);
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onChargeSelected(charge);

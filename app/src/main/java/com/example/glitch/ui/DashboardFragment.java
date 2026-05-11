@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,17 +33,16 @@ import java.util.Locale;
  * Updated to support overdue guest status.
  */
 public class DashboardFragment extends Fragment implements EntryRequestAdapter.EntryActionListener {
+    private ViewGroup animContent;
 
     private EntryRequestRepository repository;
     private EntryRequestAdapter adapter;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a", Locale.getDefault());
 
-    private TextView textSystemStatusTitle;
-    private TextView textSystemStatusMessage;
     private TextView textProtocolLevel;
     private TextView textProtocolDescription;
-    private LinearLayout loadingContainer;
-    private LinearLayout emptyStateCard;
+    private View loadingContainer;
+    private View emptyStateCard;
     private String currentRole = "";
     private String currentUid = "";
 
@@ -82,6 +80,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         bindViews(view);
         setupRecycler(view);
         setupActions(view, currentRole);
+        animContent = view.findViewById(R.id.dashboard_content);
         setupExitDecisionResult();
         setupSearch(view);
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.DASHBOARD);
@@ -133,8 +132,6 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
     }
 
     private void bindViews(@NonNull View root) {
-        textSystemStatusTitle = root.findViewById(R.id.text_system_status_title);
-        textSystemStatusMessage = root.findViewById(R.id.text_system_status_message);
         textProtocolLevel = root.findViewById(R.id.text_protocol_level);
         textProtocolDescription = root.findViewById(R.id.text_protocol_description);
         loadingContainer = root.findViewById(R.id.loading_container);
@@ -244,8 +241,6 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
     }
 
     private void bindDashboardState(@NonNull DashboardState state) {
-        textSystemStatusTitle.setText(state.getSystemStatusTitle());
-        textSystemStatusMessage.setText(state.getSystemStatusMessage());
         textProtocolLevel.setText(state.getProtocolLevel());
         textProtocolDescription.setText(state.getProtocolDescription());
     }
@@ -334,5 +329,11 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         super.onDestroyView();
         repository.removeListeners();
         adapter = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }

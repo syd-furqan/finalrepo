@@ -120,7 +120,6 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         TextView textRequestEntered = view.findViewById(R.id.text_request_entered);
         TextView textRequestAdmittedBy = view.findViewById(R.id.text_request_admitted_by);
         TextView textExpiry = view.findViewById(R.id.text_request_expiry);
-        TextView textRequestId = view.findViewById(R.id.text_request_id);
         MaterialButton buttonClose = view.findViewById(R.id.button_close);
         MaterialButton buttonLogExit = view.findViewById(R.id.button_sheet_log_exit);
 
@@ -139,8 +138,6 @@ public class EntryDetailsBottomSheetDialogFragment extends BottomSheetDialogFrag
         textRequestGate.setText(getString(R.string.gate_label) + ": " + gateLabel);
         textRequestEntered.setText(getString(R.string.entered_label) + ": " + enteredText);
         textRequestAdmittedBy.setText(getString(R.string.admitted_by_label, admittedByText));
-        textRequestId.setText(getString(R.string.request_id_label) + ": " + requestId);
-        
         if (promptExit && !"overdue".equalsIgnoreCase(status)) {
             textDetailsMessage.setText(getString(R.string.confirm_exit_message, fullName));
             textDetailsMessage.setVisibility(View.VISIBLE);

@@ -79,21 +79,20 @@ public class AuditEventDetailBottomSheetFragment extends BottomSheetDialogFragme
             return;
         }
 
+        String rawType = safe(args.getString(ARG_EVENT_TYPE));
         ((TextView) view.findViewById(R.id.text_detail_event_type)).setText(
-                "Event Type: " + safe(args.getString(ARG_EVENT_TYPE)) + " (schema v" + args.getInt(ARG_SCHEMA, 1) + ")"
+                "Event: " + friendlyEventType(rawType)
         );
         ((TextView) view.findViewById(R.id.text_detail_outcome)).setText(
                 "Outcome: " + safe(args.getString(ARG_OUTCOME))
         );
         ((TextView) view.findViewById(R.id.text_detail_actor)).setText(
-                "Actor: " + safe(args.getString(ARG_ACTOR_UID)) + " (" + safe(args.getString(ARG_ACTOR_ROLE)) + ")"
+                "Actor Role: " + safe(args.getString(ARG_ACTOR_ROLE))
         );
         ((TextView) view.findViewById(R.id.text_detail_entity)).setText(
-                "Entity: " + safe(args.getString(ARG_ENTITY_TYPE)) + " / " + safe(args.getString(ARG_ENTITY_ID))
+                "Entity: " + safe(args.getString(ARG_ENTITY_TYPE))
         );
-        ((TextView) view.findViewById(R.id.text_detail_request)).setText(
-                "Request ID: " + safe(args.getString(ARG_REQUEST_ID))
-        );
+        view.findViewById(R.id.text_detail_request).setVisibility(View.GONE);
         ((TextView) view.findViewById(R.id.text_detail_gate)).setText(
                 "Gate: " + GatePolicy.toDisplayLabel(args.getString(ARG_GATE))
         );
@@ -112,6 +111,29 @@ public class AuditEventDetailBottomSheetFragment extends BottomSheetDialogFragme
         ((TextView) view.findViewById(R.id.text_detail_created)).setText(
                 "Created At: " + formatMillis(args.getLong(ARG_CREATED_MS, 0L))
         );
+    }
+
+    @NonNull
+    private String friendlyEventType(@NonNull String raw) {
+        switch (raw.trim().toLowerCase(Locale.getDefault())) {
+            case "entry_allowed":          return "Entry Allowed";
+            case "entry_denied":           return "Entry Denied";
+            case "exit_logged":            return "Exit Logged";
+            case "request_overdue":        return "Overdue";
+            case "entry_reported_manual":  return "Reported (Manual)";
+            case "entry_reported_overdue": return "Auto-Reported";
+            case "pass_used":              return "Pass Used";
+            case "pass_denied":            return "Pass Denied";
+            case "pass_reported":          return "Pass Reported";
+            case "pass_exited":            return "Pass Exited";
+            case "entry_invalidated_ban":          return "Banned";
+            case "violation_report_submitted":     return "Violation Reported";
+            case "alert_created":                  return "Alert Created";
+            case "alert_resolved":                 return "Alert Resolved";
+            default:
+                if (raw.trim().isEmpty()) return "Event";
+                return raw.trim().replace('_', ' ');
+        }
     }
 
     @NonNull

@@ -21,8 +21,10 @@ import com.example.glitch.model.UserProfile;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
+import com.example.glitch.ui.UiAnimations;
 
 public class StudentWarningsFragment extends Fragment {
+    private android.view.ViewGroup animContent;
     private InterventionRepository interventionRepository;
     private StudentWarningAdapter adapter;
     private TextView textEmpty;
@@ -41,6 +43,7 @@ public class StudentWarningsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        animContent = view.findViewById(R.id.anim_content);
         interventionRepository = RepositoryProvider.getInterventionRepository();
         textEmpty = view.findViewById(R.id.text_warnings_empty);
 
@@ -79,5 +82,10 @@ public class StudentWarningsFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         if (interventionRepository != null) interventionRepository.removeListeners();
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (animContent != null) UiAnimations.animateFallIn(animContent);
     }
 }
