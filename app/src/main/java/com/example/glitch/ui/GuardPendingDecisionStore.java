@@ -68,6 +68,19 @@ public class GuardPendingDecisionStore {
         prefs.edit().remove(keyForGuard(trimmed)).apply();
     }
 
+    public void registerListener(@NonNull SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        prefs.registerOnSharedPreferenceChangeListener(listener);
+    }
+
+    public void unregisterListener(@NonNull SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        prefs.unregisterOnSharedPreferenceChangeListener(listener);
+    }
+
+    @NonNull
+    public String decisionKeyForGuard(@NonNull String guardUid) {
+        return keyForGuard(guardUid.trim());
+    }
+
     @NonNull
     private String keyForGuard(@NonNull String guardUid) {
         return KEY_PREFIX + guardUid;

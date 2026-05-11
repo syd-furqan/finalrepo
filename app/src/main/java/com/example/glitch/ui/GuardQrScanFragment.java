@@ -2,6 +2,8 @@ package com.example.glitch.ui;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputFilter;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -37,6 +39,7 @@ import com.journeyapps.barcodescanner.ScanOptions;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,6 +50,7 @@ public class GuardQrScanFragment extends Fragment {
     private static final String ARG_STATUS_MESSAGE = "arg_status_message";
     private static final Pattern PASS_CODE_PATTERN = Pattern.compile("\\b([A-Z0-9]{8})\\b");
     private static final String TAG = "GuardScanFlow";
+    private static final long BAN_CHECK_TIMEOUT_MS = 1500L;
 
     private GuestPassRepository guestPassRepository;
     private com.example.glitch.data.InterventionRepository interventionRepository;
@@ -54,6 +58,8 @@ public class GuardQrScanFragment extends Fragment {
     private GuardPendingDecisionStore pendingDecisionStore;
     private AuditEventLogger auditEventLogger;
     private TextView textResultView;
+    @Nullable
+    private android.content.SharedPreferences.OnSharedPreferenceChangeListener pendingDecisionListener;
     private final ActivityResultLauncher<ScanOptions> barcodeLauncher =
             registerForActivityResult(new ScanContract(), result -> {
                 if (result == null) return;
@@ -102,6 +108,7 @@ public class GuardQrScanFragment extends Fragment {
         alertRepository = RepositoryProvider.getAlertRepository();
         pendingDecisionStore = new GuardPendingDecisionStore(requireContext());
         auditEventLogger = new AuditEventLogger();
+        registerPendingDecisionListener();
 
         textResultView = view.findViewById(R.id.text_pass_result);
         showStatusMessageFromArgs(textResultView);
@@ -241,7 +248,17 @@ public class GuardQrScanFragment extends Fragment {
                         + " activityNull=" + (getActivity() == null)
                         + " passFound=" + (pass != null));
                 if (getActivity() == null) {
+                    if (pass != null) {
+                        stashPendingDecisionForDetachedResult(pass, verificationMethod);
+                    }
                     Log.d(TAG, "findPassByCode.onData: dropping result because activity is null");
+                    return;
+                }
+                if (!isAdded()) {
+                    if (pass != null) {
+                        stashPendingDecisionForDetachedResult(pass, verificationMethod);
+                    }
+                    Log.d(TAG, "findPassByCode.onData: fragment not added; stashed result");
                     return;
                 }
                 getActivity().runOnUiThread(() -> handlePassLookupResult(pass, verificationMethod, textResult));
@@ -318,8 +335,42 @@ public class GuardQrScanFragment extends Fragment {
             return;
         }
 
-        interventionRepository.isGuestBanned(pass.getGuestIdNumber(), (banned, record, message) -> {
+        runBanCheckThenPersist(pass, verificationMethod, textResult);
+    }
+
+    private void runBanCheckThenPersist(
+            @NonNull GuestPass pass,
+            @NonNull String verificationMethod,
+            @NonNull TextView textResult
+    ) {
+        Log.d(TAG, "runBanCheckThenPersist: pass=" + pass.getPassCode() + " guestId=" + pass.getGuestIdNumber());
+        Handler handler = new Handler(Looper.getMainLooper());
+        AtomicBoolean resolved = new AtomicBoolean(false);
+
+        Runnable timeoutFallback = () -> {
+            if (!resolved.compareAndSet(false, true)) {
+                return;
+            }
             if (!isAdded()) {
+                stashPendingDecisionForDetachedResult(pass, verificationMethod);
+                return;
+            }
+            Log.d(TAG, "banCheck: timed out; continuing to pending decision");
+            persistPendingDecision(pass, verificationMethod, textResult);
+            showBannedCheckUnavailableIfVisible();
+        };
+        handler.postDelayed(timeoutFallback, BAN_CHECK_TIMEOUT_MS);
+        Log.d(TAG, "banCheck: query started");
+
+        interventionRepository.isGuestBanned(pass.getGuestIdNumber(), (banned, record, message) -> {
+            if (!resolved.compareAndSet(false, true)) {
+                return;
+            }
+            handler.removeCallbacks(timeoutFallback);
+            if (!isAdded()) {
+                if (!banned) {
+                    stashPendingDecisionForDetachedResult(pass, verificationMethod);
+                }
                 return;
             }
             Log.d(TAG, "banCheck: banned=" + banned + " message=" + message);
@@ -331,13 +382,22 @@ public class GuardQrScanFragment extends Fragment {
                     return;
                 }
                 if (message.startsWith("ERROR_")) {
-                    // Do not block guard flow on transient banned-list lookup failures.
-                    Snackbar.make(requireView(), R.string.error_banned_check_unavailable, Snackbar.LENGTH_SHORT).show();
                     Log.d(TAG, "banCheck: error path, continuing anyway");
+                    persistPendingDecision(pass, verificationMethod, textResult);
+                    showBannedCheckUnavailableIfVisible();
+                    return;
                 }
                 persistPendingDecision(pass, verificationMethod, textResult);
             });
         });
+    }
+
+    private void showBannedCheckUnavailableIfVisible() {
+        View root = getView();
+        if (root == null) {
+            return;
+        }
+        Snackbar.make(root, R.string.error_banned_check_unavailable, Snackbar.LENGTH_SHORT).show();
     }
 
     private void openExitDecision(@NonNull GuestPass pass) {
@@ -505,8 +565,60 @@ public class GuardQrScanFragment extends Fragment {
         );
     }
 
+    private void stashPendingDecisionForDetachedResult(
+            @NonNull GuestPass pass,
+            @NonNull String verificationMethod
+    ) {
+        String guardUid = currentGuardUid();
+        if (guardUid.trim().isEmpty()) {
+            Log.d(TAG, "stashPendingDecisionForDetachedResult: skipped, guard uid empty");
+            return;
+        }
+        GuardPendingDecision decision = GuardPendingDecision.fromPass(guardUid, pass, verificationMethod);
+        pendingDecisionStore.save(decision);
+        Log.d(TAG, "stashPendingDecisionForDetachedResult: saved pass=" + decision.getPassCode());
+    }
+
+    private void registerPendingDecisionListener() {
+        if (pendingDecisionStore == null || pendingDecisionListener != null) {
+            return;
+        }
+        pendingDecisionListener = (sharedPreferences, key) -> {
+            if (key == null || key.trim().isEmpty()) {
+                return;
+            }
+            String guardUid = currentGuardUid();
+            if (guardUid.trim().isEmpty()) {
+                return;
+            }
+            String expectedKey = pendingDecisionStore.decisionKeyForGuard(guardUid);
+            if (!expectedKey.equals(key)) {
+                return;
+            }
+            if (!isAdded() || getActivity() == null) {
+                return;
+            }
+            requireActivity().runOnUiThread(() -> {
+                if (!isAdded()) {
+                    return;
+                }
+                reopenPendingDecisionIfAny(textResultView);
+            });
+        };
+        pendingDecisionStore.registerListener(pendingDecisionListener);
+    }
+
+    private void unregisterPendingDecisionListener() {
+        if (pendingDecisionStore == null || pendingDecisionListener == null) {
+            return;
+        }
+        pendingDecisionStore.unregisterListener(pendingDecisionListener);
+        pendingDecisionListener = null;
+    }
+
     @Override
     public void onDestroyView() {
+        unregisterPendingDecisionListener();
         textResultView = null;
         super.onDestroyView();
     }
