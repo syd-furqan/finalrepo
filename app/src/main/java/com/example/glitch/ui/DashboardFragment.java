@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -43,8 +42,8 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
     private TextView textSystemStatusMessage;
     private TextView textProtocolLevel;
     private TextView textProtocolDescription;
-    private LinearLayout loadingContainer;
-    private LinearLayout emptyStateCard;
+    private View loadingContainer;
+    private View emptyStateCard;
     private String currentRole = "";
     private String currentUid = "";
 

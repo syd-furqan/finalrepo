@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dashboard_bg">
+    android:background="@color/gf_bg_surface">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/search_scroll"
@@ -20,212 +20,312 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="@dimen/space_24"
-            android:paddingTop="@dimen/space_12"
-            android:paddingEnd="@dimen/space_24"
-            android:paddingBottom="@dimen/space_16">
+            android:paddingStart="@dimen/gf_screen_margin"
+            android:paddingTop="@dimen/gf_space_sm"
+            android:paddingEnd="@dimen/gf_screen_margin"
+            android:paddingBottom="@dimen/gf_space_xl">
 
             <include layout="@layout/include_status_ribbon" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_24"
+                android:layout_marginTop="@dimen/gf_space_lg"
                 android:text="@string/guard_visitor_verification"
-                android:textColor="@color/text_dark"
-                android:textSize="36sp"
-                android:textStyle="bold" />
+                android:textColor="@color/gf_text_primary"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:letterSpacing="-0.01" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
+                android:layout_marginTop="@dimen/gf_space_xs"
                 android:text="@string/guard_search_subtitle"
-                android:textColor="@color/text_muted"
-                android:textSize="16sp" />
+                android:textColor="@color/gf_text_hint"
+                android:textSize="14sp" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_24"
-                android:text="@string/guard_search_credentials"
-                android:textColor="@color/primary_navy"
-                android:textStyle="bold" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
-                android:hint="@string/search_hint">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/input_search_query"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_search"
-                style="@style/Widget.Glitch.Button"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="@dimen/space_12"
-                android:text="@string/search_action"
-                android:textAllCaps="false" />
-
+            <!-- Primary QR scan CTA -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_scan_qr_prompt"
-                style="@style/Widget.Glitch.Button"
+                style="@style/Widget.GateFlow.Button.Primary"
                 android:layout_width="match_parent"
-                android:layout_height="72dp"
-                android:layout_marginTop="@dimen/space_12"
+                android:layout_height="64dp"
+                android:layout_marginTop="@dimen/gf_space_lg"
                 android:drawableStart="@android:drawable/ic_menu_camera"
-                android:drawablePadding="@dimen/space_8"
+                android:drawablePadding="@dimen/gf_space_sm"
                 android:text="@string/scan_qr_code"
                 android:textAllCaps="false"
-                android:textSize="20sp" />
+                android:textSize="16sp" />
 
-            <LinearLayout
+            <!-- Manual search card -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_24"
-                android:background="@color/surface_alt"
-                android:orientation="vertical"
-                android:padding="@dimen/space_16"
-                android:layout_marginBottom="@dimen/space_8">
+                android:layout_marginTop="@dimen/gf_space_md"
+                app:cardBackgroundColor="@color/gf_bg_surface"
+                app:cardCornerRadius="@dimen/gf_card_radius"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/gf_border"
+                app:strokeWidth="1dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/credential_verify_title"
-                    android:textColor="@color/text_dark"
-                    android:textStyle="bold" />
-
-                <com.google.android.material.textfield.TextInputLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
-                    android:hint="@string/credential_identifier">
+                    android:orientation="vertical"
+                    android:padding="@dimen/gf_space_md">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/input_credential_identifier"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/guard_search_credentials"
+                        android:textColor="@color/gf_text_hint"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.08"
+                        android:textAllCaps="true" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.GateFlow.TextInputLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:hint="@string/search_hint"
+                        app:startIconDrawable="@android:drawable/ic_menu_search"
+                        app:startIconTint="@color/gf_text_hint">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/button_verify_credential"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginTop="@dimen/space_8"
-                    android:text="@string/verify_action"
-                    android:textAllCaps="false" />
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_search_query"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                    android:id="@+id/text_verification_result"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_search"
+                        style="@style/Widget.GateFlow.Button.Primary"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gf_button_height"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:text="@string/search_action"
+                        android:textAllCaps="false" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Credential verify card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gf_space_md"
+                app:cardBackgroundColor="@color/gf_bg_surface_dim"
+                app:cardCornerRadius="@dimen/gf_card_radius"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_10"
-                    android:text="@string/verification_result_placeholder"
-                    android:textColor="@color/text_muted"
-                    android:textSize="13sp" />
-            </LinearLayout>
+                    android:orientation="vertical"
+                    android:padding="@dimen/gf_space_md">
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/credential_verify_title"
+                        android:textColor="@color/gf_text_hint"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.08"
+                        android:textAllCaps="true" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.GateFlow.TextInputLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:hint="@string/credential_identifier">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_credential_identifier"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_verify_credential"
+                        style="@style/Widget.GateFlow.Button.Outlined"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/gf_button_height"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:text="@string/verify_action"
+                        android:textAllCaps="false" />
+
+                    <TextView
+                        android:id="@+id/text_verification_result"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:text="@string/verification_result_placeholder"
+                        android:textColor="@color/gf_text_hint"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Quick access directory -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
+                android:layout_marginTop="@dimen/gf_space_lg"
                 android:text="@string/guard_quick_access_directory"
-                android:textColor="@color/text_dark"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textColor="@color/gf_text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:letterSpacing="-0.01" />
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_12"
-                android:background="@color/surface_alt"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="@dimen/space_16">
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/bg_card_white"
-                    android:padding="@dimen/space_8"
-                    android:src="@android:drawable/ic_menu_agenda"
-                    android:tint="@color/primary_navy" />
+                android:layout_marginTop="@dimen/gf_space_sm"
+                app:cardBackgroundColor="@color/gf_bg_surface"
+                app:cardCornerRadius="@dimen/gf_card_radius"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/gf_border"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_12"
-                    android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/guard_faculty_entry"
-                        android:textColor="@color/text_dark"
-                        android:textStyle="bold" />
+                    <!-- Faculty row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="@dimen/gf_space_md"
+                        android:paddingEnd="@dimen/gf_space_md">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/guard_verified_staff_portal"
-                        android:textColor="@color/text_muted"
-                        android:textSize="12sp" />
+                        <LinearLayout
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_icon_container"
+                            android:gravity="center">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@android:drawable/ic_menu_agenda"
+                                android:tint="@color/gf_accent"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/gf_space_md"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/guard_faculty_entry"
+                                android:textColor="@color/gf_text_primary"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/guard_verified_staff_portal"
+                                android:textColor="@color/gf_text_hint"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/ic_media_play"
+                            android:tint="@color/gf_text_hint"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/gf_border"
+                        android:layout_marginStart="@dimen/gf_space_md" />
+
+                    <!-- Vendor row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="@dimen/gf_space_md"
+                        android:paddingEnd="@dimen/gf_space_md">
+
+                        <LinearLayout
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:background="@drawable/bg_icon_container"
+                            android:gravity="center">
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@android:drawable/ic_menu_directions"
+                                android:tint="@color/gf_accent"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/gf_space_md"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/guard_vendor_logistics"
+                                android:textColor="@color/gf_text_primary"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/guard_scheduled_deliveries"
+                                android:textColor="@color/gf_text_hint"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@android:drawable/ic_media_play"
+                            android:tint="@color/gf_text_hint"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
-                android:background="@color/surface_alt"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="@dimen/space_16">
-
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/bg_card_white"
-                    android:padding="@dimen/space_8"
-                    android:src="@android:drawable/ic_menu_directions"
-                    android:tint="@color/primary_navy" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_12"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/guard_vendor_logistics"
-                        android:textColor="@color/text_dark"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/guard_scheduled_deliveries"
-                        android:textColor="@color/text_muted"
-                        android:textSize="12sp" />
-                </LinearLayout>
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_search_results"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_12"
+                android:layout_marginTop="@dimen/gf_space_md"
                 android:nestedScrollingEnabled="false" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

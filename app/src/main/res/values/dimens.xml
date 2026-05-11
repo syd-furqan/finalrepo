@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- ── GateFlow spacing scale ─────────────────────────────────────── -->
+    <dimen name="gf_space_xs">4dp</dimen>
+    <dimen name="gf_space_sm">8dp</dimen>
+    <dimen name="gf_space_md">16dp</dimen>
+    <dimen name="gf_space_lg">24dp</dimen>
+    <dimen name="gf_space_xl">32dp</dimen>
+    <dimen name="gf_space_2xl">48dp</dimen>
+
+    <!-- ── GateFlow component sizes ───────────────────────────────────── -->
+    <dimen name="gf_card_radius">20dp</dimen>
+    <dimen name="gf_card_padding">20dp</dimen>
+    <dimen name="gf_grid_gap">12dp</dimen>
+    <dimen name="gf_screen_margin">16dp</dimen>
+    <dimen name="gf_button_height">54dp</dimen>
+    <dimen name="gf_input_height">56dp</dimen>
+    <dimen name="gf_icon_container">56dp</dimen>
+    <dimen name="gf_icon_size">28dp</dimen>
+
+    <!-- ── Legacy aliases (keep existing code compiling) ──────────────── -->
     <dimen name="space_2">2dp</dimen>
     <dimen name="space_4">4dp</dimen>
     <dimen name="space_6">6dp</dimen>
@@ -28,6 +48,7 @@
     <dimen name="stroke_2">2dp</dimen>
 
     <dimen name="min_touch_target">48dp</dimen>
-    <dimen name="bottom_nav_height">84dp</dimen>
+    <dimen name="bottom_nav_height">80dp</dimen>
     <dimen name="fab_size_primary">56dp</dimen>
+
 </resources>

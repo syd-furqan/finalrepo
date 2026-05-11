@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dashboard_bg">
+    android:background="@color/gf_bg_surface">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -26,7 +26,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Violation Reports"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="All submitted violation reports."
-            android:textColor="@color/text_muted"
+            android:textColor="@color/gf_text_hint"
             android:textSize="13sp" />
 
         <TextView
@@ -53,7 +53,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="No violation reports yet."
-            android:textColor="@color/text_muted"
+            android:textColor="@color/gf_text_hint"
             android:visibility="gone" />
 
         <androidx.recyclerview.widget.RecyclerView

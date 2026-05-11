@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dashboard_bg">
+    android:background="@color/gf_bg_surface">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
@@ -18,49 +18,49 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="@dimen/space_24"
-            android:paddingTop="@dimen/space_12"
-            android:paddingEnd="@dimen/space_24"
-            android:paddingBottom="@dimen/space_24">
+            android:paddingStart="@dimen/gf_space_lg"
+            android:paddingTop="@dimen/gf_grid_gap"
+            android:paddingEnd="@dimen/gf_space_lg"
+            android:paddingBottom="@dimen/gf_space_lg">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="System Administration"
                 android:textAllCaps="true"
-                android:textColor="@color/primary_navy"
+                android:textColor="@color/gf_text_primary"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
+                android:layout_marginTop="@dimen/gf_space_sm"
                 android:text="Access Control&#10;Directory"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textSize="48sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
+                android:layout_marginTop="@dimen/gf_space_sm"
                 android:text="Manage institutional personnel, update clearances, and oversee active system users."
-                android:textColor="@color/text_muted"
+                android:textColor="@color/gf_text_hint"
                 android:textSize="18sp" />
 
             <com.google.android.material.button.MaterialButton
                 style="@style/Widget.Glitch.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_12"
+                android:layout_marginTop="@dimen/gf_grid_gap"
                 android:text="Add New User"
                 android:textAllCaps="false" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_24"
+                android:layout_marginTop="@dimen/gf_space_lg"
                 android:hint="@string/label_search_users">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -71,11 +71,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
+                android:layout_marginTop="@dimen/gf_space_sm"
                 android:gravity="center_vertical"
-                android:background="@color/surface_alt"
+                android:background="@color/gf_bg_surface_dim"
                 android:orientation="horizontal"
-                android:paddingHorizontal="@dimen/space_12">
+                android:paddingHorizontal="@dimen/gf_grid_gap">
 
                 <ImageView
                     android:layout_width="18dp"
@@ -86,10 +86,10 @@
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_8"
+                    android:layout_marginStart="@dimen/gf_space_sm"
                     android:layout_weight="1"
                     android:text="@string/label_filters"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textStyle="bold" />
 
                 <TextView
@@ -98,7 +98,7 @@
                     android:background="@drawable/bg_button_primary"
                     android:gravity="center"
                     android:text="3"
-                    android:textColor="@color/white"
+                    android:textColor="@color/gf_text_on_dark"
                     android:textSize="11sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -106,11 +106,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
-                android:background="@color/surface_alt"
+                android:layout_marginTop="@dimen/gf_space_md"
+                android:background="@color/gf_bg_surface_dim"
                 android:orientation="horizontal"
-                android:paddingHorizontal="@dimen/space_16"
-                android:paddingTop="@dimen/space_12"
+                android:paddingHorizontal="@dimen/gf_space_md"
+                android:paddingTop="@dimen/gf_grid_gap"
                 android:paddingBottom="@dimen/space_10">
 
                 <TextView
@@ -118,7 +118,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="USER&#10;IDENTITY"
-                    android:textColor="@color/text_muted"
+                    android:textColor="@color/gf_text_hint"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
@@ -127,7 +127,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="end"
                     android:text="ADMINISTRATIVE&#10;ACTIONS"
-                    android:textColor="@color/text_muted"
+                    android:textColor="@color/gf_text_hint"
                     android:textSize="16sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -136,9 +136,9 @@
                 android:id="@+id/text_users_empty"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
+                android:layout_marginTop="@dimen/gf_space_md"
                 android:text="@string/no_users"
-                android:textColor="@color/text_muted"
+                android:textColor="@color/gf_text_hint"
                 android:textStyle="bold"
                 android:visibility="gone" />
 
@@ -146,29 +146,29 @@
                 android:id="@+id/recycler_users"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
+                android:layout_marginTop="@dimen/gf_space_sm"
                 android:nestedScrollingEnabled="false" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
-                android:background="@drawable/bg_card_white"
+                android:layout_marginTop="@dimen/gf_space_md"
+                android:background="@color/gf_bg_surface_dim"
                 android:orientation="vertical"
-                android:padding="@dimen/space_16">
+                android:padding="@dimen/gf_space_md">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Quick User Editor"
-                    android:textColor="@color/primary_navy"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
+                    android:layout_marginTop="@dimen/gf_space_sm"
                     android:hint="@string/user_uid_label">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -180,7 +180,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
+                    android:layout_marginTop="@dimen/gf_space_sm"
                     android:hint="@string/login_email">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -192,7 +192,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
+                    android:layout_marginTop="@dimen/gf_space_sm"
                     android:hint="@string/user_role_label">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -204,7 +204,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
+                    android:layout_marginTop="@dimen/gf_space_sm"
                     android:hint="@string/user_name_label">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -216,7 +216,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
+                    android:layout_marginTop="@dimen/gf_space_sm"
                     android:hint="@string/user_student_category_label">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -228,7 +228,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
+                    android:layout_marginTop="@dimen/gf_space_sm"
                     android:hint="Student ID">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -242,7 +242,7 @@
                     style="@style/Widget.Glitch.Button"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
-                    android:layout_marginTop="@dimen/space_12"
+                    android:layout_marginTop="@dimen/gf_grid_gap"
                     android:text="@string/save_user_action"
                     android:textAllCaps="false" />
             </LinearLayout>
@@ -250,25 +250,25 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_12"
+                android:layout_marginTop="@dimen/gf_grid_gap"
                 android:background="@color/overlay_tint_primary_soft"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="@dimen/space_12">
+                android:padding="@dimen/gf_grid_gap">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Showing 1-10 of 1,240 users"
-                    android:textColor="@color/text_muted"
+                    android:textColor="@color/gf_text_hint"
                     android:textSize="12sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="1  2  3"
-                    android:textColor="@color/primary_navy"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
             </LinearLayout>

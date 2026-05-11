@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dashboard_bg">
+    android:background="@color/gf_bg_surface">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
@@ -24,22 +24,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/analytics_title"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_4"
+                android:layout_marginTop="@dimen/gf_space_xs"
                 android:text="@string/analytics_subtitle"
-                android:textColor="@color/text_muted"
+                android:textColor="@color/gf_text_hint"
                 android:textSize="13sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_12"
+                android:layout_marginTop="@dimen/gf_grid_gap"
                 android:orientation="horizontal">
 
                 <com.google.android.material.chip.Chip
@@ -54,7 +54,7 @@
                     style="@style/Widget.Material3.Chip.Assist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_8"
+                    android:layout_marginStart="@dimen/gf_space_sm"
                     android:text="@string/analytics_period_weekly" />
 
                 <com.google.android.material.chip.Chip
@@ -62,14 +62,14 @@
                     style="@style/Widget.Material3.Chip.Assist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_8"
+                    android:layout_marginStart="@dimen/gf_space_sm"
                     android:text="@string/analytics_period_monthly" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_12"
+                android:layout_marginTop="@dimen/gf_grid_gap"
                 android:orientation="horizontal">
 
                 <com.google.android.material.card.MaterialCardView
@@ -83,22 +83,22 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="@dimen/space_12">
+                        android:padding="@dimen/gf_grid_gap">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/analytics_incoming"
-                            android:textColor="@color/text_muted"
+                            android:textColor="@color/gf_text_hint"
                             android:textSize="12sp" />
 
                         <TextView
                             android:id="@+id/text_kpi_incoming"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/space_4"
+                            android:layout_marginTop="@dimen/gf_space_xs"
                             android:text="0"
-                            android:textColor="@color/text_dark"
+                            android:textColor="@color/gf_text_primary"
                             android:textSize="24sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -108,7 +108,7 @@
                     style="@style/Widget.Material3.CardView.Filled"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_8"
+                    android:layout_marginStart="@dimen/gf_space_sm"
                     android:layout_weight="1"
                     app:cardBackgroundColor="@color/surface_alt">
 
@@ -116,22 +116,22 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="@dimen/space_12">
+                        android:padding="@dimen/gf_grid_gap">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/analytics_alerts"
-                            android:textColor="@color/text_muted"
+                            android:textColor="@color/gf_text_hint"
                             android:textSize="12sp" />
 
                         <TextView
                             android:id="@+id/text_kpi_alerts"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/space_4"
+                            android:layout_marginTop="@dimen/gf_space_xs"
                             android:text="0"
-                            android:textColor="@color/text_dark"
+                            android:textColor="@color/gf_text_primary"
                             android:textSize="24sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -141,7 +141,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
+                android:layout_marginTop="@dimen/gf_space_sm"
                 android:orientation="horizontal">
 
                 <com.google.android.material.card.MaterialCardView
@@ -155,22 +155,22 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="@dimen/space_12">
+                        android:padding="@dimen/gf_grid_gap">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/analytics_admitted"
-                            android:textColor="@color/text_muted"
+                            android:textColor="@color/gf_text_hint"
                             android:textSize="12sp" />
 
                         <TextView
                             android:id="@+id/text_kpi_admitted"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/space_4"
+                            android:layout_marginTop="@dimen/gf_space_xs"
                             android:text="0"
-                            android:textColor="@color/text_dark"
+                            android:textColor="@color/gf_text_primary"
                             android:textSize="20sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -180,7 +180,7 @@
                     style="@style/Widget.Material3.CardView.Filled"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_8"
+                    android:layout_marginStart="@dimen/gf_space_sm"
                     android:layout_weight="1"
                     app:cardBackgroundColor="@color/surface_alt">
 
@@ -188,20 +188,20 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="@dimen/space_12">
+                        android:padding="@dimen/gf_grid_gap">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/analytics_denied"
-                            android:textColor="@color/text_muted"
+                            android:textColor="@color/gf_text_hint"
                             android:textSize="12sp" />
 
                         <TextView
                             android:id="@+id/text_kpi_denied"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/space_4"
+                            android:layout_marginTop="@dimen/gf_space_xs"
                             android:text="0"
                             android:textColor="@color/danger_red"
                             android:textSize="20sp"
@@ -213,7 +213,7 @@
                     style="@style/Widget.Material3.CardView.Filled"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_8"
+                    android:layout_marginStart="@dimen/gf_space_sm"
                     android:layout_weight="1"
                     app:cardBackgroundColor="@color/surface_alt">
 
@@ -221,22 +221,22 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="@dimen/space_12">
+                        android:padding="@dimen/gf_grid_gap">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/analytics_exited"
-                            android:textColor="@color/text_muted"
+                            android:textColor="@color/gf_text_hint"
                             android:textSize="12sp" />
 
                         <TextView
                             android:id="@+id/text_kpi_exited"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/space_4"
+                            android:layout_marginTop="@dimen/gf_space_xs"
                             android:text="0"
-                            android:textColor="@color/text_dark"
+                            android:textColor="@color/gf_text_primary"
                             android:textSize="20sp"
                             android:textStyle="bold" />
                     </LinearLayout>
@@ -246,7 +246,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
+                android:layout_marginTop="@dimen/gf_space_sm"
                 android:orientation="horizontal">
 
                 <TextView
@@ -255,7 +255,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Overdue: 0"
-                    android:textColor="@color/text_muted"
+                    android:textColor="@color/gf_text_hint"
                     android:textSize="12sp" />
 
                 <TextView
@@ -265,7 +265,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="Reported: 0"
-                    android:textColor="@color/text_muted"
+                    android:textColor="@color/gf_text_hint"
                     android:textSize="12sp" />
 
                 <TextView
@@ -275,79 +275,79 @@
                     android:layout_weight="1"
                     android:gravity="end"
                     android:text="Deny 0% • Report 0%"
-                    android:textColor="@color/text_muted"
+                    android:textColor="@color/gf_text_hint"
                     android:textSize="12sp" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
+                android:layout_marginTop="@dimen/gf_space_md"
                 android:text="@string/analytics_trend_title"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textStyle="bold" />
 
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart_trend"
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
-                android:layout_marginTop="@dimen/space_8" />
+                android:layout_marginTop="@dimen/gf_space_sm" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_12"
+                android:layout_marginTop="@dimen/gf_grid_gap"
                 android:text="@string/analytics_outcome_mix_title"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textStyle="bold" />
 
             <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/chart_outcomes"
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
-                android:layout_marginTop="@dimen/space_8" />
+                android:layout_marginTop="@dimen/gf_space_sm" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_12"
+                android:layout_marginTop="@dimen/gf_grid_gap"
                 android:text="@string/analytics_sponsor_mix_title"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textStyle="bold" />
 
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/chart_role_mix"
                 android:layout_width="match_parent"
                 android:layout_height="260dp"
-                android:layout_marginTop="@dimen/space_8" />
+                android:layout_marginTop="@dimen/gf_space_sm" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_12"
+                android:layout_marginTop="@dimen/gf_grid_gap"
                 android:text="@string/analytics_top_guards_title"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textStyle="bold" />
 
             <com.github.mikephil.charting.charts.HorizontalBarChart
                 android:id="@+id/chart_top_guards"
                 android:layout_width="match_parent"
                 android:layout_height="240dp"
-                android:layout_marginTop="@dimen/space_8" />
+                android:layout_marginTop="@dimen/gf_space_sm" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_12"
+                android:layout_marginTop="@dimen/gf_grid_gap"
                 android:text="@string/analytics_top_reason_codes_title"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textStyle="bold" />
 
             <LinearLayout
                 android:id="@+id/container_top_reason_codes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
+                android:layout_marginTop="@dimen/gf_space_sm"
                 android:orientation="vertical" />
 
             <com.google.android.material.button.MaterialButton
@@ -355,7 +355,7 @@
                 style="@style/Widget.Glitch.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
+                android:layout_marginTop="@dimen/gf_space_md"
                 android:text="@string/analytics_open_audit_drilldown"
                 android:textAllCaps="false" />
         </LinearLayout>
