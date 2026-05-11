@@ -66,27 +66,23 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_search"
-                style="@style/Widget.Material3.Button"
+                style="@style/Widget.Glitch.Button"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="@dimen/space_12"
-                android:background="@drawable/bg_button_primary"
                 android:text="@string/search_action"
-                android:textAllCaps="false"
-                android:textColor="@color/white" />
+                android:textAllCaps="false" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_scan_qr_prompt"
-                style="@style/Widget.Material3.Button"
+                style="@style/Widget.Glitch.Button"
                 android:layout_width="match_parent"
                 android:layout_height="72dp"
                 android:layout_marginTop="@dimen/space_12"
-                android:background="@drawable/bg_button_primary"
                 android:drawableStart="@android:drawable/ic_menu_camera"
                 android:drawablePadding="@dimen/space_8"
                 android:text="@string/scan_qr_code"
                 android:textAllCaps="false"
-                android:textColor="@color/white"
                 android:textSize="20sp" />
 
             <LinearLayout

@@ -1,22 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Brand palette -->
+    <color name="brand_primary">#03256C</color>
+    <color name="brand_secondary">#2541B2</color>
+    <color name="brand_tertiary">#1768AC</color>
+    <color name="brand_accent">#06BEE1</color>
+    <color name="brand_surface">#FFFFFF</color>
+
+    <!-- Material 3 semantic colors -->
+    <color name="md_primary">@color/brand_primary</color>
+    <color name="md_on_primary">#FFFFFFFF</color>
+    <color name="md_primary_container">#DCE6FF</color>
+    <color name="md_on_primary_container">#001A4D</color>
+
+    <color name="md_secondary">@color/brand_secondary</color>
+    <color name="md_on_secondary">#FFFFFFFF</color>
+    <color name="md_secondary_container">#E1E6FF</color>
+    <color name="md_on_secondary_container">#0D1F63</color>
+
+    <color name="md_tertiary">@color/brand_tertiary</color>
+    <color name="md_on_tertiary">#FFFFFFFF</color>
+    <color name="md_tertiary_container">#DCEFFF</color>
+    <color name="md_on_tertiary_container">#003558</color>
+
+    <color name="md_background">@color/brand_surface</color>
+    <color name="md_on_background">#0F172A</color>
+    <color name="md_surface">@color/brand_surface</color>
+    <color name="md_on_surface">#0F172A</color>
+    <color name="md_surface_variant">#F2F5FB</color>
+    <color name="md_on_surface_variant">#4B556C</color>
+    <color name="md_outline">#C1CADC</color>
+    <color name="md_outline_variant">#E0E6F1</color>
+
+    <color name="md_error">#BA1A1A</color>
+    <color name="md_on_error">#FFFFFFFF</color>
+    <color name="md_error_container">#FFDAD6</color>
+    <color name="md_on_error_container">#410002</color>
+
+    <!-- Semantic supporting colors -->
+    <color name="semantic_success">#1E7A3A</color>
+    <color name="semantic_success_container">#D9F5E1</color>
+    <color name="semantic_success_on_container">#0F4A24</color>
+    <color name="semantic_warning">#8A5A00</color>
+    <color name="semantic_warning_container">#FFF4DB</color>
+    <color name="semantic_warning_on_container">#553900</color>
+    <color name="semantic_info_container">#EAF7FF</color>
+    <color name="semantic_info_on_container">#0D4E77</color>
+    <color name="overlay_tint_primary_soft">#1403256C</color>
+    <color name="overlay_tint_error_soft">#33BA1A1A</color>
+    <color name="overlay_scrim_low">#1A000000</color>
+    <color name="on_dark_high">#CCFFFFFF</color>
+    <color name="on_dark_medium">#99FFFFFF</color>
+    <color name="line_neutral">#EEEEEE</color>
+
+    <!-- Compatibility aliases for existing layouts/code -->
     <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="dashboard_bg">#F9F9F9</color>
-    <color name="primary_navy">#13177B</color>
-    <color name="primary_navy_2">#2D3291</color>
-    <color name="text_dark">#282828</color>
-    <color name="text_muted">#5E5E5E</color>
-    <color name="chip_bg">#E5E8F7</color>
-    <color name="card_border">#E7E7EB</color>
-    <color name="surface_alt">#F3F3F3</color>
-    <color name="surface_soft_blue">#EFF6FF</color>
-    <color name="surface_soft_red">#FFEDEA</color>
-    <color name="divider_light">#E2E2E2</color>
-    <color name="status_dot">#262CBB</color>
-    <color name="danger_red">#BA1A1A</color>
-    <color name="danger_text">#93000A</color>
-    <color name="success_green">#166534</color>
-    <color name="success_bg">#DCFCE7</color>
-    <color name="nav_unselected">#9CA3AF</color>
+    <color name="white">@color/md_on_primary</color>
+    <color name="dashboard_bg">@color/md_background</color>
+    <color name="primary_navy">@color/brand_primary</color>
+    <color name="primary_navy_2">@color/brand_secondary</color>
+    <color name="text_dark">@color/md_on_surface</color>
+    <color name="text_muted">@color/md_on_surface_variant</color>
+    <color name="chip_bg">@color/md_primary_container</color>
+    <color name="card_border">@color/md_outline_variant</color>
+    <color name="surface_alt">@color/md_surface_variant</color>
+    <color name="surface_soft_blue">@color/semantic_info_container</color>
+    <color name="surface_soft_red">@color/md_error_container</color>
+    <color name="divider_light">@color/md_outline_variant</color>
+    <color name="status_dot">@color/brand_accent</color>
+    <color name="danger_red">@color/md_error</color>
+    <color name="danger_text">@color/md_on_error_container</color>
+    <color name="success_green">@color/semantic_success</color>
+    <color name="success_bg">@color/semantic_success_container</color>
+    <color name="nav_unselected">#7A869E</color>
 </resources>

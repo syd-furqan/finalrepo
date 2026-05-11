@@ -44,7 +44,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_12"
                     android:text="Important security and review items for admin action."
-                    android:textColor="#CCFFFFFF"
+                    android:textColor="@color/on_dark_high"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -65,7 +65,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_open_alert_filters"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    style="@style/Widget.Glitch.Button.Outlined"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/space_8"

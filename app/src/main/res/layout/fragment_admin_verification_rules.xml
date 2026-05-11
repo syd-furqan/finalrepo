@@ -148,7 +148,7 @@
                     </LinearLayout>
 
                     <com.google.android.material.button.MaterialButton
-                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        style="@style/Widget.Glitch.Button.Outlined"
                         android:layout_width="match_parent"
                         android:layout_height="44dp"
                         android:layout_marginTop="@dimen/space_12"
@@ -231,7 +231,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/space_16"
-                        android:background="#0D13177B"
+                        android:background="@color/overlay_tint_primary_soft"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
                         android:padding="@dimen/space_12">
@@ -294,7 +294,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_12"
-                    android:background="#33BA1A1A"
+                    android:background="@color/overlay_tint_error_soft"
                     android:paddingHorizontal="@dimen/space_12"
                     android:paddingVertical="6dp"
                     android:text="CRITICAL"
@@ -307,7 +307,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_12"
                     android:text="System is currently broadcasting real-time breach notifications to all administrative terminals."
-                    android:textColor="#CCFFFFFF"
+                    android:textColor="@color/on_dark_high"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -329,16 +329,15 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_save_rules"
+                    style="@style/Widget.Glitch.Button"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="@dimen/space_12"
-                    android:background="@drawable/bg_button_primary"
                     android:text="Push Updates Globally"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white" />
+                    android:textAllCaps="false" />
 
                 <com.google.android.material.button.MaterialButton
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    style="@style/Widget.Glitch.Button.Outlined"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="@dimen/space_12"
@@ -360,7 +359,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="In-Gate Synchronization"
-                    android:textColor="#99FFFFFF"
+                    android:textColor="@color/on_dark_medium"
                     android:textSize="10sp"
                     android:textStyle="bold" />
 

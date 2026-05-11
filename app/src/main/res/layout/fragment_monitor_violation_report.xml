@@ -241,7 +241,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_verify_guest"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        style="@style/Widget.Glitch.Button.Outlined"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Verify"
@@ -272,7 +272,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_verify_guest_passcode"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        style="@style/Widget.Glitch.Button.Outlined"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
@@ -281,7 +281,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_scan_guest_qr"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        style="@style/Widget.Glitch.Button.Outlined"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Scan"
@@ -358,7 +358,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_verify_student"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        style="@style/Widget.Glitch.Button.Outlined"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Verify"
@@ -378,14 +378,13 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_submit_report"
+                style="@style/Widget.Glitch.Button"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/bg_button_primary"
                 android:enabled="false"
                 android:text="Submit Report"
-                android:textAllCaps="false"
-                android:textColor="@color/white" />
+                android:textAllCaps="false" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

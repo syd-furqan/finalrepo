@@ -10,9 +10,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_chip_role"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="2dp"
-        android:textColor="@color/primary_navy"
+        android:paddingHorizontal="@dimen/space_8"
+        android:paddingVertical="@dimen/space_2"
+        android:textColor="@color/md_primary"
         android:textSize="10sp"
         android:textStyle="bold" />
 
@@ -43,10 +43,10 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_open_notification_source"
+        style="@style/Widget.Glitch.Button"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="@dimen/min_touch_target"
         android:layout_marginTop="@dimen/space_16"
-        android:background="@drawable/bg_button_primary"
         android:text="@string/open_related_action"
         android:textAllCaps="false"
         android:textColor="@color/white"
@@ -54,8 +54,9 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_close_notification_details"
+        style="@style/Widget.Glitch.Button.Outlined"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="@dimen/min_touch_target"
         android:layout_marginTop="@dimen/space_8"
         android:text="@string/close_action"
         android:textAllCaps="false" />

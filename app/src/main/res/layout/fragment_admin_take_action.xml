@@ -197,7 +197,7 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_pick_inhibit_end"
-                        style="@style/Widget.Material3.Button.TextButton"
+                        style="@style/Widget.Glitch.Button.Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/inhibit_pick_end" />
@@ -231,17 +231,16 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_publish_announcement"
+                style="@style/Widget.Glitch.Button"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="@dimen/space_16"
-                android:background="@drawable/bg_button_primary"
                 android:text="@string/announce_publish_action"
-                android:textAllCaps="false"
-                android:textColor="@color/white" />
+                android:textAllCaps="false" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_restore_services"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.Glitch.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="@dimen/space_8"

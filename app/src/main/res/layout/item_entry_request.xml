@@ -152,13 +152,13 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_details"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Glitch.Button.Outlined"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:text="@string/details_action"
             android:textAllCaps="false"
             android:textColor="@color/text_dark"
-            app:strokeColor="#767683"
+            app:strokeColor="@color/md_outline"
             app:strokeWidth="1dp" />
     </LinearLayout>
 

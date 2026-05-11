@@ -1,6 +1,5 @@
 package com.example.glitch.ui;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.glitch.R;
@@ -400,8 +400,8 @@ public class GuardPendingDecisionFragment extends Fragment {
         if (!result.isSuccess()) {
             setCnicVerified(false);
             textCnicResult.setText(getString(R.string.guard_cnic_scan_warning, result.getFailureReason()));
-            textCnicResult.setBackgroundColor(0xFFFFF3CD);
-            textCnicResult.setTextColor(Color.parseColor("#856404"));
+            textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.semantic_warning_container));
+            textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.semantic_warning_on_container));
             layoutManualOverride.setVisibility(View.VISIBLE);
             return;
         }
@@ -413,13 +413,13 @@ public class GuardPendingDecisionFragment extends Fragment {
         if (matches) {
             setCnicVerified(true);
             textCnicResult.setText(getString(R.string.guard_cnic_match, scanned));
-            textCnicResult.setBackgroundColor(0xFFD1FAE5);
-            textCnicResult.setTextColor(Color.parseColor("#065F46"));
+            textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_container));
+            textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_on_container));
         } else {
             setCnicVerified(false);
             textCnicResult.setText(getString(R.string.guard_cnic_mismatch, scanned, expected));
-            textCnicResult.setBackgroundColor(0xFFFFE4E6);
-            textCnicResult.setTextColor(Color.parseColor("#991B1B"));
+            textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_error_container));
+            textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_on_error_container));
             layoutManualOverride.setVisibility(View.VISIBLE);
         }
     }
@@ -440,15 +440,15 @@ public class GuardPendingDecisionFragment extends Fragment {
             setCnicVerified(true);
             textCnicResult.setVisibility(View.VISIBLE);
             textCnicResult.setText(getString(R.string.guard_cnic_match_manual, normalized));
-            textCnicResult.setBackgroundColor(0xFFD1FAE5);
-            textCnicResult.setTextColor(Color.parseColor("#065F46"));
+            textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_container));
+            textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_on_container));
             layoutManualOverride.setVisibility(View.GONE);
         } else {
             setCnicVerified(false);
             textCnicResult.setVisibility(View.VISIBLE);
             textCnicResult.setText(getString(R.string.guard_cnic_mismatch_entered, normalized, expected));
-            textCnicResult.setBackgroundColor(0xFFFFE4E6);
-            textCnicResult.setTextColor(Color.parseColor("#991B1B"));
+            textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_error_container));
+            textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_on_error_container));
             layoutCnicManualInput.setError(getString(R.string.guard_cnic_not_match_records));
         }
     }

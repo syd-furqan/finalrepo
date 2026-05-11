@@ -50,13 +50,12 @@
                 android:textSize="18sp" />
 
             <com.google.android.material.button.MaterialButton
+                style="@style/Widget.Glitch.Button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_12"
-                android:background="@drawable/bg_button_primary"
                 android:text="Add New User"
-                android:textAllCaps="false"
-                android:textColor="@color/white" />
+                android:textAllCaps="false" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
@@ -240,20 +239,19 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_save_user"
+                    style="@style/Widget.Glitch.Button"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="@dimen/space_12"
-                    android:background="@drawable/bg_button_primary"
                     android:text="@string/save_user_action"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white" />
+                    android:textAllCaps="false" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_12"
-                android:background="#33F3F3F3"
+                android:background="@color/overlay_tint_primary_soft"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="@dimen/space_12">

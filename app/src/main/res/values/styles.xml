@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Typography roles tuned for existing XML text-heavy screens -->
+    <style name="TextAppearance.Glitch.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/md_on_surface</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Glitch.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/md_on_surface</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Glitch.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/md_on_surface_variant</item>
+    </style>
+
+    <!-- Component shape defaults -->
+    <style name="ShapeAppearance.Glitch.Corner.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/radius_12</item>
+    </style>
+
+    <style name="ShapeAppearance.Glitch.Corner.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/radius_8</item>
+    </style>
+
+    <!-- Buttons -->
+    <style name="Widget.Glitch.Button" parent="Widget.Material3.Button">
+        <item name="shapeAppearance">@style/ShapeAppearance.Glitch.Corner.Medium</item>
+        <item name="android:minHeight">@dimen/min_touch_target</item>
+        <item name="backgroundTint">@color/md_primary</item>
+        <item name="android:textColor">@color/md_on_primary</item>
+        <item name="rippleColor">@color/md_primary_container</item>
+    </style>
+
+    <style name="Widget.Glitch.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="shapeAppearance">@style/ShapeAppearance.Glitch.Corner.Medium</item>
+        <item name="android:minHeight">@dimen/min_touch_target</item>
+        <item name="strokeColor">@color/md_outline</item>
+        <item name="android:textColor">@color/md_on_surface</item>
+    </style>
+
+    <style name="Widget.Glitch.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="shapeAppearance">@style/ShapeAppearance.Glitch.Corner.Small</item>
+        <item name="android:minHeight">@dimen/min_touch_target</item>
+        <item name="android:textColor">@color/md_primary</item>
+    </style>
+
+    <!-- Inputs -->
+    <style name="Widget.Glitch.TextInputLayout.Outlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="shapeAppearance">@style/ShapeAppearance.Glitch.Corner.Medium</item>
+        <item name="hintTextColor">@color/md_on_surface_variant</item>
+        <item name="boxStrokeColor">@color/md_outline</item>
+        <item name="boxStrokeErrorColor">@color/md_error</item>
+    </style>
+
+    <style name="Widget.Glitch.TextInputEditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+        <item name="android:textColor">@color/md_on_surface</item>
+        <item name="android:textColorHint">@color/md_on_surface_variant</item>
+    </style>
+
+</resources>
