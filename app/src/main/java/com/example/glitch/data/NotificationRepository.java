@@ -17,6 +17,10 @@ public interface NotificationRepository {
 
 	void listenNotifications(@NonNull String uid, @NonNull NotificationListener listener);
 
+	void listenAnnouncements(@NonNull String uid, @NonNull NotificationListener listener);
+
+	void listenUnreadAnnouncementCount(@NonNull String uid, @NonNull UnreadCountListener listener);
+
 	void markNotificationRead(
 			@NonNull String uid,
 			@NonNull String notificationId,
@@ -39,6 +43,12 @@ public interface NotificationRepository {
 
 	interface NotificationListener {
 		void onData(@NonNull List<NotificationItem> notifications);
+
+		void onError(@NonNull Exception exception);
+	}
+
+	interface UnreadCountListener {
+		void onCountChanged(int unreadCount);
 
 		void onError(@NonNull Exception exception);
 	}

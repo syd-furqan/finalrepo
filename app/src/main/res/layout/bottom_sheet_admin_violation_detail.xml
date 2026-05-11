@@ -163,7 +163,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_guest_ban_date"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    style="@style/Widget.Glitch.Button.Outlined"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
@@ -250,7 +250,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_submit_review"
-                style="@style/Widget.Material3.Button"
+                style="@style/Widget.Glitch.Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
@@ -260,7 +260,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_report_close"
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Widget.Glitch.Button.Text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"

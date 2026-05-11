@@ -1,9 +1,9 @@
 package com.example.glitch.ui;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +12,7 @@ import android.widget.TextView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.glitch.R;
@@ -44,6 +45,8 @@ import java.util.Map;
  * Full-screen, non-cancelable guard decision screen for unresolved scanned passes.
  */
 public class GuardPendingDecisionFragment extends Fragment {
+    private static final String ARG_PENDING_DECISION_JSON = "arg_pending_decision_json";
+    private static final String TAG = "GuardPendingFlow";
     private EntryRequestRepository entryRequestRepository;
     private GuestPassRepository guestPassRepository;
     private GuardPendingDecisionStore pendingDecisionStore;
@@ -66,6 +69,15 @@ public class GuardPendingDecisionFragment extends Fragment {
         return new GuardPendingDecisionFragment();
     }
 
+    @NonNull
+    public static GuardPendingDecisionFragment newInstance(@NonNull GuardPendingDecision decision) {
+        GuardPendingDecisionFragment fragment = new GuardPendingDecisionFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PENDING_DECISION_JSON, decision.toJson());
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +85,7 @@ public class GuardPendingDecisionFragment extends Fragment {
             @Override
             public void onScanStarted() {
                 if (isAdded()) {
-                    Snackbar.make(requireView(), "Scanning CNIC…", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(requireView(), R.string.guard_scanning_cnic, Snackbar.LENGTH_SHORT).show();
                 }
             }
 
@@ -133,10 +145,18 @@ public class GuardPendingDecisionFragment extends Fragment {
         view.findViewById(R.id.button_cnic_manual_verify).setOnClickListener(v -> verifyManualCnic());
 
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.SCAN);
+        GuardLanguageUiBinder.bind(view, this);
 
         String guardUid = currentGuardUid();
-        pendingDecision = pendingDecisionStore.getForGuard(guardUid);
+        pendingDecision = readPendingDecisionFromArgs(guardUid);
         if (pendingDecision == null) {
+            pendingDecision = pendingDecisionStore.getForGuard(guardUid);
+            Log.d(TAG, "onViewCreated: loaded pending from store=" + (pendingDecision != null));
+        } else {
+            Log.d(TAG, "onViewCreated: loaded pending from args pass=" + pendingDecision.getPassCode());
+        }
+        if (pendingDecision == null) {
+            Log.d(TAG, "onViewCreated: pending decision missing, routing back to scan");
             routeToScanAndShowMessage(getString(R.string.guard_pending_missing));
             return;
         }
@@ -144,6 +164,29 @@ public class GuardPendingDecisionFragment extends Fragment {
         bindDecision(view, pendingDecision);
         setDecisionActionable(false);
         revalidatePendingDecision();
+    }
+
+    @Nullable
+    private GuardPendingDecision readPendingDecisionFromArgs(@NonNull String guardUid) {
+        Bundle args = getArguments();
+        if (args == null) {
+            return null;
+        }
+        String raw = args.getString(ARG_PENDING_DECISION_JSON, "");
+        GuardPendingDecision fromArgs = GuardPendingDecision.fromJson(raw);
+        if (fromArgs == null || !fromArgs.isValid()) {
+            return null;
+        }
+        String expectedUid = guardUid.trim();
+        String decisionUid = fromArgs.getGuardUid().trim();
+        if (!expectedUid.isEmpty() && !expectedUid.equals(decisionUid)) {
+            return null;
+        }
+        if (!expectedUid.isEmpty()) {
+            pendingDecisionStore.save(fromArgs);
+        }
+        Log.d(TAG, "readPendingDecisionFromArgs: accepted args decision for pass=" + fromArgs.getPassCode());
+        return fromArgs;
     }
 
     private void bindDecision(@NonNull View view, @NonNull GuardPendingDecision decision) {
@@ -171,7 +214,7 @@ public class GuardPendingDecisionFragment extends Fragment {
         ));
         textVehiclePlate.setText(getString(
                 R.string.guard_pending_vehicle_plate_label,
-                decision.hasVehicle() ? valueOrUnavailable(decision.getVehiclePlate()) : "N/A"
+                decision.hasVehicle() ? valueOrUnavailable(decision.getVehiclePlate()) : getString(R.string.not_available)
         ));
         textGate.setText(getString(R.string.gate_label) + ": " + GatePolicy.toDisplayLabel(decision.getGateLabel()));
         textSponsor.setText(getString(
@@ -206,15 +249,21 @@ public class GuardPendingDecisionFragment extends Fragment {
                 }
                 requireActivity().runOnUiThread(() -> {
                     if (!isPendingPassActionable(pass, pendingDecision)) {
+                        Log.d(TAG, "revalidatePendingDecision: not actionable; status="
+                                + (pass == null ? "<null>" : pass.getStatus())
+                                + " entryRequestId="
+                                + (pass == null ? "<null>" : pass.getEntryRequestId()));
                         recordPendingInvalidated(pass);
                         clearAndReturnToScan(getString(R.string.guard_pending_not_actionable));
                         return;
                     }
                     if (pendingDecision.hasVehicle() && pendingDecision.getVehiclePlate().trim().isEmpty()) {
+                        Log.d(TAG, "revalidatePendingDecision: invalid vehicle plate state");
                         recordPendingInvalidated(pass);
                         clearAndReturnToScan(getString(R.string.guard_pending_not_actionable));
                         return;
                     }
+                    Log.d(TAG, "revalidatePendingDecision: actionable, enabling decision controls");
                     buttonAllow.setOnClickListener(v -> allowDecision());
                     buttonDeny.setOnClickListener(v -> denyDecision());
                     bindCheckpoints();
@@ -227,6 +276,7 @@ public class GuardPendingDecisionFragment extends Fragment {
                 if (!isAdded()) {
                     return;
                 }
+                Log.e(TAG, "revalidatePendingDecision onError", exception);
                 requireActivity().runOnUiThread(() ->
                         Snackbar.make(requireView(), R.string.error_verify_credential, Snackbar.LENGTH_LONG).show());
             }
@@ -398,9 +448,9 @@ public class GuardPendingDecisionFragment extends Fragment {
 
         if (!result.isSuccess()) {
             setCnicVerified(false);
-            textCnicResult.setText("⚠ " + result.getFailureReason());
-            textCnicResult.setBackgroundColor(0xFFFFF3CD);
-            textCnicResult.setTextColor(Color.parseColor("#856404"));
+            textCnicResult.setText(getString(R.string.guard_cnic_scan_warning, result.getFailureReason()));
+            textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.semantic_warning_container));
+            textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.semantic_warning_on_container));
             layoutManualOverride.setVisibility(View.VISIBLE);
             return;
         }
@@ -411,14 +461,14 @@ public class GuardPendingDecisionFragment extends Fragment {
 
         if (matches) {
             setCnicVerified(true);
-            textCnicResult.setText("✓ CNIC MATCH — " + scanned);
-            textCnicResult.setBackgroundColor(0xFFD1FAE5);
-            textCnicResult.setTextColor(Color.parseColor("#065F46"));
+            textCnicResult.setText(getString(R.string.guard_cnic_match, scanned));
+            textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_container));
+            textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_on_container));
         } else {
             setCnicVerified(false);
-            textCnicResult.setText("✗ CNIC MISMATCH\nScanned: " + scanned + "\nExpected: " + expected);
-            textCnicResult.setBackgroundColor(0xFFFFE4E6);
-            textCnicResult.setTextColor(Color.parseColor("#991B1B"));
+            textCnicResult.setText(getString(R.string.guard_cnic_mismatch, scanned, expected));
+            textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_error_container));
+            textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_on_error_container));
             layoutManualOverride.setVisibility(View.VISIBLE);
         }
     }
@@ -438,17 +488,17 @@ public class GuardPendingDecisionFragment extends Fragment {
         if (normalized.equalsIgnoreCase(expected.trim())) {
             setCnicVerified(true);
             textCnicResult.setVisibility(View.VISIBLE);
-            textCnicResult.setText("✓ CNIC MATCH (manual) — " + normalized);
-            textCnicResult.setBackgroundColor(0xFFD1FAE5);
-            textCnicResult.setTextColor(Color.parseColor("#065F46"));
+            textCnicResult.setText(getString(R.string.guard_cnic_match_manual, normalized));
+            textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_container));
+            textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_on_container));
             layoutManualOverride.setVisibility(View.GONE);
         } else {
             setCnicVerified(false);
             textCnicResult.setVisibility(View.VISIBLE);
-            textCnicResult.setText("✗ CNIC MISMATCH\nEntered: " + normalized + "\nExpected: " + expected);
-            textCnicResult.setBackgroundColor(0xFFFFE4E6);
-            textCnicResult.setTextColor(Color.parseColor("#991B1B"));
-            layoutCnicManualInput.setError("CNIC does not match records.");
+            textCnicResult.setText(getString(R.string.guard_cnic_mismatch_entered, normalized, expected));
+            textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_error_container));
+            textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_on_error_container));
+            layoutCnicManualInput.setError(getString(R.string.guard_cnic_not_match_records));
         }
     }
 
@@ -482,7 +532,7 @@ public class GuardPendingDecisionFragment extends Fragment {
     @NonNull
     private String formatMillis(long millis) {
         if (millis <= 0L) {
-            return "Not available";
+            return getString(R.string.not_available);
         }
         return timeFormat.format(new Date(millis));
     }
@@ -490,20 +540,20 @@ public class GuardPendingDecisionFragment extends Fragment {
     @NonNull
     private String valueOrUnavailable(@NonNull String value) {
         String trimmed = value.trim();
-        return trimmed.isEmpty() ? "Not available" : trimmed;
+        return trimmed.isEmpty() ? getString(R.string.not_available) : trimmed;
     }
 
     @NonNull
     private String formatGuestType(@NonNull String value) {
         String normalized = value.trim().toLowerCase(Locale.getDefault());
         if (normalized.isEmpty()) {
-            return "Not available";
+            return getString(R.string.not_available);
         }
         if ("vehicle".equals(normalized)) {
-            return "Vehicle";
+            return getString(R.string.guest_type_vehicle);
         }
         if ("non_vehicle".equals(normalized)) {
-            return "Non Vehicle";
+            return getString(R.string.guest_type_non_vehicle);
         }
         return value;
     }

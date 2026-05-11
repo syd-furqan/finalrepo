@@ -2,7 +2,6 @@ package com.example.glitch.ui;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
@@ -18,6 +17,14 @@ import java.util.Locale;
  * Renders a full guest-pass card image for sharing.
  */
 public final class PassCardImageHelper {
+    private static final int COLOR_CANVAS_BG = 0xFFF7FAFF;
+    private static final int COLOR_CARD_BG = 0xFFFFFFFF;
+    private static final int COLOR_TITLE = 0xFF0F172A;
+    private static final int COLOR_SUBTITLE = 0xFF4B556C;
+    private static final int COLOR_LABEL = 0xFF64748B;
+    private static final int COLOR_VALUE = 0xFF111827;
+    private static final int COLOR_FOOTER = 0xFF6B7280;
+
     private PassCardImageHelper() {
     }
 
@@ -27,21 +34,21 @@ public final class PassCardImageHelper {
         int height = 1980;
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
-        canvas.drawColor(Color.parseColor("#F4F6F8"));
+        canvas.drawColor(COLOR_CANVAS_BG);
 
         Paint cardPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        cardPaint.setColor(Color.WHITE);
+        cardPaint.setColor(COLOR_CARD_BG);
         RectF card = new RectF(60, 60, width - 60, height - 60);
         canvas.drawRoundRect(card, 36f, 36f, cardPaint);
 
         Paint titlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        titlePaint.setColor(Color.parseColor("#0F172A"));
+        titlePaint.setColor(COLOR_TITLE);
         titlePaint.setTextSize(56f);
         titlePaint.setFakeBoldText(true);
         canvas.drawText("Campus Guest Pass", 110, 165, titlePaint);
 
         Paint subPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        subPaint.setColor(Color.parseColor("#475569"));
+        subPaint.setColor(COLOR_SUBTITLE);
         subPaint.setTextSize(32f);
         canvas.drawText("Access Number (Pass Code): " + pass.getPassCode(), 110, 225, subPaint);
 
@@ -49,12 +56,12 @@ public final class PassCardImageHelper {
         canvas.drawBitmap(qr, (width - qr.getWidth()) / 2f, 280, null);
 
         Paint labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        labelPaint.setColor(Color.parseColor("#64748B"));
+        labelPaint.setColor(COLOR_LABEL);
         labelPaint.setTextSize(28f);
         labelPaint.setFakeBoldText(true);
 
         Paint valuePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        valuePaint.setColor(Color.parseColor("#111827"));
+        valuePaint.setColor(COLOR_VALUE);
         valuePaint.setTextSize(34f);
 
         int rowY = 920;
@@ -84,7 +91,7 @@ public final class PassCardImageHelper {
         drawRow(canvas, labelPaint, valuePaint, rowY, "Host", pass.getSponsorName());
 
         Paint footer = new Paint(Paint.ANTI_ALIAS_FLAG);
-        footer.setColor(Color.parseColor("#6B7280"));
+        footer.setColor(COLOR_FOOTER);
         footer.setTextSize(24f);
         canvas.drawText("Use pass code if QR scan is unavailable.", 110, height - 120, footer);
         return bitmap;

@@ -29,12 +29,12 @@ public final class RoleNavRouter {
 
     private static final class NavItem {
         private final RoleDestination destination;
-        private final String label;
+        private final int labelResId;
         private final int iconResId;
 
-        private NavItem(@NonNull RoleDestination destination, @NonNull String label, int iconResId) {
+        private NavItem(@NonNull RoleDestination destination, int labelResId, int iconResId) {
             this.destination = destination;
-            this.label = label;
+            this.labelResId = labelResId;
             this.iconResId = iconResId;
         }
     }
@@ -94,7 +94,7 @@ public final class RoleNavRouter {
                 icon.setImageResource(item.iconResId);
             }
             if (label != null) {
-                label.setText(item.label);
+                label.setText(owner.getString(item.labelResId));
             }
             styleItem(owner, slot, iconIds[i], labelIds[i], item.destination == activeDestination);
         }
@@ -164,6 +164,10 @@ public final class RoleNavRouter {
                 return RoleDestination.DIRECTORY;
             case FACULTY_NOTIFICATIONS:
                 return RoleDestination.NOTIFICATIONS;
+            case ANNOUNCEMENTS:
+                if ("guard".equals(role) || "monitor".equals(role)) return RoleDestination.ANNOUNCEMENTS;
+                if ("faculty".equals(role) || "student".equals(role)) return RoleDestination.NOTIFICATIONS;
+                return RoleDestination.DIRECTORY;
             case LOGOUT:
                 return RoleDestination.LOGOUT;
             default:
@@ -212,6 +216,7 @@ public final class RoleNavRouter {
                 destinations.add(RoleDestination.DASHBOARD);
                 destinations.add(RoleDestination.SCAN);
                 destinations.add(RoleDestination.ADMIN_VEHICLES);
+                destinations.add(RoleDestination.ADMIN_TAKE_ACTION);
                 break;
             case AUDIT:
                 destinations.add(RoleDestination.AUDIT);
@@ -283,6 +288,10 @@ public final class RoleNavRouter {
                 return "Security";
             case ADMIN_ACCESS:
                 return "Access";
+            case ADMIN_TAKE_ACTION:
+                return "Take Action";
+            case ANNOUNCEMENTS:
+                return "Announcements";
             case DIRECTORY:
                 return "admin".equals(normalize(rawRole)) ? "Dashboard" : "Home";
             case LOGOUT:
@@ -350,6 +359,10 @@ public final class RoleNavRouter {
                 return AdminCategoryFragment.newInstance(RoleDestination.ADMIN_SECURITY);
             case ADMIN_ACCESS:
                 return AdminCategoryFragment.newInstance(RoleDestination.ADMIN_ACCESS);
+            case ADMIN_TAKE_ACTION:
+                return AdminTakeActionFragment.newInstance();
+            case ANNOUNCEMENTS:
+                return SecurityAnnouncementsFragment.newInstance();
             case GUARD_DENY:
                 return GuardDenyFragment.newInstance();
             default:
@@ -362,28 +375,30 @@ public final class RoleNavRouter {
         String role = normalize(rawRole);
         List<NavItem> items = new ArrayList<>();
         if ("guard".equals(role)) {
-            items.add(new NavItem(RoleDestination.DASHBOARD, "Dashboard", android.R.drawable.ic_dialog_dialer));
-            items.add(new NavItem(RoleDestination.SCAN, "QR Scan", android.R.drawable.ic_menu_camera));
+            items.add(new NavItem(RoleDestination.DASHBOARD, R.string.nav_dashboard, android.R.drawable.ic_dialog_dialer));
+            items.add(new NavItem(RoleDestination.SCAN, R.string.nav_qr_scan, android.R.drawable.ic_menu_camera));
+            items.add(new NavItem(RoleDestination.ANNOUNCEMENTS, R.string.nav_announcements, android.R.drawable.ic_dialog_email));
         } else if ("student".equals(role)) {
-            items.add(new NavItem(RoleDestination.STUDENT_PASSES, "Guest Passes", android.R.drawable.ic_menu_agenda));
-            items.add(new NavItem(RoleDestination.SPONSOR_VEHICLES, "Vehicles", android.R.drawable.ic_menu_directions));
-            items.add(new NavItem(RoleDestination.NOTIFICATIONS, "Notifications", android.R.drawable.ic_dialog_email));
+            items.add(new NavItem(RoleDestination.STUDENT_PASSES, R.string.nav_guest_passes, android.R.drawable.ic_menu_agenda));
+            items.add(new NavItem(RoleDestination.SPONSOR_VEHICLES, R.string.nav_vehicles, android.R.drawable.ic_menu_directions));
+            items.add(new NavItem(RoleDestination.NOTIFICATIONS, R.string.nav_notifications, android.R.drawable.ic_dialog_email));
         } else if ("faculty".equals(role)) {
-            items.add(new NavItem(RoleDestination.FACULTY_REQUEST, "Access Requests", android.R.drawable.ic_menu_send));
-            items.add(new NavItem(RoleDestination.NOTIFICATIONS, "Notifications", android.R.drawable.ic_dialog_email));
-            items.add(new NavItem(RoleDestination.SPONSOR_VEHICLES, "Vehicles", android.R.drawable.ic_menu_directions));
+            items.add(new NavItem(RoleDestination.FACULTY_REQUEST, R.string.nav_access_requests, android.R.drawable.ic_menu_send));
+            items.add(new NavItem(RoleDestination.NOTIFICATIONS, R.string.nav_notifications, android.R.drawable.ic_dialog_email));
+            items.add(new NavItem(RoleDestination.SPONSOR_VEHICLES, R.string.nav_vehicles, android.R.drawable.ic_menu_directions));
         } else if ("monitor".equals(role)) {
-            items.add(new NavItem(RoleDestination.MONITOR_REPORT, "Report", android.R.drawable.ic_menu_upload));
-            items.add(new NavItem(RoleDestination.MONITOR_MY_REPORTS, "My Reports", android.R.drawable.ic_menu_agenda));
+            items.add(new NavItem(RoleDestination.MONITOR_REPORT, R.string.nav_report, android.R.drawable.ic_menu_upload));
+            items.add(new NavItem(RoleDestination.MONITOR_MY_REPORTS, R.string.nav_my_reports, android.R.drawable.ic_menu_agenda));
+            items.add(new NavItem(RoleDestination.ANNOUNCEMENTS, R.string.nav_announcements, android.R.drawable.ic_dialog_email));
         } else if ("admin".equals(role)) {
-            items.add(new NavItem(RoleDestination.DIRECTORY, "Dashboard", android.R.drawable.ic_menu_myplaces));
-            items.add(new NavItem(RoleDestination.ADMIN_SECURITY, "Security", android.R.drawable.ic_dialog_alert));
-            items.add(new NavItem(RoleDestination.ADMIN_ACCESS, "Access", android.R.drawable.ic_menu_manage));
-            items.add(new NavItem(RoleDestination.AUDIT, "Audit", android.R.drawable.ic_menu_recent_history));
+            items.add(new NavItem(RoleDestination.DIRECTORY, R.string.nav_dashboard, android.R.drawable.ic_menu_myplaces));
+            items.add(new NavItem(RoleDestination.ADMIN_SECURITY, R.string.nav_security, android.R.drawable.ic_dialog_alert));
+            items.add(new NavItem(RoleDestination.ADMIN_ACCESS, R.string.nav_access, android.R.drawable.ic_menu_manage));
+            items.add(new NavItem(RoleDestination.AUDIT, R.string.nav_audit, android.R.drawable.ic_menu_recent_history));
         } else {
-            items.add(new NavItem(RoleDestination.DIRECTORY, "Home", android.R.drawable.ic_menu_myplaces));
+            items.add(new NavItem(RoleDestination.DIRECTORY, R.string.nav_home, android.R.drawable.ic_menu_myplaces));
         }
-        items.add(new NavItem(RoleDestination.LOGOUT, "Logout", android.R.drawable.ic_lock_power_off));
+        items.add(new NavItem(RoleDestination.LOGOUT, R.string.nav_logout, android.R.drawable.ic_lock_power_off));
         return items;
     }
 
@@ -406,6 +421,7 @@ public final class RoleNavRouter {
                     || active == RoleDestination.DASHBOARD
                     || active == RoleDestination.SEARCH
                     || active == RoleDestination.SCAN
+                    || active == RoleDestination.ADMIN_TAKE_ACTION
                     || active == RoleDestination.ADMIN_ACCESS) {
                 return RoleDestination.ADMIN_ACCESS;
             }
@@ -446,7 +462,10 @@ public final class RoleNavRouter {
         ImageView icon = container.findViewById(iconId);
         TextView label = container.findViewById(labelId);
         container.setBackgroundResource(selected ? R.drawable.bg_bottom_nav_selected : android.R.color.transparent);
-        int tint = ContextCompat.getColor(owner.requireContext(), selected ? R.color.primary_navy : R.color.nav_unselected);
+        int tint = ContextCompat.getColor(
+                owner.requireContext(),
+                selected ? R.color.md_primary : R.color.nav_unselected
+        );
         if (icon != null) {
             icon.setColorFilter(tint);
         }

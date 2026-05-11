@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,19 +30,50 @@ import java.util.List;
 import java.util.Locale;
 
 public class NotificationCenterFragment extends Fragment implements NotificationAdapter.NotificationActionListener {
+    private static final String ARG_ANNOUNCEMENTS_ONLY = "arg_announcements_only";
+    private static final String ARG_START_WITH_ANNOUNCEMENTS = "arg_start_with_announcements";
+
     private NotificationRepository repository;
     private GuestPassRepository guestPassRepository;
     private ViolationReportRepository violationReportRepository;
     private NotificationAdapter adapter;
     private TextView textEmpty;
     private MaterialButton buttonMarkAllRead;
+    private MaterialButton buttonFilterAll;
+    private MaterialButton buttonFilterAnnouncements;
+    private TextView textBannerChannel;
+    private TextView textBannerTitle;
+    private TextView textBannerSubtitle;
+
     private final List<NotificationItem> currentNotifications = new ArrayList<>();
     private String currentUserUid;
     private String currentRole = "";
+    private boolean announcementsOnlyMode;
+    private boolean announcementsFilterSelected;
+    private boolean hasShownLoadErrorForCurrentFeed;
 
     @NonNull
     public static NotificationCenterFragment newInstance() {
         return new NotificationCenterFragment();
+    }
+
+    @NonNull
+    public static NotificationCenterFragment newInstanceAnnouncementsOnly() {
+        NotificationCenterFragment fragment = new NotificationCenterFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(ARG_ANNOUNCEMENTS_ONLY, true);
+        args.putBoolean(ARG_START_WITH_ANNOUNCEMENTS, true);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @NonNull
+    public static NotificationCenterFragment newInstanceWithAnnouncementsCategory() {
+        NotificationCenterFragment fragment = new NotificationCenterFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(ARG_START_WITH_ANNOUNCEMENTS, true);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Nullable
@@ -56,13 +88,31 @@ public class NotificationCenterFragment extends Fragment implements Notification
         repository = RepositoryProvider.getNotificationRepository();
         guestPassRepository = RepositoryProvider.getGuestPassRepository();
         violationReportRepository = RepositoryProvider.getViolationReportRepository();
+
+        Bundle args = getArguments();
+        announcementsOnlyMode = this instanceof SecurityAnnouncementsFragment
+                || (args != null && args.getBoolean(ARG_ANNOUNCEMENTS_ONLY, false));
+        announcementsFilterSelected = announcementsOnlyMode
+                || (args != null && args.getBoolean(ARG_START_WITH_ANNOUNCEMENTS, false));
+
         textEmpty = view.findViewById(R.id.text_notifications_empty);
         buttonMarkAllRead = view.findViewById(R.id.button_mark_all_read);
+        buttonFilterAll = view.findViewById(R.id.button_filter_all_notifications);
+        buttonFilterAnnouncements = view.findViewById(R.id.button_filter_announcements);
+        textBannerChannel = view.findViewById(R.id.text_notification_banner_channel);
+        textBannerTitle = view.findViewById(R.id.text_notification_banner_title);
+        textBannerSubtitle = view.findViewById(R.id.text_notification_banner_subtitle);
+
         RecyclerView recyclerView = view.findViewById(R.id.recycler_notifications);
         adapter = new NotificationAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.NOTIFICATIONS);
+
+        RoleDestination navDestination = announcementsOnlyMode ? RoleDestination.ANNOUNCEMENTS : RoleDestination.NOTIFICATIONS;
+        RoleNavRouter.bindBottomNav(view, this, navDestination);
+        configureBanner();
+        configureFilterButtons();
+
         buttonMarkAllRead.setOnClickListener(v -> markAllNotificationsRead());
         getParentFragmentManager().setFragmentResultListener(
                 NotificationDetailsBottomSheetFragment.RESULT_KEY,
@@ -80,30 +130,11 @@ public class NotificationCenterFragment extends Fragment implements Notification
         }
         currentUserUid = profile.getUid();
         currentRole = profile.getRole().trim().toLowerCase(Locale.US);
-        repository.listenNotifications(currentUserUid, new NotificationRepository.NotificationListener() {
-            @Override
-            public void onData(@NonNull List<NotificationItem> notifications) {
-                if (!isAdded()) {
-                    return;
-                }
-                requireActivity().runOnUiThread(() -> {
-                    currentNotifications.clear();
-                    currentNotifications.addAll(notifications);
-                    adapter.submitList(notifications);
-                    textEmpty.setVisibility(notifications.isEmpty() ? View.VISIBLE : View.GONE);
-                    buttonMarkAllRead.setVisibility(hasUnreadNotifications(notifications) ? View.VISIBLE : View.GONE);
-                });
-            }
+        startNotificationFeed();
+    }
 
-            @Override
-            public void onError(@NonNull Exception exception) {
-                if (!isAdded()) {
-                    return;
-                }
-                requireActivity().runOnUiThread(() ->
-                        Snackbar.make(requireView(), R.string.error_load_notifications, Snackbar.LENGTH_LONG).show());
-            }
-        });
+    public boolean isShowingAnnouncementsOnly() {
+        return announcementsOnlyMode || announcementsFilterSelected;
     }
 
     @Override
@@ -131,6 +162,117 @@ public class NotificationCenterFragment extends Fragment implements Notification
         currentNotifications.clear();
         currentUserUid = null;
         currentRole = "";
+        hasShownLoadErrorForCurrentFeed = false;
+    }
+
+    private void configureBanner() {
+        if (textBannerChannel == null || textBannerTitle == null || textBannerSubtitle == null) {
+            return;
+        }
+        if (announcementsOnlyMode) {
+            textBannerChannel.setText(R.string.announcements_banner_channel);
+            textBannerTitle.setText(R.string.announcements_banner_title);
+            textBannerSubtitle.setText(R.string.announcements_banner_subtitle_security);
+            return;
+        }
+        if (announcementsFilterSelected) {
+            textBannerChannel.setText(R.string.announcements_banner_channel);
+            textBannerTitle.setText(R.string.announcements_banner_title);
+            textBannerSubtitle.setText(R.string.announcements_banner_subtitle_users);
+        } else {
+            textBannerChannel.setText(R.string.notifications_banner_channel);
+            textBannerTitle.setText(R.string.notifications_banner_title);
+            textBannerSubtitle.setText(R.string.notifications_banner_subtitle);
+        }
+    }
+
+    private void configureFilterButtons() {
+        if (buttonFilterAll == null || buttonFilterAnnouncements == null) {
+            return;
+        }
+        if (announcementsOnlyMode) {
+            buttonFilterAll.setVisibility(View.GONE);
+            buttonFilterAnnouncements.setVisibility(View.GONE);
+            return;
+        }
+        buttonFilterAll.setVisibility(View.VISIBLE);
+        buttonFilterAnnouncements.setVisibility(View.VISIBLE);
+        buttonFilterAll.setOnClickListener(v -> {
+            if (!announcementsFilterSelected) {
+                return;
+            }
+            announcementsFilterSelected = false;
+            configureBanner();
+            applyFilterButtonStyles();
+            startNotificationFeed();
+        });
+        buttonFilterAnnouncements.setOnClickListener(v -> {
+            if (announcementsFilterSelected) {
+                return;
+            }
+            announcementsFilterSelected = true;
+            configureBanner();
+            applyFilterButtonStyles();
+            startNotificationFeed();
+        });
+        applyFilterButtonStyles();
+    }
+
+    private void applyFilterButtonStyles() {
+        if (buttonFilterAll == null || buttonFilterAnnouncements == null || !isAdded()) {
+            return;
+        }
+        int activeColor = ContextCompat.getColor(requireContext(), R.color.primary_navy);
+        int inactiveColor = ContextCompat.getColor(requireContext(), R.color.text_muted);
+
+        buttonFilterAll.setTextColor(announcementsFilterSelected ? inactiveColor : activeColor);
+        buttonFilterAnnouncements.setTextColor(announcementsFilterSelected ? activeColor : inactiveColor);
+        buttonFilterAll.setAlpha(announcementsFilterSelected ? 0.7f : 1f);
+        buttonFilterAnnouncements.setAlpha(announcementsFilterSelected ? 1f : 0.7f);
+    }
+
+    private void startNotificationFeed() {
+        if (currentUserUid == null || currentUserUid.trim().isEmpty()) {
+            return;
+        }
+        currentNotifications.clear();
+        hasShownLoadErrorForCurrentFeed = false;
+
+        NotificationRepository.NotificationListener listener = new NotificationRepository.NotificationListener() {
+            @Override
+            public void onData(@NonNull List<NotificationItem> notifications) {
+                if (!isAdded()) {
+                    return;
+                }
+                requireActivity().runOnUiThread(() -> {
+                    hasShownLoadErrorForCurrentFeed = false;
+                    currentNotifications.clear();
+                    currentNotifications.addAll(notifications);
+                    adapter.submitList(notifications);
+                    textEmpty.setVisibility(notifications.isEmpty() ? View.VISIBLE : View.GONE);
+                    buttonMarkAllRead.setVisibility(hasUnreadNotifications(notifications) ? View.VISIBLE : View.GONE);
+                });
+            }
+
+            @Override
+            public void onError(@NonNull Exception exception) {
+                if (!isAdded()) {
+                    return;
+                }
+                if (hasShownLoadErrorForCurrentFeed) {
+                    return;
+                }
+                requireActivity().runOnUiThread(() ->
+                        Snackbar.make(requireView(), R.string.error_load_notifications, Snackbar.LENGTH_LONG).show());
+                hasShownLoadErrorForCurrentFeed = true;
+            }
+        };
+
+        if (announcementsOnlyMode || announcementsFilterSelected) {
+            repository.listenAnnouncements(currentUserUid, listener);
+            return;
+        }
+        repository.listenNotifications(currentUserUid, listener);
     }
 
     private void openRelatedSource(@NonNull String sourceCollection, @NonNull String sourceId) {

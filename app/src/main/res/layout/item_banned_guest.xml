@@ -51,7 +51,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_unban"
-        style="@style/Widget.Material3.Button.OutlinedButton"
+        style="@style/Widget.Glitch.Button.Outlined"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"

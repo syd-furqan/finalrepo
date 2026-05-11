@@ -74,6 +74,7 @@ public class GuardSearchFragment extends Fragment implements EntryRequestAdapter
             buttonScanQr.setOnClickListener(v -> RoleNavRouter.route(this, RoleDestination.SCAN));
         }
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.SEARCH);
+        GuardLanguageUiBinder.bind(view, this);
     }
 
     private void runSearch() {

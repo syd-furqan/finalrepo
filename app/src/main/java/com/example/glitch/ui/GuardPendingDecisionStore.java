@@ -35,7 +35,9 @@ public class GuardPendingDecisionStore {
         if (json == null || json.trim().isEmpty()) {
             return;
         }
-        prefs.edit().putString(keyForGuard(guardUid), json).apply();
+        // Persist synchronously because navigation to the decision screen happens immediately
+        // after save; async apply() can race and make the next fragment read "missing" data.
+        prefs.edit().putString(keyForGuard(guardUid), json).commit();
     }
 
     @Nullable
@@ -64,6 +66,19 @@ public class GuardPendingDecisionStore {
             return;
         }
         prefs.edit().remove(keyForGuard(trimmed)).apply();
+    }
+
+    public void registerListener(@NonNull SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        prefs.registerOnSharedPreferenceChangeListener(listener);
+    }
+
+    public void unregisterListener(@NonNull SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        prefs.unregisterOnSharedPreferenceChangeListener(listener);
+    }
+
+    @NonNull
+    public String decisionKeyForGuard(@NonNull String guardUid) {
+        return keyForGuard(guardUid.trim());
     }
 
     @NonNull

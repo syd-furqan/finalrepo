@@ -71,7 +71,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_request_removal"
-        style="@style/Widget.Material3.Button.OutlinedButton"
+        style="@style/Widget.Glitch.Button.Outlined"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -81,13 +81,12 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_confirm_removal_request"
+        style="@style/Widget.Glitch.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:background="@drawable/bg_button_primary"
         android:text="Submit Removal Request"
         android:textAllCaps="false"
-        android:textColor="@color/white"
         android:visibility="gone" />
 
 </LinearLayout>

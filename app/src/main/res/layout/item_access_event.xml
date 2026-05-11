@@ -18,10 +18,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_chip_role"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="2dp"
+            android:paddingHorizontal="@dimen/space_8"
+            android:paddingVertical="@dimen/space_2"
             android:textColor="@color/primary_navy"
-            android:textSize="11sp" />
+            android:textSize="11sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/text_event_outcome"
@@ -29,10 +30,11 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/space_6"
             android:background="@drawable/bg_chip_role"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="2dp"
+            android:paddingHorizontal="@dimen/space_8"
+            android:paddingVertical="@dimen/space_2"
             android:textColor="@color/text_dark"
-            android:textSize="11sp" />
+            android:textSize="11sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/text_event_time"
@@ -56,7 +58,7 @@
         android:id="@+id/text_event_actor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="@dimen/space_4"
         android:textColor="@color/text_muted"
         android:textSize="12sp" />
 
@@ -64,7 +66,15 @@
         android:id="@+id/text_event_request_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="@dimen/space_2"
+        android:textColor="@color/text_muted"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/text_event_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_4"
         android:textColor="@color/text_muted"
         android:textSize="12sp" />
 </LinearLayout>

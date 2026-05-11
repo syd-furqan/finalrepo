@@ -52,7 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_16"
-                    android:text="UNAUTHORIZED"
+                    android:text="@string/guard_unauthorized"
                     android:textColor="@color/danger_red"
                     android:textSize="36sp"
                     android:textStyle="bold" />
@@ -61,7 +61,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_8"
-                    android:text="Access Denied to Sector 7-G"
+                    android:text="@string/guard_access_denied_sector"
                     android:textColor="@color/danger_text"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -78,7 +78,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Reason for Denial"
+                    android:text="@string/guard_reason_for_denial"
                     android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -113,20 +113,19 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_submit_denial"
+                style="@style/Widget.Glitch.Button"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="@dimen/space_16"
-                android:background="@drawable/bg_button_primary"
                 android:text="@string/deny_entry"
-                android:textAllCaps="false"
-                android:textColor="@color/white" />
+                android:textAllCaps="false" />
 
             <com.google.android.material.button.MaterialButton
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="@dimen/space_12"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:text="File Incident Report"
+                style="@style/Widget.Glitch.Button.Outlined"
+                android:text="@string/guard_file_incident_report"
                 android:textAllCaps="false" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

@@ -23,6 +23,7 @@ import java.util.Map;
 public class FirestoreNotificationRepository implements NotificationRepository {
     private static final String COLLECTION_NOTIFICATIONS = "notifications";
     private static final String SUBCOLLECTION_ITEMS = "items";
+    private static final String TYPE_ANNOUNCEMENT = "announcement";
 
     private final FirebaseFirestore firestore;
     private ListenerRegistration registration;
@@ -54,6 +55,48 @@ public class FirestoreNotificationRepository implements NotificationRepository {
                         }
                     }
                     listener.onData(result);
+                });
+    }
+
+    @Override
+    public void listenAnnouncements(@NonNull String uid, @NonNull NotificationListener listener) {
+        removeListeners();
+        registration = firestore.collection(COLLECTION_NOTIFICATIONS)
+                .document(uid)
+                .collection(SUBCOLLECTION_ITEMS)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null) {
+                        listener.onError(error);
+                        return;
+                    }
+                    List<NotificationItem> result = new ArrayList<>();
+                    if (snapshot != null) {
+                        for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                            NotificationItem item = NotificationItem.fromMap(doc.getId(), doc.getData());
+                            if (TYPE_ANNOUNCEMENT.equalsIgnoreCase(item.getType())) {
+                                result.add(item);
+                            }
+                        }
+                    }
+                    listener.onData(result);
+                });
+    }
+
+    @Override
+    public void listenUnreadAnnouncementCount(@NonNull String uid, @NonNull UnreadCountListener listener) {
+        removeListeners();
+        registration = firestore.collection(COLLECTION_NOTIFICATIONS)
+                .document(uid)
+                .collection(SUBCOLLECTION_ITEMS)
+                .whereEqualTo("type", TYPE_ANNOUNCEMENT)
+                .whereEqualTo("isRead", false)
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null) {
+                        listener.onError(error);
+                        return;
+                    }
+                    listener.onCountChanged(snapshot == null ? 0 : snapshot.size());
                 });
     }
 
