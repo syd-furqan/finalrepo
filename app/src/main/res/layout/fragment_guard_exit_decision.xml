@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dashboard_bg">
+    android:background="@color/gf_bg_surface">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
@@ -18,43 +18,43 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="@dimen/space_24"
-            android:paddingTop="@dimen/space_12"
-            android:paddingEnd="@dimen/space_24"
-            android:paddingBottom="@dimen/space_24">
+            android:paddingStart="@dimen/gf_space_lg"
+            android:paddingTop="@dimen/gf_grid_gap"
+            android:paddingEnd="@dimen/gf_space_lg"
+            android:paddingBottom="@dimen/gf_space_lg">
 
             <include layout="@layout/include_status_ribbon" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_24"
+                android:layout_marginTop="@dimen/gf_space_lg"
                 android:text="@string/guard_exit_decision_title"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
+                android:layout_marginTop="@dimen/gf_space_sm"
                 android:text="@string/guard_exit_subtitle"
-                android:textColor="@color/text_muted"
+                android:textColor="@color/gf_text_hint"
                 android:textSize="14sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
-                android:background="@drawable/bg_card_white"
+                android:layout_marginTop="@dimen/gf_space_md"
+                android:background="@color/gf_bg_surface_dim"
                 android:orientation="vertical"
-                android:padding="@dimen/space_16">
+                android:padding="@dimen/gf_space_md">
 
                 <TextView
                     android:id="@+id/text_pending_guest_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
@@ -62,56 +62,56 @@
                     android:id="@+id/text_pending_pass_code"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_4"
-                    android:textColor="@color/text_muted"
+                    android:layout_marginTop="@dimen/gf_space_xs"
+                    android:textColor="@color/gf_text_hint"
                     android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/text_pending_request_id"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_8"
-                    android:textColor="@color/text_dark"
+                    android:layout_marginTop="@dimen/gf_space_sm"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/text_pending_guest_id"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_4"
-                    android:textColor="@color/text_dark"
+                    android:layout_marginTop="@dimen/gf_space_xs"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/text_pending_guest_phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_4"
-                    android:textColor="@color/text_dark"
+                    android:layout_marginTop="@dimen/gf_space_xs"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/text_pending_status"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/space_4"
-                    android:textColor="@color/text_dark"
+                    android:layout_marginTop="@dimen/gf_space_xs"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="13sp" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
-                android:background="@color/surface_alt"
+                android:layout_marginTop="@dimen/gf_space_md"
+                android:background="@color/gf_bg_surface_dim"
                 android:orientation="vertical"
-                android:padding="@dimen/space_16">
+                android:padding="@dimen/gf_space_md">
 
                 <TextView
                     android:id="@+id/text_exit_result"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -119,21 +119,21 @@
                     android:id="@+id/button_exit_log"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
-                    android:layout_marginTop="@dimen/space_8"
+                    android:layout_marginTop="@dimen/gf_space_sm"
                     android:backgroundTint="@color/md_tertiary"
                     android:text="@string/log_exit_action"
                     android:textAllCaps="false"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/gf_text_on_dark" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_exit_close"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
-                    android:layout_marginTop="@dimen/space_8"
+                    android:layout_marginTop="@dimen/gf_space_sm"
                     android:backgroundTint="@color/danger_red"
                     android:text="@string/close_action"
                     android:textAllCaps="false"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/gf_text_on_dark" />
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

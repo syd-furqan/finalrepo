@@ -3,157 +3,210 @@
     android:id="@+id/bottom_nav"
     android:layout_width="match_parent"
     android:layout_height="@dimen/bottom_nav_height"
-    android:background="@drawable/bg_bottom_nav_bar"
-    android:gravity="center"
-    android:orientation="horizontal"
-    android:paddingStart="@dimen/space_12"
-    android:paddingTop="@dimen/space_8"
-    android:paddingEnd="@dimen/space_12"
-    android:paddingBottom="@dimen/space_12"
+    android:background="@color/gf_bg_surface"
+    android:orientation="vertical"
     android:clipToPadding="false">
 
-    <LinearLayout
-        android:id="@+id/nav_item_dashboard"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/space_4"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingHorizontal="@dimen/space_8"
-        android:paddingVertical="@dimen/space_8"
-        android:minHeight="@dimen/min_touch_target">
-
-        <ImageView
-            android:id="@+id/nav_icon_dashboard"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@android:drawable/ic_dialog_dialer"
-            android:tint="@color/nav_unselected" />
-
-        <TextView
-            android:id="@+id/nav_label_dashboard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:text="@string/dashboard_item"
-            android:textColor="@color/nav_unselected"
-            android:textSize="11sp" />
-    </LinearLayout>
+    <!-- MD3-style top divider line -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gf_border" />
 
     <LinearLayout
-        android:id="@+id/nav_item_passes"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/space_4"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:orientation="vertical"
-        android:paddingHorizontal="@dimen/space_8"
-        android:paddingVertical="@dimen/space_8"
-        android:minHeight="@dimen/min_touch_target">
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/gf_space_xs"
+        android:paddingEnd="@dimen/gf_space_xs">
 
-        <ImageView
-            android:id="@+id/nav_icon_passes"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@android:drawable/ic_menu_agenda"
-            android:tint="@color/nav_unselected" />
+        <!-- Dashboard -->
+        <LinearLayout
+            android:id="@+id/nav_item_dashboard"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:minWidth="@dimen/min_touch_target"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/gf_space_sm"
+            android:paddingBottom="@dimen/gf_space_sm">
 
-        <TextView
-            android:id="@+id/nav_label_passes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:text="@string/verify_item"
-            android:textColor="@color/nav_unselected"
-            android:textSize="11sp" />
-    </LinearLayout>
+            <!-- Active indicator pill wraps the icon only -->
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="32dp"
+                android:gravity="center"
+                android:id="@+id/nav_indicator_dashboard">
 
-    <LinearLayout
-        android:id="@+id/nav_item_vehicles"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/space_4"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingHorizontal="@dimen/space_8"
-        android:paddingVertical="@dimen/space_8"
-        android:minHeight="@dimen/min_touch_target">
+                <ImageView
+                    android:id="@+id/nav_icon_dashboard"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@android:drawable/ic_dialog_dialer"
+                    android:tint="@color/nav_unselected" />
+            </LinearLayout>
 
-        <ImageView
-            android:id="@+id/nav_icon_vehicles"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@android:drawable/ic_menu_directions"
-            android:tint="@color/nav_unselected" />
+            <TextView
+                android:id="@+id/nav_label_dashboard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/dashboard_item"
+                android:textColor="@color/nav_unselected"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/nav_label_vehicles"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:text="@string/scanner_item"
-            android:textColor="@color/nav_unselected"
-            android:textSize="11sp" />
-    </LinearLayout>
+        <!-- Passes -->
+        <LinearLayout
+            android:id="@+id/nav_item_passes"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:minWidth="@dimen/min_touch_target"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/gf_space_sm"
+            android:paddingBottom="@dimen/gf_space_sm">
 
-    <LinearLayout
-        android:id="@+id/nav_item_directory"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/space_4"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingHorizontal="@dimen/space_8"
-        android:paddingVertical="@dimen/space_8"
-        android:minHeight="@dimen/min_touch_target">
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="32dp"
+                android:gravity="center"
+                android:id="@+id/nav_indicator_passes">
 
-        <ImageView
-            android:id="@+id/nav_icon_directory"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@android:drawable/ic_menu_myplaces"
-            android:tint="@color/nav_unselected" />
+                <ImageView
+                    android:id="@+id/nav_icon_passes"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@android:drawable/ic_menu_agenda"
+                    android:tint="@color/nav_unselected" />
+            </LinearLayout>
 
-        <TextView
-            android:id="@+id/nav_label_directory"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:text="@string/profile_item"
-            android:textColor="@color/nav_unselected"
-            android:textSize="11sp" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/nav_label_passes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/verify_item"
+                android:textColor="@color/nav_unselected"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/nav_item_logout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/space_4"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingHorizontal="@dimen/space_8"
-        android:paddingVertical="@dimen/space_8"
-        android:minHeight="@dimen/min_touch_target">
+        <!-- Vehicles -->
+        <LinearLayout
+            android:id="@+id/nav_item_vehicles"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:minWidth="@dimen/min_touch_target"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/gf_space_sm"
+            android:paddingBottom="@dimen/gf_space_sm">
 
-        <ImageView
-            android:id="@+id/nav_icon_logout"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@android:drawable/ic_lock_power_off"
-            android:tint="@color/nav_unselected" />
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="32dp"
+                android:gravity="center"
+                android:id="@+id/nav_indicator_vehicles">
 
-        <TextView
-            android:id="@+id/nav_label_logout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
-            android:text="@string/logout_item"
-            android:textColor="@color/nav_unselected"
-            android:textSize="11sp" />
+                <ImageView
+                    android:id="@+id/nav_icon_vehicles"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@android:drawable/ic_menu_directions"
+                    android:tint="@color/nav_unselected" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/nav_label_vehicles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/scanner_item"
+                android:textColor="@color/nav_unselected"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Directory -->
+        <LinearLayout
+            android:id="@+id/nav_item_directory"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:minWidth="@dimen/min_touch_target"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/gf_space_sm"
+            android:paddingBottom="@dimen/gf_space_sm">
+
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="32dp"
+                android:gravity="center"
+                android:id="@+id/nav_indicator_directory">
+
+                <ImageView
+                    android:id="@+id/nav_icon_directory"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@android:drawable/ic_menu_myplaces"
+                    android:tint="@color/nav_unselected" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/nav_label_directory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/profile_item"
+                android:textColor="@color/nav_unselected"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Logout -->
+        <LinearLayout
+            android:id="@+id/nav_item_logout"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:minWidth="@dimen/min_touch_target"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/gf_space_sm"
+            android:paddingBottom="@dimen/gf_space_sm">
+
+            <LinearLayout
+                android:layout_width="64dp"
+                android:layout_height="32dp"
+                android:gravity="center"
+                android:id="@+id/nav_indicator_logout">
+
+                <ImageView
+                    android:id="@+id/nav_icon_logout"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:src="@android:drawable/ic_lock_power_off"
+                    android:tint="@color/nav_unselected" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/nav_label_logout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="@string/logout_item"
+                android:textColor="@color/nav_unselected"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
     </LinearLayout>
 </LinearLayout>

@@ -3,19 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="@dimen/space_24">
+    android:padding="@dimen/gf_space_lg">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/vehicle_review_note_label"
-        android:textColor="@color/text_dark"
+        android:textColor="@color/gf_text_primary"
         android:textStyle="bold" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_8"
+        android:layout_marginTop="@dimen/gf_space_sm"
         android:hint="@string/vehicle_review_note_hint">
 
         <com.google.android.material.textfield.TextInputEditText

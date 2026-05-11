@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dashboard_bg">
+    android:background="@color/gf_bg_surface">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/notifications_scroll"
@@ -19,10 +19,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingStart="@dimen/space_24"
-            android:paddingTop="@dimen/space_12"
-            android:paddingEnd="@dimen/space_24"
-            android:paddingBottom="@dimen/space_16">
+            android:paddingStart="@dimen/gf_space_lg"
+            android:paddingTop="@dimen/gf_grid_gap"
+            android:paddingEnd="@dimen/gf_space_lg"
+            android:paddingBottom="@dimen/gf_space_md">
 
             <include layout="@layout/include_status_ribbon" />
 
@@ -30,11 +30,11 @@
                 android:id="@+id/notification_banner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
-                android:background="@drawable/bg_card_white"
+                android:layout_marginTop="@dimen/gf_space_md"
+                android:background="@color/gf_bg_surface_dim"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="@dimen/space_16">
+                android:padding="@dimen/gf_space_md">
 
                 <FrameLayout
                     android:layout_width="40dp"
@@ -45,14 +45,14 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:layout_gravity="center"
-                        android:src="@android:drawable/ic_secure"
+                        android:src="@android:drawable/ic_lock_lock"
                         android:tint="@color/white" />
                 </FrameLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/space_12"
+                    android:layout_marginStart="@dimen/gf_grid_gap"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
@@ -72,7 +72,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="Notifications"
-                        android:textColor="@color/text_dark"
+                        android:textColor="@color/gf_text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
@@ -82,7 +82,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="Guest passes, vehicles, violations, reviews, and fines."
-                        android:textColor="@color/text_muted"
+                        android:textColor="@color/gf_text_hint"
                         android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -93,7 +93,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:layout_marginTop="@dimen/space_12"
+                android:layout_marginTop="@dimen/gf_grid_gap"
                 android:text="@string/mark_all_read_action"
                 android:textAllCaps="false"
                 android:visibility="gone" />
@@ -102,7 +102,7 @@
                 android:id="@+id/container_notification_filters"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_8"
+                android:layout_marginTop="@dimen/gf_space_sm"
                 android:gravity="end"
                 android:orientation="horizontal">
 
@@ -127,9 +127,9 @@
                 android:id="@+id/text_notifications_empty"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_16"
+                android:layout_marginTop="@dimen/gf_space_md"
                 android:text="@string/no_notifications"
-                android:textColor="@color/text_muted"
+                android:textColor="@color/gf_text_hint"
                 android:textStyle="bold"
                 android:visibility="gone" />
 
@@ -137,10 +137,10 @@
                 android:id="@+id/recycler_notifications"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/space_12"
+                android:layout_marginTop="@dimen/gf_grid_gap"
                 android:clipToPadding="false"
                 android:nestedScrollingEnabled="false"
-                android:paddingBottom="@dimen/space_16" />
+                android:paddingBottom="@dimen/gf_space_md" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

@@ -2,10 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/space_8"
-    android:background="@drawable/bg_card_white"
+    android:layout_marginTop="@dimen/gf_space_sm"
     android:orientation="vertical"
-    android:padding="@dimen/space_16">
+    android:padding="@dimen/gf_space_md">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,7 +18,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="sans-serif-black"
-            android:textColor="@color/text_dark"
+            android:textColor="@color/gf_text_primary"
             android:textSize="18sp" />
 
         <TextView
@@ -27,9 +26,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_chip_role"
-            android:paddingHorizontal="@dimen/space_8"
+            android:paddingHorizontal="@dimen/gf_space_sm"
             android:paddingVertical="3dp"
-            android:textColor="@color/primary_navy"
+            android:textColor="@color/gf_text_primary"
             android:textSize="10sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -39,15 +38,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_6"
-        android:textColor="@color/text_dark"
+        android:textColor="@color/gf_text_primary"
         android:textSize="13sp" />
 
     <TextView
         android:id="@+id/text_admin_vehicle_requester"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_4"
-        android:textColor="@color/text_muted"
+        android:layout_marginTop="@dimen/gf_space_xs"
+        android:textColor="@color/gf_text_hint"
         android:textSize="11sp" />
 
     <TextView
@@ -55,22 +54,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
-        android:textColor="@color/text_muted"
+        android:textColor="@color/gf_text_hint"
         android:textSize="11sp" />
 
     <TextView
         android:id="@+id/text_admin_vehicle_reviewed"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_4"
-        android:textColor="@color/text_muted"
+        android:layout_marginTop="@dimen/gf_space_xs"
+        android:textColor="@color/gf_text_hint"
         android:textSize="11sp"
         android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/space_12"
+        android:layout_marginTop="@dimen/gf_grid_gap"
         android:gravity="end"
         android:orientation="horizontal">
 
@@ -78,12 +77,12 @@
             android:id="@+id/button_view_vehicle_details"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:layout_marginEnd="@dimen/space_8"
+            android:layout_marginEnd="@dimen/gf_space_sm"
             android:background="@drawable/bg_chip_role"
-            android:paddingHorizontal="@dimen/space_16"
+            android:paddingHorizontal="@dimen/gf_space_md"
             android:text="@string/details_action"
             android:textAllCaps="false"
-            android:textColor="@color/primary_navy"
+            android:textColor="@color/gf_text_primary"
             android:textSize="13sp"
             android:textStyle="bold" />
 
@@ -91,12 +90,12 @@
             android:id="@+id/button_mark_vehicle_received"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:layout_marginEnd="@dimen/space_8"
+            android:layout_marginEnd="@dimen/gf_space_sm"
             android:background="@drawable/bg_chip_role"
-            android:paddingHorizontal="@dimen/space_16"
+            android:paddingHorizontal="@dimen/gf_space_md"
             android:text="Mark Received"
             android:textAllCaps="false"
-            android:textColor="@color/primary_navy"
+            android:textColor="@color/gf_text_primary"
             android:textSize="13sp"
             android:textStyle="bold"
             android:visibility="gone" />
@@ -105,12 +104,12 @@
             android:id="@+id/button_deny_vehicle"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
-            android:layout_marginEnd="@dimen/space_8"
+            android:layout_marginEnd="@dimen/gf_space_sm"
             android:background="@drawable/bg_chip_alert_critical"
-            android:paddingHorizontal="@dimen/space_16"
+            android:paddingHorizontal="@dimen/gf_space_md"
             android:text="@string/vehicle_deny_action"
             android:textAllCaps="false"
-            android:textColor="@color/danger_red"
+            android:textColor="@color/gf_danger"
             android:textSize="13sp"
             android:textStyle="bold"
             android:visibility="gone" />
@@ -120,10 +119,10 @@
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:background="@drawable/bg_chip_success"
-            android:paddingHorizontal="@dimen/space_16"
+            android:paddingHorizontal="@dimen/gf_space_md"
             android:text="@string/vehicle_approve_action"
             android:textAllCaps="false"
-            android:textColor="@color/success_green"
+            android:textColor="@color/gf_success"
             android:textSize="13sp"
             android:textStyle="bold"
             android:visibility="gone" />

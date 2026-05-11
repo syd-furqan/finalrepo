@@ -11,7 +11,7 @@
         android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:text="P1"
-        android:textColor="@color/text_muted" />
+        android:textColor="@color/gf_text_hint" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -24,7 +24,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.2"
-            android:background="@color/primary_navy" />
+            android:background="@color/gf_text_primary" />
     </LinearLayout>
 
     <TextView
@@ -33,6 +33,6 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:text="0"
-        android:textColor="@color/text_dark" />
+        android:textColor="@color/gf_text_primary" />
 
 </LinearLayout>

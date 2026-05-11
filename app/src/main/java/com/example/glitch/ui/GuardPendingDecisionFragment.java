@@ -59,6 +59,14 @@ public class GuardPendingDecisionFragment extends Fragment {
     private View layoutManualOverride;
     private TextInputEditText inputCnicManual;
     private TextInputLayout layoutCnicManualInput;
+    private View overlayResult;
+    private TextView overlayResultTitle;
+    private TextView overlayResultSubtitle;
+    private TextView overlayResultCnic;
+    private View overlayIconContainer;
+    private android.widget.ImageView overlayResultIcon;
+    private MaterialButton overlayButtonPrimary;
+    private MaterialButton overlayButtonSecondary;
     private boolean decisionActionable;
     private boolean cnicVerified = false;
     private CnicOcrHelper cnicOcrHelper;
@@ -136,6 +144,16 @@ public class GuardPendingDecisionFragment extends Fragment {
         layoutManualOverride = view.findViewById(R.id.layout_cnic_manual_override);
         inputCnicManual = view.findViewById(R.id.input_cnic_manual);
         layoutCnicManualInput = view.findViewById(R.id.layout_cnic_manual_input);
+
+        overlayResult = view.findViewById(R.id.overlay_cnic_result);
+        overlayResultTitle = view.findViewById(R.id.overlay_result_title);
+        overlayResultSubtitle = view.findViewById(R.id.overlay_result_subtitle);
+        overlayResultCnic = view.findViewById(R.id.overlay_result_cnic);
+        overlayIconContainer = view.findViewById(R.id.overlay_result_icon_container);
+        overlayResultIcon = view.findViewById(R.id.overlay_result_icon);
+        overlayButtonPrimary = view.findViewById(R.id.overlay_button_primary);
+        overlayButtonSecondary = view.findViewById(R.id.overlay_button_secondary);
+        overlayButtonSecondary.setOnClickListener(v -> overlayResult.setVisibility(View.GONE));
 
         MaterialButton buttonVerifyCamera = view.findViewById(R.id.button_verify_cnic_camera);
         buttonVerifyCamera.setOnClickListener(v -> cnicOcrHelper.launchCameraOrRequestPermission());
@@ -464,12 +482,14 @@ public class GuardPendingDecisionFragment extends Fragment {
             textCnicResult.setText(getString(R.string.guard_cnic_match, scanned));
             textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_container));
             textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_on_container));
+            showResultOverlay(true, scanned);
         } else {
             setCnicVerified(false);
             textCnicResult.setText(getString(R.string.guard_cnic_mismatch, scanned, expected));
             textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_error_container));
             textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_on_error_container));
             layoutManualOverride.setVisibility(View.VISIBLE);
+            showResultOverlay(false, scanned);
         }
     }
 
@@ -492,6 +512,7 @@ public class GuardPendingDecisionFragment extends Fragment {
             textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_container));
             textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_on_container));
             layoutManualOverride.setVisibility(View.GONE);
+            showResultOverlay(true, normalized);
         } else {
             setCnicVerified(false);
             textCnicResult.setVisibility(View.VISIBLE);
@@ -505,6 +526,44 @@ public class GuardPendingDecisionFragment extends Fragment {
     private void setCnicVerified(boolean verified) {
         cnicVerified = verified;
         updateAllowButtonState();
+    }
+
+    private void showResultOverlay(boolean success, @NonNull String cnic) {
+        if (overlayResult == null) return;
+        overlayResult.setVisibility(View.VISIBLE);
+
+        if (success) {
+            overlayResultTitle.setText("Identity Verified");
+            overlayResultSubtitle.setText("CNIC matched the guest record. You may approve entry.");
+            overlayResultTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.gf_success));
+            overlayIconContainer.setBackgroundResource(R.drawable.bg_icon_container_green);
+            overlayResultIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.gf_success));
+            overlayResultIcon.setImageResource(android.R.drawable.checkbox_on_background);
+            overlayButtonPrimary.setText(getString(R.string.approve_entry));
+            overlayButtonPrimary.setBackgroundTintList(
+                    android.content.res.ColorStateList.valueOf(
+                            ContextCompat.getColor(requireContext(), R.color.gf_success)));
+            overlayButtonPrimary.setOnClickListener(v -> {
+                overlayResult.setVisibility(View.GONE);
+                allowDecision();
+            });
+        } else {
+            overlayResultTitle.setText("CNIC Mismatch");
+            overlayResultSubtitle.setText("Scanned CNIC does not match the guest record.");
+            overlayResultTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.gf_danger));
+            overlayIconContainer.setBackgroundResource(R.drawable.bg_icon_container_red);
+            overlayResultIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.gf_danger));
+            overlayResultIcon.setImageResource(android.R.drawable.ic_delete);
+            overlayButtonPrimary.setText(getString(R.string.deny_entry));
+            overlayButtonPrimary.setBackgroundTintList(
+                    android.content.res.ColorStateList.valueOf(
+                            ContextCompat.getColor(requireContext(), R.color.gf_danger)));
+            overlayButtonPrimary.setOnClickListener(v -> {
+                overlayResult.setVisibility(View.GONE);
+                denyDecision();
+            });
+        }
+        overlayResultCnic.setText(cnic);
     }
 
     private void routeToDashboard() {

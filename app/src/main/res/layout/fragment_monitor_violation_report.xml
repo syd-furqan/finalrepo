@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dashboard_bg">
+    android:background="@color/gf_bg_surface">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:text="Submit Violation Report"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
@@ -36,14 +36,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="Describe the incident and verify the visitor or student before submitting."
-                android:textColor="@color/text_muted"
+                android:textColor="@color/gf_text_hint"
                 android:textSize="13sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_card_white"
+                android:background="@color/gf_bg_surface_dim"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -51,7 +51,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Violation Details"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -75,7 +75,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_card_white"
+                android:background="@color/gf_bg_surface_dim"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -83,7 +83,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Violation Level"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -100,7 +100,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="V1 — Minor"
-                        android:textColor="@color/text_dark" />
+                        android:textColor="@color/gf_text_primary" />
 
                     <RadioButton
                         android:id="@+id/radio_v2"
@@ -108,7 +108,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="V2 — Moderate"
-                        android:textColor="@color/text_dark" />
+                        android:textColor="@color/gf_text_primary" />
 
                     <RadioButton
                         android:id="@+id/radio_v3"
@@ -116,7 +116,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="V3 — Severe"
-                        android:textColor="@color/text_dark" />
+                        android:textColor="@color/gf_text_primary" />
                 </RadioGroup>
             </LinearLayout>
 
@@ -126,7 +126,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_card_white"
+                android:background="@color/gf_bg_surface_dim"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -134,7 +134,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Violation Subject"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -152,7 +152,7 @@
                         android:layout_weight="1"
                         android:checked="true"
                         android:text="Visitor"
-                        android:textColor="@color/text_dark" />
+                        android:textColor="@color/gf_text_primary" />
 
                     <RadioButton
                         android:id="@+id/radio_subject_student"
@@ -160,7 +160,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Student"
-                        android:textColor="@color/text_dark" />
+                        android:textColor="@color/gf_text_primary" />
                 </RadioGroup>
             </LinearLayout>
 
@@ -170,7 +170,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_card_white"
+                android:background="@color/gf_bg_surface_dim"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -178,7 +178,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Visitor Credentials"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -195,7 +195,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="QR"
-                        android:textColor="@color/text_dark" />
+                        android:textColor="@color/gf_text_primary" />
 
                     <RadioButton
                         android:id="@+id/radio_lookup_passcode"
@@ -204,7 +204,7 @@
                         android:layout_weight="1"
                         android:checked="true"
                         android:text="Passcode"
-                        android:textColor="@color/text_dark" />
+                        android:textColor="@color/gf_text_primary" />
 
                     <RadioButton
                         android:id="@+id/radio_lookup_cnic"
@@ -212,7 +212,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="CNIC"
-                        android:textColor="@color/text_dark" />
+                        android:textColor="@color/gf_text_primary" />
                 </RadioGroup>
 
                 <LinearLayout
@@ -293,7 +293,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:background="@color/surface_alt"
+                    android:background="@color/gf_bg_surface_dim"
                     android:orientation="vertical"
                     android:padding="10dp"
                     android:visibility="gone">
@@ -302,7 +302,7 @@
                         android:id="@+id/text_verified_guest_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/text_dark"
+                        android:textColor="@color/gf_text_primary"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
@@ -311,7 +311,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:textColor="@color/text_muted"
+                        android:textColor="@color/gf_text_hint"
                         android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -322,7 +322,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_card_white"
+                android:background="@color/gf_bg_surface_dim"
                 android:orientation="vertical"
                 android:padding="16dp"
                 android:visibility="gone">
@@ -331,7 +331,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Student ID"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
@@ -370,7 +370,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:visibility="gone" />

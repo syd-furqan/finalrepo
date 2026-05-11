@@ -1,76 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Brand palette -->
+
+    <!-- ── Brand Palette ─────────────────────────────────────────────── -->
+    <!-- Primary deep navy -->
+    <color name="brand_blue_900">#03256C</color>
+    <!-- Mid blue for headers, selected states -->
+    <color name="brand_blue_700">#2541B2</color>
+    <!-- Mid blue for supporting elements -->
+    <color name="brand_blue_500">#1768AC</color>
+    <!-- Cyan accent — highlights, badges, progress -->
+    <color name="brand_cyan">#06BEE1</color>
+    <!-- Surface / background white -->
+    <color name="brand_white">#FFFFFF</color>
+
+    <!-- ── Surfaces ───────────────────────────────────────────────────── -->
+    <color name="gf_bg_primary">#03256C</color>
+    <color name="gf_bg_secondary">#02194F</color>
+    <color name="gf_bg_surface">#FFFFFF</color>
+    <color name="gf_bg_surface_dim">#F0F4FF</color>
+
+    <!-- ── Brand Accent ───────────────────────────────────────────────── -->
+    <!-- Primary action blue -->
+    <color name="gf_accent">#2541B2</color>
+    <!-- Lighter variant for links / focus rings -->
+    <color name="gf_accent_light">#1768AC</color>
+    <!-- Ripple / glow overlay ~25% opacity -->
+    <color name="gf_accent_glow">#402541B2</color>
+    <!-- Cyan highlight -->
+    <color name="gf_accent_cyan">#06BEE1</color>
+    <color name="gf_accent_cyan_bg">#E0F9FD</color>
+
+    <!-- ── Status ─────────────────────────────────────────────────────── -->
+    <color name="gf_success">#1B8C5A</color>
+    <color name="gf_success_bg">#E6F4EE</color>
+    <color name="gf_danger">#C62828</color>
+    <color name="gf_danger_bg">#FDECEA</color>
+    <color name="gf_warning">#E65100</color>
+    <color name="gf_warning_bg">#FFF3E0</color>
+
+    <!-- ── Text — on white surface ────────────────────────────────────── -->
+    <color name="gf_text_primary">#03256C</color>
+    <color name="gf_text_secondary">#2541B2</color>
+    <color name="gf_text_hint">#8497C4</color>
+    <!-- Text on dark/navy surfaces -->
+    <color name="gf_text_on_dark">#FFFFFF</color>
+    <color name="gf_text_on_accent">#FFFFFF</color>
+
+    <!-- ── Borders ────────────────────────────────────────────────────── -->
+    <color name="gf_border">#D0DBF5</color>
+    <color name="gf_border_focus">#2541B2</color>
+    <color name="gf_ripple">#1A2541B2</color>
+
+    <!-- Login overlay: brand primary at ~88% opacity -->
+    <color name="gf_login_overlay">#E003256C</color>
+
+    <!-- ── Material 3 semantic role mappings ─────────────────────────── -->
+    <color name="md_primary">#2541B2</color>
+    <color name="md_on_primary">#FFFFFF</color>
+    <color name="md_primary_container">#DCE4FF</color>
+    <color name="md_on_primary_container">#03256C</color>
+
+    <color name="md_secondary">#1768AC</color>
+    <color name="md_on_secondary">#FFFFFF</color>
+    <color name="md_secondary_container">#D4EEFF</color>
+    <color name="md_on_secondary_container">#00344F</color>
+
+    <color name="md_tertiary">#06BEE1</color>
+    <color name="md_on_tertiary">#FFFFFF</color>
+    <color name="md_tertiary_container">#E0F9FD</color>
+    <color name="md_on_tertiary_container">#003E4A</color>
+
+    <!-- White-surface app — background is white, not navy -->
+    <color name="md_background">#FFFFFF</color>
+    <color name="md_on_background">#03256C</color>
+    <color name="md_surface">#FFFFFF</color>
+    <color name="md_on_surface">#03256C</color>
+    <color name="md_surface_variant">#F0F4FF</color>
+    <color name="md_on_surface_variant">#2541B2</color>
+    <color name="md_outline">#D0DBF5</color>
+    <color name="md_outline_variant">#E0E8FA</color>
+
+    <color name="md_error">#C62828</color>
+    <color name="md_on_error">#FFFFFF</color>
+    <color name="md_error_container">#FDECEA</color>
+    <color name="md_on_error_container">#7F0000</color>
+
+    <!-- ── Compatibility aliases ──────────────────────────────────────── -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="dashboard_bg">#FFFFFF</color>
+    <color name="primary_navy">#03256C</color>
+    <color name="primary_navy_2">#2541B2</color>
+    <color name="text_dark">#03256C</color>
+    <color name="text_muted">#1768AC</color>
+    <color name="chip_bg">@color/md_primary_container</color>
+    <color name="card_border">@color/gf_border</color>
+    <color name="surface_alt">@color/gf_bg_surface_dim</color>
+    <color name="surface_soft_blue">#E0F9FD</color>
+    <color name="surface_soft_red">@color/gf_danger_bg</color>
+    <color name="divider_light">@color/gf_border</color>
+    <color name="status_dot">@color/gf_accent_cyan</color>
+    <color name="danger_red">@color/gf_danger</color>
+    <color name="danger_text">#7F0000</color>
+    <color name="success_green">@color/gf_success</color>
+    <color name="success_bg">@color/gf_success_bg</color>
+    <!-- Nav: unselected = muted blue-grey; selected handled by md_primary -->
+    <color name="nav_unselected">#8497C4</color>
     <color name="brand_primary">#03256C</color>
     <color name="brand_secondary">#2541B2</color>
     <color name="brand_tertiary">#1768AC</color>
     <color name="brand_accent">#06BEE1</color>
     <color name="brand_surface">#FFFFFF</color>
-
-    <!-- Material 3 semantic colors -->
-    <color name="md_primary">@color/brand_primary</color>
-    <color name="md_on_primary">#FFFFFFFF</color>
-    <color name="md_primary_container">#DCE6FF</color>
-    <color name="md_on_primary_container">#001A4D</color>
-
-    <color name="md_secondary">@color/brand_secondary</color>
-    <color name="md_on_secondary">#FFFFFFFF</color>
-    <color name="md_secondary_container">#E1E6FF</color>
-    <color name="md_on_secondary_container">#0D1F63</color>
-
-    <color name="md_tertiary">@color/brand_tertiary</color>
-    <color name="md_on_tertiary">#FFFFFFFF</color>
-    <color name="md_tertiary_container">#DCEFFF</color>
-    <color name="md_on_tertiary_container">#003558</color>
-
-    <color name="md_background">@color/brand_surface</color>
-    <color name="md_on_background">#0F172A</color>
-    <color name="md_surface">@color/brand_surface</color>
-    <color name="md_on_surface">#0F172A</color>
-    <color name="md_surface_variant">#F2F5FB</color>
-    <color name="md_on_surface_variant">#4B556C</color>
-    <color name="md_outline">#C1CADC</color>
-    <color name="md_outline_variant">#E0E6F1</color>
-
-    <color name="md_error">#BA1A1A</color>
-    <color name="md_on_error">#FFFFFFFF</color>
-    <color name="md_error_container">#FFDAD6</color>
-    <color name="md_on_error_container">#410002</color>
-
-    <!-- Semantic supporting colors -->
-    <color name="semantic_success">#1E7A3A</color>
-    <color name="semantic_success_container">#D9F5E1</color>
-    <color name="semantic_success_on_container">#0F4A24</color>
-    <color name="semantic_warning">#8A5A00</color>
-    <color name="semantic_warning_container">#FFF4DB</color>
-    <color name="semantic_warning_on_container">#553900</color>
-    <color name="semantic_info_container">#EAF7FF</color>
-    <color name="semantic_info_on_container">#0D4E77</color>
-    <color name="overlay_tint_primary_soft">#1403256C</color>
-    <color name="overlay_tint_error_soft">#33BA1A1A</color>
+    <color name="semantic_success">@color/gf_success</color>
+    <color name="semantic_success_container">@color/gf_success_bg</color>
+    <color name="semantic_success_on_container">#0D4F2E</color>
+    <color name="semantic_warning">@color/gf_warning</color>
+    <color name="semantic_warning_container">@color/gf_warning_bg</color>
+    <color name="semantic_warning_on_container">#5C2900</color>
+    <color name="semantic_warning_on_container_text">@color/gf_warning</color>
+    <color name="semantic_info_container">#E0F9FD</color>
+    <color name="semantic_info_on_container">#003E4A</color>
+    <color name="overlay_tint_primary_soft">#1A2541B2</color>
+    <color name="overlay_tint_error_soft">#33C62828</color>
     <color name="overlay_scrim_low">#1A000000</color>
     <color name="on_dark_high">#CCFFFFFF</color>
     <color name="on_dark_medium">#99FFFFFF</color>
-    <color name="line_neutral">#EEEEEE</color>
+    <color name="line_neutral">@color/gf_border</color>
+    <color name="semantic_warning_bg">@color/gf_warning_bg</color>
 
-    <!-- Compatibility aliases for existing layouts/code -->
-    <color name="black">#FF000000</color>
-    <color name="white">@color/md_on_primary</color>
-    <color name="dashboard_bg">@color/md_background</color>
-    <color name="primary_navy">@color/brand_primary</color>
-    <color name="primary_navy_2">@color/brand_secondary</color>
-    <color name="text_dark">@color/md_on_surface</color>
-    <color name="text_muted">@color/md_on_surface_variant</color>
-    <color name="chip_bg">@color/md_primary_container</color>
-    <color name="card_border">@color/md_outline_variant</color>
-    <color name="surface_alt">@color/md_surface_variant</color>
-    <color name="surface_soft_blue">@color/semantic_info_container</color>
-    <color name="surface_soft_red">@color/md_error_container</color>
-    <color name="divider_light">@color/md_outline_variant</color>
-    <color name="status_dot">@color/brand_accent</color>
-    <color name="danger_red">@color/md_error</color>
-    <color name="danger_text">@color/md_on_error_container</color>
-    <color name="success_green">@color/semantic_success</color>
-    <color name="success_bg">@color/semantic_success_container</color>
-    <color name="nav_unselected">#7A869E</color>
 </resources>

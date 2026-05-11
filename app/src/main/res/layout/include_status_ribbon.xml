@@ -1,27 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/status_ribbon"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_status_ribbon"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingStart="@dimen/space_16"
-    android:paddingTop="@dimen/space_10"
-    android:paddingEnd="@dimen/space_16"
-    android:paddingBottom="@dimen/space_10">
+    android:paddingStart="@dimen/gf_space_md"
+    android:paddingTop="10dp"
+    android:paddingEnd="@dimen/gf_space_md"
+    android:paddingBottom="10dp">
 
-    <ImageView
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:src="@android:drawable/ic_secure"
-        android:tint="@color/white" />
+    <!-- Live pulse dot -->
+    <View
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:background="@drawable/bg_status_dot"
+        android:layout_marginEnd="@dimen/gf_space_sm" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/space_8"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -29,10 +28,9 @@
             android:id="@+id/text_system_status_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-medium"
             android:text="@string/status_fallback_title"
-            android:textColor="@color/white"
-            android:textSize="13sp"
+            android:textColor="@color/gf_text_on_dark"
+            android:textSize="12sp"
             android:textStyle="bold" />
 
         <TextView
@@ -41,33 +39,32 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="1dp"
             android:text="@string/status_fallback_message"
-            android:textColor="@color/white"
-            android:textSize="11sp" />
+            android:textColor="@color/on_dark_medium"
+            android:textSize="10sp" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/text_status_clock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="monospace"
         android:text="@string/status_clock_placeholder"
-        android:textColor="@color/md_primary_container"
+        android:textColor="@color/on_dark_medium"
         android:textSize="11sp" />
 
-    <com.google.android.material.button.MaterialButton
+    <TextView
         android:id="@+id/button_guard_language_toggle"
-        style="@style/Widget.Glitch.Button.Text"
-        android:layout_width="92dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="@dimen/space_8"
-        android:backgroundTint="@android:color/transparent"
-        android:minWidth="0dp"
-        android:paddingStart="@dimen/space_6"
-        android:paddingEnd="@dimen/space_6"
-        android:text="EN | ار"
-        android:textAllCaps="false"
-        android:textSize="13sp"
-        android:textColor="@color/white"
-        app:strokeColor="@color/md_primary_container"
-        app:strokeWidth="@dimen/stroke_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/gf_space_sm"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingHorizontal="@dimen/gf_space_sm"
+        android:paddingVertical="2dp"
+        android:textColor="@color/gf_text_on_dark"
+        android:textSize="11sp"
+        android:textStyle="bold"
         android:visibility="gone" />
+
 </LinearLayout>

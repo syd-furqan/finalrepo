@@ -1,58 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/space_8"
-    android:background="@drawable/bg_card_white"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:padding="@dimen/space_16">
+    android:layout_marginTop="@dimen/gf_space_sm"
+    app:cardBackgroundColor="@color/gf_bg_surface"
+    app:cardCornerRadius="@dimen/gf_card_radius"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/gf_border"
+    app:strokeWidth="1dp">
 
-    <FrameLayout
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@drawable/bg_button_primary">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="@dimen/gf_space_md">
 
+        <!-- Icon container -->
+        <LinearLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_icon_container"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@android:drawable/ic_lock_lock"
+                android:tint="@color/gf_accent"
+                android:contentDescription="@null" />
+        </LinearLayout>
+
+        <!-- Text block -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/gf_space_md"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/text_notification_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_chip_role"
+                    android:fontFamily="sans-serif"
+                    android:paddingHorizontal="@dimen/gf_space_sm"
+                    android:paddingVertical="2dp"
+                    android:textColor="@color/brand_blue_900"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/text_notification_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans-serif"
+                android:textColor="@color/gf_text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_notification_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="sans-serif"
+                android:textColor="@color/gf_text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- Chevron -->
         <ImageView
             android:layout_width="16dp"
             android:layout_height="16dp"
-            android:layout_gravity="center"
-            android:src="@android:drawable/ic_secure"
-            android:tint="@color/white" />
-    </FrameLayout>
+            android:layout_marginStart="@dimen/gf_space_sm"
+            android:src="@android:drawable/ic_media_play"
+            android:tint="@color/gf_text_hint"
+            android:contentDescription="@null" />
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/space_12"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/text_notification_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_chip_role"
-            android:paddingHorizontal="@dimen/space_8"
-            android:paddingVertical="@dimen/space_2"
-            android:textColor="@color/md_primary"
-            android:textSize="10sp" />
-
-        <TextView
-            android:id="@+id/text_notification_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="@color/text_dark"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/text_notification_message"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:textColor="@color/text_muted"
-            android:textSize="13sp" />
     </LinearLayout>
-</LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

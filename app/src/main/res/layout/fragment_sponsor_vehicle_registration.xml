@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dashboard_bg">
+    android:background="@color/gf_bg_surface">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
@@ -27,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Vehicle Registration"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textSize="34sp"
                 android:textStyle="bold" />
 
@@ -36,14 +36,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:textColor="@color/text_muted"
+                android:textColor="@color/gf_text_hint"
                 android:textSize="13sp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_card_white"
+                android:background="@color/gf_bg_surface_dim"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -51,7 +51,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Open Application"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textStyle="bold" />
 
                 <TextView
@@ -59,7 +59,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textColor="@color/text_muted"
+                    android:textColor="@color/gf_text_hint"
                     android:text="No open application." />
 
                 <com.google.android.material.button.MaterialButton
@@ -78,7 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_card_white"
+                android:background="@color/gf_bg_surface_dim"
                 android:orientation="vertical"
                 android:padding="16dp">
 
@@ -86,7 +86,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Register Vehicle"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textStyle="bold" />
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -153,7 +153,7 @@
                     android:background="@drawable/bg_chip_role"
                     android:text="Attach Applicant CNIC (PDF/PNG/JPEG)"
                     android:textAllCaps="false"
-                    android:textColor="@color/primary_navy" />
+                    android:textColor="@color/gf_text_primary" />
 
                 <TextView
                     android:id="@+id/text_applicant_cnic_file"
@@ -161,7 +161,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="No file selected"
-                    android:textColor="@color/text_muted"
+                    android:textColor="@color/gf_text_hint"
                     android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -172,7 +172,7 @@
                     android:background="@drawable/bg_chip_role"
                     android:text="Attach Car Registration (PDF/PNG/JPEG)"
                     android:textAllCaps="false"
-                    android:textColor="@color/primary_navy" />
+                    android:textColor="@color/gf_text_primary" />
 
                 <TextView
                     android:id="@+id/text_registration_file"
@@ -180,7 +180,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="No file selected"
-                    android:textColor="@color/text_muted"
+                    android:textColor="@color/gf_text_hint"
                     android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -191,7 +191,7 @@
                     android:background="@drawable/bg_chip_role"
                     android:text="Attach Owner CNIC (PDF/PNG/JPEG)"
                     android:textAllCaps="false"
-                    android:textColor="@color/primary_navy"
+                    android:textColor="@color/gf_text_primary"
                     android:visibility="gone" />
 
                 <TextView
@@ -200,7 +200,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="No file selected"
-                    android:textColor="@color/text_muted"
+                    android:textColor="@color/gf_text_hint"
                     android:textSize="12sp"
                     android:visibility="gone" />
 
@@ -227,7 +227,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:text="Uploading required documents: 0%"
-                    android:textColor="@color/text_muted"
+                    android:textColor="@color/gf_text_hint"
                     android:textSize="12sp"
                     android:visibility="gone" />
             </LinearLayout>
@@ -237,7 +237,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_card_white"
+                android:background="@color/gf_bg_surface_dim"
                 android:orientation="vertical"
                 android:padding="16dp"
                 android:visibility="gone">
@@ -246,7 +246,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Removal Request"
-                    android:textColor="@color/text_dark"
+                    android:textColor="@color/gf_text_primary"
                     android:textStyle="bold" />
 
                 <TextView
@@ -254,7 +254,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textColor="@color/text_muted" />
+                    android:textColor="@color/gf_text_hint" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -277,7 +277,7 @@
                     android:background="@drawable/bg_chip_role"
                     android:text="Attach Optional Evidence (PDF/PNG/JPEG)"
                     android:textAllCaps="false"
-                    android:textColor="@color/primary_navy" />
+                    android:textColor="@color/gf_text_primary" />
 
                 <TextView
                     android:id="@+id/text_removal_evidence_files"
@@ -285,7 +285,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:text="No evidence files selected"
-                    android:textColor="@color/text_muted"
+                    android:textColor="@color/gf_text_hint"
                     android:textSize="12sp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -303,7 +303,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Registered Vehicles"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textStyle="bold" />
 
             <TextView
@@ -312,7 +312,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="No active registered vehicles"
-                android:textColor="@color/text_muted" />
+                android:textColor="@color/gf_text_hint" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_registered_vehicles"
@@ -325,7 +325,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Application History"
-                android:textColor="@color/text_dark"
+                android:textColor="@color/gf_text_primary"
                 android:textStyle="bold" />
 
             <TextView
@@ -334,7 +334,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="No vehicle applications yet"
-                android:textColor="@color/text_muted" />
+                android:textColor="@color/gf_text_hint" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_vehicle_history"
