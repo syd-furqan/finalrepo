@@ -28,5 +28,7 @@ public enum RoleDestination {
     ADMIN_CHARGES,
     ADMIN_ANALYTICS,
     ADMIN_SECURITY,
-    ADMIN_ACCESS
+    ADMIN_ACCESS,
+    ADMIN_TAKE_ACTION,
+    ANNOUNCEMENTS
 }

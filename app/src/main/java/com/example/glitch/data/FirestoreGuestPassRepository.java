@@ -9,6 +9,7 @@ import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.GuestPassStatusRules;
 import com.example.glitch.model.GuestIdentityPolicy;
 import com.example.glitch.model.GatePolicy;
+import com.example.glitch.model.InGateServiceControl;
 import com.example.glitch.model.GuestPassTimePolicy;
 import com.example.glitch.model.PhoneValidationResult;
 import com.example.glitch.model.UserProfile;
@@ -30,6 +31,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -41,6 +45,8 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
     private static final String COLLECTION_GUEST_PASSES = "guest_passes";
     private static final String COLLECTION_ENTRY_REQUESTS = "entry_requests";
     private static final String COLLECTION_ACCESS_EVENTS = "access_events";
+    private static final String COLLECTION_SERVICE_CONTROLS = "service_controls";
+    private static final String DOC_IN_GATE = "in_gate";
     private static final String STATUS_ACTIVE = "active";
     private static final String STATUS_CANCELLED = "cancelled";
     private static final String STATUS_USED = "used";
@@ -65,6 +71,7 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
     
     // In-memory lock to prevent rapid-click duplicates for the same user
     private final Set<String> pendingIssuances = new HashSet<>();
+    private final SimpleDateFormat inhibitionDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
     public FirestoreGuestPassRepository() {
         this(FirebaseFirestore.getInstance());
@@ -148,30 +155,74 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             return;
         }
 
-        interventionRepository.isGuestBanned(normalizedCnic, (banned, record, message) -> {
-            if (banned) {
-                callback.onComplete(false, "This guest is banned from campus entry.", null, null);
-                return;
+        checkInGateServiceAvailability(sponsorRole, new InGateAvailabilityCallback() {
+            @Override
+            public void onBlocked(@NonNull String message) {
+                callback.onComplete(false, message, null, null);
             }
-            if (message.startsWith("ERROR_")) {
-                callback.onComplete(false, "Unable to verify banned-list status right now.", null, null);
-                return;
+
+            @Override
+            public void onAvailable() {
+                interventionRepository.isGuestBanned(normalizedCnic, (banned, record, message) -> {
+                    if (banned) {
+                        callback.onComplete(false, "This guest is banned from campus entry.", null, null);
+                        return;
+                    }
+                    if (message.startsWith("ERROR_")) {
+                        callback.onComplete(false, "Unable to verify banned-list status right now.", null, null);
+                        return;
+                    }
+                    continueIssuanceAfterBanCheck(
+                            sponsorUid,
+                            sponsorRole,
+                            sponsorName,
+                            sponsorEmail,
+                            sponsorStudentId,
+                            trimmedGuestName,
+                            normalizedCnic,
+                            guestPhone,
+                            hasVehicle,
+                            normalizedVehiclePlate,
+                            phoneValidation,
+                            callback
+                    );
+                });
             }
-            continueIssuanceAfterBanCheck(
-                    sponsorUid,
-                    sponsorRole,
-                    sponsorName,
-                    sponsorEmail,
-                    sponsorStudentId,
-                    trimmedGuestName,
-                    normalizedCnic,
-                    guestPhone,
-                    hasVehicle,
-                    normalizedVehiclePlate,
-                    phoneValidation,
-                    callback
-            );
         });
+    }
+
+    private void checkInGateServiceAvailability(
+            @NonNull String sponsorRole,
+            @NonNull InGateAvailabilityCallback callback
+    ) {
+        String normalizedRole = sponsorRole.trim().toLowerCase(Locale.US);
+        if (!"faculty".equals(normalizedRole) && !"student".equals(normalizedRole)) {
+            callback.onAvailable();
+            return;
+        }
+        firestore.collection(COLLECTION_SERVICE_CONTROLS)
+                .document(DOC_IN_GATE)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (!snapshot.exists()) {
+                        callback.onAvailable();
+                        return;
+                    }
+                    InGateServiceControl control = InGateServiceControl.fromMap(snapshot.getData());
+                    if (!control.isBlockingRole(normalizedRole)) {
+                        callback.onAvailable();
+                        return;
+                    }
+                    String reason = control.getReason().trim().isEmpty()
+                            ? "Administrative restriction is active"
+                            : control.getReason().trim();
+                    String availabilityWindow = "until further notice";
+                    if (InGateServiceControl.MODE_TIMED.equals(control.getMode()) && control.getEndsAt() != null) {
+                        availabilityWindow = "until " + inhibitionDateFormat.format(new Date(control.getEndsAt().toDate().getTime()));
+                    }
+                    callback.onBlocked("In-Gate Not Operational. " + reason + ". Services unavailable " + availabilityWindow + ".");
+                })
+                .addOnFailureListener(error -> callback.onAvailable());
     }
 
     private void continueIssuanceAfterBanCheck(
@@ -1236,5 +1287,11 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             this.status = status;
             this.pass = pass;
         }
+    }
+
+    private interface InGateAvailabilityCallback {
+        void onBlocked(@NonNull String message);
+
+        void onAvailable();
     }
 }

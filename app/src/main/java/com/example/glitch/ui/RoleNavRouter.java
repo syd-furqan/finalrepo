@@ -164,6 +164,10 @@ public final class RoleNavRouter {
                 return RoleDestination.DIRECTORY;
             case FACULTY_NOTIFICATIONS:
                 return RoleDestination.NOTIFICATIONS;
+            case ANNOUNCEMENTS:
+                if ("guard".equals(role) || "monitor".equals(role)) return RoleDestination.ANNOUNCEMENTS;
+                if ("faculty".equals(role) || "student".equals(role)) return RoleDestination.NOTIFICATIONS;
+                return RoleDestination.DIRECTORY;
             case LOGOUT:
                 return RoleDestination.LOGOUT;
             default:
@@ -212,6 +216,7 @@ public final class RoleNavRouter {
                 destinations.add(RoleDestination.DASHBOARD);
                 destinations.add(RoleDestination.SCAN);
                 destinations.add(RoleDestination.ADMIN_VEHICLES);
+                destinations.add(RoleDestination.ADMIN_TAKE_ACTION);
                 break;
             case AUDIT:
                 destinations.add(RoleDestination.AUDIT);
@@ -283,6 +288,10 @@ public final class RoleNavRouter {
                 return "Security";
             case ADMIN_ACCESS:
                 return "Access";
+            case ADMIN_TAKE_ACTION:
+                return "Take Action";
+            case ANNOUNCEMENTS:
+                return "Announcements";
             case DIRECTORY:
                 return "admin".equals(normalize(rawRole)) ? "Dashboard" : "Home";
             case LOGOUT:
@@ -350,6 +359,10 @@ public final class RoleNavRouter {
                 return AdminCategoryFragment.newInstance(RoleDestination.ADMIN_SECURITY);
             case ADMIN_ACCESS:
                 return AdminCategoryFragment.newInstance(RoleDestination.ADMIN_ACCESS);
+            case ADMIN_TAKE_ACTION:
+                return AdminTakeActionFragment.newInstance();
+            case ANNOUNCEMENTS:
+                return SecurityAnnouncementsFragment.newInstance();
             case GUARD_DENY:
                 return GuardDenyFragment.newInstance();
             default:
@@ -364,6 +377,7 @@ public final class RoleNavRouter {
         if ("guard".equals(role)) {
             items.add(new NavItem(RoleDestination.DASHBOARD, R.string.nav_dashboard, android.R.drawable.ic_dialog_dialer));
             items.add(new NavItem(RoleDestination.SCAN, R.string.nav_qr_scan, android.R.drawable.ic_menu_camera));
+            items.add(new NavItem(RoleDestination.ANNOUNCEMENTS, R.string.nav_announcements, android.R.drawable.ic_dialog_email));
         } else if ("student".equals(role)) {
             items.add(new NavItem(RoleDestination.STUDENT_PASSES, R.string.nav_guest_passes, android.R.drawable.ic_menu_agenda));
             items.add(new NavItem(RoleDestination.SPONSOR_VEHICLES, R.string.nav_vehicles, android.R.drawable.ic_menu_directions));
@@ -375,6 +389,7 @@ public final class RoleNavRouter {
         } else if ("monitor".equals(role)) {
             items.add(new NavItem(RoleDestination.MONITOR_REPORT, R.string.nav_report, android.R.drawable.ic_menu_upload));
             items.add(new NavItem(RoleDestination.MONITOR_MY_REPORTS, R.string.nav_my_reports, android.R.drawable.ic_menu_agenda));
+            items.add(new NavItem(RoleDestination.ANNOUNCEMENTS, R.string.nav_announcements, android.R.drawable.ic_dialog_email));
         } else if ("admin".equals(role)) {
             items.add(new NavItem(RoleDestination.DIRECTORY, R.string.nav_dashboard, android.R.drawable.ic_menu_myplaces));
             items.add(new NavItem(RoleDestination.ADMIN_SECURITY, R.string.nav_security, android.R.drawable.ic_dialog_alert));
@@ -406,6 +421,7 @@ public final class RoleNavRouter {
                     || active == RoleDestination.DASHBOARD
                     || active == RoleDestination.SEARCH
                     || active == RoleDestination.SCAN
+                    || active == RoleDestination.ADMIN_TAKE_ACTION
                     || active == RoleDestination.ADMIN_ACCESS) {
                 return RoleDestination.ADMIN_ACCESS;
             }

@@ -16,6 +16,8 @@ import androidx.core.content.ContextCompat;
 import com.example.glitch.MainActivity;
 import com.example.glitch.R;
 
+import java.util.Locale;
+
 /**
  * Thin helper that owns Android notification-channel creation and dispatch.
  */
@@ -72,7 +74,14 @@ public class LocalNotificationHelper {
             @NonNull String message,
             int notificationId
     ) {
-        return showOnChannel(CHANNEL_ID_GUEST_PASS, title, message, notificationId);
+        return showOnChannel(
+                CHANNEL_ID_GUEST_PASS,
+                title,
+                message,
+                notificationId,
+                MainActivity.DESTINATION_NOTIFICATIONS,
+                false
+        );
     }
 
     public boolean showVehicleProgramNotification(
@@ -80,7 +89,14 @@ public class LocalNotificationHelper {
             @NonNull String message,
             int notificationId
     ) {
-        return showOnChannel(CHANNEL_ID_VEHICLE_PROGRAM, title, message, notificationId);
+        return showOnChannel(
+                CHANNEL_ID_VEHICLE_PROGRAM,
+                title,
+                message,
+                notificationId,
+                MainActivity.DESTINATION_NOTIFICATIONS,
+                false
+        );
     }
 
     public boolean showUserNotification(
@@ -88,14 +104,45 @@ public class LocalNotificationHelper {
             @NonNull String message,
             int notificationId
     ) {
-        return showOnChannel(CHANNEL_ID_USER_NOTIFICATIONS, title, message, notificationId);
+        return showOnChannel(
+                CHANNEL_ID_USER_NOTIFICATIONS,
+                title,
+                message,
+                notificationId,
+                MainActivity.DESTINATION_NOTIFICATIONS,
+                false
+        );
+    }
+
+    public boolean showAnnouncementNotification(
+            @NonNull String title,
+            @NonNull String message,
+            int notificationId,
+            @NonNull String role
+    ) {
+        String normalizedRole = role.trim().toLowerCase(Locale.US);
+        boolean securityRole = "guard".equals(normalizedRole) || "monitor".equals(normalizedRole);
+        String destination = securityRole
+                ? MainActivity.DESTINATION_ANNOUNCEMENTS
+                : MainActivity.DESTINATION_NOTIFICATIONS;
+        boolean openAnnouncementsCategory = !securityRole;
+        return showOnChannel(
+                CHANNEL_ID_USER_NOTIFICATIONS,
+                title,
+                message,
+                notificationId,
+                destination,
+                openAnnouncementsCategory
+        );
     }
 
     private boolean showOnChannel(
             @NonNull String channelId,
             @NonNull String title,
             @NonNull String message,
-            int notificationId
+            int notificationId,
+            @NonNull String launchDestination,
+            boolean openAnnouncementsCategory
     ) {
         ensureChannel();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
@@ -106,7 +153,8 @@ public class LocalNotificationHelper {
 
         Intent launchIntent = new Intent(appContext, MainActivity.class);
         launchIntent.setAction(MainActivity.ACTION_OPEN_NOTIFICATIONS);
-        launchIntent.putExtra(MainActivity.EXTRA_LAUNCH_DESTINATION, MainActivity.DESTINATION_NOTIFICATIONS);
+        launchIntent.putExtra(MainActivity.EXTRA_LAUNCH_DESTINATION, launchDestination);
+        launchIntent.putExtra(MainActivity.EXTRA_OPEN_ANNOUNCEMENTS_CATEGORY, openAnnouncementsCategory);
         launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 appContext,
