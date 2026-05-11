@@ -57,12 +57,12 @@ final class GuardLanguageUiBinder {
         int activeEnd = current == GuardLanguage.EN ? 2 : label.length();
         int inactiveStart = current == GuardLanguage.EN ? 5 : 0;
         int inactiveEnd = current == GuardLanguage.EN ? label.length() : 2;
-        int appBlue = ContextCompat.getColor(owner.requireContext(), R.color.primary_navy);
-        int inactiveBlue = 0x9913177B;
+        int activeColor = ContextCompat.getColor(owner.requireContext(), R.color.white);
+        int inactiveColor = ContextCompat.getColor(owner.requireContext(), R.color.md_primary_container);
 
         spannable.setSpan(new StyleSpan(Typeface.BOLD), activeStart, activeEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannable.setSpan(new ForegroundColorSpan(appBlue), activeStart, activeEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        spannable.setSpan(new ForegroundColorSpan(inactiveBlue), inactiveStart, inactiveEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(new ForegroundColorSpan(activeColor), activeStart, activeEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannable.setSpan(new ForegroundColorSpan(inactiveColor), inactiveStart, inactiveEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return spannable;
     }
 }

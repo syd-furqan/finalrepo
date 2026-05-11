@@ -3,11 +3,11 @@
     android:id="@+id/top_app_bar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
+    android:background="@color/md_surface"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingStart="@dimen/space_24"
-    android:paddingTop="@dimen/space_16"
+    android:paddingTop="@dimen/space_20"
     android:paddingEnd="@dimen/space_24"
     android:paddingBottom="@dimen/space_16">
 
@@ -22,7 +22,7 @@
             android:id="@+id/image_top_logo"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@color/surface_alt"
+            android:background="@drawable/bg_avatar_box"
             android:padding="@dimen/space_8"
             android:src="@mipmap/ic_launcher_round" />
 
@@ -31,10 +31,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/space_12"
-            android:fontFamily="sans-serif-bold"
+            android:fontFamily="sans-serif-black"
             android:text="@string/top_title_lums_security"
-            android:textColor="@color/primary_navy"
-            android:textSize="20sp" />
+            android:textColor="@color/md_primary"
+            android:textSize="22sp" />
     </LinearLayout>
 
     <ImageButton
@@ -45,5 +45,5 @@
         android:contentDescription="@string/app_name"
         android:padding="@dimen/space_8"
         android:src="@android:drawable/ic_dialog_info"
-        android:tint="@color/primary_navy" />
+        android:tint="@color/md_primary" />
 </LinearLayout>

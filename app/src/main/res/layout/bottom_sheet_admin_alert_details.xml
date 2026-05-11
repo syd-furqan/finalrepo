@@ -94,7 +94,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_alert_log_exit"
-            style="@style/Widget.Material3.Button.OutlinedButton"
+            style="@style/Widget.Glitch.Button.Outlined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/log_exit_action"
@@ -102,7 +102,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_alert_charge"
-            style="@style/Widget.Material3.Button"
+            style="@style/Widget.Glitch.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
@@ -112,7 +112,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_alert_close"
-        style="@style/Widget.Material3.Button.TextButton"
+        style="@style/Widget.Glitch.Button.Text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"

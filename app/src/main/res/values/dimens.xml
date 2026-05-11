@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="space_2">2dp</dimen>
     <dimen name="space_4">4dp</dimen>
     <dimen name="space_6">6dp</dimen>
     <dimen name="space_8">8dp</dimen>
@@ -8,12 +9,25 @@
     <dimen name="space_16">16dp</dimen>
     <dimen name="space_20">20dp</dimen>
     <dimen name="space_24">24dp</dimen>
+    <dimen name="space_28">28dp</dimen>
     <dimen name="space_32">32dp</dimen>
+    <dimen name="space_40">40dp</dimen>
+    <dimen name="space_48">48dp</dimen>
 
+    <dimen name="radius_4">4dp</dimen>
+    <dimen name="radius_6">6dp</dimen>
     <dimen name="radius_8">8dp</dimen>
+    <dimen name="radius_10">10dp</dimen>
     <dimen name="radius_12">12dp</dimen>
     <dimen name="radius_16">16dp</dimen>
+    <dimen name="radius_20">20dp</dimen>
+    <dimen name="radius_24">24dp</dimen>
+    <dimen name="radius_full">999dp</dimen>
 
-    <dimen name="bottom_nav_height">80dp</dimen>
+    <dimen name="stroke_1">1dp</dimen>
+    <dimen name="stroke_2">2dp</dimen>
+
+    <dimen name="min_touch_target">48dp</dimen>
+    <dimen name="bottom_nav_height">84dp</dimen>
     <dimen name="fab_size_primary">56dp</dimen>
 </resources>

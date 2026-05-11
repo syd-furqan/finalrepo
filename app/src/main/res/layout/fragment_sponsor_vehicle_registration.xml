@@ -206,13 +206,12 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_submit_vehicle_registration"
+                    style="@style/Widget.Glitch.Button"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="12dp"
-                    android:background="@drawable/bg_button_primary"
                     android:text="Submit Registration Application"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white" />
+                    android:textAllCaps="false" />
 
                 <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/progress_vehicle_registration_upload"
@@ -291,13 +290,12 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_submit_vehicle_removal"
+                    style="@style/Widget.Glitch.Button"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="12dp"
-                    android:background="@drawable/bg_button_primary"
                     android:text="Submit Removal Request"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white" />
+                    android:textAllCaps="false" />
             </LinearLayout>
 
             <TextView

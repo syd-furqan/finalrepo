@@ -80,7 +80,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_share_pass_details"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    style="@style/Widget.Glitch.Button.Outlined"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="@dimen/space_16"

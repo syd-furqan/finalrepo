@@ -462,7 +462,10 @@ public final class RoleNavRouter {
         ImageView icon = container.findViewById(iconId);
         TextView label = container.findViewById(labelId);
         container.setBackgroundResource(selected ? R.drawable.bg_bottom_nav_selected : android.R.color.transparent);
-        int tint = ContextCompat.getColor(owner.requireContext(), selected ? R.color.primary_navy : R.color.nav_unselected);
+        int tint = ContextCompat.getColor(
+                owner.requireContext(),
+                selected ? R.color.md_primary : R.color.nav_unselected
+        );
         if (icon != null) {
             icon.setColorFilter(tint);
         }

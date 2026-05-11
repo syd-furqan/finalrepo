@@ -9,7 +9,8 @@
     android:paddingStart="@dimen/space_12"
     android:paddingTop="@dimen/space_8"
     android:paddingEnd="@dimen/space_12"
-    android:paddingBottom="@dimen/space_12">
+    android:paddingBottom="@dimen/space_12"
+    android:clipToPadding="false">
 
     <LinearLayout
         android:id="@+id/nav_item_dashboard"
@@ -20,12 +21,13 @@
         android:gravity="center"
         android:orientation="vertical"
         android:paddingHorizontal="@dimen/space_8"
-        android:paddingVertical="@dimen/space_6">
+        android:paddingVertical="@dimen/space_8"
+        android:minHeight="@dimen/min_touch_target">
 
         <ImageView
             android:id="@+id/nav_icon_dashboard"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@android:drawable/ic_dialog_dialer"
             android:tint="@color/nav_unselected" />
 
@@ -48,12 +50,13 @@
         android:gravity="center"
         android:orientation="vertical"
         android:paddingHorizontal="@dimen/space_8"
-        android:paddingVertical="@dimen/space_6">
+        android:paddingVertical="@dimen/space_8"
+        android:minHeight="@dimen/min_touch_target">
 
         <ImageView
             android:id="@+id/nav_icon_passes"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@android:drawable/ic_menu_agenda"
             android:tint="@color/nav_unselected" />
 
@@ -76,12 +79,13 @@
         android:gravity="center"
         android:orientation="vertical"
         android:paddingHorizontal="@dimen/space_8"
-        android:paddingVertical="@dimen/space_6">
+        android:paddingVertical="@dimen/space_8"
+        android:minHeight="@dimen/min_touch_target">
 
         <ImageView
             android:id="@+id/nav_icon_vehicles"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@android:drawable/ic_menu_directions"
             android:tint="@color/nav_unselected" />
 
@@ -104,12 +108,13 @@
         android:gravity="center"
         android:orientation="vertical"
         android:paddingHorizontal="@dimen/space_8"
-        android:paddingVertical="@dimen/space_6">
+        android:paddingVertical="@dimen/space_8"
+        android:minHeight="@dimen/min_touch_target">
 
         <ImageView
             android:id="@+id/nav_icon_directory"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@android:drawable/ic_menu_myplaces"
             android:tint="@color/nav_unselected" />
 
@@ -132,12 +137,13 @@
         android:gravity="center"
         android:orientation="vertical"
         android:paddingHorizontal="@dimen/space_8"
-        android:paddingVertical="@dimen/space_6">
+        android:paddingVertical="@dimen/space_8"
+        android:minHeight="@dimen/min_touch_target">
 
         <ImageView
             android:id="@+id/nav_icon_logout"
-            android:layout_width="18dp"
-            android:layout_height="18dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:src="@android:drawable/ic_lock_power_off"
             android:tint="@color/nav_unselected" />
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/status_ribbon"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -31,7 +32,7 @@
             android:fontFamily="sans-serif-medium"
             android:text="@string/status_fallback_title"
             android:textColor="@color/white"
-            android:textSize="12sp"
+            android:textSize="13sp"
             android:textStyle="bold" />
 
         <TextView
@@ -41,7 +42,7 @@
             android:layout_marginTop="1dp"
             android:text="@string/status_fallback_message"
             android:textColor="@color/white"
-            android:textSize="10sp" />
+            android:textSize="11sp" />
     </LinearLayout>
 
     <TextView
@@ -49,21 +50,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/status_clock_placeholder"
-        android:textColor="#BFC6FF"
-        android:textSize="10sp" />
+        android:textColor="@color/md_primary_container"
+        android:textSize="11sp" />
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/button_guard_language_toggle"
-        android:layout_width="88dp"
-        android:layout_height="32dp"
+        style="@style/Widget.Glitch.Button.Text"
+        android:layout_width="92dp"
+        android:layout_height="36dp"
         android:layout_marginStart="@dimen/space_8"
-        android:background="@drawable/bg_button_outline"
+        android:backgroundTint="@android:color/transparent"
         android:minWidth="0dp"
         android:paddingStart="@dimen/space_6"
         android:paddingEnd="@dimen/space_6"
         android:text="EN | ار"
         android:textAllCaps="false"
-        android:textSize="12sp"
+        android:textSize="13sp"
         android:textColor="@color/white"
+        app:strokeColor="@color/md_primary_container"
+        app:strokeWidth="@dimen/stroke_1"
         android:visibility="gone" />
 </LinearLayout>

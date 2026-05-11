@@ -40,8 +40,8 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_chip_role"
                     android:paddingHorizontal="@dimen/space_12"
-                    android:paddingVertical="4dp"
-                    android:textColor="@color/primary_navy"
+                    android:paddingVertical="@dimen/space_4"
+                    android:textColor="@color/md_primary"
                     android:textStyle="bold" />
 
                 <TextView
@@ -51,7 +51,7 @@
                     android:layout_marginTop="@dimen/space_8"
                     android:fontFamily="sans-serif-black"
                     android:textColor="@color/text_dark"
-                    android:textSize="34sp" />
+                    android:textSize="32sp" />
 
                 <TextView
                     android:layout_width="match_parent"
@@ -67,15 +67,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/space_16"
-                android:background="@color/surface_alt"
+                android:background="@drawable/bg_card_white"
                 android:orientation="vertical"
                 android:padding="@dimen/space_16" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_logout"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.Glitch.Button.Outlined"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="@dimen/min_touch_target"
                 android:layout_marginTop="@dimen/space_16"
                 android:text="@string/logout_action"
                 android:textAllCaps="false" />

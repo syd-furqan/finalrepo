@@ -62,7 +62,7 @@
                         android:layout_height="wrap_content"
                         android:text="Security Gateway"
                         android:textAllCaps="true"
-                        android:textColor="@color/primary_navy"
+                        android:textColor="@color/md_primary"
                         android:textSize="10sp"
                         android:textStyle="bold" />
 
@@ -89,6 +89,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_mark_all_read"
+                style="@style/Widget.Glitch.Button.Outlined"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
@@ -107,7 +108,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_filter_all_notifications"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.Glitch.Button.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/notifications_filter_all"
@@ -115,7 +116,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_filter_announcements"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.Glitch.Button.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/nav_announcements"
