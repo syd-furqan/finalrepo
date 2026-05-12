@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import com.example.glitch.model.AuditEventType;
 import com.example.glitch.model.GuestIdentityPolicy;
 import com.example.glitch.model.GatePolicy;
+import com.example.glitch.model.VehicleStickerPolicy;
 import com.example.glitch.model.ViolationReport;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -662,7 +663,8 @@ public class FirestoreViolationReportRepository implements ViolationReportReposi
                     String name = asString(doc.get("displayName"));
                     String email = asString(doc.get("email"));
                     String foundStudentId = asString(doc.get("studentId"));
-                    callback.onFound(uid, name, email, foundStudentId);
+                    String studentCategory = VehicleStickerPolicy.normalizeStudentCategory(asString(doc.get("studentCategory")));
+                    callback.onFound(uid, name, email, foundStudentId, studentCategory);
                 })
                 .addOnFailureListener(callback::onError);
     }

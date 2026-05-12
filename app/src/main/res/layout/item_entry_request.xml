@@ -35,7 +35,7 @@
                     android:id="@+id/image_request_icon"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
-                    android:src="@android:drawable/ic_menu_agenda"
+                    android:src="@drawable/ic_guest_user"
                     android:tint="@color/gf_accent"
                     android:contentDescription="@null" />
             </LinearLayout>
@@ -77,14 +77,6 @@
                         android:textSize="10sp"
                         android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/text_host"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/gf_space_sm"
-                        android:fontFamily="sans-serif"
-                        android:textColor="@color/gf_text_hint"
-                        android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -124,7 +116,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="@string/gate_label"
+                    android:text="@string/sponsor_label"
                     android:textAllCaps="true"
                     android:textColor="@color/gf_text_hint"
                     android:textSize="10sp"

@@ -92,7 +92,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/gf_grid_gap"
-                    android:text="License Plate Number"
+                    android:text="@string/plate_number"
                     android:textColor="@color/gf_text_primary"
                     android:textStyle="bold" />
 

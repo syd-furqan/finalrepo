@@ -1,15 +1,13 @@
 package com.example.glitch.ui;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -27,7 +25,6 @@ import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.GuestIdentityPolicy;
 import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.GuestPassStatusRules;
-import com.example.glitch.model.GuestPassTimePolicy;
 import com.example.glitch.model.GuardPendingDecision;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
@@ -54,21 +51,15 @@ public class GuardPendingDecisionFragment extends Fragment {
     private GuardPendingDecision pendingDecision;
     private MaterialButton buttonAllow;
     private MaterialButton buttonDeny;
+    private MaterialButton buttonClose;
+    private MaterialCheckBox checkCnicVerified;
     private MaterialCheckBox checkVehicleVerified;
     private TextView textCnicResult;
     private View layoutManualOverride;
     private TextInputEditText inputCnicManual;
     private TextInputLayout layoutCnicManualInput;
-    private View overlayResult;
-    private TextView overlayResultTitle;
-    private TextView overlayResultSubtitle;
-    private TextView overlayResultCnic;
-    private View overlayIconContainer;
-    private android.widget.ImageView overlayResultIcon;
-    private MaterialButton overlayButtonPrimary;
-    private MaterialButton overlayButtonSecondary;
     private boolean decisionActionable;
-    private boolean cnicVerified = false;
+    private boolean cnicVerifiedEvidence;
     private CnicOcrHelper cnicOcrHelper;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
@@ -124,38 +115,18 @@ public class GuardPendingDecisionFragment extends Fragment {
         pendingDecisionStore = new GuardPendingDecisionStore(requireContext());
         auditEventLogger = new AuditEventLogger();
 
-        requireActivity().getOnBackPressedDispatcher().addCallback(
-                getViewLifecycleOwner(),
-                new OnBackPressedCallback(true) {
-                    @Override
-                    public void handleOnBackPressed() {
-                        if (!isAdded()) {
-                            return;
-                        }
-                        Snackbar.make(requireView(), R.string.guard_pending_back_blocked, Snackbar.LENGTH_SHORT).show();
-                    }
-                }
-        );
-
         buttonAllow = view.findViewById(R.id.button_pending_allow);
         buttonDeny = view.findViewById(R.id.button_pending_deny);
+        buttonClose = view.findViewById(R.id.button_pending_close);
+        checkCnicVerified = view.findViewById(R.id.check_pending_cnic_verified);
         checkVehicleVerified = view.findViewById(R.id.check_pending_vehicle_verified);
         textCnicResult = view.findViewById(R.id.text_cnic_verify_result);
         layoutManualOverride = view.findViewById(R.id.layout_cnic_manual_override);
         inputCnicManual = view.findViewById(R.id.input_cnic_manual);
         layoutCnicManualInput = view.findViewById(R.id.layout_cnic_manual_input);
+        buttonClose.setOnClickListener(v -> closeDecisionWithoutAction());
 
-        overlayResult = view.findViewById(R.id.overlay_cnic_result);
-        overlayResultTitle = view.findViewById(R.id.overlay_result_title);
-        overlayResultSubtitle = view.findViewById(R.id.overlay_result_subtitle);
-        overlayResultCnic = view.findViewById(R.id.overlay_result_cnic);
-        overlayIconContainer = view.findViewById(R.id.overlay_result_icon_container);
-        overlayResultIcon = view.findViewById(R.id.overlay_result_icon);
-        overlayButtonPrimary = view.findViewById(R.id.overlay_button_primary);
-        overlayButtonSecondary = view.findViewById(R.id.overlay_button_secondary);
-        overlayButtonSecondary.setOnClickListener(v -> overlayResult.setVisibility(View.GONE));
-
-        MaterialButton buttonVerifyCamera = view.findViewById(R.id.button_verify_cnic_camera);
+        ImageButton buttonVerifyCamera = view.findViewById(R.id.button_verify_cnic_camera);
         buttonVerifyCamera.setOnClickListener(v -> cnicOcrHelper.launchCameraOrRequestPermission());
 
         // Manual override: attach formatter and verify button
@@ -210,46 +181,32 @@ public class GuardPendingDecisionFragment extends Fragment {
     private void bindDecision(@NonNull View view, @NonNull GuardPendingDecision decision) {
         TextView textGuestName = view.findViewById(R.id.text_pending_guest_name);
         TextView textPassCode = view.findViewById(R.id.text_pending_pass_code);
-        TextView textMethod = view.findViewById(R.id.text_pending_method);
-        TextView textGuestId = view.findViewById(R.id.text_pending_guest_id);
-        TextView textGuestType = view.findViewById(R.id.text_pending_guest_type);
-        TextView textVehiclePlate = view.findViewById(R.id.text_pending_vehicle_plate);
-        TextView textGate = view.findViewById(R.id.text_pending_gate);
+        TextView textGuestPhone = view.findViewById(R.id.text_pending_guest_phone);
+        TextView textHasVehicle = view.findViewById(R.id.text_pending_has_vehicle);
         TextView textSponsor = view.findViewById(R.id.text_pending_sponsor);
+        TextView textSponsorEmail = view.findViewById(R.id.text_pending_sponsor_email);
         TextView textSponsorRole = view.findViewById(R.id.text_pending_sponsor_role);
         TextView textCreatedAt = view.findViewById(R.id.text_pending_created_at);
-        TextView textExpiresAt = view.findViewById(R.id.text_pending_expires_at);
+        TextView textMethod = view.findViewById(R.id.text_pending_method);
 
         textGuestName.setText(decision.getGuestName());
         textPassCode.setText(getString(R.string.pass_code_label, decision.getPassCode()));
-        textMethod.setText(getString(R.string.guard_pending_method_label, decision.getVerificationMethod()));
-        textGuestId.setText(getString(R.string.guard_pending_guest_id_label, valueOrUnavailable(decision.getGuestIdNumber())));
-        textGuestType.setText(getString(
-                R.string.guard_pending_guest_type_label,
-                formatGuestType(decision.getGuestType())
-        ));
-        textVehiclePlate.setText(getString(
-                R.string.guard_pending_vehicle_plate_label,
-                decision.hasVehicle() ? valueOrUnavailable(decision.getVehiclePlate()) : getString(R.string.not_available)
-        ));
-        textGate.setText(getString(R.string.gate_label) + ": " + GatePolicy.toDisplayLabel(decision.getGateLabel()));
+        textGuestPhone.setText(getString(R.string.guard_pending_guest_phone_label, valueOrUnavailable(decision.getGuestPhone())));
+        textHasVehicle.setText(getString(R.string.guard_pending_has_vehicle_label, decision.hasVehicle() ? "Yes" : "No"));
         textSponsor.setText(getString(
-                R.string.guard_pending_sponsor_label,
-                valueOrUnavailable(decision.getSponsorName()),
-                valueOrUnavailable(decision.getSponsorEmail())
+                R.string.guard_pending_sponsor_name_label,
+                valueOrUnavailable(decision.getSponsorName())
         ));
+        textSponsorEmail.setText(getString(R.string.guard_pending_sponsor_email_label, valueOrUnavailable(decision.getSponsorEmail())));
         textSponsorRole.setText(getString(
                 R.string.guard_pending_sponsor_role_label,
-                valueOrUnavailable(decision.getSponsorRole())
+                formatRole(decision.getSponsorRole())
         ));
         textCreatedAt.setText(getString(
                 R.string.guard_pending_created_label,
                 formatMillis(decision.getCreatedAtMillis())
         ));
-        textExpiresAt.setText(getString(
-                R.string.guard_pending_expires_label,
-                formatMillis(decision.getExpiresAtMillis())
-        ));
+        textMethod.setText(getString(R.string.guard_pending_method_label, humanizeVerificationMethod(decision.getVerificationMethod())));
     }
 
     private void revalidatePendingDecision() {
@@ -412,9 +369,21 @@ public class GuardPendingDecisionFragment extends Fragment {
     }
 
     private void bindCheckpoints() {
-        cnicVerified = false;
+        cnicVerifiedEvidence = false;
+        checkCnicVerified.setChecked(false);
+        checkCnicVerified.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked && !cnicVerifiedEvidence) {
+                buttonView.setChecked(false);
+                if (isAdded()) {
+                    Snackbar.make(requireView(), R.string.guard_cnic_verify_first, Snackbar.LENGTH_SHORT).show();
+                }
+                return;
+            }
+            updateAllowButtonState();
+        });
         textCnicResult.setVisibility(View.GONE);
-        layoutManualOverride.setVisibility(View.GONE);
+        layoutManualOverride.setVisibility(View.VISIBLE);
+        layoutCnicManualInput.setError(null);
         if (pendingDecision.hasVehicle()) {
             checkVehicleVerified.setVisibility(View.VISIBLE);
             String label = getString(
@@ -450,7 +419,8 @@ public class GuardPendingDecisionFragment extends Fragment {
     }
 
     private boolean isAllowEligible() {
-        if (!cnicVerified) return false;
+        if (!cnicVerifiedEvidence) return false;
+        if (!checkCnicVerified.isChecked()) return false;
         if (pendingDecision != null && pendingDecision.hasVehicle()) {
             return checkVehicleVerified.isChecked();
         }
@@ -459,15 +429,14 @@ public class GuardPendingDecisionFragment extends Fragment {
 
     private void handleCnicScanResult(@NonNull CnicScanResult result) {
         textCnicResult.setVisibility(View.VISIBLE);
-        layoutManualOverride.setVisibility(View.GONE);
         layoutCnicManualInput.setError(null);
 
         if (!result.isSuccess()) {
             setCnicVerified(false);
+            logCnicVerification(false, "CNIC_SCAN", "", result.getFailureReason());
             textCnicResult.setText(getString(R.string.guard_cnic_scan_warning, result.getFailureReason()));
             textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.semantic_warning_container));
             textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.semantic_warning_on_container));
-            layoutManualOverride.setVisibility(View.VISIBLE);
             return;
         }
 
@@ -477,17 +446,16 @@ public class GuardPendingDecisionFragment extends Fragment {
 
         if (matches) {
             setCnicVerified(true);
+            logCnicVerification(true, "CNIC_SCAN", scanned, "matched");
             textCnicResult.setText(getString(R.string.guard_cnic_match, scanned));
             textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_container));
             textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_on_container));
-            showResultOverlay(true, scanned);
         } else {
             setCnicVerified(false);
+            logCnicVerification(false, "CNIC_SCAN", scanned, "mismatch");
             textCnicResult.setText(getString(R.string.guard_cnic_mismatch, scanned, expected));
             textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_error_container));
             textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_on_error_container));
-            layoutManualOverride.setVisibility(View.VISIBLE);
-            showResultOverlay(false, scanned);
         }
     }
 
@@ -499,20 +467,21 @@ public class GuardPendingDecisionFragment extends Fragment {
 
         if (normalized == null) {
             layoutCnicManualInput.setError(getString(R.string.error_invalid_cnic));
+            logCnicVerification(false, "MANUAL_CNIC", input, "invalid_format");
             return;
         }
         layoutCnicManualInput.setError(null);
 
         if (normalized.equalsIgnoreCase(expected.trim())) {
             setCnicVerified(true);
+            logCnicVerification(true, "MANUAL_CNIC", normalized, "matched");
             textCnicResult.setVisibility(View.VISIBLE);
             textCnicResult.setText(getString(R.string.guard_cnic_match_manual, normalized));
             textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_container));
             textCnicResult.setTextColor(ContextCompat.getColor(requireContext(), R.color.semantic_success_on_container));
-            layoutManualOverride.setVisibility(View.GONE);
-            showResultOverlay(true, normalized);
         } else {
             setCnicVerified(false);
+            logCnicVerification(false, "MANUAL_CNIC", normalized, "mismatch");
             textCnicResult.setVisibility(View.VISIBLE);
             textCnicResult.setText(getString(R.string.guard_cnic_mismatch_entered, normalized, expected));
             textCnicResult.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_error_container));
@@ -522,46 +491,56 @@ public class GuardPendingDecisionFragment extends Fragment {
     }
 
     private void setCnicVerified(boolean verified) {
-        cnicVerified = verified;
+        cnicVerifiedEvidence = verified;
+        if (!verified) {
+            checkCnicVerified.setChecked(false);
+        }
         updateAllowButtonState();
     }
 
-    private void showResultOverlay(boolean success, @NonNull String cnic) {
-        if (overlayResult == null) return;
-        overlayResult.setVisibility(View.VISIBLE);
-
-        if (success) {
-            overlayResultTitle.setText("Identity Verified");
-            overlayResultSubtitle.setText("CNIC matched the guest record. You may approve entry.");
-            overlayResultTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.gf_success));
-            overlayIconContainer.setBackgroundResource(R.drawable.bg_icon_container_green);
-            overlayResultIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.gf_success));
-            overlayResultIcon.setImageResource(android.R.drawable.checkbox_on_background);
-            overlayButtonPrimary.setText(getString(R.string.approve_entry));
-            overlayButtonPrimary.setBackgroundTintList(
-                    android.content.res.ColorStateList.valueOf(
-                            ContextCompat.getColor(requireContext(), R.color.gf_success)));
-            overlayButtonPrimary.setOnClickListener(v -> {
-                overlayResult.setVisibility(View.GONE);
-                allowDecision();
-            });
-        } else {
-            overlayResultTitle.setText("CNIC Mismatch");
-            overlayResultSubtitle.setText("Scanned CNIC does not match the guest record.");
-            overlayResultTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.gf_danger));
-            overlayIconContainer.setBackgroundResource(R.drawable.bg_icon_container_red);
-            overlayResultIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.gf_danger));
-            overlayResultIcon.setImageResource(android.R.drawable.ic_delete);
-            overlayButtonPrimary.setText(getString(R.string.deny_entry));
-            overlayButtonPrimary.setBackgroundTintList(
-                    android.content.res.ColorStateList.valueOf(
-                            ContextCompat.getColor(requireContext(), R.color.gf_danger)));
-            overlayButtonPrimary.setOnClickListener(v -> {
-                overlayResult.setVisibility(View.GONE);
-                denyDecision();
-            });
+    private void logCnicVerification(
+            boolean success,
+            @NonNull String method,
+            @NonNull String providedValue,
+            @NonNull String detail
+    ) {
+        if (pendingDecision == null) {
+            return;
         }
-        overlayResultCnic.setText(cnic);
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("passCode", pendingDecision.getPassCode());
+        metadata.put("verificationMethod", method);
+        metadata.put("providedCnic", providedValue);
+        metadata.put("expectedCnic", pendingDecision.getGuestIdNumber());
+        metadata.put("detail", detail);
+        auditEventLogger.log(
+                success ? AuditEventType.CNIC_VERIFIED : AuditEventType.CNIC_VERIFICATION_FAILED,
+                "guest_pass",
+                pendingDecision.getPassCode(),
+                pendingDecision.getEntryRequestId(),
+                currentGuardUid(),
+                "guard",
+                success ? "Guard CNIC verification passed" : "Guard CNIC verification failed",
+                "guard_pending_fragment",
+                success ? "success" : "failure",
+                success ? "cnic_verified" : "cnic_verification_failed",
+                GatePolicy.normalizeStoredValue(pendingDecision.getGateLabel()),
+                metadata
+        );
+    }
+
+    private void closeDecisionWithoutAction() {
+        clearPendingDecision();
+        if (!isAdded()) {
+            return;
+        }
+        if (getParentFragmentManager().getBackStackEntryCount() > 0) {
+            getParentFragmentManager().popBackStack();
+            return;
+        }
+        if (requireActivity() instanceof NavigationHost) {
+            ((NavigationHost) requireActivity()).showFragment(GuardQrScanFragment.newInstance(), false);
+        }
     }
 
     private void routeToDashboard() {
@@ -601,18 +580,28 @@ public class GuardPendingDecisionFragment extends Fragment {
     }
 
     @NonNull
-    private String formatGuestType(@NonNull String value) {
-        String normalized = value.trim().toLowerCase(Locale.getDefault());
+    private String formatRole(@NonNull String role) {
+        String normalized = role.trim().toLowerCase(Locale.getDefault());
         if (normalized.isEmpty()) {
             return getString(R.string.not_available);
         }
-        if ("vehicle".equals(normalized)) {
-            return getString(R.string.guest_type_vehicle);
+        if (normalized.length() == 1) {
+            return normalized.toUpperCase(Locale.getDefault());
         }
-        if ("non_vehicle".equals(normalized)) {
-            return getString(R.string.guest_type_non_vehicle);
+        return normalized.substring(0, 1).toUpperCase(Locale.getDefault())
+                + normalized.substring(1);
+    }
+
+    @NonNull
+    private String humanizeVerificationMethod(@NonNull String method) {
+        String normalized = method.trim().toUpperCase(Locale.getDefault());
+        if ("QR_SCAN".equals(normalized)) {
+            return getString(R.string.verification_method_qr_scan);
         }
-        return value;
+        if ("PASS_CODE".equals(normalized)) {
+            return getString(R.string.verification_method_pass_code);
+        }
+        return method.replace('_', ' ');
     }
 
     private void recordPendingResolvedAllow() {

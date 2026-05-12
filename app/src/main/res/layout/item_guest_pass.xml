@@ -67,20 +67,11 @@
             android:contentDescription="@string/scan_qr_code"
             android:padding="@dimen/gf_space_sm" />
 
-        <TextView
-            android:id="@+id/text_pass_expiry"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/gf_space_xs"
-            android:gravity="center"
-            android:textColor="@color/gf_text_hint"
-            android:textSize="11sp" />
-
         <!-- Divider -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginTop="@dimen/gf_space_md"
+            android:layout_marginTop="@dimen/gf_space_sm"
             android:background="@color/gf_border" />
 
         <!-- Action buttons -->
@@ -94,34 +85,43 @@
                 android:id="@+id/button_share_pass"
                 style="@style/Widget.GateFlow.Button.Outlined"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
-                android:text="Share"
+                android:minWidth="0dp"
+                android:paddingStart="@dimen/gf_space_sm"
+                android:paddingEnd="@dimen/gf_space_sm"
+                android:text="@string/share_action"
                 android:textAllCaps="false"
-                android:textSize="12sp" />
+                android:textSize="13sp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_view_pass_details"
                 style="@style/Widget.GateFlow.Button.Outlined"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="44dp"
                 android:layout_marginStart="@dimen/gf_space_sm"
                 android:layout_weight="1"
+                android:minWidth="0dp"
+                android:paddingStart="@dimen/gf_space_sm"
+                android:paddingEnd="@dimen/gf_space_sm"
                 android:text="@string/details_action"
                 android:textAllCaps="false"
-                android:textSize="12sp" />
+                android:textSize="13sp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_cancel_pass"
                 style="@style/Widget.GateFlow.Button.Outlined"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
+                android:layout_height="44dp"
                 android:layout_marginStart="@dimen/gf_space_sm"
                 android:layout_weight="1"
-                android:text="@string/cancel_pass_action"
+                android:minWidth="0dp"
+                android:paddingStart="@dimen/gf_space_sm"
+                android:paddingEnd="@dimen/gf_space_sm"
+                android:text="@string/cancel_action"
                 android:textAllCaps="false"
                 android:textColor="@color/gf_danger"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 app:strokeColor="@color/gf_danger" />
         </LinearLayout>
 

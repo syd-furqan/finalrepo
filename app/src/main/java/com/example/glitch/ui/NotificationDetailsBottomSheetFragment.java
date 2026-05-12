@@ -79,8 +79,7 @@ public class NotificationDetailsBottomSheetFragment extends BottomSheetDialogFra
         textMeta.setText(
                 "Status: " + (read ? "Read" : "Unread")
                         + "\nCreated: " + formatMillis(createdAt)
-                        + "\nSource: " + valueOr(sourceCollection, "Not available")
-                        + "\nSource ID: " + valueOr(sourceId, "Not available")
+                        + "\nCategory: " + formatCategory(sourceCollection, type)
         );
 
         boolean supported = isSupportedSource(sourceCollection) && !sourceId.trim().isEmpty();
@@ -121,6 +120,28 @@ public class NotificationDetailsBottomSheetFragment extends BottomSheetDialogFra
             return "Not available";
         }
         return new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new java.util.Date(millis));
+    }
+
+    @NonNull
+    private String formatCategory(@NonNull String sourceCollection, @NonNull String type) {
+        String normalizedType = type.trim().toLowerCase(Locale.US);
+        if ("announcement".equals(normalizedType)) {
+            return "Announcements";
+        }
+        String normalizedSource = sourceCollection.trim().toLowerCase(Locale.US);
+        if ("guest_passes".equals(normalizedSource)) {
+            return "Guest Passes";
+        }
+        if ("vehicle_requests".equals(normalizedSource)) {
+            return "Vehicle Registrations";
+        }
+        if ("fine_cases".equals(normalizedSource)) {
+            return "Charges";
+        }
+        if ("violation_reports".equals(normalizedSource)) {
+            return "Violations";
+        }
+        return "Notifications";
     }
 
     private static long asMillis(@Nullable Timestamp timestamp) {

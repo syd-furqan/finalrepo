@@ -29,6 +29,11 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+import com.google.firebase.Timestamp;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MonitorViolationReportFragment extends Fragment {
     private ViolationReportRepository repository;
@@ -56,6 +61,7 @@ public class MonitorViolationReportFragment extends Fragment {
     private String verifiedGuestCnic = "";
     private String verifiedGuestPhone = "";
     private String verifiedGuestPassId = "";
+    private String verifiedGuestPassCode = "";
     private String verifiedEntryRequestId = "";
     private String verifiedGuestPassStatus = "";
     private String verifiedSponsorUid = "";
@@ -68,6 +74,7 @@ public class MonitorViolationReportFragment extends Fragment {
     private String verifiedStudentId = "";
     private boolean guestVerified = false;
     private boolean studentVerified = false;
+    private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault());
 
     @NonNull
     public static MonitorViolationReportFragment newInstance() {
@@ -111,14 +118,14 @@ public class MonitorViolationReportFragment extends Fragment {
         MaterialButton buttonVerifyGuest = view.findViewById(R.id.button_verify_guest);
         MaterialButton buttonVerifyGuestPasscode = view.findViewById(R.id.button_verify_guest_passcode);
         MaterialButton buttonVerifyStudent = view.findViewById(R.id.button_verify_student);
-        MaterialButton buttonScanGuestQr = view.findViewById(R.id.button_scan_guest_qr);
+        View buttonScanGuestQr = view.findViewById(R.id.button_scan_guest_qr);
 
         GuestIdentityInputSupport.attachCnicFormatter(inputGuestCnic);
         inputGuestPassCode.setFilters(new InputFilter[]{
                 new InputFilter.AllCaps(),
                 new InputFilter.LengthFilter(32)
         });
-        RoleNavRouter.bindBottomNav(view, this, RoleDestination.DASHBOARD);
+        RoleNavRouter.bindBottomNav(view, this, RoleDestination.MONITOR_REPORT);
 
         barcodeLauncher = registerForActivityResult(new ScanContract(), result -> {
             if (result == null || result.getContents() == null || result.getContents().trim().isEmpty()) {
@@ -127,9 +134,8 @@ public class MonitorViolationReportFragment extends Fragment {
             }
             String scanned = result.getContents().trim().toUpperCase();
             inputGuestPassCode.setText(scanned);
-            radioVisitorLookupMethod.check(R.id.radio_lookup_qr);
             updateVisitorLookupMethod();
-            verifyGuestByPassCode(scanned);
+            Snackbar.make(requireView(), "Pass code filled from QR. Tap Verify to continue.", Snackbar.LENGTH_SHORT).show();
         });
 
         radioSubjectType.setOnCheckedChangeListener((group, checkedId) -> {
@@ -186,12 +192,17 @@ public class MonitorViolationReportFragment extends Fragment {
                         guestPhone,
                         normalized,
                         guestPassId,
+                        "",
                         entryRequestId,
                         passStatus,
                         sponsorUid,
                         sponsorName,
                         sponsorRole,
-                        sponsorStudentId
+                        "",
+                        sponsorStudentId,
+                        false,
+                        null,
+                        null
                 ));
             }
 
@@ -217,7 +228,7 @@ public class MonitorViolationReportFragment extends Fragment {
     private void verifyGuestByPassCode(@NonNull String rawPassCode) {
         String passCode = rawPassCode.trim().toUpperCase();
         if (passCode.isEmpty()) {
-            Snackbar.make(requireView(), "Enter a passcode or scan a QR code.", Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(requireView(), "Enter pass code or scan QR, then tap Verify.", Snackbar.LENGTH_SHORT).show();
             return;
         }
         guestPassRepository.findPassByCode(passCode, new GuestPassRepository.PassLookupListener() {
@@ -237,12 +248,17 @@ public class MonitorViolationReportFragment extends Fragment {
                             pass.getGuestPhone(),
                             pass.getGuestIdNumber(),
                             pass.getId(),
+                            pass.getPassCode(),
                             pass.getEntryRequestId(),
                             pass.getStatus(),
                             pass.getSponsorUid(),
                             pass.getSponsorName(),
                             pass.getSponsorRole(),
-                            pass.getSponsorStudentId()
+                            pass.getSponsorEmail(),
+                            pass.getSponsorStudentId(),
+                            pass.hasVehicle(),
+                            pass.getCreatedAt(),
+                            pass.getExpiresAt()
                     );
                 });
             }
@@ -260,17 +276,23 @@ public class MonitorViolationReportFragment extends Fragment {
             @NonNull String guestPhone,
             @NonNull String guestCnic,
             @NonNull String guestPassId,
+            @NonNull String guestPassCode,
             @NonNull String entryRequestId,
             @NonNull String passStatus,
             @NonNull String sponsorUid,
             @NonNull String sponsorName,
             @NonNull String sponsorRole,
-            @NonNull String sponsorStudentId
+            @NonNull String sponsorEmail,
+            @NonNull String sponsorStudentId,
+            boolean hasVehicle,
+            @Nullable Timestamp createdAt,
+            @Nullable Timestamp expiresAt
     ) {
         verifiedGuestName = guestName;
         verifiedGuestCnic = guestCnic;
         verifiedGuestPhone = guestPhone;
         verifiedGuestPassId = guestPassId;
+        verifiedGuestPassCode = guestPassCode;
         verifiedEntryRequestId = entryRequestId;
         verifiedGuestPassStatus = passStatus;
         verifiedSponsorUid = sponsorUid;
@@ -278,9 +300,20 @@ public class MonitorViolationReportFragment extends Fragment {
         verifiedSponsorRole = sponsorRole;
         verifiedSponsorStudentId = sponsorStudentId;
         guestVerified = true;
-        String phoneText = guestPhone.trim().isEmpty() ? "" : " | Phone: " + guestPhone;
-        textVerifiedGuestName.setText("Visitor: " + guestName + " | CNIC: " + guestCnic + phoneText);
-        textVerifiedSponsor.setText("Sponsor: " + sponsorName + " (" + sponsorRole + ")");
+        String resolvedPassCode = guestPassCode.trim().isEmpty() ? read(inputGuestPassCode) : guestPassCode.trim();
+        textVerifiedGuestName.setText(
+                "Visitor: " + valueOr(guestName, "N/A") + "\n"
+                        + "Pass Code: " + valueOr(resolvedPassCode, "N/A") + "\n"
+                        + "CNIC: " + valueOr(guestCnic, "N/A") + "\n"
+                        + "Phone: " + valueOr(guestPhone, "N/A") + "\n"
+                        + "Has Vehicle: " + (hasVehicle ? "Yes" : "No") + "\n"
+                        + "Created At: " + formatTimestamp(createdAt)
+        );
+        textVerifiedSponsor.setText(
+                "Sponsor: " + valueOr(sponsorName, "N/A") + "\n"
+                        + "Sponsor Type: " + formatRoleLabel(sponsorRole) + "\n"
+                        + "Sponsor Email: " + valueOr(sponsorEmail, "N/A")
+        );
         containerVerifiedGuest.setVisibility(View.VISIBLE);
         updateSubmitState();
     }
@@ -301,7 +334,13 @@ public class MonitorViolationReportFragment extends Fragment {
         }
         repository.findStudentByStudentId(studentId, new ViolationReportRepository.StudentInfoCallback() {
             @Override
-            public void onFound(@NonNull String studentUid, @NonNull String studentName, @NonNull String studentEmail, @NonNull String foundStudentId) {
+            public void onFound(
+                    @NonNull String studentUid,
+                    @NonNull String studentName,
+                    @NonNull String studentEmail,
+                    @NonNull String foundStudentId,
+                    @NonNull String studentType
+            ) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
                     verifiedStudentUid = studentUid;
@@ -309,7 +348,10 @@ public class MonitorViolationReportFragment extends Fragment {
                     verifiedStudentEmail = studentEmail;
                     verifiedStudentId = foundStudentId;
                     studentVerified = true;
-                    textVerifiedStudentName.setText("Student: " + studentName + " | ID: " + foundStudentId);
+                    textVerifiedStudentName.setText(
+                            "Student: " + valueOr(studentName, "N/A") + "\n"
+                                    + "Student Type: " + formatStudentType(studentType)
+                    );
                     textVerifiedStudentName.setVisibility(View.VISIBLE);
                     updateSubmitState();
                 });
@@ -348,6 +390,7 @@ public class MonitorViolationReportFragment extends Fragment {
         verifiedGuestCnic = "";
         verifiedGuestPhone = "";
         verifiedGuestPassId = "";
+        verifiedGuestPassCode = "";
         verifiedEntryRequestId = "";
         verifiedGuestPassStatus = "";
         verifiedSponsorUid = "";
@@ -379,8 +422,14 @@ public class MonitorViolationReportFragment extends Fragment {
             Snackbar.make(requireView(), "Select a violation level.", Snackbar.LENGTH_SHORT).show();
             return;
         }
-        RadioButton selectedLevel = requireView().findViewById(checkedId);
-        String level = selectedLevel.getText().toString().split(" ")[0].toLowerCase();
+        String level;
+        if (checkedId == R.id.radio_minor) {
+            level = "minor";
+        } else if (checkedId == R.id.radio_moderate) {
+            level = "moderate";
+        } else {
+            level = "severe";
+        }
 
         UserProfile profile = SessionManager.getCurrentProfile();
         if (profile == null) return;
@@ -433,5 +482,56 @@ public class MonitorViolationReportFragment extends Fragment {
     private String read(@NonNull TextInputEditText input) {
         CharSequence v = input.getText();
         return v == null ? "" : v.toString().trim();
+    }
+
+    @NonNull
+    private String formatTimestamp(@Nullable Timestamp timestamp) {
+        if (timestamp == null) {
+            return "N/A";
+        }
+        Date date = timestamp.toDate();
+        return dateTimeFormat.format(date);
+    }
+
+    @NonNull
+    private String valueOr(@Nullable String value, @NonNull String fallback) {
+        if (value == null) {
+            return fallback;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? fallback : trimmed;
+    }
+
+    @NonNull
+    private String formatRoleLabel(@Nullable String role) {
+        String normalized = valueOr(role, "").toLowerCase();
+        if (normalized.isEmpty()) {
+            return "N/A";
+        }
+        if (normalized.length() == 1) {
+            return normalized.toUpperCase();
+        }
+        return normalized.substring(0, 1).toUpperCase() + normalized.substring(1);
+    }
+
+    @NonNull
+    private String formatStudentType(@Nullable String type) {
+        String normalized = valueOr(type, "").toLowerCase();
+        if (normalized.isEmpty()) {
+            return "N/A";
+        }
+        if ("day_scholar".equals(normalized)) {
+            return "Day Scholar";
+        }
+        if ("hostelite".equals(normalized)) {
+            return "Hostelite";
+        }
+        if ("redc".equals(normalized)) {
+            return "REDC";
+        }
+        if (normalized.length() == 1) {
+            return normalized.toUpperCase();
+        }
+        return normalized.substring(0, 1).toUpperCase() + normalized.substring(1);
     }
 }

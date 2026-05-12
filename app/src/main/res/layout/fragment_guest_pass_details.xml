@@ -24,13 +24,17 @@
             android:paddingEnd="@dimen/gf_space_lg"
             android:paddingBottom="@dimen/gf_space_lg">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:background="@color/primary_navy" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/gf_space_lg"
                 android:text="@string/pass_details_title"
-                android:textColor="@color/gf_text_primary"
+                android:textColor="@color/gf_text_on_dark"
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
@@ -73,10 +77,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/gf_space_md"
-                    android:fontFamily="monospace"
-                    android:lineSpacingExtra="3dp"
+                    android:lineSpacingExtra="6dp"
                     android:textColor="@color/gf_text_primary"
-                    android:textSize="13sp" />
+                    android:textSize="14sp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_share_pass_details"
@@ -100,4 +103,3 @@
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

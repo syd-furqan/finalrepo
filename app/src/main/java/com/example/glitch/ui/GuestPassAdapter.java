@@ -15,7 +15,6 @@ import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.GuestPassStatusRules;
 import com.google.android.material.button.MaterialButton;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -36,8 +35,6 @@ public class GuestPassAdapter extends RecyclerView.Adapter<GuestPassAdapter.Gues
 
     private final GuestPassActionListener listener;
     private final List<GuestPass> items = new ArrayList<>();
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-
     public GuestPassAdapter(@NonNull GuestPassActionListener listener) {
         this.listener = listener;
     }
@@ -70,14 +67,6 @@ public class GuestPassAdapter extends RecyclerView.Adapter<GuestPassAdapter.Gues
         ChipStyle chipStyle = resolveStatusStyle(status);
         holder.textStatus.setBackgroundResource(chipStyle.backgroundRes);
         holder.textStatus.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), chipStyle.textColorRes));
-        if (pass.getExpiresAt() != null) {
-            holder.textExpiry.setText(holder.itemView.getContext().getString(
-                    R.string.pass_expires_label,
-                    dateFormat.format(pass.getExpiresAt().toDate())
-            ));
-        } else {
-            holder.textExpiry.setText(R.string.pass_expiry_unknown);
-        }
         boolean active = "active".equalsIgnoreCase(pass.getStatus());
         holder.buttonCancel.setVisibility(active ? View.VISIBLE : View.GONE);
         holder.buttonCancel.setOnClickListener(v -> listener.onCancelPass(pass));
@@ -96,7 +85,6 @@ public class GuestPassAdapter extends RecyclerView.Adapter<GuestPassAdapter.Gues
         final TextView textGuestName;
         final TextView textPassCode;
         final ImageView imagePassQr;
-        final TextView textExpiry;
         final TextView textStatus;
         final MaterialButton buttonShare;
         final MaterialButton buttonDetails;
@@ -107,7 +95,6 @@ public class GuestPassAdapter extends RecyclerView.Adapter<GuestPassAdapter.Gues
             textGuestName = itemView.findViewById(R.id.text_pass_guest_name);
             textPassCode = itemView.findViewById(R.id.text_pass_code);
             imagePassQr = itemView.findViewById(R.id.image_pass_qr);
-            textExpiry = itemView.findViewById(R.id.text_pass_expiry);
             textStatus = itemView.findViewById(R.id.text_pass_status);
             buttonShare = itemView.findViewById(R.id.button_share_pass);
             buttonDetails = itemView.findViewById(R.id.button_view_pass_details);

@@ -14,8 +14,12 @@ import com.example.glitch.R;
 import com.example.glitch.data.EntryRequestRepository;
 import com.example.glitch.data.GuestPassRepository;
 import com.example.glitch.data.RepositoryProvider;
+import com.example.glitch.model.GuestPass;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 /**
  * Dedicated guard exit decision screen shown for used/overdue scanned passes.
@@ -39,6 +43,18 @@ public class GuardExitDecisionFragment extends Fragment {
     private MaterialButton buttonLogExit;
     private MaterialButton buttonClose;
     private TextView textResult;
+
+    private TextView textGuestName;
+    private TextView textPassCode;
+    private TextView textGuestId;
+    private TextView textGuestPhone;
+    private TextView textHasVehicle;
+    private TextView textCreatedAt;
+    private TextView textSponsor;
+    private TextView textSponsorEmail;
+    private TextView textSponsorRole;
+
+    private final SimpleDateFormat timeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
     @NonNull
     public static GuardExitDecisionFragment newInstance(
@@ -107,31 +123,72 @@ public class GuardExitDecisionFragment extends Fragment {
         String entryRequestId = safeArg(args, ARG_ENTRY_REQUEST_ID);
         String guestName = safeArg(args, ARG_GUEST_NAME);
         String guestIdNumber = safeArg(args, ARG_GUEST_ID_NUMBER);
-        String guestPhone = safeArg(args, ARG_GUEST_PHONE);
-        String status = safeArg(args, ARG_STATUS);
-        String passCode = safeArg(args, ARG_PASS_CODE);
+        String guestPhoneValue = safeArg(args, ARG_GUEST_PHONE);
+        String passCodeValue = safeArg(args, ARG_PASS_CODE);
 
-        TextView textGuestName = view.findViewById(R.id.text_pending_guest_name);
-        TextView textPassCode = view.findViewById(R.id.text_pending_pass_code);
-        TextView textGuestPhone = view.findViewById(R.id.text_pending_guest_phone);
-        TextView textStatus = view.findViewById(R.id.text_pending_status);
+        textGuestName = view.findViewById(R.id.text_pending_guest_name);
+        textPassCode = view.findViewById(R.id.text_pending_pass_code);
+        textGuestId = view.findViewById(R.id.text_pending_guest_id);
+        textGuestPhone = view.findViewById(R.id.text_pending_guest_phone);
+        textHasVehicle = view.findViewById(R.id.text_pending_has_vehicle);
+        textCreatedAt = view.findViewById(R.id.text_pending_created_at);
+        textSponsor = view.findViewById(R.id.text_pending_sponsor);
+        textSponsorEmail = view.findViewById(R.id.text_pending_sponsor_email);
+        textSponsorRole = view.findViewById(R.id.text_pending_sponsor_role);
+
         textResult = view.findViewById(R.id.text_exit_result);
         buttonClose = view.findViewById(R.id.button_exit_close);
         buttonLogExit = view.findViewById(R.id.button_exit_log);
 
-        textGuestName.setText(guestName);
-        textPassCode.setText(getString(R.string.pass_code_label, passCode));
-        textGuestPhone.setText(getString(
-                R.string.guard_exit_guest_phone_label,
-                guestPhone.trim().isEmpty() ? getString(R.string.not_available) : guestPhone
-        ));
-        textStatus.setText(getString(R.string.guard_exit_status_label, status.toUpperCase()));
+        textGuestName.setText(valueOrUnavailable(guestName));
+        textPassCode.setText(getString(R.string.pass_code_label, passCodeValue));
+        textGuestId.setText(getString(R.string.guard_pending_guest_id_label, valueOrUnavailable(guestIdNumber)));
+        textGuestPhone.setText(getString(R.string.guard_pending_guest_phone_label, valueOrUnavailable(guestPhoneValue)));
+        textHasVehicle.setText(getString(R.string.guard_pending_has_vehicle_label, getString(R.string.not_available)));
+        textCreatedAt.setText(getString(R.string.guard_pending_created_label, getString(R.string.not_available)));
+        textSponsor.setText(getString(R.string.guard_pending_sponsor_name_label, getString(R.string.not_available)));
+        textSponsorEmail.setText(getString(R.string.guard_pending_sponsor_email_label, getString(R.string.not_available)));
+        textSponsorRole.setText(getString(R.string.guard_pending_sponsor_role_label, getString(R.string.not_available)));
+
+        loadGuestPassDetails(entryRequestId);
 
         buttonClose.setOnClickListener(v -> requireActivity().getOnBackPressedDispatcher().onBackPressed());
         buttonLogExit.setOnClickListener(v -> logExit(entryRequestId, guestName));
 
         RoleNavRouter.bindBottomNav(view, this, RoleDestination.SCAN);
         GuardLanguageUiBinder.bind(view, this);
+    }
+
+    private void loadGuestPassDetails(@NonNull String entryRequestId) {
+        guestPassRepository.findPassByEntryRequestId(entryRequestId, new GuestPassRepository.PassLookupListener() {
+            @Override
+            public void onData(@Nullable GuestPass pass) {
+                if (!isAdded() || pass == null) {
+                    return;
+                }
+                requireActivity().runOnUiThread(() -> bindPass(pass));
+            }
+
+            @Override
+            public void onError(@NonNull Exception exception) {
+                // Keep fallback args view if pass lookup fails.
+            }
+        });
+    }
+
+    private void bindPass(@NonNull GuestPass pass) {
+        textGuestName.setText(valueOrUnavailable(pass.getGuestName()));
+        textPassCode.setText(getString(R.string.pass_code_label, pass.getPassCode()));
+        textGuestId.setText(getString(R.string.guard_pending_guest_id_label, valueOrUnavailable(pass.getGuestIdNumber())));
+        textGuestPhone.setText(getString(R.string.guard_pending_guest_phone_label, valueOrUnavailable(pass.getGuestPhone())));
+        textHasVehicle.setText(getString(R.string.guard_pending_has_vehicle_label, pass.hasVehicle() ? "Yes" : "No"));
+        textCreatedAt.setText(getString(R.string.guard_pending_created_label, formatMillis(pass.getCreatedAt())));
+        textSponsor.setText(getString(
+                R.string.guard_pending_sponsor_name_label,
+                valueOrUnavailable(pass.getSponsorName())
+        ));
+        textSponsorEmail.setText(getString(R.string.guard_pending_sponsor_email_label, valueOrUnavailable(pass.getSponsorEmail())));
+        textSponsorRole.setText(getString(R.string.guard_pending_sponsor_role_label, formatRole(pass.getSponsorRole())));
     }
 
     private void logExit(@NonNull String entryRequestId, @NonNull String guestName) {
@@ -196,5 +253,31 @@ public class GuardExitDecisionFragment extends Fragment {
     private String safeArg(@NonNull Bundle args, @NonNull String key) {
         String value = args.getString(key);
         return value == null ? "" : value;
+    }
+
+    @NonNull
+    private String valueOrUnavailable(@NonNull String value) {
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? getString(R.string.not_available) : trimmed;
+    }
+
+    @NonNull
+    private String formatRole(@NonNull String role) {
+        String normalized = role.trim().toLowerCase(Locale.getDefault());
+        if (normalized.isEmpty()) {
+            return getString(R.string.not_available);
+        }
+        if (normalized.length() == 1) {
+            return normalized.toUpperCase(Locale.getDefault());
+        }
+        return normalized.substring(0, 1).toUpperCase(Locale.getDefault()) + normalized.substring(1);
+    }
+
+    @NonNull
+    private String formatMillis(@Nullable com.google.firebase.Timestamp timestamp) {
+        if (timestamp == null) {
+            return getString(R.string.not_available);
+        }
+        return timeFormat.format(timestamp.toDate());
     }
 }

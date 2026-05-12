@@ -24,65 +24,116 @@
             android:paddingEnd="@dimen/gf_space_lg"
             android:paddingBottom="@dimen/gf_space_lg">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:background="@color/primary_navy" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/gf_space_lg"
                 android:text="@string/guard_exit_decision_title"
-                android:textColor="@color/gf_text_primary"
+                android:textColor="@color/gf_text_on_dark"
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_sm"
-                android:text="@string/guard_exit_subtitle"
-                android:textColor="@color/gf_text_hint"
-                android:textSize="14sp" />
-
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/gf_space_md"
-                android:background="@color/gf_bg_surface_dim"
-                android:orientation="vertical"
-                android:padding="@dimen/gf_space_md">
+                app:cardBackgroundColor="@color/gf_bg_surface_dim"
+                app:cardCornerRadius="@dimen/gf_card_radius"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/gf_border"
+                app:strokeWidth="1dp">
 
-                <TextView
-                    android:id="@+id/text_pending_guest_name"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/gf_text_primary"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="@dimen/gf_space_md">
 
-                <TextView
-                    android:id="@+id/text_pending_pass_code"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gf_space_xs"
-                    android:textColor="@color/gf_text_hint"
-                    android:textSize="13sp" />
+                    <TextView
+                        android:id="@+id/text_pending_guest_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/gf_text_primary"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
 
+                    <TextView
+                        android:id="@+id/text_pending_pass_code"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_xs"
+                        android:fontFamily="monospace"
+                        android:textColor="@color/gf_text_hint"
+                        android:textSize="13sp" />
 
-                <TextView
-                    android:id="@+id/text_pending_guest_phone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gf_space_xs"
-                    android:textColor="@color/gf_text_primary"
-                    android:textSize="13sp" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:background="@color/gf_border" />
 
-                <TextView
-                    android:id="@+id/text_pending_status"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gf_space_xs"
-                    android:textColor="@color/gf_text_primary"
-                    android:textSize="13sp" />
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/text_pending_guest_id"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:textColor="@color/gf_text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/text_pending_guest_phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_xs"
+                        android:textColor="@color/gf_text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/text_pending_has_vehicle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_xs"
+                        android:textColor="@color/gf_text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/text_pending_created_at"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_xs"
+                        android:textColor="@color/gf_text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/text_pending_sponsor"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_xs"
+                        android:textColor="@color/gf_text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/text_pending_sponsor_email"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_xs"
+                        android:textColor="@color/gf_text_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/text_pending_sponsor_role"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_xs"
+                        android:textColor="@color/gf_text_secondary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -102,20 +153,20 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_exit_log"
+                    style="@style/Widget.GateFlow.Button.Primary"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
                     android:layout_marginTop="@dimen/gf_space_sm"
-                    android:backgroundTint="@color/md_tertiary"
                     android:text="@string/log_exit_action"
                     android:textAllCaps="false"
                     android:textColor="@color/gf_text_on_dark" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_exit_close"
+                    style="@style/Widget.GateFlow.Button.Danger"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
                     android:layout_marginTop="@dimen/gf_space_sm"
-                    android:backgroundTint="@color/danger_red"
                     android:text="@string/close_action"
                     android:textAllCaps="false"
                     android:textColor="@color/gf_text_on_dark" />

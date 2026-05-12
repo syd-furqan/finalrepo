@@ -65,7 +65,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Campus Guest Access System"
+            android:text="Campus Gate Security System"
             android:textColor="#BFFFFFFF"
             android:textSize="13sp"
             android:letterSpacing="0.02" />

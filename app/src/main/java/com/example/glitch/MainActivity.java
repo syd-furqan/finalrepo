@@ -20,6 +20,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.glitch.auth.AuthRepository;
 import com.example.glitch.auth.SessionManager;
@@ -246,9 +247,9 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
     public void showFragment(@NonNull Fragment fragment, boolean addToBackStack) {
         FragmentManager manager = getSupportFragmentManager();
         boolean stateSaved = manager.isStateSaved();
+        FragmentTransaction transaction = beginAnimatedTransaction(manager);
         if (addToBackStack) {
-            manager
-                    .beginTransaction()
+            transaction
                     .replace(R.id.fragment_container, fragment)
                     .addToBackStack(fragment.getClass().getSimpleName())
                     .commitAllowingStateLoss();
@@ -260,15 +261,27 @@ public class MainActivity extends AppCompatActivity implements NavigationHost {
     private void replaceRootFragment(@NonNull Fragment fragment, boolean alreadyStateSaved) {
         FragmentManager manager = getSupportFragmentManager();
         boolean stateSaved = alreadyStateSaved || manager.isStateSaved();
+        FragmentTransaction transaction = beginAnimatedTransaction(manager);
         if (stateSaved) {
-            manager.beginTransaction()
+            transaction
                     .replace(R.id.fragment_container, fragment)
                     .commitAllowingStateLoss();
             return;
         }
-        manager.beginTransaction()
+        transaction
                 .replace(R.id.fragment_container, fragment)
                 .commit();
+    }
+
+    @NonNull
+    private FragmentTransaction beginAnimatedTransaction(@NonNull FragmentManager manager) {
+        return manager.beginTransaction()
+                .setCustomAnimations(
+                        R.anim.page_enter,
+                        R.anim.page_exit,
+                        R.anim.page_pop_enter,
+                        R.anim.page_pop_exit
+                );
     }
 
     private void clearBackStack() {

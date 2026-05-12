@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,13 +17,13 @@ import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.data.ViolationReportRepository;
 import com.example.glitch.model.UserProfile;
 import com.example.glitch.model.ViolationReport;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
 public class MonitorMyReportsFragment extends Fragment {
     private ViolationReportRepository repository;
     private ViolationReportAdapter adapter;
-    private TextView textEmpty;
 
     @NonNull
     public static MonitorMyReportsFragment newInstance() {
@@ -41,7 +40,6 @@ public class MonitorMyReportsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         repository = RepositoryProvider.getViolationReportRepository();
-        textEmpty = view.findViewById(R.id.text_my_reports_empty);
 
         RecyclerView recyclerView = view.findViewById(R.id.recycler_my_reports);
         adapter = new ViolationReportAdapter();
@@ -59,7 +57,6 @@ public class MonitorMyReportsFragment extends Fragment {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
                     adapter.submitList(reports);
-                    textEmpty.setVisibility(reports.isEmpty() ? View.VISIBLE : View.GONE);
                 });
             }
 
@@ -67,7 +64,7 @@ public class MonitorMyReportsFragment extends Fragment {
             public void onError(@NonNull Exception exception) {
                 if (!isAdded()) return;
                 requireActivity().runOnUiThread(() ->
-                        textEmpty.setVisibility(View.VISIBLE));
+                        Snackbar.make(requireView(), R.string.error_load_reports, Snackbar.LENGTH_LONG).show());
             }
         });
     }

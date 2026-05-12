@@ -1,6 +1,10 @@
 package com.example.glitch.ui;
 
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +16,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.glitch.R;
-import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.GuestPass;
 import com.example.glitch.model.GuestPassStatusRules;
 import com.google.android.material.button.MaterialButton;
@@ -20,6 +23,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -94,21 +99,12 @@ public class GuestPassDetailsFragment extends Fragment {
         String passCode = safeArg(args, ARG_PASS_CODE);
         String guestName = safeArg(args, ARG_GUEST_NAME);
         String status = safeArg(args, ARG_STATUS);
-        String entryRequestId = safeArg(args, ARG_ENTRY_REQUEST_ID);
-        String gateLabel = GatePolicy.toDisplayLabel(safeArg(args, ARG_GATE_LABEL));
         String sponsorName = safeArg(args, ARG_SPONSOR_NAME);
         String sponsorEmail = safeArg(args, ARG_SPONSOR_EMAIL);
         String sponsorRole = safeArg(args, ARG_SPONSOR_ROLE);
-        String sponsorUid = safeArg(args, ARG_SPONSOR_UID);
         String guestId = safeArg(args, ARG_GUEST_ID);
         String guestPhone = safeArg(args, ARG_GUEST_PHONE);
         boolean hasVehicle = args.getBoolean(ARG_HAS_VEHICLE, false);
-        String vehiclePlate = safeArg(args, ARG_VEHICLE_PLATE);
-        String guestType = safeArg(args, ARG_GUEST_TYPE);
-        String admittedByUid = safeArg(args, ARG_ADMITTED_BY_UID);
-        String admissionMethod = safeArg(args, ARG_ADMISSION_METHOD);
-        long expiresAt = args.getLong(ARG_EXPIRES_AT, TS_UNSET);
-        long admittedAt = args.getLong(ARG_ADMITTED_AT, TS_UNSET);
         long createdAt = args.getLong(ARG_CREATED_AT, TS_UNSET);
 
         TextView textSummary = view.findViewById(R.id.text_pass_details_summary);
@@ -127,23 +123,15 @@ public class GuestPassDetailsFragment extends Fragment {
             imageQr.setImageResource(android.R.drawable.ic_menu_report_image);
         }
 
-        String body = ""
-                + "CNIC: " + fallback(guestId) + "\n"
-                + "Phone: " + fallback(guestPhone) + "\n"
-                + "Guest Type: " + formatGuestType(guestType) + "\n"
-                + "Has Vehicle: " + (hasVehicle ? "Yes" : "No") + "\n"
-                + "Vehicle Plate: " + fallback(vehiclePlate) + "\n"
-                + "Entry Request ID: " + fallback(entryRequestId) + "\n"
-                + "Gate: " + gateLabel + "\n"
-                + "Created At: " + formatMillis(createdAt) + "\n"
-                + "Expires At: " + formatMillis(expiresAt) + "\n"
-                + "Admitted At: " + formatMillis(admittedAt) + "\n"
-                + "Admitted By UID: " + fallback(admittedByUid) + "\n"
-                + "Admission Method: " + fallback(admissionMethod) + "\n"
-                + "Sponsor: " + fallback(sponsorName) + " (" + fallback(sponsorEmail) + ")\n"
-                + "Sponsor Role: " + fallback(sponsorRole) + "\n"
-                + "Sponsor UID: " + fallback(sponsorUid);
-        textBody.setText(body);
+        List<Field> fields = new ArrayList<>();
+        fields.add(new Field("CNIC", fallback(guestId)));
+        fields.add(new Field("Phone", fallback(guestPhone)));
+        fields.add(new Field("Has Vehicle", hasVehicle ? "Yes" : "No"));
+        fields.add(new Field("Created At", formatMillis(createdAt)));
+        fields.add(new Field("Sponsor", fallback(sponsorName)));
+        fields.add(new Field("Sponsor Email", fallback(sponsorEmail)));
+        fields.add(new Field("Sponsor Type", formatRole(sponsorRole)));
+        textBody.setText(buildBody(fields));
 
         boolean shareable = !GuestPassStatusRules.isArchivedStatus(status);
         buttonShare.setVisibility(shareable ? View.VISIBLE : View.GONE);
@@ -201,7 +189,7 @@ public class GuestPassDetailsFragment extends Fragment {
         if (millis <= TS_UNSET) {
             return "Not available";
         }
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new java.util.Date(millis));
+        return new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()).format(new java.util.Date(millis));
     }
 
     @NonNull
@@ -210,18 +198,37 @@ public class GuestPassDetailsFragment extends Fragment {
     }
 
     @NonNull
-    private String formatGuestType(@NonNull String raw) {
-        String normalized = raw.trim().toLowerCase(Locale.getDefault());
+    private CharSequence buildBody(@NonNull List<Field> fields) {
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        for (int i = 0; i < fields.size(); i++) {
+            Field field = fields.get(i);
+            int labelStart = builder.length();
+            builder.append(field.label).append(": ");
+            builder.setSpan(
+                    new StyleSpan(Typeface.BOLD),
+                    labelStart,
+                    builder.length(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            );
+            builder.append(field.value);
+            if (i < fields.size() - 1) {
+                builder.append("\n");
+            }
+        }
+        return builder;
+    }
+
+    @NonNull
+    private String formatRole(@NonNull String role) {
+        String normalized = role.trim().toLowerCase(Locale.getDefault());
         if (normalized.isEmpty()) {
             return "Not available";
         }
-        if ("vehicle".equals(normalized)) {
-            return "Vehicle";
+        if (normalized.length() == 1) {
+            return normalized.toUpperCase(Locale.getDefault());
         }
-        if ("non_vehicle".equals(normalized)) {
-            return "Non Vehicle";
-        }
-        return raw;
+        return normalized.substring(0, 1).toUpperCase(Locale.getDefault())
+                + normalized.substring(1);
     }
 
     private static long asMillis(@Nullable Timestamp timestamp) {
@@ -229,5 +236,15 @@ public class GuestPassDetailsFragment extends Fragment {
             return TS_UNSET;
         }
         return timestamp.toDate().getTime();
+    }
+
+    private static final class Field {
+        private final String label;
+        private final String value;
+
+        private Field(@NonNull String label, @NonNull String value) {
+            this.label = label;
+            this.value = value;
+        }
     }
 }

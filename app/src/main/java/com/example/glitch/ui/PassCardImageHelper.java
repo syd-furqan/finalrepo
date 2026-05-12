@@ -7,7 +7,6 @@ import android.graphics.RectF;
 
 import androidx.annotation.NonNull;
 
-import com.example.glitch.model.GatePolicy;
 import com.example.glitch.model.GuestPass;
 
 import java.text.SimpleDateFormat;
@@ -50,7 +49,7 @@ public final class PassCardImageHelper {
         Paint subPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         subPaint.setColor(COLOR_SUBTITLE);
         subPaint.setTextSize(32f);
-        canvas.drawText("Access Number (Pass Code): " + pass.getPassCode(), 110, 225, subPaint);
+        canvas.drawText("Pass Code: " + pass.getPassCode(), 110, 225, subPaint);
 
         Bitmap qr = QrCodeHelper.generate(pass.getPassCode(), 560);
         canvas.drawBitmap(qr, (width - qr.getWidth()) / 2f, 280, null);
@@ -65,30 +64,13 @@ public final class PassCardImageHelper {
         valuePaint.setTextSize(34f);
 
         int rowY = 920;
-        rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Guest", pass.getGuestName());
         rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "CNIC", pass.getGuestIdNumber());
         rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Phone", pass.getGuestPhone());
-        rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Guest Type", prettyGuestType(pass.getGuestType()));
-        rowY = drawRow(
-                canvas,
-                labelPaint,
-                valuePaint,
-                rowY,
-                "Vehicle Plate",
-                pass.hasVehicle() ? pass.getVehiclePlate() : "--"
-        );
-        rowY = drawRow(
-                canvas,
-                labelPaint,
-                valuePaint,
-                rowY,
-                "Gate",
-                GatePolicy.toDisplayLabel(pass.getGateLabel())
-        );
-        rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Status", pass.getStatus().toUpperCase(Locale.getDefault()));
-        rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Expires", formatTimestamp(pass, true));
-        rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Entry Request", pass.getEntryRequestId());
-        drawRow(canvas, labelPaint, valuePaint, rowY, "Host", pass.getSponsorName());
+        rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Has Vehicle", pass.hasVehicle() ? "Yes" : "No");
+        rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Created At", formatCreatedTimestamp(pass));
+        rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Sponsor", pass.getSponsorName());
+        rowY = drawRow(canvas, labelPaint, valuePaint, rowY, "Sponsor Email", pass.getSponsorEmail());
+        drawRow(canvas, labelPaint, valuePaint, rowY, "Sponsor Type", formatRole(pass.getSponsorRole()));
 
         Paint footer = new Paint(Paint.ANTI_ALIAS_FLAG);
         footer.setColor(COLOR_FOOTER);
@@ -111,28 +93,24 @@ public final class PassCardImageHelper {
     }
 
     @NonNull
-    private static String formatTimestamp(@NonNull GuestPass pass, boolean expiry) {
-        if (expiry) {
-            if (pass.getExpiresAt() == null) {
-                return "--";
-            }
-            return new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(pass.getExpiresAt().toDate());
-        }
-        if (pass.getAdmittedAt() == null) {
+    private static String formatCreatedTimestamp(@NonNull GuestPass pass) {
+        if (pass.getCreatedAt() == null) {
             return "--";
         }
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(pass.getAdmittedAt().toDate());
+        return new SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
+                .format(pass.getCreatedAt().toDate());
     }
 
     @NonNull
-    private static String prettyGuestType(@NonNull String rawType) {
-        String normalized = rawType.trim().toLowerCase(Locale.getDefault());
-        if ("vehicle".equals(normalized)) {
-            return "Vehicle";
+    private static String formatRole(@NonNull String role) {
+        String normalized = role.trim().toLowerCase(Locale.getDefault());
+        if (normalized.isEmpty()) {
+            return "--";
         }
-        if ("non_vehicle".equals(normalized)) {
-            return "Non Vehicle";
+        if (normalized.length() == 1) {
+            return normalized.toUpperCase(Locale.getDefault());
         }
-        return normalized.isEmpty() ? "--" : rawType;
+        return normalized.substring(0, 1).toUpperCase(Locale.getDefault())
+                + normalized.substring(1);
     }
 }

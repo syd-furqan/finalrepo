@@ -198,13 +198,16 @@ public class AdminAuditLogFragment extends Fragment {
 
     private void openEventTypeSelector() {
         boolean[] checked = new boolean[EVENT_TYPE_OPTIONS.size()];
+        String[] labels = new String[EVENT_TYPE_OPTIONS.size()];
         for (int i = 0; i < EVENT_TYPE_OPTIONS.size(); i++) {
-            checked[i] = selectedEventTypes.contains(EVENT_TYPE_OPTIONS.get(i));
+            String value = EVENT_TYPE_OPTIONS.get(i);
+            checked[i] = selectedEventTypes.contains(value);
+            labels[i] = UiLabelFormatter.friendlyAuditEventType(value);
         }
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Select event types")
                 .setMultiChoiceItems(
-                        EVENT_TYPE_OPTIONS.toArray(new String[0]),
+                        labels,
                         checked,
                         (dialog, which, isChecked) -> {
                             String type = EVENT_TYPE_OPTIONS.get(which);
@@ -233,8 +236,8 @@ public class AdminAuditLogFragment extends Fragment {
         AutoCompleteTextView role = addDropdown(
                 content,
                 "Actor Role",
-                Arrays.asList("", "guard", "student", "faculty", "admin", "system"),
-                filterActorRole
+                Arrays.asList("all", "guard", "student", "faculty", "admin", "system"),
+                filterActorRole.trim().isEmpty() ? "all" : filterActorRole
         );
 
         LinearLayout rangeRow = new LinearLayout(requireContext());
@@ -275,7 +278,9 @@ public class AdminAuditLogFragment extends Fragment {
                 content,
                 () -> {
                     filterSearchText = search.getText() == null ? "" : search.getText().toString().trim();
-                    filterActorRole = role.getText() == null ? "" : role.getText().toString().trim();
+                    String selectedRole = role.getText() == null ? "" : role.getText().toString().trim();
+                    String normalizedRole = UiLabelFormatter.normalizeToken(selectedRole);
+                    filterActorRole = "all".equals(normalizedRole) ? "" : normalizedRole;
                     refreshFirstPage();
                     dialog.dismiss();
                 },
@@ -353,8 +358,16 @@ public class AdminAuditLogFragment extends Fragment {
         layout.setLayoutParams(params);
         AutoCompleteTextView input = new AutoCompleteTextView(requireContext());
         input.setInputType(0);
-        input.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, options));
-        input.setText(selected, false);
+        List<String> displayOptions = new ArrayList<>();
+        for (String option : options) {
+            String normalized = UiLabelFormatter.normalizeToken(option);
+            displayOptions.add("all".equals(normalized) ? "All" : UiLabelFormatter.humanizeToken(option));
+        }
+        input.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, displayOptions));
+        String normalizedSelected = UiLabelFormatter.normalizeToken(selected);
+        input.setText(normalizedSelected.isEmpty() || "all".equals(normalizedSelected)
+                ? "All"
+                : UiLabelFormatter.humanizeToken(selected), false);
         layout.addView(input);
         content.addView(layout);
         return input;
@@ -588,7 +601,7 @@ public class AdminAuditLogFragment extends Fragment {
     private AuditLogFilter buildCurrentFilter() {
         List<String> roles = new ArrayList<>();
         if (!filterActorRole.isEmpty()) {
-            roles.add(filterActorRole.toLowerCase(Locale.getDefault()));
+            roles.add(UiLabelFormatter.normalizeToken(filterActorRole));
         }
         return new AuditLogFilter(
                 rangeFromMillis,
@@ -624,7 +637,7 @@ public class AdminAuditLogFragment extends Fragment {
                             : snapshot.getTopGuards().get(0).getName();
                     String topReason = snapshot.getTopReasonCodes().isEmpty()
                             ? getString(R.string.analytics_no_data)
-                            : snapshot.getTopReasonCodes().get(0).getName();
+                            : UiLabelFormatter.humanizeToken(snapshot.getTopReasonCodes().get(0).getName());
                     textInsightTopGuard.setText(getString(R.string.audit_insight_top_guard_template, topGuard));
                     textInsightTopReason.setText(getString(R.string.audit_insight_top_reason_template, topReason));
                 });
@@ -650,7 +663,14 @@ public class AdminAuditLogFragment extends Fragment {
     private String buildFilterSummary(@NonNull AuditLogFilter filter) {
         int typesCount = filter.getEventTypes().size();
         String types = typesCount == 0 ? "all events" : (typesCount + " event type(s)");
-        String roles = filter.getActorRoles().isEmpty() ? "all roles" : filter.getActorRoles().toString();
+        String roles = "all roles";
+        if (!filter.getActorRoles().isEmpty()) {
+            List<String> readableRoles = new ArrayList<>();
+            for (String role : filter.getActorRoles()) {
+                readableRoles.add(UiLabelFormatter.humanizeToken(role));
+            }
+            roles = String.join(", ", readableRoles);
+        }
         String search = filter.getSearchText().trim().isEmpty() ? "no text filter" : ("search: " + filter.getSearchText().trim());
         return analyticsPeriod.getLabel() + " • " + types + " • " + roles + " • " + search;
     }

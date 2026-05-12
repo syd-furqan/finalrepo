@@ -62,7 +62,7 @@ public class SecurityAlertAdapter extends RecyclerView.Adapter<SecurityAlertAdap
 
         // Second line: visitor name + status
         String guestName = alert.getGuestName().trim();
-        String status = alert.getIncidentStatus().trim();
+        String status = UiLabelFormatter.humanizeToken(alert.getIncidentStatus().trim());
         String sub = "";
         if (!guestName.isEmpty()) sub = guestName;
         if (!status.isEmpty()) sub = sub.isEmpty() ? status : sub + "  ·  " + status;

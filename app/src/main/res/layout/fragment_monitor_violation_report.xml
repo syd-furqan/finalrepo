@@ -25,130 +25,25 @@
             android:paddingEnd="@dimen/gf_screen_margin"
             android:paddingBottom="@dimen/gf_space_xl">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:background="@color/primary_navy" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Submit Violation Report"
+                android:layout_marginTop="@dimen/gf_space_lg"
+                android:text="Report Violation"
                 android:textColor="#FFFFFF"
                 android:textSize="26sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Describe the incident and verify the visitor or student before submitting."
-                android:textColor="#BFFFFFFF"
-                android:textSize="13sp" />
-
-            <!-- Violation Details card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_md"
-                app:cardBackgroundColor="@color/gf_bg_surface"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeColor="@color/gf_border"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/gf_space_md">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Violation Details"
-                        android:textColor="@color/gf_text_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.GateFlow.TextInputLayout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/gf_space_sm"
-                        android:hint="Where it happened and what happened">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/input_violation_detail"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="top"
-                            android:inputType="textMultiLine|textCapSentences"
-                            android:minLines="4" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Violation Level card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_sm"
-                app:cardBackgroundColor="@color/gf_bg_surface"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeColor="@color/gf_border"
-                app:strokeWidth="1dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/gf_space_md">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Violation Level"
-                        android:textColor="@color/gf_text_primary"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
-
-                    <RadioGroup
-                        android:id="@+id/radio_violation_level"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/gf_space_sm"
-                        android:orientation="horizontal">
-
-                        <RadioButton
-                            android:id="@+id/radio_v1"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="V1 — Minor"
-                            android:textColor="@color/gf_text_primary" />
-
-                        <RadioButton
-                            android:id="@+id/radio_v2"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="V2 — Moderate"
-                            android:textColor="@color/gf_text_primary" />
-
-                        <RadioButton
-                            android:id="@+id/radio_v3"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="V3 — Severe"
-                            android:textColor="@color/gf_text_primary" />
-                    </RadioGroup>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Violation Subject card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/container_subject_toggle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_sm"
+                android:layout_marginTop="@dimen/gf_space_md"
                 app:cardBackgroundColor="@color/gf_bg_surface"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
@@ -196,7 +91,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Visitor Credentials card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/container_guest_verify"
                 android:layout_width="match_parent"
@@ -230,20 +124,12 @@
                         android:orientation="horizontal">
 
                         <RadioButton
-                            android:id="@+id/radio_lookup_qr"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="QR"
-                            android:textColor="@color/gf_text_primary" />
-
-                        <RadioButton
-                            android:id="@+id/radio_lookup_passcode"
+                            android:id="@+id/radio_lookup_guest_pass"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:checked="true"
-                            android:text="Passcode"
+                            android:text="Guest Pass"
                             android:textColor="@color/gf_text_primary" />
 
                         <RadioButton
@@ -255,7 +141,49 @@
                             android:textColor="@color/gf_text_primary" />
                     </RadioGroup>
 
-                    <!-- CNIC lookup row -->
+                    <LinearLayout
+                        android:id="@+id/container_guest_passcode_lookup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.GateFlow.TextInputLayout"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/gf_space_sm"
+                            android:layout_weight="1"
+                            android:hint="Enter Pass Code">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/input_guest_pass_code"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textCapCharacters" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <ImageButton
+                            android:id="@+id/button_scan_guest_qr"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:layout_marginEnd="@dimen/gf_space_sm"
+                            android:background="@drawable/bg_icon_container"
+                            android:contentDescription="Scan guest pass QR"
+                            android:padding="10dp"
+                            android:src="@drawable/ic_qr_scan"
+                            android:tint="@color/gf_accent" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_verify_guest_passcode"
+                            style="@style/Widget.GateFlow.Button.Outlined"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Verify"
+                            android:textAllCaps="false" />
+                    </LinearLayout>
+
                     <LinearLayout
                         android:id="@+id/container_guest_cnic_lookup"
                         android:layout_width="match_parent"
@@ -290,49 +218,6 @@
                             android:textAllCaps="false" />
                     </LinearLayout>
 
-                    <!-- Passcode / QR text row -->
-                    <LinearLayout
-                        android:id="@+id/container_guest_passcode_lookup"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/gf_space_sm"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/Widget.GateFlow.TextInputLayout"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/gf_space_sm"
-                            android:layout_weight="1"
-                            android:hint="Passcode or QR text">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/input_guest_pass_code"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="textCapCharacters" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/button_verify_guest_passcode"
-                            style="@style/Widget.GateFlow.Button.Outlined"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginEnd="@dimen/gf_space_sm"
-                            android:text="Verify"
-                            android:textAllCaps="false" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/button_scan_guest_qr"
-                            style="@style/Widget.GateFlow.Button.Outlined"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Scan"
-                            android:textAllCaps="false" />
-                    </LinearLayout>
-
-                    <!-- Verified guest info -->
                     <LinearLayout
                         android:id="@+id/container_verified_guest"
                         android:layout_width="match_parent"
@@ -362,7 +247,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Student ID card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/container_student_verify"
                 android:layout_width="match_parent"
@@ -429,6 +313,126 @@
                         android:textSize="13sp"
                         android:textStyle="bold"
                         android:visibility="gone" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gf_space_sm"
+                app:cardBackgroundColor="@color/gf_bg_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/gf_border"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/gf_space_md">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Violation Level"
+                        android:textColor="@color/gf_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/radio_violation_level"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:orientation="horizontal">
+
+                        <RadioButton
+                            android:id="@+id/radio_minor"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_chip_level_minor_selector"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="6dp"
+                            android:text="Minor"
+                            android:textColor="@android:color/white"
+                            android:textStyle="bold" />
+
+                        <RadioButton
+                            android:id="@+id/radio_moderate"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_chip_level_moderate_selector"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="6dp"
+                            android:text="Moderate"
+                            android:textColor="@android:color/white"
+                            android:textStyle="bold" />
+
+                        <RadioButton
+                            android:id="@+id/radio_severe"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_chip_level_severe_selector"
+                            android:button="@null"
+                            android:gravity="center"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="6dp"
+                            android:text="Severe"
+                            android:textColor="@android:color/white"
+                            android:textStyle="bold" />
+                    </RadioGroup>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gf_space_sm"
+                app:cardBackgroundColor="@color/gf_bg_surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/gf_border"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/gf_space_md">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Violation Details"
+                        android:textColor="@color/gf_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.GateFlow.TextInputLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/gf_space_sm"
+                        android:hint="Where it happened and what happened">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_violation_detail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="top"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:minLines="4" />
+                    </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

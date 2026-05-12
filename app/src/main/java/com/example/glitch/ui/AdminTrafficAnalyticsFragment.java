@@ -302,7 +302,11 @@ public class AdminTrafficAnalyticsFragment extends Fragment {
         }
         for (AuditAnalyticsSnapshot.NamedCount row : topReasonCodes) {
             TextView text = new TextView(requireContext());
-            text.setText(getString(R.string.analytics_reason_row_template, row.getName(), row.getCount()));
+            text.setText(getString(
+                    R.string.analytics_reason_row_template,
+                    UiLabelFormatter.humanizeToken(row.getName()),
+                    row.getCount()
+            ));
             text.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_muted));
             text.setTextSize(13f);
             text.setPadding(0, 0, 0, dp(4));

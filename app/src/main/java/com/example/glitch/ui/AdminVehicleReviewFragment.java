@@ -29,8 +29,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -256,20 +258,22 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
 
     private void showDetailsDialog(@NonNull VehicleRequestRecord record) {
         StringBuilder body = new StringBuilder();
-        body.append("Request ID: ").append(record.getId()).append("\n")
-                .append("Kind: ").append(record.getRequestKind()).append("\n")
-                .append("Status: ").append(record.getStatus()).append("\n")
-                .append("Requester UID: ").append(record.getRequesterUid()).append("\n")
-                .append("Requester Role: ").append(record.getRequesterRole()).append("\n")
+        body.append("Application Type: ").append(formatRequestKind(record.getRequestKind())).append("\n")
+                .append("Status: ").append(formatLabel(record.getStatus())).append("\n")
+                .append("Sponsor Type: ").append(formatLabel(record.getRequesterRole())).append("\n")
                 .append("Student Category: ").append(fallback(record.getStudentCategory())).append("\n")
-                .append("Sticker: ").append(fallback(record.getStickerType())).append("\n")
-                .append("Plate: ").append(fallback(record.getPlateNumber())).append("\n")
-                .append("Vehicle: ").append(fallback(record.getVehicleDescription())).append("\n")
+                .append("Sticker Type: ").append(fallback(record.getStickerType())).append("\n")
+                .append("Plate Number: ").append(fallback(record.getPlateNumber())).append("\n")
+                .append("Vehicle Make: ").append(fallback(record.getVehicleMake())).append("\n")
+                .append("Vehicle Model: ").append(fallback(record.getVehicleModel())).append("\n")
+                .append("Vehicle Variant: ").append(fallback(record.getVehicleVariant())).append("\n")
                 .append("Owner Self: ").append(record.isOwner() ? "Yes" : "No").append("\n")
-                .append("Linked Vehicle ID: ").append(fallback(record.getLinkedVehicleId())).append("\n")
-                .append("Removal Reason: ").append(fallback(record.getRemovalReason())).append("\n")
-                .append("Received By: ").append(fallback(record.getReceivedByUid())).append("\n")
-                .append("Reviewer: ").append(fallback(record.getReviewerUid())).append("\n")
+                .append("Submitted At: ").append(formatTimestamp(record.getCreatedAt())).append("\n")
+                .append("Updated At: ").append(formatTimestamp(record.getUpdatedAt())).append("\n");
+        if (record.isRemovalRequest()) {
+            body.append("Removal Reason: ").append(fallback(record.getRemovalReason())).append("\n");
+        }
+        body.append("Reviewed At: ").append(formatTimestamp(record.getReviewedAt())).append("\n")
                 .append("Review Note: ").append(fallback(record.getReviewNote()));
 
         new AlertDialog.Builder(requireContext())
@@ -278,6 +282,34 @@ public class AdminVehicleReviewFragment extends Fragment implements AdminVehicle
                 .setPositiveButton(R.string.close_action, null)
                 .setNeutralButton("Open Attachments", (dialog, which) -> showAttachmentPicker(record))
                 .show();
+    }
+
+    @NonNull
+    private String formatRequestKind(@NonNull String rawKind) {
+        if ("remove".equalsIgnoreCase(rawKind)) {
+            return "Removal";
+        }
+        return "Registration";
+    }
+
+    @NonNull
+    private String formatLabel(@NonNull String raw) {
+        String value = raw.trim();
+        if (value.isEmpty()) {
+            return "N/A";
+        }
+        return value.substring(0, 1).toUpperCase(Locale.getDefault())
+                + value.substring(1).toLowerCase(Locale.getDefault());
+    }
+
+    @NonNull
+    private String formatTimestamp(@Nullable com.google.firebase.Timestamp timestamp) {
+        if (timestamp == null) {
+            return "N/A";
+        }
+        DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+        Date date = timestamp.toDate();
+        return format.format(date);
     }
 
     private void showAttachmentPicker(@NonNull VehicleRequestRecord record) {

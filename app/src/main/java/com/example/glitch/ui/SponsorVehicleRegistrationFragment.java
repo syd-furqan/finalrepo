@@ -42,7 +42,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -75,6 +77,9 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
     private MaterialButton buttonPickApplicantCnic;
     private MaterialButton buttonPickRegistration;
     private MaterialButton buttonPickOwnerCnic;
+    private MaterialButton buttonRemoveApplicantCnic;
+    private MaterialButton buttonRemoveRegistration;
+    private MaterialButton buttonRemoveOwnerCnic;
     private TextView textApplicantCnic;
     private TextView textRegistrationDoc;
     private TextView textOwnerCnic;
@@ -89,6 +94,7 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
     private TextView textRemovalVehicle;
     private TextInputEditText inputRemovalReason;
     private MaterialButton buttonAddEvidence;
+    private MaterialButton buttonClearEvidence;
     private TextView textEvidence;
     private MaterialButton buttonSubmitRemoval;
 
@@ -146,6 +152,9 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
         buttonPickApplicantCnic = view.findViewById(R.id.button_pick_applicant_cnic);
         buttonPickRegistration = view.findViewById(R.id.button_pick_registration_doc);
         buttonPickOwnerCnic = view.findViewById(R.id.button_pick_owner_cnic);
+        buttonRemoveApplicantCnic = view.findViewById(R.id.button_remove_applicant_cnic);
+        buttonRemoveRegistration = view.findViewById(R.id.button_remove_registration_doc);
+        buttonRemoveOwnerCnic = view.findViewById(R.id.button_remove_owner_cnic);
         textApplicantCnic = view.findViewById(R.id.text_applicant_cnic_file);
         textRegistrationDoc = view.findViewById(R.id.text_registration_file);
         textOwnerCnic = view.findViewById(R.id.text_owner_cnic_file);
@@ -159,6 +168,7 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
         textRemovalVehicle = view.findViewById(R.id.text_selected_vehicle_for_removal);
         inputRemovalReason = view.findViewById(R.id.input_vehicle_removal_reason);
         buttonAddEvidence = view.findViewById(R.id.button_add_removal_evidence);
+        buttonClearEvidence = view.findViewById(R.id.button_clear_removal_evidence);
         textEvidence = view.findViewById(R.id.text_removal_evidence_files);
         buttonSubmitRemoval = view.findViewById(R.id.button_submit_vehicle_removal);
 
@@ -180,6 +190,25 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
         buttonPickRegistration.setOnClickListener(v -> launchPicker(PickTarget.REGISTRATION));
         buttonPickOwnerCnic.setOnClickListener(v -> launchPicker(PickTarget.OWNER_CNIC));
         buttonAddEvidence.setOnClickListener(v -> launchPicker(PickTarget.EVIDENCE));
+        buttonRemoveApplicantCnic.setOnClickListener(v -> {
+            applicantCnicDoc = null;
+            textApplicantCnic.setText("No file selected");
+            updateAttachmentRemoveButtons();
+        });
+        buttonRemoveRegistration.setOnClickListener(v -> {
+            registrationDoc = null;
+            textRegistrationDoc.setText("No file selected");
+            updateAttachmentRemoveButtons();
+        });
+        buttonRemoveOwnerCnic.setOnClickListener(v -> {
+            ownerCnicDoc = null;
+            textOwnerCnic.setText("No file selected");
+            updateAttachmentRemoveButtons();
+        });
+        buttonClearEvidence.setOnClickListener(v -> {
+            removalEvidenceDocs.clear();
+            updateEvidenceText();
+        });
         checkIsOwner.setOnCheckedChangeListener((buttonView, isChecked) -> updateOwnerDocVisibility());
         buttonSubmitRegistration.setOnClickListener(v -> submitRegistrationApplication());
         buttonCancelOpenApplication.setOnClickListener(v -> cancelOpenApplication());
@@ -187,6 +216,7 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
 
         updateOwnerDocVisibility();
         updateEvidenceText();
+        updateAttachmentRemoveButtons();
 
         UserProfile profile = AuthUiGuard.requireProfile(this);
         if (profile == null) {
@@ -257,7 +287,9 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
                 requireActivity().runOnUiThread(() -> {
                     List<VehicleRequestRecord> history = new ArrayList<>();
                     for (VehicleRequestRecord record : requests) {
-                        if (!record.isOpenApplication()) {
+                        String status = record.getStatus().trim().toLowerCase(Locale.getDefault());
+                        if (!record.isOpenApplication()
+                                && ("approved".equals(status) || "cancelled".equals(status))) {
                             history.add(record);
                         }
                     }
@@ -278,7 +310,7 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
     private void bindOpenApplication(@Nullable VehicleRequestRecord request) {
         this.openRequest = request;
         if (request == null) {
-            textOpenApplication.setText("No open application.");
+            textOpenApplication.setText("You have no current vehicle registration applications");
             buttonCancelOpenApplication.setVisibility(View.GONE);
             setFormEnabled(true);
             return;
@@ -319,6 +351,7 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
             ownerCnicDoc = null;
             textOwnerCnic.setText("No file selected");
         }
+        updateAttachmentRemoveButtons();
     }
 
     private void launchPicker(@NonNull PickTarget target) {
@@ -361,11 +394,13 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
             default:
                 break;
         }
+        updateAttachmentRemoveButtons();
     }
 
     private void updateEvidenceText() {
         if (removalEvidenceDocs.isEmpty()) {
             textEvidence.setText("No evidence files selected");
+            buttonClearEvidence.setVisibility(View.GONE);
             return;
         }
         List<String> names = new ArrayList<>();
@@ -373,6 +408,14 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
             names.add(input.getDisplayName());
         }
         textEvidence.setText(TextUtils.join("\n", names));
+        buttonClearEvidence.setVisibility(View.VISIBLE);
+    }
+
+    private void updateAttachmentRemoveButtons() {
+        buttonRemoveApplicantCnic.setVisibility(applicantCnicDoc == null ? View.GONE : View.VISIBLE);
+        buttonRemoveRegistration.setVisibility(registrationDoc == null ? View.GONE : View.VISIBLE);
+        boolean canRemoveOwner = !checkIsOwner.isChecked() && ownerCnicDoc != null;
+        buttonRemoveOwnerCnic.setVisibility(canRemoveOwner ? View.VISIBLE : View.GONE);
     }
 
     private void scrollToTargetRequest() {
@@ -513,6 +556,7 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
         textApplicantCnic.setText("No file selected");
         textRegistrationDoc.setText("No file selected");
         textOwnerCnic.setText("No file selected");
+        updateAttachmentRemoveButtons();
     }
 
     private void cancelOpenApplication() {
@@ -583,16 +627,20 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
     @Override
     public void onViewDetails(@NonNull VehicleRequestRecord record) {
         StringBuilder message = new StringBuilder();
-        message.append("Kind: ").append(record.getRequestKind()).append("\n")
-                .append("Status: ").append(record.getStatus()).append("\n")
-                .append("Plate: ").append(record.getPlateNumber()).append("\n")
-                .append("Sticker: ").append(record.getStickerType()).append("\n")
-                .append("Make/Model: ").append(record.getVehicleDescription()).append("\n")
-                .append("Owner Self: ").append(record.isOwner() ? "Yes" : "No").append("\n");
+        message.append("Application Type: ").append(formatRequestKind(record.getRequestKind())).append("\n")
+                .append("Status: ").append(formatLabel(record.getStatus())).append("\n")
+                .append("Plate Number: ").append(fallback(record.getPlateNumber())).append("\n")
+                .append("Vehicle Make: ").append(fallback(record.getVehicleMake())).append("\n")
+                .append("Vehicle Model: ").append(fallback(record.getVehicleModel())).append("\n")
+                .append("Vehicle Variant: ").append(fallback(record.getVehicleVariant())).append("\n")
+                .append("Sticker Type: ").append(fallback(record.getStickerType())).append("\n")
+                .append("Owner Verified: ").append(record.isOwner() ? "Yes" : "No").append("\n")
+                .append("Submitted At: ").append(formatTimestamp(record.getCreatedAt())).append("\n")
+                .append("Updated At: ").append(formatTimestamp(record.getUpdatedAt())).append("\n");
         if (record.isRemovalRequest()) {
-            message.append("Reason: ").append(record.getRemovalReason()).append("\n");
+            message.append("Removal Reason: ").append(fallback(record.getRemovalReason())).append("\n");
         }
-        message.append("Review Note: ").append(record.getReviewNote().isEmpty() ? "N/A" : record.getReviewNote());
+        message.append("Review Note: ").append(fallback(record.getReviewNote()));
 
         new AlertDialog.Builder(requireContext())
                 .setTitle("Vehicle Application Details")
@@ -600,6 +648,34 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
                 .setPositiveButton(R.string.close_action, null)
                 .setNeutralButton("Open Attachments", (dialog, which) -> showAttachmentChooser(record))
                 .show();
+    }
+
+    @NonNull
+    private String formatRequestKind(@NonNull String rawKind) {
+        if ("remove".equalsIgnoreCase(rawKind)) {
+            return "Removal";
+        }
+        return "Registration";
+    }
+
+    @NonNull
+    private String formatLabel(@NonNull String raw) {
+        String value = raw.trim();
+        if (value.isEmpty()) {
+            return "N/A";
+        }
+        return value.substring(0, 1).toUpperCase(Locale.getDefault())
+                + value.substring(1).toLowerCase(Locale.getDefault());
+    }
+
+    @NonNull
+    private String formatTimestamp(@Nullable com.google.firebase.Timestamp timestamp) {
+        if (timestamp == null) {
+            return "N/A";
+        }
+        DateFormat format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT);
+        Date date = timestamp.toDate();
+        return format.format(date);
     }
 
     private void showAttachmentChooser(@NonNull VehicleRequestRecord record) {
@@ -792,6 +868,15 @@ public class SponsorVehicleRegistrationFragment extends Fragment implements Regi
     private String read(@NonNull TextInputEditText input) {
         CharSequence value = input.getText();
         return value == null ? "" : value.toString().trim();
+    }
+
+    @NonNull
+    private String fallback(@Nullable String value) {
+        if (value == null) {
+            return "N/A";
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? "N/A" : trimmed;
     }
 
     @Override

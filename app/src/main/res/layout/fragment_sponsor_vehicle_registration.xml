@@ -25,9 +25,15 @@
             android:paddingEnd="@dimen/gf_screen_margin"
             android:paddingBottom="@dimen/gf_space_xl">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:background="@color/primary_navy" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gf_space_lg"
                 android:text="Vehicle Registration"
                 android:textColor="#FFFFFF"
                 android:textSize="26sp"
@@ -38,10 +44,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:visibility="gone"
                 android:textColor="#BFFFFFFF"
                 android:textSize="13sp" />
 
-            <!-- Open Application card -->
+            <!-- Current Vehicle Registrations card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -61,7 +68,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Open Application"
+                        android:text="Current Vehicle Registrations"
                         android:textColor="@color/gf_text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -71,7 +78,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
-                        android:text="No open application."
+                        android:text="You have no current vehicle registration applications"
                         android:textColor="@color/gf_text_hint"
                         android:textSize="13sp" />
 
@@ -118,7 +125,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/gf_space_sm"
-                        android:hint="Plate Number (AAA-123 / AAA-1234)">
+                        android:hint="@string/plate_number">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/input_vehicle_plate"
@@ -193,6 +200,17 @@
                         android:textSize="12sp" />
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_remove_applicant_cnic"
+                        style="@style/Widget.GateFlow.Button.Outlined"
+                        android:layout_width="wrap_content"
+                        android:layout_height="34dp"
+                        android:layout_marginTop="4dp"
+                        android:text="Remove"
+                        android:textAllCaps="false"
+                        android:textSize="11sp"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_pick_registration_doc"
                         style="@style/Widget.GateFlow.Button.Outlined"
                         android:layout_width="match_parent"
@@ -210,6 +228,17 @@
                         android:text="No file selected"
                         android:textColor="@color/gf_text_hint"
                         android:textSize="12sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_remove_registration_doc"
+                        style="@style/Widget.GateFlow.Button.Outlined"
+                        android:layout_width="wrap_content"
+                        android:layout_height="34dp"
+                        android:layout_marginTop="4dp"
+                        android:text="Remove"
+                        android:textAllCaps="false"
+                        android:textSize="11sp"
+                        android:visibility="gone" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_pick_owner_cnic"
@@ -230,6 +259,17 @@
                         android:text="No file selected"
                         android:textColor="@color/gf_text_hint"
                         android:textSize="12sp"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_remove_owner_cnic"
+                        style="@style/Widget.GateFlow.Button.Outlined"
+                        android:layout_width="wrap_content"
+                        android:layout_height="34dp"
+                        android:layout_marginTop="4dp"
+                        android:text="Remove"
+                        android:textAllCaps="false"
+                        android:textSize="11sp"
                         android:visibility="gone" />
 
                     <com.google.android.material.button.MaterialButton
@@ -328,6 +368,17 @@
                         android:text="No evidence files selected"
                         android:textColor="@color/gf_text_hint"
                         android:textSize="12sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_clear_removal_evidence"
+                        style="@style/Widget.GateFlow.Button.Outlined"
+                        android:layout_width="wrap_content"
+                        android:layout_height="34dp"
+                        android:layout_marginTop="4dp"
+                        android:text="Clear Attachments"
+                        android:textAllCaps="false"
+                        android:textSize="11sp"
+                        android:visibility="gone" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_submit_vehicle_removal"

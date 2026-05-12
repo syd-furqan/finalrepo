@@ -42,6 +42,7 @@ public class NotificationCenterFragment extends Fragment implements Notification
     private MaterialButton buttonMarkAllRead;
     private MaterialButton buttonFilterAll;
     private MaterialButton buttonFilterAnnouncements;
+    private TextView textTitle;
     private TextView textBannerChannel;
     private TextView textBannerTitle;
     private TextView textBannerSubtitle;
@@ -100,6 +101,7 @@ public class NotificationCenterFragment extends Fragment implements Notification
         buttonMarkAllRead = view.findViewById(R.id.button_mark_all_read);
         buttonFilterAll = view.findViewById(R.id.button_filter_all_notifications);
         buttonFilterAnnouncements = view.findViewById(R.id.button_filter_announcements);
+        textTitle = view.findViewById(R.id.text_notifications_title);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_notifications);
         adapter = new NotificationAdapter(this);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -165,6 +167,9 @@ public class NotificationCenterFragment extends Fragment implements Notification
     }
 
     private void configureBanner() {
+        if (textTitle != null) {
+            textTitle.setText(announcementsOnlyMode ? R.string.nav_announcements : R.string.nav_notifications);
+        }
         if (textBannerChannel == null || textBannerTitle == null || textBannerSubtitle == null) {
             return;
         }

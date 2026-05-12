@@ -30,20 +30,9 @@
                 android:background="@drawable/bg_chip_role"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp"
-                android:textColor="@color/gf_text_primary"
+                android:textColor="@android:color/white"
                 android:textSize="11sp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/text_report_status_badge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:background="@drawable/bg_chip_role"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="3dp"
-                android:textColor="@color/gf_text_primary"
-                android:textSize="11sp" />
 
             <View
                 android:layout_width="0dp"
@@ -68,6 +57,14 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/text_report_subject_meta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/gf_text_secondary"
+            android:textSize="12sp" />
+
+        <TextView
             android:id="@+id/text_report_reporter_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -81,7 +78,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:ellipsize="end"
-            android:maxLines="2"
+            android:maxLines="3"
             android:textColor="@color/gf_text_hint"
             android:textSize="13sp" />
 
