@@ -84,23 +84,23 @@ public class AuditEventDetailBottomSheetFragment extends BottomSheetDialogFragme
                 "Event: " + friendlyEventType(rawType)
         );
         ((TextView) view.findViewById(R.id.text_detail_outcome)).setText(
-                "Outcome: " + safe(args.getString(ARG_OUTCOME))
+                "Outcome: " + UiLabelFormatter.humanizeToken(safe(args.getString(ARG_OUTCOME)))
         );
         ((TextView) view.findViewById(R.id.text_detail_actor)).setText(
-                "Actor Role: " + safe(args.getString(ARG_ACTOR_ROLE))
+                "Actor Role: " + UiLabelFormatter.humanizeToken(safe(args.getString(ARG_ACTOR_ROLE)))
         );
         ((TextView) view.findViewById(R.id.text_detail_entity)).setText(
-                "Entity: " + safe(args.getString(ARG_ENTITY_TYPE))
+                "Entity: " + UiLabelFormatter.humanizeToken(safe(args.getString(ARG_ENTITY_TYPE)))
         );
         view.findViewById(R.id.text_detail_request).setVisibility(View.GONE);
         ((TextView) view.findViewById(R.id.text_detail_gate)).setText(
                 "Gate: " + GatePolicy.toDisplayLabel(args.getString(ARG_GATE))
         );
         ((TextView) view.findViewById(R.id.text_detail_source)).setText(
-                "Source: " + safe(args.getString(ARG_SOURCE))
+                "Source: " + UiLabelFormatter.humanizeToken(safe(args.getString(ARG_SOURCE)))
         );
         ((TextView) view.findViewById(R.id.text_detail_reason)).setText(
-                "Reason Code: " + safe(args.getString(ARG_REASON))
+                "Reason Code: " + UiLabelFormatter.humanizeToken(safe(args.getString(ARG_REASON)))
         );
         ((TextView) view.findViewById(R.id.text_detail_description)).setText(
                 "Description: " + safe(args.getString(ARG_DESCRIPTION))
@@ -132,7 +132,7 @@ public class AuditEventDetailBottomSheetFragment extends BottomSheetDialogFragme
             case "alert_resolved":                 return "Alert Resolved";
             default:
                 if (raw.trim().isEmpty()) return "Event";
-                return raw.trim().replace('_', ' ');
+                return UiLabelFormatter.humanizeToken(raw);
         }
     }
 

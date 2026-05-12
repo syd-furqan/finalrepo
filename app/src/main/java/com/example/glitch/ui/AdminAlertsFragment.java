@@ -31,8 +31,9 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 import com.example.glitch.ui.UiAnimations;
 
 /**
@@ -55,6 +56,35 @@ public class AdminAlertsFragment extends Fragment {
     private AutoCompleteTextView inputSourceFilter;
 
     private final List<SecurityAlert> allAlerts = new ArrayList<>();
+    private final Map<String, String> statusDisplayToCanonical = new LinkedHashMap<>();
+    private final Map<String, String> severityDisplayToCanonical = new LinkedHashMap<>();
+    private final Map<String, String> typeDisplayToCanonical = new LinkedHashMap<>();
+    private final Map<String, String> sourceDisplayToCanonical = new LinkedHashMap<>();
+
+    private static final List<String> STATUS_OPTIONS = Arrays.asList(
+            "all", "new", "in_review", "actioned", "closed"
+    );
+    private static final List<String> SEVERITY_OPTIONS = Arrays.asList(
+            "all", "high", "medium", "low", "critical"
+    );
+    private static final List<String> TYPE_OPTIONS = Arrays.asList(
+            "all",
+            AdminAlertPayloadFactory.TYPE_ENTRY_REPORT,
+            AdminAlertPayloadFactory.TYPE_MANUAL_VIOLATION,
+            AdminAlertPayloadFactory.TYPE_SCAN_RISK,
+            AdminAlertPayloadFactory.TYPE_VEHICLE_REVIEW,
+            AdminAlertPayloadFactory.TYPE_CHARGE_REVIEW
+    );
+    private static final List<String> SOURCE_OPTIONS = Arrays.asList(
+            "all",
+            "guard_manual",
+            AdminAlertPayloadFactory.SOURCE_MANUAL_VIOLATION,
+            "system_overdue_grace",
+            AdminAlertPayloadFactory.SOURCE_BANNED_SCAN,
+            AdminAlertPayloadFactory.SOURCE_VEHICLE_APPLICATION,
+            AdminAlertPayloadFactory.SOURCE_VEHICLE_REMOVAL,
+            AdminAlertPayloadFactory.SOURCE_CHARGE_REMOVAL
+    );
 
     @NonNull
     public static AdminAlertsFragment newInstance() {
@@ -131,38 +161,22 @@ public class AdminAlertsFragment extends Fragment {
     private void setupFilters() {
         configureDropdown(
                 inputStatusFilter,
-                Arrays.asList("all", "new", "in_review", "actioned", "closed"),
+                STATUS_OPTIONS,
                 "all"
         );
         configureDropdown(
                 inputSeverityFilter,
-                Arrays.asList("all", "HIGH", "MEDIUM", "LOW", "CRITICAL"),
+                SEVERITY_OPTIONS,
                 "all"
         );
         configureDropdown(
                 inputTypeFilter,
-                Arrays.asList(
-                        "all",
-                        AdminAlertPayloadFactory.TYPE_ENTRY_REPORT,
-                        AdminAlertPayloadFactory.TYPE_MANUAL_VIOLATION,
-                        AdminAlertPayloadFactory.TYPE_SCAN_RISK,
-                        AdminAlertPayloadFactory.TYPE_VEHICLE_REVIEW,
-                        AdminAlertPayloadFactory.TYPE_CHARGE_REVIEW
-                ),
+                TYPE_OPTIONS,
                 "all"
         );
         configureDropdown(
                 inputSourceFilter,
-                Arrays.asList(
-                        "all",
-                        "guard_manual",
-                        AdminAlertPayloadFactory.SOURCE_MANUAL_VIOLATION,
-                        "system_overdue_grace",
-                        AdminAlertPayloadFactory.SOURCE_BANNED_SCAN,
-                        AdminAlertPayloadFactory.SOURCE_VEHICLE_APPLICATION,
-                        AdminAlertPayloadFactory.SOURCE_VEHICLE_REMOVAL,
-                        AdminAlertPayloadFactory.SOURCE_CHARGE_REMOVAL
-                ),
+                SOURCE_OPTIONS,
                 "all"
         );
 
@@ -173,13 +187,25 @@ public class AdminAlertsFragment extends Fragment {
     }
 
     private void configureDropdown(@NonNull AutoCompleteTextView input, @NonNull List<String> options, @NonNull String defaultValue) {
+        Map<String, String> lookup = mapForInput(input);
+        lookup.clear();
+        List<String> displayOptions = new ArrayList<>();
+        for (String option : options) {
+            String canonical = UiLabelFormatter.normalizeToken(option);
+            if (canonical.isEmpty()) {
+                continue;
+            }
+            String label = formatFilterLabel(canonical);
+            lookup.put(label, canonical);
+            displayOptions.add(label);
+        }
         ArrayAdapter<String> dropdownAdapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_dropdown_item_1line,
-                options
+                displayOptions
         );
         input.setAdapter(dropdownAdapter);
-        input.setText(defaultValue, false);
+        input.setText(formatFilterLabel(defaultValue), false);
     }
 
     private void applyFilters() {
@@ -192,10 +218,10 @@ public class AdminAlertsFragment extends Fragment {
         for (SecurityAlert alert : allAlerts) {
             String incidentStatus = alert.getIncidentStatus().trim().isEmpty()
                     ? "new"
-                    : alert.getIncidentStatus().trim().toLowerCase(Locale.getDefault());
-            String alertSeverity = alert.getSeverity().trim().toUpperCase(Locale.getDefault());
-            String alertType = alert.getAlertType().trim().toLowerCase(Locale.getDefault());
-            String alertSource = alert.getSource().trim().toLowerCase(Locale.getDefault());
+                    : UiLabelFormatter.normalizeToken(alert.getIncidentStatus());
+            String alertSeverity = UiLabelFormatter.normalizeToken(alert.getSeverity());
+            String alertType = UiLabelFormatter.normalizeToken(alert.getAlertType());
+            String alertSource = UiLabelFormatter.normalizeToken(alert.getSource());
 
             if (!"all".equals(status) && !status.equals(incidentStatus)) {
                 continue;
@@ -223,43 +249,25 @@ public class AdminAlertsFragment extends Fragment {
         AutoCompleteTextView status = addDropdown(
                 content,
                 "Incident Status",
-                Arrays.asList("all", "new", "in_review", "actioned", "closed"),
+                STATUS_OPTIONS,
                 readFilter(inputStatusFilter)
         );
         AutoCompleteTextView severity = addDropdown(
                 content,
                 "Severity",
-                Arrays.asList("all", "HIGH", "MEDIUM", "LOW", "CRITICAL"),
-                inputSeverityFilter.getText().toString().trim().isEmpty()
-                        ? "all"
-                        : inputSeverityFilter.getText().toString().trim()
+                SEVERITY_OPTIONS,
+                readFilter(inputSeverityFilter)
         );
         AutoCompleteTextView type = addDropdown(
                 content,
                 "Alert Type",
-                Arrays.asList(
-                        "all",
-                        AdminAlertPayloadFactory.TYPE_ENTRY_REPORT,
-                        AdminAlertPayloadFactory.TYPE_MANUAL_VIOLATION,
-                        AdminAlertPayloadFactory.TYPE_SCAN_RISK,
-                        AdminAlertPayloadFactory.TYPE_VEHICLE_REVIEW,
-                        AdminAlertPayloadFactory.TYPE_CHARGE_REVIEW
-                ),
+                TYPE_OPTIONS,
                 readFilter(inputTypeFilter)
         );
         AutoCompleteTextView source = addDropdown(
                 content,
                 "Source",
-                Arrays.asList(
-                        "all",
-                        "guard_manual",
-                        AdminAlertPayloadFactory.SOURCE_MANUAL_VIOLATION,
-                        "system_overdue_grace",
-                        AdminAlertPayloadFactory.SOURCE_BANNED_SCAN,
-                        AdminAlertPayloadFactory.SOURCE_VEHICLE_APPLICATION,
-                        AdminAlertPayloadFactory.SOURCE_VEHICLE_REMOVAL,
-                        AdminAlertPayloadFactory.SOURCE_CHARGE_REMOVAL
-                ),
+                SOURCE_OPTIONS,
                 readFilter(inputSourceFilter)
         );
         addSheetActions(
@@ -273,10 +281,10 @@ public class AdminAlertsFragment extends Fragment {
                     dialog.dismiss();
                 },
                 () -> {
-                    inputStatusFilter.setText("all", false);
-                    inputSeverityFilter.setText("all", false);
-                    inputTypeFilter.setText("all", false);
-                    inputSourceFilter.setText("all", false);
+                    inputStatusFilter.setText("All", false);
+                    inputSeverityFilter.setText("All", false);
+                    inputTypeFilter.setText("All", false);
+                    inputSourceFilter.setText("All", false);
                     applyFilters();
                     dialog.dismiss();
                 }
@@ -293,10 +301,10 @@ public class AdminAlertsFragment extends Fragment {
             @NonNull String source
     ) {
         List<String> active = new ArrayList<>();
-        if (!"all".equals(status)) active.add("status: " + status);
-        if (!"all".equalsIgnoreCase(severity)) active.add("severity: " + severity.toUpperCase(Locale.getDefault()));
-        if (!"all".equals(type)) active.add("type: " + type);
-        if (!"all".equals(source)) active.add("source: " + source);
+        if (!"all".equals(status)) active.add("Status: " + formatFilterLabel(status));
+        if (!"all".equalsIgnoreCase(severity)) active.add("Severity: " + formatFilterLabel(severity));
+        if (!"all".equals(type)) active.add("Type: " + formatFilterLabel(type));
+        if (!"all".equals(source)) active.add("Source: " + formatFilterLabel(source));
         return active.isEmpty() ? "Showing all important alerts" : "Filters • " + String.join(" • ", active);
     }
 
@@ -332,8 +340,12 @@ public class AdminAlertsFragment extends Fragment {
         layout.setLayoutParams(params);
         AutoCompleteTextView input = new AutoCompleteTextView(requireContext());
         input.setInputType(0);
-        input.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, options));
-        input.setText(selected, false);
+        List<String> displayOptions = new ArrayList<>();
+        for (String option : options) {
+            displayOptions.add(formatFilterLabel(option));
+        }
+        input.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, displayOptions));
+        input.setText(formatFilterLabel(selected), false);
         layout.addView(input);
         content.addView(layout);
         return input;
@@ -366,7 +378,71 @@ public class AdminAlertsFragment extends Fragment {
     @NonNull
     private String readFilter(@NonNull AutoCompleteTextView input) {
         CharSequence value = input.getText();
-        return value == null ? "all" : value.toString().trim().toLowerCase(Locale.getDefault());
+        if (value == null) {
+            return "all";
+        }
+        String typed = value.toString().trim();
+        if (typed.isEmpty()) {
+            return "all";
+        }
+        String canonical = mapForInput(input).get(typed);
+        if (canonical == null) {
+            canonical = UiLabelFormatter.normalizeToken(typed);
+        }
+        return canonical.isEmpty() ? "all" : canonical;
+    }
+
+    @NonNull
+    private Map<String, String> mapForInput(@NonNull AutoCompleteTextView input) {
+        if (input == inputStatusFilter) {
+            return statusDisplayToCanonical;
+        }
+        if (input == inputSeverityFilter) {
+            return severityDisplayToCanonical;
+        }
+        if (input == inputTypeFilter) {
+            return typeDisplayToCanonical;
+        }
+        if (input == inputSourceFilter) {
+            return sourceDisplayToCanonical;
+        }
+        return new LinkedHashMap<>();
+    }
+
+    @NonNull
+    private String formatFilterLabel(@Nullable String raw) {
+        String canonical = UiLabelFormatter.normalizeToken(raw);
+        if (canonical.isEmpty() || "all".equals(canonical)) {
+            return "All";
+        }
+        switch (canonical) {
+            case "entry_report":
+                return "Entry Report";
+            case "manual_violation":
+                return "Manual Violation";
+            case "scan_risk":
+                return "Scan Risk";
+            case "vehicle_review":
+                return "Vehicle Review";
+            case "charge_review":
+                return "Charge Review";
+            case "guard_manual":
+                return "Guard Manual";
+            case "manual_violation_report":
+                return "Manual Violation Report";
+            case "system_overdue_grace":
+                return "System Overdue Grace";
+            case "banned_scan":
+                return "Banned Scan";
+            case "vehicle_application":
+                return "Vehicle Application";
+            case "vehicle_removal":
+                return "Vehicle Removal";
+            case "charge_removal":
+                return "Charge Removal";
+            default:
+                return UiLabelFormatter.humanizeToken(canonical);
+        }
     }
 
     private void openAlertDetailsSheet(@NonNull SecurityAlert alert) {
@@ -398,14 +474,14 @@ public class AdminAlertsFragment extends Fragment {
                         alert.getId(),
                         alert.getAlertType(),
                         alert.getEntryRequestId(),
-                        valueOr(alert.getIncidentStatus(), "new"),
+                        UiLabelFormatter.humanizeToken(valueOr(alert.getIncidentStatus(), "new")),
                         valueOr(alert.getInterventionSummary(), "N/A"),
                         guard,
                         visitor,
                         sponsor,
                         valueOr(alert.getGateLabel(), "In-Gate"),
-                        valueOr(alert.getReasonCode(), "N/A"),
-                        valueOr(alert.getSource(), "N/A"),
+                        UiLabelFormatter.humanizeToken(valueOr(alert.getReasonCode(), "N/A")),
+                        UiLabelFormatter.humanizeToken(valueOr(alert.getSource(), "N/A")),
                         valueOr(alert.getMessage(), "N/A"),
                         valueOr(alert.getRequesterUid(), ""),
                         valueOr(alert.getGuestName(), ""),
@@ -418,7 +494,7 @@ public class AdminAlertsFragment extends Fragment {
         if (!isAdded()) {
             return;
         }
-        String type = alert.getAlertType().trim().toLowerCase(Locale.getDefault());
+        String type = UiLabelFormatter.normalizeToken(alert.getAlertType());
         Fragment target = null;
         if (AdminAlertPayloadFactory.TYPE_ENTRY_REPORT.equals(type)) {
             String reportId = firstNonEmpty(

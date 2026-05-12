@@ -207,7 +207,11 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
             textSponsor.setText(sponsorLine);
             textSponsor.setVisibility(View.VISIBLE);
             containerGuestReview.setVisibility(View.VISIBLE);
-            textStudentActionTitle.setText("Sponsor student action");
+            if (requiresSponsorStudentAction()) {
+                textStudentActionTitle.setText("Sponsor student action");
+            } else {
+                textStudentActionTitle.setText("Student action");
+            }
         } else {
             textSubject.setText("Student: " + orNa(studentName) + " | ID: " + orNa(studentId));
             textSponsor.setVisibility(View.GONE);
@@ -217,7 +221,7 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
 
         View actionsContainer = view.findViewById(R.id.container_report_actions);
         actionsContainer.setVisibility(isPending ? View.VISIBLE : View.GONE);
-        containerStudentReview.setVisibility(isPending ? View.VISIBLE : View.GONE);
+        containerStudentReview.setVisibility(isPending && requiresStudentActionFlow() ? View.VISIBLE : View.GONE);
         buttonSubmitReview.setEnabled(isPending);
     }
 
@@ -257,14 +261,15 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
     private void submitReview() {
         String guestAction = isGuestViolation ? selectedGuestAction() : "";
         String guestReason = readInput(inputGuestReason);
-        String studentAction = selectedStudentAction();
-        String studentReason = readInput(inputStudentReason);
+        boolean studentActionFlow = requiresStudentActionFlow();
+        String studentAction = studentActionFlow ? selectedStudentAction() : ACTION_EXONERATE;
+        String studentReason = studentActionFlow ? readInput(inputStudentReason) : "";
 
         if (isGuestViolation && guestAction.isEmpty()) {
             showMessage("Select a guest action.");
             return;
         }
-        if (studentAction.isEmpty()) {
+        if (studentActionFlow && studentAction.isEmpty()) {
             showMessage("Select a student action.");
             return;
         }
@@ -272,7 +277,7 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
             showMessage("Enter a guest action reason.");
             return;
         }
-        if (studentReason.isEmpty()) {
+        if (studentActionFlow && studentReason.isEmpty()) {
             showMessage("Enter a student action reason.");
             return;
         }
@@ -282,7 +287,7 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
         }
 
         double fineAmount = 0.0;
-        if (ACTION_FINE.equals(studentAction)) {
+        if (studentActionFlow && ACTION_FINE.equals(studentAction)) {
             fineAmount = parseAmount(readInput(inputStudentFineAmount));
             if (fineAmount <= 0) {
                 showMessage("Enter a fine amount greater than zero.");
@@ -295,9 +300,25 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
         }
 
         String adminUid = adminUid();
-        Map<String, Object> reviewFields = buildReviewFields(guestAction, guestReason, studentAction, studentReason, fineAmount, adminUid);
-        String finalStatus = resolveFinalStatus(guestAction, studentAction);
-        List<ReviewStep> steps = buildReviewSteps(guestAction, guestReason, studentAction, studentReason, fineAmount, adminUid);
+        Map<String, Object> reviewFields = buildReviewFields(
+                guestAction,
+                guestReason,
+                studentAction,
+                studentReason,
+                fineAmount,
+                adminUid,
+                studentActionFlow
+        );
+        String finalStatus = resolveFinalStatus(guestAction, studentAction, studentActionFlow);
+        List<ReviewStep> steps = buildReviewSteps(
+                guestAction,
+                guestReason,
+                studentAction,
+                studentReason,
+                fineAmount,
+                adminUid,
+                studentActionFlow
+        );
 
         setReviewEnabled(false);
         runReviewSteps(steps, 0, () -> completeViolationReview(finalStatus, reviewFields, adminUid));
@@ -310,7 +331,8 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
             @NonNull String studentAction,
             @NonNull String studentReason,
             double fineAmount,
-            @NonNull String adminUid
+            @NonNull String adminUid,
+            boolean studentActionFlow
     ) {
         Map<String, Object> fields = new HashMap<>();
         fields.put("reviewedByUid", adminUid);
@@ -325,10 +347,12 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
                 fields.put("guestBanEndAt", guestBanEndAt);
             }
         }
-        fields.put("studentReviewAction", studentAction);
-        fields.put("studentReviewReason", studentReason);
-        fields.put("studentFineAmount", fineAmount);
-        fields.put("studentFineStudentId", targetStudentId());
+        if (studentActionFlow) {
+            fields.put("studentReviewAction", studentAction);
+            fields.put("studentReviewReason", studentReason);
+            fields.put("studentFineAmount", fineAmount);
+            fields.put("studentFineStudentId", targetStudentId());
+        }
         return fields;
     }
 
@@ -339,7 +363,8 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
             @NonNull String studentAction,
             @NonNull String studentReason,
             double fineAmount,
-            @NonNull String adminUid
+            @NonNull String adminUid,
+            boolean studentActionFlow
     ) {
         List<ReviewStep> steps = new ArrayList<>();
         if (isGuestViolation) {
@@ -398,7 +423,7 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
             }
         }
 
-        if (ACTION_FINE.equals(studentAction)) {
+        if (studentActionFlow && ACTION_FINE.equals(studentAction)) {
             steps.add(callback -> interventionRepo.createStudentFineForReport(
                     reportId,
                     targetStudentUid(),
@@ -458,6 +483,27 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
 
     @NonNull
     private String resolveFinalStatus(@NonNull String guestAction, @NonNull String studentAction) {
+        return resolveFinalStatus(guestAction, studentAction, true);
+    }
+
+    @NonNull
+    private String resolveFinalStatus(
+            @NonNull String guestAction,
+            @NonNull String studentAction,
+            boolean studentActionFlow
+    ) {
+        if (!studentActionFlow) {
+            if (!isGuestViolation || ACTION_EXONERATE.equals(guestAction)) {
+                return ViolationReport.STATUS_EXONERATED;
+            }
+            if (ACTION_BAN.equals(guestAction)) {
+                return ViolationReport.STATUS_BANNED;
+            }
+            if (ACTION_WARN.equals(guestAction)) {
+                return ViolationReport.STATUS_WARNING_ISSUED;
+            }
+            return ViolationReport.STATUS_ACTIONED;
+        }
         boolean guestPenalty = isGuestViolation && !ACTION_EXONERATE.equals(guestAction);
         boolean studentPenalty = ACTION_FINE.equals(studentAction);
         if (!guestPenalty && !studentPenalty) {
@@ -539,17 +585,49 @@ public class AdminViolationDetailBottomSheetFragment extends BottomSheetDialogFr
 
     @NonNull
     private String targetStudentUid() {
-        return isGuestViolation ? sponsorUid : studentUid;
+        if (isGuestViolation) {
+            if (!sponsorUid.trim().isEmpty()) {
+                return sponsorUid;
+            }
+            return studentUid;
+        }
+        return studentUid;
     }
 
     @NonNull
     private String targetStudentName() {
-        return isGuestViolation ? sponsorName : studentName;
+        if (isGuestViolation) {
+            if (!sponsorName.trim().isEmpty()) {
+                return sponsorName;
+            }
+            return studentName;
+        }
+        return studentName;
     }
 
     @NonNull
     private String targetStudentId() {
-        return isGuestViolation ? sponsorStudentId : studentId;
+        if (isGuestViolation) {
+            if (!sponsorStudentId.trim().isEmpty()) {
+                return sponsorStudentId;
+            }
+            if (!studentId.trim().isEmpty()) {
+                return studentId;
+            }
+            return targetStudentUid();
+        }
+        if (!studentId.trim().isEmpty()) {
+            return studentId;
+        }
+        return studentUid;
+    }
+
+    private boolean requiresStudentActionFlow() {
+        return !isGuestViolation || requiresSponsorStudentAction();
+    }
+
+    private boolean requiresSponsorStudentAction() {
+        return "student".equalsIgnoreCase(sponsorRole.trim());
     }
 
     private double parseAmount(@NonNull String value) {

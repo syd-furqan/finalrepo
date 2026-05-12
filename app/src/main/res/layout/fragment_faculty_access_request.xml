@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/gf_space_lg"
                 android:text="Create Guest Pass"
-                android:textColor="@color/gf_text_primary"
+                android:textColor="@color/gf_text_on_dark"
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
@@ -43,8 +43,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/gf_space_sm"
-                android:text="Issue a digital authorization for campus access. Passes can be created only between 8:30 AM and 10:00 PM and expire at 10:30 PM."
-                android:textColor="@color/gf_text_hint"
+                android:text="Passes can be created only between 8:30 AM and 10:00 PM and expire at 10:30 PM the same day."
+                android:textColor="@color/gf_text_on_dark"
                 android:textSize="14sp" />
 
             <LinearLayout
@@ -98,7 +98,7 @@
                         android:id="@+id/spinner_guest_country_code"
                         android:layout_width="0dp"
                         android:layout_height="56dp"
-                        android:layout_weight="0.42"
+                        android:layout_weight="0.35"
                         android:background="@color/gf_bg_surface_dim"
                         android:paddingStart="@dimen/gf_space_sm"
                         android:paddingEnd="@dimen/gf_space_sm" />
@@ -108,7 +108,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/gf_space_sm"
-                        android:layout_weight="0.58"
+                        android:layout_weight="0.65"
                         android:hint="@string/guest_phone">
 
                         <com.google.android.material.textfield.TextInputEditText
@@ -186,7 +186,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/gf_space_sm"
-                    android:hint="@string/vehicle_plate_label"
+                    android:hint="@string/plate_number"
                     android:visibility="gone">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -197,29 +197,50 @@
                         android:maxLength="8" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <LinearLayout
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_guest_vehicle_make"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/gf_grid_gap"
-                    android:background="@color/gf_bg_surface_dim"
-                    android:orientation="horizontal"
-                    android:padding="@dimen/gf_grid_gap">
+                    android:layout_marginTop="@dimen/gf_space_sm"
+                    android:hint="@string/vehicle_make"
+                    android:visibility="gone">
 
-                    <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:src="@android:drawable/ic_dialog_info"
-                        android:tint="@color/primary_navy" />
-
-                    <TextView
-                        android:layout_width="0dp"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/input_guest_vehicle_make"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/gf_space_sm"
-                        android:layout_weight="1"
-                        android:text="By generating this pass, you acknowledge responsibility for your guest’s adherence to campus security protocols."
-                        android:textColor="@color/gf_text_hint"
-                        android:textSize="12sp" />
-                </LinearLayout>
+                        android:inputType="textCapWords" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_guest_vehicle_model"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gf_space_sm"
+                    android:hint="@string/vehicle_model"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/input_guest_vehicle_model"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_guest_vehicle_variant"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/gf_space_sm"
+                    android:hint="@string/vehicle_variant"
+                    android:visibility="gone">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/input_guest_vehicle_variant"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords" />
+                </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_submit_request"
@@ -231,24 +252,33 @@
                     android:textAllCaps="false" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/text_guest_pass_empty"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_md"
-                android:text="No managed passes yet."
-                android:textColor="@color/gf_text_hint"
-                android:textStyle="bold"
-                android:visibility="gone" />
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_view_archived_passes"
-                style="@style/Widget.Glitch.Button.Outlined"
+                style="@style/Widget.Glitch.Button"
                 android:layout_width="match_parent"
                 android:layout_height="44dp"
                 android:layout_marginTop="@dimen/gf_space_sm"
                 android:text="@string/view_archived_passes_action"
                 android:textAllCaps="false" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gf_space_md"
+                android:text="@string/current_passes_title"
+                android:textColor="@color/gf_text_on_dark"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_guest_pass_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/gf_space_md"
+                android:text="@string/no_guest_passes"
+                android:textColor="@color/gf_text_hint"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_guest_passes"

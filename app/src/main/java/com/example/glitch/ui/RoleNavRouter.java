@@ -1,5 +1,6 @@
 package com.example.glitch.ui;
 
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -14,6 +15,7 @@ import com.example.glitch.R;
 import com.example.glitch.auth.SessionManager;
 import com.example.glitch.data.RepositoryProvider;
 import com.example.glitch.model.UserProfile;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -95,6 +97,14 @@ public final class RoleNavRouter {
             }
             if (label != null) {
                 label.setText(owner.getString(item.labelResId));
+                label.setSingleLine(true);
+                label.setMaxLines(1);
+                label.setEllipsize(TextUtils.TruncateAt.END);
+                if ("admin".equalsIgnoreCase(role)) {
+                    label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 10f);
+                } else {
+                    label.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11f);
+                }
             }
             styleItem(owner, slot, iconIds[i], labelIds[i], item.destination == activeDestination);
         }
@@ -108,11 +118,18 @@ public final class RoleNavRouter {
         String role = profile == null ? "" : profile.getRole();
         RoleDestination resolved = resolveDestinationForRole(destination, role);
         if (resolved == RoleDestination.LOGOUT) {
-            RepositoryProvider.getAuthRepository().logout();
-            SessionManager.clear();
-            if (owner.requireActivity() instanceof NavigationHost) {
-                ((NavigationHost) owner.requireActivity()).showLogin(true);
-            }
+            new MaterialAlertDialogBuilder(owner.requireContext())
+                    .setTitle(R.string.logout_confirm_title)
+                    .setMessage(R.string.logout_confirm_message)
+                    .setNegativeButton(R.string.no_action, null)
+                    .setPositiveButton(R.string.yes_action, (dialog, which) -> {
+                        RepositoryProvider.getAuthRepository().logout();
+                        SessionManager.clear();
+                        if (owner.isAdded() && owner.requireActivity() instanceof NavigationHost) {
+                            ((NavigationHost) owner.requireActivity()).showLogin(true);
+                        }
+                    })
+                    .show();
             return;
         }
         if (profile == null) {
@@ -191,7 +208,6 @@ public final class RoleNavRouter {
         String role = normalize(rawRole);
         List<RoleDestination> destinations = new ArrayList<>();
         if ("admin".equals(role)) {
-            destinations.add(RoleDestination.USERS);
             destinations.addAll(getAdminCategoryDestinations(RoleDestination.ADMIN_SECURITY));
             destinations.addAll(getAdminCategoryDestinations(RoleDestination.ADMIN_ACCESS));
             destinations.add(RoleDestination.AUDIT);
@@ -248,7 +264,7 @@ public final class RoleNavRouter {
             case SEARCH:
                 return "Search & Verify";
             case SCAN:
-                return "QR Scan";
+                return "Verify Pass";
             case AUDIT:
                 return "Audit Logs";
             case USERS:
@@ -258,7 +274,7 @@ public final class RoleNavRouter {
             case ALERTS:
                 return "Alerts";
             case FACULTY_REQUEST:
-                return "Access Requests";
+                return "Guest Passes";
             case FACULTY_NOTIFICATIONS:
             case NOTIFICATIONS:
                 return "Notifications";
@@ -271,7 +287,7 @@ public final class RoleNavRouter {
             case MONITOR_REPORT:
                 return "Report Violation";
             case MONITOR_MY_REPORTS:
-                return "My Reports";
+                return "Report History";
             case VIOLATION_DIRECTORY:
                 return "Violations";
             case BANNED_LIST:
@@ -323,7 +339,7 @@ public final class RoleNavRouter {
             case AUDIT:
                 return AdminAuditLogFragment.newInstance();
             case USERS:
-                return AdminUserManagementFragment.newInstance();
+                return null;
             case RULES:
                 return AdminVerificationRulesFragment.newInstance();
             case ALERTS:
@@ -376,22 +392,22 @@ public final class RoleNavRouter {
         List<NavItem> items = new ArrayList<>();
         if ("guard".equals(role)) {
             items.add(new NavItem(RoleDestination.DASHBOARD, R.string.nav_dashboard, android.R.drawable.ic_dialog_dialer));
-            items.add(new NavItem(RoleDestination.SCAN, R.string.nav_qr_scan, android.R.drawable.ic_menu_camera));
+            items.add(new NavItem(RoleDestination.SCAN, R.string.nav_qr_scan, R.drawable.ic_nav_id_card));
             items.add(new NavItem(RoleDestination.ANNOUNCEMENTS, R.string.nav_announcements, android.R.drawable.ic_dialog_email));
         } else if ("student".equals(role)) {
-            items.add(new NavItem(RoleDestination.STUDENT_PASSES, R.string.nav_guest_passes, android.R.drawable.ic_menu_agenda));
-            items.add(new NavItem(RoleDestination.SPONSOR_VEHICLES, R.string.nav_vehicles, android.R.drawable.ic_menu_directions));
+            items.add(new NavItem(RoleDestination.STUDENT_PASSES, R.string.nav_guest_passes, R.drawable.ic_nav_id_card));
+            items.add(new NavItem(RoleDestination.SPONSOR_VEHICLES, R.string.nav_vehicles, R.drawable.ic_nav_vehicle));
             items.add(new NavItem(RoleDestination.NOTIFICATIONS, R.string.nav_notifications, android.R.drawable.ic_dialog_email));
         } else if ("faculty".equals(role)) {
-            items.add(new NavItem(RoleDestination.FACULTY_REQUEST, R.string.nav_access_requests, android.R.drawable.ic_menu_send));
+            items.add(new NavItem(RoleDestination.FACULTY_REQUEST, R.string.nav_guest_passes, R.drawable.ic_nav_id_card));
+            items.add(new NavItem(RoleDestination.SPONSOR_VEHICLES, R.string.nav_vehicles, R.drawable.ic_nav_vehicle));
             items.add(new NavItem(RoleDestination.NOTIFICATIONS, R.string.nav_notifications, android.R.drawable.ic_dialog_email));
-            items.add(new NavItem(RoleDestination.SPONSOR_VEHICLES, R.string.nav_vehicles, android.R.drawable.ic_menu_directions));
         } else if ("monitor".equals(role)) {
-            items.add(new NavItem(RoleDestination.MONITOR_REPORT, R.string.nav_report, android.R.drawable.ic_menu_upload));
-            items.add(new NavItem(RoleDestination.MONITOR_MY_REPORTS, R.string.nav_my_reports, android.R.drawable.ic_menu_agenda));
+            items.add(new NavItem(RoleDestination.MONITOR_REPORT, R.string.nav_report, R.drawable.ic_nav_warning));
+            items.add(new NavItem(RoleDestination.MONITOR_MY_REPORTS, R.string.nav_my_reports, R.drawable.ic_nav_edit_note));
             items.add(new NavItem(RoleDestination.ANNOUNCEMENTS, R.string.nav_announcements, android.R.drawable.ic_dialog_email));
         } else if ("admin".equals(role)) {
-            items.add(new NavItem(RoleDestination.DIRECTORY, R.string.nav_dashboard, android.R.drawable.ic_menu_myplaces));
+            items.add(new NavItem(RoleDestination.DIRECTORY, R.string.nav_dashboard, android.R.drawable.ic_dialog_dialer));
             items.add(new NavItem(RoleDestination.ADMIN_SECURITY, R.string.nav_security, android.R.drawable.ic_dialog_alert));
             items.add(new NavItem(RoleDestination.ADMIN_ACCESS, R.string.nav_access, android.R.drawable.ic_menu_manage));
             items.add(new NavItem(RoleDestination.AUDIT, R.string.nav_audit, android.R.drawable.ic_menu_recent_history));

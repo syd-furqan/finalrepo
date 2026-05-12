@@ -57,7 +57,7 @@ public class VehicleApplicationAdapter extends RecyclerView.Adapter<VehicleAppli
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         VehicleRequestRecord record = items.get(position);
         holder.textPlate.setText(record.getPlateNumber());
-        holder.textKind.setText(record.isRemovalRequest() ? "REMOVE" : "REGISTER");
+        holder.textKind.setVisibility(View.GONE);
         holder.textMeta.setText(buildMeta(record));
 
         String status = record.getStatus();

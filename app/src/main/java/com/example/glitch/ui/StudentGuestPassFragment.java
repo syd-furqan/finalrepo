@@ -50,7 +50,13 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
     private TextInputLayout layoutGuestCnic;
     private TextInputLayout layoutGuestPhone;
     private TextInputLayout layoutVehiclePlate;
+    private TextInputLayout layoutVehicleMake;
+    private TextInputLayout layoutVehicleModel;
+    private TextInputLayout layoutVehicleVariant;
     private TextInputEditText inputVehiclePlate;
+    private TextInputEditText inputVehicleMake;
+    private TextInputEditText inputVehicleModel;
+    private TextInputEditText inputVehicleVariant;
     private MaterialCheckBox checkHasVehicle;
     private TextView textEmpty;
     private MaterialButton buttonCreate;
@@ -118,7 +124,13 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
         layoutGuestCnic = view.findViewById(R.id.layout_pass_guest_cnic);
         layoutGuestPhone = view.findViewById(R.id.layout_pass_guest_phone);
         layoutVehiclePlate = view.findViewById(R.id.layout_pass_vehicle_plate);
+        layoutVehicleMake = view.findViewById(R.id.layout_pass_vehicle_make);
+        layoutVehicleModel = view.findViewById(R.id.layout_pass_vehicle_model);
+        layoutVehicleVariant = view.findViewById(R.id.layout_pass_vehicle_variant);
         inputVehiclePlate = view.findViewById(R.id.input_pass_vehicle_plate);
+        inputVehicleMake = view.findViewById(R.id.input_pass_vehicle_make);
+        inputVehicleModel = view.findViewById(R.id.input_pass_vehicle_model);
+        inputVehicleVariant = view.findViewById(R.id.input_pass_vehicle_variant);
         checkHasVehicle = view.findViewById(R.id.check_pass_has_vehicle);
         textEmpty = view.findViewById(R.id.text_guest_pass_empty);
         buttonCreate = view.findViewById(R.id.button_create_pass);
@@ -143,9 +155,18 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
 
         checkHasVehicle.setOnCheckedChangeListener((buttonView, isChecked) -> {
             layoutVehiclePlate.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            layoutVehicleMake.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            layoutVehicleModel.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            layoutVehicleVariant.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             if (!isChecked) {
                 inputVehiclePlate.setText("");
+                inputVehicleMake.setText("");
+                inputVehicleModel.setText("");
+                inputVehicleVariant.setText("");
                 layoutVehiclePlate.setError(null);
+                layoutVehicleMake.setError(null);
+                layoutVehicleModel.setError(null);
+                layoutVehicleVariant.setError(null);
             }
         });
 
@@ -200,12 +221,18 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
         String nationalNumber = read(inputGuestPhone);
         boolean hasVehicle = checkHasVehicle.isChecked();
         String vehiclePlateInput = read(inputVehiclePlate);
+        String vehicleMake = read(inputVehicleMake);
+        String vehicleModel = read(inputVehicleModel);
+        String vehicleVariant = read(inputVehicleVariant);
         UserProfile profile = AuthUiGuard.requireProfile(this);
 
         layoutGuestName.setError(null);
         layoutGuestCnic.setError(null);
         layoutGuestPhone.setError(null);
         layoutVehiclePlate.setError(null);
+        layoutVehicleMake.setError(null);
+        layoutVehicleModel.setError(null);
+        layoutVehicleVariant.setError(null);
 
         // Name validation
         boolean nameValid = GuestIdentityPolicy.isValidGuestName(guestName);
@@ -249,6 +276,19 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
                 Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
                 return;
             }
+            if (vehicleMake.isEmpty()) {
+                layoutVehicleMake.setError(getString(R.string.error_fill_required_fields));
+            }
+            if (vehicleModel.isEmpty()) {
+                layoutVehicleModel.setError(getString(R.string.error_fill_required_fields));
+            }
+            if (vehicleVariant.isEmpty()) {
+                layoutVehicleVariant.setError(getString(R.string.error_fill_required_fields));
+            }
+            if (vehicleMake.isEmpty() || vehicleModel.isEmpty() || vehicleVariant.isEmpty()) {
+                Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
+                return;
+            }
         }
 
         buttonCreate.setEnabled(false);
@@ -265,6 +305,9 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
                 phoneResult.getFormattedE164(),
                 hasVehicle,
                 normalizedPlate,
+                vehicleMake,
+                vehicleModel,
+                vehicleVariant,
                 phoneResult,
                 (success, message, issuedPass, exception) -> {
                     if (!isAdded()) return;
@@ -276,10 +319,16 @@ public class StudentGuestPassFragment extends Fragment implements GuestPassAdapt
                             inputGuestPhone.setText("");
                             checkHasVehicle.setChecked(false);
                             inputVehiclePlate.setText("");
+                            inputVehicleMake.setText("");
+                            inputVehicleModel.setText("");
+                            inputVehicleVariant.setText("");
                             layoutGuestName.setError(null);
                             layoutGuestCnic.setError(null);
                             layoutGuestPhone.setError(null);
                             layoutVehiclePlate.setError(null);
+                            layoutVehicleMake.setError(null);
+                            layoutVehicleModel.setError(null);
+                            layoutVehicleVariant.setError(null);
                         } else {
                             buttonCreate.setEnabled(true);
                         }

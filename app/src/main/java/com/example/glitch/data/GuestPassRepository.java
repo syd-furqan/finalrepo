@@ -39,6 +39,9 @@ public interface GuestPassRepository {
 			@NonNull String guestPhone,
 			boolean hasVehicle,
 			@NonNull String vehiclePlate,
+			@NonNull String vehicleMake,
+			@NonNull String vehicleModel,
+			@NonNull String vehicleVariant,
 			@NonNull PhoneValidationResult phoneValidation,
 			@NonNull IssueCallback callback
 	);
@@ -54,6 +57,8 @@ public interface GuestPassRepository {
 	void findPassByCode(@NonNull String passCode, @NonNull PassLookupListener listener);
 
 	void findPassById(@NonNull String passId, @NonNull PassLookupListener listener);
+
+	void findPassByEntryRequestId(@NonNull String entryRequestId, @NonNull PassLookupListener listener);
 
 	void markPassAdmitted(
 			@NonNull String passId,

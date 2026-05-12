@@ -103,6 +103,9 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
         issueGuestPassWithEntryRequest(
                 sponsorUid, sponsorRole, sponsorName, sponsorEmail, "",
                 guestName, guestIdNumber, guestPhone, hasVehicle, vehiclePlate,
+                "",
+                "",
+                "",
                 fallbackValidation,
                 (success, message, issuedPass, exception) -> callback.onComplete(success, message, exception)
         );
@@ -120,6 +123,9 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String guestPhone,
             boolean hasVehicle,
             @NonNull String vehiclePlate,
+            @NonNull String vehicleMake,
+            @NonNull String vehicleModel,
+            @NonNull String vehicleVariant,
             @NonNull PhoneValidationResult phoneValidation,
             @NonNull IssueCallback callback
     ) {
@@ -154,6 +160,13 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             callback.onComplete(false, "Please complete all required fields.", null, null);
             return;
         }
+        String trimmedVehicleMake = vehicleMake.trim();
+        String trimmedVehicleModel = vehicleModel.trim();
+        String trimmedVehicleVariant = vehicleVariant.trim();
+        if (hasVehicle && (trimmedVehicleMake.isEmpty() || trimmedVehicleModel.isEmpty() || trimmedVehicleVariant.isEmpty())) {
+            callback.onComplete(false, "Please complete all required fields.", null, null);
+            return;
+        }
 
         checkInGateServiceAvailability(sponsorRole, new InGateAvailabilityCallback() {
             @Override
@@ -183,6 +196,9 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                             guestPhone,
                             hasVehicle,
                             normalizedVehiclePlate,
+                            trimmedVehicleMake,
+                            trimmedVehicleModel,
+                            trimmedVehicleVariant,
                             phoneValidation,
                             callback
                     );
@@ -236,6 +252,9 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String guestPhone,
             boolean hasVehicle,
             @NonNull String normalizedVehiclePlate,
+            @NonNull String vehicleMake,
+            @NonNull String vehicleModel,
+            @NonNull String vehicleVariant,
             @NonNull PhoneValidationResult phoneValidation,
             @NonNull IssueCallback callback
     ) {
@@ -271,6 +290,9 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                                     guestPhone,
                                     hasVehicle,
                                     normalizedVehiclePlate,
+                                    vehicleMake,
+                                    vehicleModel,
+                                    vehicleVariant,
                                     phoneValidation,
                                     (success, message, issuedPass, exception) -> {
                                 pendingIssuances.remove(sponsorUid);
@@ -294,6 +316,9 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     guestPhone,
                     hasVehicle,
                     normalizedVehiclePlate,
+                    vehicleMake,
+                    vehicleModel,
+                    vehicleVariant,
                     phoneValidation,
                     callback
             );
@@ -311,6 +336,9 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
             @NonNull String guestPhone,
             boolean hasVehicle,
             @NonNull String vehiclePlate,
+            @NonNull String vehicleMake,
+            @NonNull String vehicleModel,
+            @NonNull String vehicleVariant,
             @NonNull PhoneValidationResult phoneValidation,
             @NonNull IssueCallback callback
     ) {
@@ -331,6 +359,9 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
         requestData.put("guestType", GuestIdentityPolicy.guestTypeFor(hasVehicle));
         requestData.put("vehiclePlate", vehiclePlate);
         requestData.put("plateNumber", vehiclePlate);
+        requestData.put("vehicleMake", vehicleMake);
+        requestData.put("vehicleModel", vehicleModel);
+        requestData.put("vehicleVariant", vehicleVariant);
         requestData.put("hostName", sponsorName);
         requestData.put("gateLabel", normalizedGate);
         requestData.put("iconType", "guest");
@@ -356,6 +387,9 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
         data.put("hasVehicle", hasVehicle);
         data.put("guestType", GuestIdentityPolicy.guestTypeFor(hasVehicle));
         data.put("vehiclePlate", vehiclePlate);
+        data.put("vehicleMake", vehicleMake);
+        data.put("vehicleModel", vehicleModel);
+        data.put("vehicleVariant", vehicleVariant);
         data.put("passCode", passCode);
         data.put("entryRequestId", requestRef.getId());
         data.put("gateLabel", normalizedGate);
@@ -411,6 +445,9 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     requestMeta.put("guestPhone", guestPhone);
                     requestMeta.put("hasVehicle", hasVehicle);
                     requestMeta.put("vehiclePlate", vehiclePlate);
+                    requestMeta.put("vehicleMake", vehicleMake);
+                    requestMeta.put("vehicleModel", vehicleModel);
+                    requestMeta.put("vehicleVariant", vehicleVariant);
                     appendAccessEvent(
                             AuditEventType.REQUEST_CREATED,
                             "entry_request",
@@ -432,6 +469,9 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                     passMeta.put("guestPhone", guestPhone);
                     passMeta.put("hasVehicle", hasVehicle);
                     passMeta.put("vehiclePlate", vehiclePlate);
+                    passMeta.put("vehicleMake", vehicleMake);
+                    passMeta.put("vehicleModel", vehicleModel);
+                    passMeta.put("vehicleVariant", vehicleVariant);
                     appendAccessEvent(
                             AuditEventType.PASS_ISSUED,
                             "guest_pass",
@@ -612,6 +652,27 @@ public class FirestoreGuestPassRepository implements GuestPassRepository {
                         return;
                     }
                     listener.onData(GuestPass.fromMap(snapshot.getId(), snapshot.getData()));
+                })
+                .addOnFailureListener(listener::onError);
+    }
+
+    @Override
+    public void findPassByEntryRequestId(@NonNull String entryRequestId, @NonNull PassLookupListener listener) {
+        String normalizedEntryRequestId = entryRequestId.trim();
+        if (normalizedEntryRequestId.isEmpty()) {
+            listener.onData(null);
+            return;
+        }
+        collection.whereEqualTo("entryRequestId", normalizedEntryRequestId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) {
+                        listener.onData(null);
+                        return;
+                    }
+                    DocumentSnapshot document = snapshot.getDocuments().get(0);
+                    listener.onData(GuestPass.fromMap(document.getId(), document.getData()));
                 })
                 .addOnFailureListener(listener::onError);
     }

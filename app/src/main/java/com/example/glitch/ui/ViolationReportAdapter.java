@@ -54,15 +54,22 @@ public class ViolationReportAdapter extends RecyclerView.Adapter<ViolationReport
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ViolationReport report = reports.get(position);
-        holder.textLevel.setText(report.getViolationLevel().toUpperCase(Locale.getDefault()));
-        holder.textStatus.setText(report.getStatus().toUpperCase(Locale.getDefault()));
+        String level = report.getViolationLevel().trim().toLowerCase(Locale.getDefault());
+        holder.textLevel.setText(formatLevelLabel(level));
+        holder.textLevel.setBackgroundResource(levelBackground(level));
 
         String subjectName = report.isGuestViolation()
-                ? valueOr(report.getGuestName(), "Unknown Guest") + " (" + valueOr(report.getGuestCnic(), "N/A") + ")"
-                + " / " + valueOr(report.getGuestPhone(), "No phone")
+                ? valueOr(report.getGuestName(), "Unknown Visitor")
                 : valueOr(report.getSubjectStudentName(), "Unknown Student");
+        String subjectMeta = report.isGuestViolation()
+                ? "CNIC: " + valueOr(report.getGuestCnic(), "N/A")
+                + "  •  Phone: " + valueOr(report.getGuestPhone(), "N/A")
+                : "Student ID: " + valueOr(report.getSubjectStudentId(), "N/A")
+                + "  •  Email: " + valueOr(report.getSubjectStudentEmail(), "N/A");
         holder.textSubjectName.setText(subjectName);
-        holder.textReporterName.setText("Reported by: " + valueOr(report.getReporterName(), "Unknown") + " (" + report.getReporterRole() + ")");
+        holder.textSubjectMeta.setText(subjectMeta);
+        holder.textReporterName.setText("Reported by: " + valueOr(report.getReporterName(), "Unknown")
+                + " (" + formatRoleLabel(report.getReporterRole()) + ")");
         holder.textDetailPreview.setText(report.getDetail());
 
         if (report.getCreatedAt() != null) {
@@ -87,15 +94,60 @@ public class ViolationReportAdapter extends RecyclerView.Adapter<ViolationReport
         return (value == null || value.trim().isEmpty()) ? fallback : value.trim();
     }
 
+    @NonNull
+    private String formatLevelLabel(@NonNull String level) {
+        switch (level) {
+            case "v1":
+            case "minor":
+                return "Minor";
+            case "v2":
+            case "moderate":
+                return "Moderate";
+            case "v3":
+            case "severe":
+                return "Severe";
+            default:
+                return level.isEmpty() ? "N/A" : level.substring(0, 1).toUpperCase(Locale.getDefault()) + level.substring(1);
+        }
+    }
+
+    private int levelBackground(@NonNull String level) {
+        switch (level) {
+            case "v1":
+            case "minor":
+                return R.drawable.bg_chip_level_minor;
+            case "v2":
+            case "moderate":
+                return R.drawable.bg_chip_level_moderate;
+            case "v3":
+            case "severe":
+                return R.drawable.bg_chip_level_severe;
+            default:
+                return R.drawable.bg_chip_role;
+        }
+    }
+
+    @NonNull
+    private String formatRoleLabel(String role) {
+        String normalized = valueOr(role, "").toLowerCase(Locale.getDefault());
+        if (normalized.isEmpty()) {
+            return "Unknown";
+        }
+        if (normalized.length() == 1) {
+            return normalized.toUpperCase(Locale.getDefault());
+        }
+        return normalized.substring(0, 1).toUpperCase(Locale.getDefault()) + normalized.substring(1);
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
-        final TextView textLevel, textStatus, textDate, textSubjectName, textReporterName, textDetailPreview;
+        final TextView textLevel, textDate, textSubjectName, textSubjectMeta, textReporterName, textDetailPreview;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             textLevel = itemView.findViewById(R.id.text_report_level_badge);
-            textStatus = itemView.findViewById(R.id.text_report_status_badge);
             textDate = itemView.findViewById(R.id.text_report_date);
             textSubjectName = itemView.findViewById(R.id.text_report_subject_name);
+            textSubjectMeta = itemView.findViewById(R.id.text_report_subject_meta);
             textReporterName = itemView.findViewById(R.id.text_report_reporter_name);
             textDetailPreview = itemView.findViewById(R.id.text_report_detail_preview);
         }

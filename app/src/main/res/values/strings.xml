@@ -5,6 +5,7 @@
     <string name="status_fallback_message">In-Gate reporting normal activity</string>
     <string name="gate_protocol">Gate Protocol</string>
     <string name="scan_qr_code">Scan QR Code</string>
+    <string name="verify_guest_pass_action">Verify Guest Pass</string>
     <string name="manual_entry">Manual Entry</string>
     <string name="current_protocol">Current Protocol</string>
     <string name="protocol_fallback_level">Level 1 - Open</string>
@@ -24,6 +25,8 @@
     <string name="loading_label">Loading requests...</string>
     <string name="empty_requests_title">No active requests</string>
     <string name="empty_requests_body">New requests will appear here in real time.</string>
+    <string name="no_matches_found_title">No Matches Found</string>
+    <string name="no_matches_found_body">Try another pass code, name, or phone number.</string>
     <string name="dashboard_item">Dashboard</string>
     <string name="verify_item">Passes</string>
     <string name="scanner_item">Vehicles</string>
@@ -51,6 +54,10 @@
     <string name="role_home_greeting">Welcome, %1$s</string>
     <string name="role_home_description">Choose a workflow to continue.</string>
     <string name="logout_action">Logout</string>
+    <string name="logout_confirm_title">Confirm Logout</string>
+    <string name="logout_confirm_message">Are you sure you want to log out?</string>
+    <string name="yes_action">Yes</string>
+    <string name="no_action">No</string>
 
     <string name="login_title">Secure Login</string>
     <string name="login_help_text">Use your assigned campus account. If access fails, contact admin (IST).</string>
@@ -91,7 +98,7 @@
     <string name="deny_reason_hint">Reason for denial</string>
     <string name="error_reason_required">Request ID and reason are required.</string>
 
-    <string name="search_hint">Search by name, CNIC, host student ID, or phone</string>
+    <string name="search_hint">Search Guest Pass</string>
     <string name="search_action">Search</string>
     <string name="credential_verify_title">Credential Verification</string>
     <string name="credential_identifier">Credential Identifier</string>
@@ -100,10 +107,10 @@
     <string name="no_search_results">No matching requests found.</string>
     <string name="error_verify_credential">Unable to verify credential.</string>
 
-    <string name="guest_full_name">Guest Full Name</string>
+    <string name="guest_full_name">Enter Guest\'s Full Name</string>
     <string name="guest_id_number">Guest ID Number</string>
-    <string name="guest_phone">Guest Phone (e.g. 0300-1234567)</string>
-    <string name="guest_cnic">CNIC (xxxxx-xxxxxxx-x)</string>
+    <string name="guest_phone">Enter Phone Number</string>
+    <string name="guest_cnic">Enter CNIC</string>
     <string name="guest_has_vehicle">Guest arriving with a vehicle</string>
     <string name="vehicle_plate_label">Vehicle Plate (AAA-123 / AAA-1234)</string>
     <string name="gate_destination">In-Gate (fixed)</string>
@@ -115,9 +122,12 @@
 
     <string name="no_notifications">No notifications yet.</string>
     <string name="error_load_notifications">Unable to load notifications.</string>
+    <string name="error_load_reports">Unable to load reports.</string>
 
     <string name="plate_number">Plate Number</string>
+    <string name="vehicle_make">Vehicle Make</string>
     <string name="vehicle_model">Vehicle Model</string>
+    <string name="vehicle_variant">Vehicle Variant</string>
     <string name="submit_vehicle_request">Submit Vehicle Request</string>
     <string name="update_vehicle_request">Update Registration</string>
     <string name="vehicle_edit_pending_hint">Tap to edit this pending request.</string>
@@ -148,16 +158,16 @@
 
     <string name="create_pass_action">Create Guest Pass</string>
     <string name="cancel_pass_action">Cancel Pass</string>
-    <string name="view_archived_passes_action">View Archived Passes</string>
+    <string name="view_archived_passes_action">View Pass History</string>
     <string name="pass_details_title">Guest Pass Details</string>
-    <string name="archived_passes_title">Archived Guest Passes</string>
+    <string name="archived_passes_title">Pass History</string>
     <string name="archived_passes_subtitle">Expired and cancelled passes are stored here for audit/reference.</string>
     <string name="no_archived_guest_passes">No archived passes yet.</string>
     <string name="archived_pass_not_shareable">Archived passes are not shareable.</string>
     <string name="archived_pass_read_only">Archived passes are read-only.</string>
-    <string name="no_guest_passes">No guest passes yet.</string>
+    <string name="no_guest_passes">No Active Passes Yet.</string>
     <string name="error_guest_pass_load">Unable to load guest passes.</string>
-    <string name="pass_code_label">Access Number (Pass Code): %1$s</string>
+    <string name="pass_code_label">Pass Code: %1$s</string>
     <string name="pass_expires_label">Expires: %1$s</string>
     <string name="pass_expiry_unknown">Expiry unavailable</string>
 
@@ -174,27 +184,31 @@
     <string name="pass_verified_go_dashboard">Pass verified. Open Dashboard to approve entry for request: %1$s</string>
     <string name="route_to_dashboard_for_admission">Approve entry from Dashboard to complete admission.</string>
     <string name="guard_scan_decision_title">Visitor Decision</string>
-    <string name="guard_scan_decision_message">Guest: %1$s\nAccess Number: %2$s\nRequest: %3$s\nGate: %4$s\n\nChoose whether to approve or deny entry.</string>
+    <string name="guard_scan_decision_message">Guest: %1$s\nPass Code: %2$s\nRequest: %3$s\nGate: %4$s\n\nChoose whether to approve or deny entry.</string>
     <string name="guard_scan_accept_success">Visitor approved and admitted.</string>
     <string name="guard_scan_accept_with_pass_update_warning">Visitor admitted, but guest-pass update had an issue: %1$s</string>
     <string name="guard_scan_deny_success">Visitor denied. Request and pass were updated.</string>
     <string name="guard_scan_deny_with_pass_update_warning">Visitor denied, but guest-pass update had an issue: %1$s</string>
     <string name="guard_scan_default_deny_reason">Denied at gate via %1$s verification.</string>
-    <string name="guard_exit_decision_title">Exit Decision</string>
+    <string name="guard_exit_decision_title">Log Guest\'s Exit</string>
     <string name="guard_exit_subtitle">A scanned visitor can be closed or marked as exited.</string>
     <string name="guard_exit_guest_phone_label">Phone: %1$s</string>
     <string name="guard_exit_status_label">Status: %1$s</string>
     <string name="guard_exit_logged_for_guest">Guest exit logged for %1$s.</string>
     <string name="guard_exit_partial_issue">Exit logged, but pass update had an issue: %1$s</string>
-    <string name="guard_pending_title">Pending Guard Decision</string>
+    <string name="guard_pending_title">Guest Entry Decision</string>
     <string name="guard_pending_subtitle">A scanned visitor request must be resolved before continuing.</string>
     <string name="guard_pending_method_label">Verification Method: %1$s</string>
     <string name="guard_pending_request_label">Entry Request ID: %1$s</string>
     <string name="guard_pending_guest_id_label">CNIC: %1$s</string>
+    <string name="guard_pending_guest_phone_label">Phone: %1$s</string>
+    <string name="guard_pending_has_vehicle_label">Has Vehicle: %1$s</string>
     <string name="guard_pending_guest_type_label">Guest Type: %1$s</string>
     <string name="guard_pending_vehicle_plate_label">Vehicle Plate: %1$s</string>
     <string name="guard_pending_sponsor_label">Sponsor: %1$s (%2$s)</string>
-    <string name="guard_pending_sponsor_role_label">Sponsor Role: %1$s</string>
+    <string name="guard_pending_sponsor_name_label">Sponsor: %1$s</string>
+    <string name="guard_pending_sponsor_email_label">Sponsor Email: %1$s</string>
+    <string name="guard_pending_sponsor_role_label">Sponsor Type: %1$s</string>
     <string name="guard_pending_created_label">Created At: %1$s</string>
     <string name="guard_pending_expires_label">Expires At: %1$s</string>
     <string name="guard_pending_missing">No pending decision found for this guard.</string>
@@ -202,11 +216,14 @@
     <string name="guard_pending_back_blocked">Choose Allow or Deny to continue.</string>
     <string name="guard_pending_existing_reopened">Resolve the existing pending decision first.</string>
     <string name="guard_checkpoint_guest_verified">I have verified the guest identity.</string>
+    <string name="guard_checkpoint_cnic_verified">I have verified the guest CNIC.</string>
     <string name="guard_checkpoint_vehicle_verified">I have verified the guest vehicle plate.</string>
     <string name="guard_checkpoint_vehicle_verified_with_plate">I have verified the guest vehicle plate (%1$s).</string>
     <string name="guard_checkpoint_required">Complete all verification checkpoints before allowing entry.</string>
+    <string name="guard_cnic_verify_first">Verify CNIC first using scan or manual entry.</string>
     <string name="guard_scanning_cnic">Scanning CNIC…</string>
     <string name="guard_scan_physical_cnic">📷 Scan Physical CNIC</string>
+    <string name="guard_pending_cnic_optional_hint">You may enter CNIC manually or scan with camera.</string>
     <string name="guard_cnic_manual_override_prompt">CNIC didn\'t match. Enter the CNIC manually to override:</string>
     <string name="guard_cnic_scan_warning">⚠ %1$s</string>
     <string name="guard_cnic_match">✓ CNIC MATCH — %1$s</string>
@@ -216,9 +233,12 @@
     <string name="guard_cnic_not_match_records">CNIC does not match records.</string>
     <string name="not_available">Not available</string>
     <string name="guard_qr_prompt_camera">Point camera at QR code</string>
+    <string name="guard_pass_already_used">This guest pass has already been used.</string>
     <string name="guard_pass_reported_contact_office">This pass has been reported. Contact the security office.</string>
     <string name="guard_pass_already_exited">This guest pass is already marked exited.</string>
     <string name="guard_guest_pass_verification">Guest Pass Verification</string>
+    <string name="verification_method_qr_scan">QR Code Scan</string>
+    <string name="verification_method_pass_code">Manual Pass Code Entry</string>
     <string name="guard_visitor_verification">Visitor Verification</string>
     <string name="guard_search_subtitle">Search for approved entries by identifying credentials or scan a visitor pass for immediate clearance.</string>
     <string name="guard_search_credentials">SEARCH CREDENTIALS</string>
@@ -236,17 +256,19 @@
     <string name="guest_type_non_vehicle">Non Vehicle</string>
     <string name="search_failed">Search failed</string>
     <string name="access_restricted_guards">Access Restricted to Guards</string>
+    <string name="current_passes_title">Current Passes</string>
     <string name="status_clock_placeholder">14:45 PM</string>
     <string name="guard_toggle_to_urdu">اردو</string>
     <string name="guard_toggle_to_english">English</string>
+    <string name="guard_language_toggle_content_desc">Language toggle</string>
     <string name="nav_dashboard">Dashboard</string>
-    <string name="nav_qr_scan">QR Scan</string>
+    <string name="nav_qr_scan">Verify Pass</string>
     <string name="nav_guest_passes">Guest Passes</string>
     <string name="nav_vehicles">Vehicles</string>
     <string name="nav_notifications">Notifications</string>
     <string name="nav_access_requests">Access Requests</string>
     <string name="nav_report">Report</string>
-    <string name="nav_my_reports">My Reports</string>
+    <string name="nav_my_reports">Report History</string>
     <string name="nav_security">Security</string>
     <string name="nav_access">Access</string>
     <string name="nav_announcements">Announcements</string>
@@ -296,6 +318,7 @@
     <string name="current_control_title">Current In-Gate Control State</string>
     <string name="current_control_inactive">In-Gate services are operational (no active inhibition).</string>
     <string name="current_control_affected_none">none</string>
+    <string name="sponsor_label">Sponsor</string>
     <string name="current_control_reason_none">No reason provided</string>
     <string name="current_control_active_template">Active inhibition\nAffected roles: %1$s\nUntil: %2$s\nReason: %3$s</string>
     <string name="current_control_load_failed">Unable to load current control state.</string>

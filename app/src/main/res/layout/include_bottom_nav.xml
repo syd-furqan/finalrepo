@@ -82,7 +82,7 @@
                     android:id="@+id/nav_icon_passes"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@android:drawable/ic_menu_agenda"
+                    android:src="@drawable/ic_nav_id_card"
                     android:tint="@color/nav_unselected" />
             </LinearLayout>
 
@@ -119,7 +119,7 @@
                     android:id="@+id/nav_icon_vehicles"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@android:drawable/ic_menu_directions"
+                    android:src="@drawable/ic_nav_vehicle"
                     android:tint="@color/nav_unselected" />
             </LinearLayout>
 

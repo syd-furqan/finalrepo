@@ -25,30 +25,19 @@
             android:paddingEnd="@dimen/gf_screen_margin"
             android:paddingBottom="@dimen/gf_space_xl">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:background="@color/primary_navy" />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="My Reports"
+                android:layout_marginTop="@dimen/gf_space_lg"
+                android:text="Report History"
                 android:textColor="#FFFFFF"
                 android:textSize="26sp"
                 android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Violation reports you have submitted."
-                android:textColor="#BFFFFFFF"
-                android:textSize="13sp" />
-
-            <TextView
-                android:id="@+id/text_my_reports_empty"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/gf_space_md"
-                android:text="No reports submitted yet."
-                android:textColor="#BFFFFFFF"
-                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_my_reports"

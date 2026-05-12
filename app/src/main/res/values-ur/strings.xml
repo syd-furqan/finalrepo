@@ -11,8 +11,10 @@
     <string name="loading_label">درخواستیں لوڈ ہو رہی ہیں...</string>
     <string name="empty_requests_title">کوئی فعال درخواست نہیں</string>
     <string name="empty_requests_body">نئی درخواستیں یہاں ریئل ٹائم میں نظر آئیں گی۔</string>
+    <string name="no_matches_found_title">کوئی مماثلت نہیں ملی</string>
+    <string name="no_matches_found_body">دوسرا پاس کوڈ، نام، یا فون نمبر آزمائیں۔</string>
     <string name="label_view_all">سب دیکھیں</string>
-    <string name="search_hint">نام، CNIC، ہوسٹ اسٹوڈنٹ آئی ڈی، یا فون سے تلاش کریں</string>
+    <string name="search_hint">گیسٹ پاس تلاش کریں</string>
     <string name="search_action">تلاش</string>
     <string name="verify_action">تصدیق</string>
     <string name="credential_verify_title">کریڈینشل تصدیق</string>
@@ -23,6 +25,9 @@
     <string name="error_verify_credential">کریڈینشل کی تصدیق نہیں ہو سکی۔</string>
     <string name="error_pass_code_required">پاس کوڈ لازمی ہے۔</string>
     <string name="pass_code_hint">پاس کوڈ درج کریں</string>
+    <string name="guest_full_name">مہمان کا پورا نام درج کریں</string>
+    <string name="guest_phone">فون نمبر درج کریں</string>
+    <string name="guest_cnic">CNIC درج کریں</string>
     <string name="qr_hint">اسکینر ڈیٹا استعمال کریں یا پاس کوڈ دستی درج کریں۔</string>
     <string name="pass_not_found">پاس نہیں ملا۔</string>
     <string name="pass_expired">پاس کی مدت ختم ہو چکی ہے۔</string>
@@ -42,7 +47,7 @@
     <string name="guard_pending_guest_type_label">مہمان کی قسم: %1$s</string>
     <string name="guard_pending_vehicle_plate_label">گاڑی نمبر پلیٹ: %1$s</string>
     <string name="guard_pending_sponsor_label">اسپانسر: %1$s (%2$s)</string>
-    <string name="guard_pending_sponsor_role_label">اسپانسر رول: %1$s</string>
+    <string name="guard_pending_sponsor_role_label">اسپانسر کی قسم: %1$s</string>
     <string name="guard_pending_created_label">بنایا گیا: %1$s</string>
     <string name="guard_pending_expires_label">اختتام: %1$s</string>
     <string name="guard_checkpoint_vehicle_verified">میں نے مہمان کی گاڑی پلیٹ کی تصدیق کر لی ہے۔</string>
@@ -58,7 +63,7 @@
     <string name="guard_exit_status_label">اسٹیٹس: %1$s</string>
     <string name="log_exit_action">خروج لاگ کریں</string>
     <string name="close_action">بند کریں</string>
-    <string name="pass_code_label">رسائی نمبر (پاس کوڈ): %1$s</string>
+    <string name="pass_code_label">پاس کوڈ: %1$s</string>
     <string name="gate_label">گیٹ</string>
     <string name="guard_scanning_cnic">CNIC اسکین ہو رہا ہے…</string>
     <string name="guard_scan_physical_cnic">📷 اصل CNIC اسکین کریں</string>
@@ -97,16 +102,17 @@
     <string name="guard_exit_logged_for_guest">%1$s کے لیے اخراج لاگ کر دیا گیا۔</string>
     <string name="guard_exit_partial_issue">اخراج لاگ ہوگیا، مگر پاس اپڈیٹ میں مسئلہ ہوا: %1$s</string>
     <string name="nav_dashboard">ڈیش بورڈ</string>
-    <string name="nav_qr_scan">کیو آر اسکین</string>
+    <string name="nav_qr_scan">پاس تصدیق</string>
     <string name="nav_guest_passes">گیسٹ پاسز</string>
     <string name="nav_vehicles">گاڑیاں</string>
     <string name="nav_notifications">نوٹیفیکیشنز</string>
     <string name="nav_access_requests">رسائی درخواستیں</string>
     <string name="nav_report">رپورٹ</string>
-    <string name="nav_my_reports">میری رپورٹس</string>
+    <string name="nav_my_reports">رپورٹ ہسٹری</string>
     <string name="nav_security">سیکیورٹی</string>
     <string name="nav_access">رسائی</string>
     <string name="nav_audit">آڈٹ</string>
     <string name="nav_home">ہوم</string>
     <string name="nav_logout">لاگ آؤٹ</string>
+    <string name="sponsor_label">اسپانسر</string>
 </resources>

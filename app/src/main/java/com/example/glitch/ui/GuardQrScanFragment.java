@@ -311,8 +311,13 @@ public class GuardQrScanFragment extends Fragment {
             Log.d(TAG, "handlePassLookupResult: blocked reported");
             return;
         }
-        if ("used".equals(status) || "overdue".equals(status)) {
-            Log.d(TAG, "handlePassLookupResult: routing to exit decision");
+        if ("used".equals(status)) {
+            textResult.setText(R.string.guard_pass_already_used);
+            Log.d(TAG, "handlePassLookupResult: blocked used");
+            return;
+        }
+        if ("overdue".equals(status)) {
+            Log.d(TAG, "handlePassLookupResult: routing overdue pass to exit decision");
             openExitDecision(pass);
             return;
         }

@@ -39,10 +39,10 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
     private EntryRequestAdapter adapter;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a", Locale.getDefault());
 
-    private TextView textProtocolLevel;
-    private TextView textProtocolDescription;
     private View loadingContainer;
     private View emptyStateCard;
+    private TextView emptyStateTitle;
+    private TextView emptyStateBody;
     private String currentRole = "";
     private String currentUid = "";
 
@@ -109,13 +109,14 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
 
                     repository.searchRequests(query, new EntryRequestRepository.RequestListListener() {
                         @Override
-                        public void onData(@NonNull List<EntryRequest> requests) {
-                            if (!isAdded()) return;
-                            List<EntryRequest> visibleRequests = filterVisibleRequests(requests);
+                            public void onData(@NonNull List<EntryRequest> requests) {
+                                if (!isAdded()) return;
+                                List<EntryRequest> visibleRequests = filterVisibleRequests(requests);
 
-                            adapter.submitList(visibleRequests);
-                            emptyStateCard.setVisibility(visibleRequests.isEmpty() ? View.VISIBLE : View.GONE);
-                        }
+                                adapter.submitList(visibleRequests);
+                                applySearchEmptyStateCopy();
+                                emptyStateCard.setVisibility(visibleRequests.isEmpty() ? View.VISIBLE : View.GONE);
+                            }
 
                         @Override
                         public void onError(@NonNull Exception exception) {
@@ -132,10 +133,11 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
     }
 
     private void bindViews(@NonNull View root) {
-        textProtocolLevel = root.findViewById(R.id.text_protocol_level);
-        textProtocolDescription = root.findViewById(R.id.text_protocol_description);
         loadingContainer = root.findViewById(R.id.loading_container);
         emptyStateCard = root.findViewById(R.id.empty_state_card);
+        emptyStateTitle = root.findViewById(R.id.empty_state_title);
+        emptyStateBody = root.findViewById(R.id.empty_state_body);
+        applyDefaultEmptyStateCopy();
     }
 
     private void setupRecycler(@NonNull View root) {
@@ -165,11 +167,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         }
 
         buttonScanQr.setOnClickListener(v -> {
-            if ("guard".equalsIgnoreCase(role)) {
-                RoleNavRouter.route(this, RoleDestination.SCAN);
-            } else {
-                Snackbar.make(requireView(), R.string.access_restricted_guards, Snackbar.LENGTH_SHORT).show();
-            }
+            RoleNavRouter.route(this, RoleDestination.SCAN);
         });
     }
     private void setupExitDecisionResult() {
@@ -222,6 +220,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
                 requestsLoaded = true;
                 List<EntryRequest> visibleRequests = filterVisibleRequests(requests);
                 adapter.submitList(visibleRequests);
+                applyDefaultEmptyStateCopy();
                 emptyStateCard.setVisibility(visibleRequests.isEmpty() ? View.VISIBLE : View.GONE);
                 refreshLoadingState();
             }
@@ -233,6 +232,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
                 }
                 requestsLoaded = true;
                 adapter.submitList(new ArrayList<>());
+                applyDefaultEmptyStateCopy();
                 emptyStateCard.setVisibility(View.VISIBLE);
                 showError(getString(R.string.error_load_requests), true);
                 refreshLoadingState();
@@ -241,8 +241,7 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
     }
 
     private void bindDashboardState(@NonNull DashboardState state) {
-        textProtocolLevel.setText(state.getProtocolLevel());
-        textProtocolDescription.setText(state.getProtocolDescription());
+        // Protocol visuals were intentionally removed from guard dashboard.
     }
 
     private void refreshLoadingState() {
@@ -251,6 +250,24 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
 
     private void showLoading(boolean show) {
         loadingContainer.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    private void applyDefaultEmptyStateCopy() {
+        if (emptyStateTitle != null) {
+            emptyStateTitle.setText(R.string.empty_requests_title);
+        }
+        if (emptyStateBody != null) {
+            emptyStateBody.setText(R.string.empty_requests_body);
+        }
+    }
+
+    private void applySearchEmptyStateCopy() {
+        if (emptyStateTitle != null) {
+            emptyStateTitle.setText(R.string.no_matches_found_title);
+        }
+        if (emptyStateBody != null) {
+            emptyStateBody.setText(R.string.no_matches_found_body);
+        }
     }
 
     @NonNull
@@ -270,16 +287,56 @@ public class DashboardFragment extends Fragment implements EntryRequestAdapter.E
         if (!isAdded() || !(requireActivity() instanceof NavigationHost)) {
             return;
         }
-        ((NavigationHost) requireActivity()).showFragment(
-                GuardExitDecisionFragment.newInstanceForDashboard(
-                        request.getId(),
-                        request.getFullName(),
-                        request.getGuestIdNumber(),
-                        request.getGuestPhone(),
-                        request.getStatus(),
-                        getString(R.string.not_available)
-                ),
-                true
+        RepositoryProvider.getGuestPassRepository().findPassByEntryRequestId(
+                request.getId(),
+                new com.example.glitch.data.GuestPassRepository.PassLookupListener() {
+                    @Override
+                    public void onData(@Nullable com.example.glitch.model.GuestPass pass) {
+                        if (!isAdded()) {
+                            return;
+                        }
+                        requireActivity().runOnUiThread(() -> {
+                            if (!isAdded() || !(requireActivity() instanceof NavigationHost)) {
+                                return;
+                            }
+                            String passCode = pass == null ? "" : pass.getPassCode();
+                            ((NavigationHost) requireActivity()).showFragment(
+                                    GuardExitDecisionFragment.newInstanceForDashboard(
+                                            request.getId(),
+                                            request.getFullName(),
+                                            request.getGuestIdNumber(),
+                                            request.getGuestPhone(),
+                                            request.getStatus(),
+                                            passCode
+                                    ),
+                                    true
+                            );
+                        });
+                    }
+
+                    @Override
+                    public void onError(@NonNull Exception exception) {
+                        if (!isAdded()) {
+                            return;
+                        }
+                        requireActivity().runOnUiThread(() -> {
+                            if (!isAdded() || !(requireActivity() instanceof NavigationHost)) {
+                                return;
+                            }
+                            ((NavigationHost) requireActivity()).showFragment(
+                                    GuardExitDecisionFragment.newInstanceForDashboard(
+                                            request.getId(),
+                                            request.getFullName(),
+                                            request.getGuestIdNumber(),
+                                            request.getGuestPhone(),
+                                            request.getStatus(),
+                                            ""
+                                    ),
+                                    true
+                            );
+                        });
+                    }
+                }
         );
     }
 

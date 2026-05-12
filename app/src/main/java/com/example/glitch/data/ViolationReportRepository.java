@@ -91,7 +91,8 @@ public interface ViolationReportRepository {
                 @NonNull String studentUid,
                 @NonNull String studentName,
                 @NonNull String studentEmail,
-                @NonNull String studentId
+                @NonNull String studentId,
+                @NonNull String studentType
         );
         void onNotFound(@NonNull String message);
         void onError(@NonNull Exception exception);

@@ -7,14 +7,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.glitch.R;
 import com.example.glitch.model.EntryRequest;
-import com.example.glitch.model.GatePolicy;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.Timestamp;
 
@@ -76,11 +74,9 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
             holder.textEntered.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.text_dark));
         }
 
-        String hostText = holder.itemView.getContext().getString(R.string.unknown_host_prefix, request.getHostName());
-        holder.textHost.setText(hostText);
-        holder.textGate.setText(GatePolicy.toDisplayLabel(request.getGateLabel()));
+        holder.textGate.setText(formatRole(request.getRequesterRole()));
         holder.textEntered.setText(formatTimestamp(request.getEnteredAt()));
-        holder.imageRequestIcon.setImageResource(iconForType(request.getIconType()));
+        holder.imageRequestIcon.setImageResource(R.drawable.ic_guest_user);
 
         holder.buttonDetails.setOnClickListener(view -> listener.onDetailsClicked(request));
         holder.buttonOverflow.setVisibility(View.GONE);
@@ -100,16 +96,17 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
         return timeFormat.format(timestamp.toDate());
     }
 
-    @DrawableRes
-    private int iconForType(@NonNull String iconType) {
-        String normalized = iconType.toLowerCase(Locale.getDefault());
-        if (normalized.contains("service")) {
-            return android.R.drawable.ic_menu_manage;
+    @NonNull
+    private String formatRole(@NonNull String role) {
+        String normalized = role.trim().toLowerCase(Locale.getDefault());
+        if (normalized.isEmpty()) {
+            return "N/A";
         }
-        if (normalized.contains("contract")) {
-            return android.R.drawable.ic_menu_upload;
+        if (normalized.length() == 1) {
+            return normalized.toUpperCase(Locale.getDefault());
         }
-        return android.R.drawable.ic_menu_myplaces;
+        return normalized.substring(0, 1).toUpperCase(Locale.getDefault())
+                + normalized.substring(1);
     }
 
     /**
@@ -119,7 +116,6 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
         final ImageView imageRequestIcon;
         final TextView textName;
         final TextView textRoleChip;
-        final TextView textHost;
         final TextView textGate;
         final TextView textEntered;
         final MaterialButton buttonDetails;
@@ -130,7 +126,6 @@ public class EntryRequestAdapter extends RecyclerView.Adapter<EntryRequestAdapte
             imageRequestIcon = itemView.findViewById(R.id.image_request_icon);
             textName = itemView.findViewById(R.id.text_name);
             textRoleChip = itemView.findViewById(R.id.text_role_chip);
-            textHost = itemView.findViewById(R.id.text_host);
             textGate = itemView.findViewById(R.id.text_gate);
             textEntered = itemView.findViewById(R.id.text_entered);
             buttonDetails = itemView.findViewById(R.id.button_details);

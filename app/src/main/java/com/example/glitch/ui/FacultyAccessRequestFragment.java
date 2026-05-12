@@ -44,11 +44,17 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
     private TextInputEditText inputGuestId;
     private TextInputEditText inputGuestPhone;
     private TextInputEditText inputVehiclePlate;
+    private TextInputEditText inputVehicleMake;
+    private TextInputEditText inputVehicleModel;
+    private TextInputEditText inputVehicleVariant;
     private Spinner spinnerCountryCode;
     private TextInputLayout layoutGuestName;
     private TextInputLayout layoutGuestCnic;
     private TextInputLayout layoutGuestPhone;
     private TextInputLayout layoutVehiclePlate;
+    private TextInputLayout layoutVehicleMake;
+    private TextInputLayout layoutVehicleModel;
+    private TextInputLayout layoutVehicleVariant;
     private MaterialCheckBox checkHasVehicle;
     private ListenerRegistration passListener;
     private CnicOcrHelper cnicOcrHelper;
@@ -111,11 +117,17 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
         inputGuestId = view.findViewById(R.id.input_guest_id);
         inputGuestPhone = view.findViewById(R.id.input_guest_phone);
         inputVehiclePlate = view.findViewById(R.id.input_guest_vehicle_plate);
+        inputVehicleMake = view.findViewById(R.id.input_guest_vehicle_make);
+        inputVehicleModel = view.findViewById(R.id.input_guest_vehicle_model);
+        inputVehicleVariant = view.findViewById(R.id.input_guest_vehicle_variant);
         spinnerCountryCode = view.findViewById(R.id.spinner_guest_country_code);
         layoutGuestName = view.findViewById(R.id.layout_guest_name);
         layoutGuestCnic = view.findViewById(R.id.layout_guest_cnic);
         layoutGuestPhone = view.findViewById(R.id.layout_guest_phone);
         layoutVehiclePlate = view.findViewById(R.id.layout_guest_vehicle_plate);
+        layoutVehicleMake = view.findViewById(R.id.layout_guest_vehicle_make);
+        layoutVehicleModel = view.findViewById(R.id.layout_guest_vehicle_model);
+        layoutVehicleVariant = view.findViewById(R.id.layout_guest_vehicle_variant);
         checkHasVehicle = view.findViewById(R.id.check_guest_has_vehicle);
         MaterialButton buttonSubmit = view.findViewById(R.id.button_submit_request);
         MaterialButton buttonArchived = view.findViewById(R.id.button_view_archived_passes);
@@ -140,9 +152,18 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
 
         checkHasVehicle.setOnCheckedChangeListener((buttonView, isChecked) -> {
             layoutVehiclePlate.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            layoutVehicleMake.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            layoutVehicleModel.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            layoutVehicleVariant.setVisibility(isChecked ? View.VISIBLE : View.GONE);
             if (!isChecked) {
                 inputVehiclePlate.setText("");
+                inputVehicleMake.setText("");
+                inputVehicleModel.setText("");
+                inputVehicleVariant.setText("");
                 layoutVehiclePlate.setError(null);
+                layoutVehicleMake.setError(null);
+                layoutVehicleModel.setError(null);
+                layoutVehicleVariant.setError(null);
             }
         });
 
@@ -177,12 +198,18 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
         String nationalNumber = read(inputGuestPhone);
         boolean hasVehicle = checkHasVehicle.isChecked();
         String vehiclePlateInput = read(inputVehiclePlate);
+        String vehicleMake = read(inputVehicleMake);
+        String vehicleModel = read(inputVehicleModel);
+        String vehicleVariant = read(inputVehicleVariant);
         UserProfile userProfile = AuthUiGuard.requireProfile(this);
 
         layoutGuestName.setError(null);
         layoutGuestCnic.setError(null);
         layoutGuestPhone.setError(null);
         layoutVehiclePlate.setError(null);
+        layoutVehicleMake.setError(null);
+        layoutVehicleModel.setError(null);
+        layoutVehicleVariant.setError(null);
 
         // Name validation
         boolean nameValid = GuestIdentityPolicy.isValidGuestName(guestName);
@@ -226,6 +253,19 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
                 Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
                 return;
             }
+            if (vehicleMake.isEmpty()) {
+                layoutVehicleMake.setError(getString(R.string.error_fill_required_fields));
+            }
+            if (vehicleModel.isEmpty()) {
+                layoutVehicleModel.setError(getString(R.string.error_fill_required_fields));
+            }
+            if (vehicleVariant.isEmpty()) {
+                layoutVehicleVariant.setError(getString(R.string.error_fill_required_fields));
+            }
+            if (vehicleMake.isEmpty() || vehicleModel.isEmpty() || vehicleVariant.isEmpty()) {
+                Snackbar.make(requireView(), R.string.error_fill_required_fields, Snackbar.LENGTH_SHORT).show();
+                return;
+            }
         }
 
         repository.issueGuestPassWithEntryRequest(
@@ -239,6 +279,9 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
                 phoneResult.getFormattedE164(),
                 hasVehicle,
                 normalizedPlate,
+                vehicleMake,
+                vehicleModel,
+                vehicleVariant,
                 phoneResult,
                 (success, message, issuedPass, exception) -> {
                     if (!isAdded()) return;
@@ -250,10 +293,16 @@ public class FacultyAccessRequestFragment extends Fragment implements GuestPassA
                             inputGuestPhone.setText("");
                             checkHasVehicle.setChecked(false);
                             inputVehiclePlate.setText("");
+                            inputVehicleMake.setText("");
+                            inputVehicleModel.setText("");
+                            inputVehicleVariant.setText("");
                             layoutGuestName.setError(null);
                             layoutGuestCnic.setError(null);
                             layoutGuestPhone.setError(null);
                             layoutVehiclePlate.setError(null);
+                            layoutVehicleMake.setError(null);
+                            layoutVehicleModel.setError(null);
+                            layoutVehicleVariant.setError(null);
                         }
                     });
                 }

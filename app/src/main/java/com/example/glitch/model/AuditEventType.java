@@ -24,6 +24,8 @@ public final class AuditEventType {
     public static final String PENDING_DECISION_RESOLVED_ALLOW = "PENDING_DECISION_RESOLVED_ALLOW";
     public static final String PENDING_DECISION_RESOLVED_DENY = "PENDING_DECISION_RESOLVED_DENY";
     public static final String PENDING_DECISION_INVALIDATED = "PENDING_DECISION_INVALIDATED";
+    public static final String CNIC_VERIFIED = "CNIC_VERIFIED";
+    public static final String CNIC_VERIFICATION_FAILED = "CNIC_VERIFICATION_FAILED";
 
     public static final String GUEST_BANNED = "GUEST_BANNED";
     public static final String GUEST_UNBANNED = "GUEST_UNBANNED";
